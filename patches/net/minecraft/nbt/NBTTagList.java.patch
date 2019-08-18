@@ -32,7 +32,7 @@
          NBTTagList nbttaglist = new NBTTagList();
          nbttaglist.tagType = this.tagType;
 -
-+        if ( nbttaglist.tagList instanceof ArrayList) // Kettle, ensure we dont create arrays to then delete them
++        if ( nbttaglist.tagList instanceof ArrayList) // Magma, ensure we dont create arrays to then delete them
 +            ((ArrayList<NBTBase>)nbttaglist.tagList).ensureCapacity(this.tagList.size());
          for (NBTBase nbtbase : this.tagList)
          {

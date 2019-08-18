@@ -147,7 +147,7 @@
          this.entityInit();
 -        net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityEvent.EntityConstructing(this));
 -        capabilities = net.minecraftforge.event.ForgeEventFactory.gatherCapabilities(this);
-+        if(!(this instanceof EntityPlayer)) { // Kettle - move to EntityPlayer
++        if(!(this instanceof EntityPlayer)) { // Magma - move to EntityPlayer
 +            net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.EntityEvent.EntityConstructing(this));
 +            capabilities = net.minecraftforge.event.ForgeEventFactory.gatherCapabilities(this);
 +        }
@@ -158,7 +158,7 @@
      public boolean captureDrops = false;
      public java.util.ArrayList<EntityItem> capturedDrops = new java.util.ArrayList<EntityItem>();
 -    private net.minecraftforge.common.capabilities.CapabilityDispatcher capabilities;
-+    public net.minecraftforge.common.capabilities.CapabilityDispatcher capabilities; // Kettle - private -> public
++    public net.minecraftforge.common.capabilities.CapabilityDispatcher capabilities; // Magma - private -> public
  
      public int getEntityId()
      {

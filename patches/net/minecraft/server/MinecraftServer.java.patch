@@ -384,7 +384,7 @@
 +            if (dim == 0) {
 +                ISaveHandler idatamanager = new AnvilSaveHandler(server.getWorldContainer(), worldNameIn, true, this.dataFixer);
 +                WorldInfo worlddata = idatamanager.loadWorldInfo();
-+                // Kettle start
++                // Magma start
 +                for (Map.Entry<ResourceLocation, Item> entry : ForgeRegistries.ITEMS.getEntries()) {
 +                    ResourceLocation key = entry.getKey();
 +                    Item item = entry.getValue();
@@ -454,7 +454,7 @@
 +                PotionEffectType.stopAcceptingRegistrations();
 +                server.loadPlugins();
 +                server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.STARTUP);
-+                // Kettle end
++                // Magma end
 +                if (worlddata == null) {
 +                    worlddata = new WorldInfo(worldsettings, worldNameIn);
 +                }

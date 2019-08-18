@@ -206,7 +206,7 @@
          {
 -            return input;
 -        }
-+        return com.google.common.util.concurrent.Futures.getUnchecked(updateGameprofile(input, com.google.common.base.Predicates.alwaysTrue(), true)); // Kettle
++        return com.google.common.util.concurrent.Futures.getUnchecked(updateGameprofile(input, com.google.common.base.Predicates.alwaysTrue(), true)); // Magma
      }
  
      public int getSkullType()

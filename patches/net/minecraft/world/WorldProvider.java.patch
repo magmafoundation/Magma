@@ -52,9 +52,9 @@
          return true;
      }
 +
-+    // Kettle start
++    // Magma start
 +    public static WorldProvider getProviderForDimension(int dimensionId){
 +        return DimensionManager.createProviderFor(dimensionId);
 +    }
-+    // Kettle end
++    // Magma end
  }

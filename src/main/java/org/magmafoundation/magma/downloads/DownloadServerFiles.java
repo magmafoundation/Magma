@@ -1,4 +1,4 @@
-package kettlefoundation.kettle.downloads;
+package org.magmafoundation.magma.downloads;
 
 import java.io.*;
 import java.net.URL;
@@ -41,7 +41,7 @@ public class DownloadServerFiles {
    */
   public static void downloadServerLibraries() {
     String fileName = "libraries.zip";
-    String downloadLink = "https://raw.githubusercontent.com/KettleFoundation/Kettle/master/release/libraries.zip";
+    String downloadLink = "https://raw.githubusercontent.com/MagmaFoundation/Magma/master/release/libraries.zip";
 
     File minecraftlibraries = new File(fileName);
     if (!minecraftlibraries.exists() && !minecraftlibraries.isDirectory()) {

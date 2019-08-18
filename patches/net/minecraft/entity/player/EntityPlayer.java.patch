@@ -26,7 +26,7 @@
      public Container inventoryContainer;
      public Container openContainer;
 -    protected FoodStats foodStats = new FoodStats();
-+    protected FoodStats foodStats = new FoodStats(); // Kettle - Restore CraftBukkit modifications, compatible with AppleCore and other mods that modify FoodStats
++    protected FoodStats foodStats = new FoodStats(); // Magma - Restore CraftBukkit modifications, compatible with AppleCore and other mods that modify FoodStats
      protected int flyToggleTimer;
      public float prevCameraYaw;
      public float cameraYaw;

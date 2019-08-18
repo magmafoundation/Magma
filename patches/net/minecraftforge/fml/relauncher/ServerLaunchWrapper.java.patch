@@ -4,7 +4,7 @@
  package net.minecraftforge.fml.relauncher;
  
  import java.lang.reflect.Method;
-+import kettlefoundation.kettle.downloads.DownloadServerFiles;
++import org.magmafoundation.magma.downloads.DownloadServerFiles;
  
 -import org.apache.logging.log4j.LogManager;
 -import org.apache.logging.log4j.core.LoggerContext;
@@ -19,7 +19,7 @@
      public static void main(String[] args)
      {
 -        new ServerLaunchWrapper().run(args);
-+      System.out.println("Starting Kettle");
++      System.out.println("Starting Magma");
 +      DownloadServerFiles.downloadMinecraftServer();
 +      DownloadServerFiles.downloadServerLibraries();
 +      new ServerLaunchWrapper().run(args);

@@ -543,7 +543,7 @@
      {
          IChunkLoader ichunkloader = this.saveHandler.getChunkLoader(this.provider);
 -        return new ChunkProviderServer(this, ichunkloader, this.provider.createChunkGenerator());
-+        // Kettle - if provider is vanilla, proceed to create a bukkit compatible chunk generator
++        // Magma - if provider is vanilla, proceed to create a bukkit compatible chunk generator
 +        if (this.provider.getClass().toString().length() <= 3 || this.provider.getClass().toString().contains("net.minecraft")) {
 +            // CraftBukkit start
 +            org.bukkit.craftbukkit.generator.InternalChunkGenerator gen;

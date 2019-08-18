@@ -43,7 +43,7 @@
              usedIds.add(id);
          }
 +
-+        // Kettle - register Environment to Bukkit
++        // Magma - register Environment to Bukkit
 +        if (id != -1 && id != 0 && id != 1) // ignore vanilla
 +        {
 +            registerBukkitDimension(id, type.getName());
@@ -64,7 +64,7 @@
          }
          else
          {
-+            FMLCommonHandler.instance().getMinecraftServerInstance().worldServerList.remove(getWorld(id)); // Kettle - remove world from our new world arraylist
++            FMLCommonHandler.instance().getMinecraftServerInstance().worldServerList.remove(getWorld(id)); // Magma - remove world from our new world arraylist
              worlds.remove(id);
              server.worldTickTimes.remove(id);
              FMLLog.log.info("Unloading dimension {}", id);
@@ -130,7 +130,7 @@
 -                w.flush();
 -                setWorld(id, null, w.getMinecraftServer());
 -            }
-+            FMLCommonHandler.instance().getMinecraftServerInstance().server.unloadWorld(w.getWorld(), true); // Kettle
++            FMLCommonHandler.instance().getMinecraftServerInstance().server.unloadWorld(w.getWorld(), true); // Magma
          }
      }
  

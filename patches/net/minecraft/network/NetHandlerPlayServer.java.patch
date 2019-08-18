@@ -1286,12 +1286,12 @@
 +
 +                InventoryView inventory = this.player.openContainer.getBukkitView();
 +
-+                // Kettle start
++                // Magma start
 +                if(inventory == null){
 +                    inventory = new CraftInventoryView(this.player.getBukkitEntity(), MinecraftServer.getServerInstance().server.createInventory(this.player.getBukkitEntity(), InventoryType.CHEST), this.player.openContainer);
 +                    this.player.openContainer.setBukkitView(inventory);
 +                }
-+                // Kettle end
++                // Magma end
 +
 +                InventoryType.SlotType type = CraftInventoryView.getSlotType(inventory, packetIn.getSlotId());
 +

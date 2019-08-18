@@ -32,7 +32,7 @@ apply plugin: 'net.minecraftforge.gradle.launch4j'
 apply plugin: 'net.nemerosa.versioning'
 apply plugin: "com.github.breadmoirai.github-release"
 
-group 'kettlefoundation'
+group 'magmafoundation'
 version 'git-' +  versioning.info.branch + "-" + versioning.info.build
 
 repositories {
@@ -55,8 +55,8 @@ repositories {
         url 'https://mvnrepository.com/artifact/'
     }
     maven {
-        name 'KettleFoundation'
-        url 'https://repo.hexeption.co.uk/artifactory/Kettle/'
+        name 'MagmaFoundation'
+        url 'https://repo.hexeption.co.uk/artifactory/Magma/'
     }
     flatDir {
         dirs 'src/main/resources'
@@ -110,7 +110,7 @@ minecraft {
             with common
         }
 
-        kettle {
+        magma {
             rootDir "."
             patchDir "patches/"
             patchAfter "forge"
@@ -174,7 +174,7 @@ outputJar {
     classifier = 'universal'
 
     manifest.attributes([
-            "Implementation-Title": "Kettle",
+            "Implementation-Title": "Magma",
             "Implementation-Version": version,
             "Main-Class": "net.minecraftforge.fml.relauncher.ServerLaunchWrapper",
             "TweakClass": "net.minecraftforge.fml.common.launcher.FMLTweaker",
@@ -187,8 +187,8 @@ processJson {
     addReplacements([
             "@minecraft_version@": project.minecraft.version,
             "@version@": project.version,
-            "@project@": "kettle",
-            "@artifact@": "kf:kettle:${project.version}",
+            "@project@": "magma",
+            "@artifact@": "mf:magma:${project.version}",
             "@universal_jar@": { outputJar.archiveName },
             "@timestamp@": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
     ])
@@ -201,7 +201,7 @@ extractForgeSources {
 genGradleProjects {
     addCompileDep "junit:junit:4.12"
     addCompileDep "bukkit:bukkit:1.12.2-R0.1"
-    addRepo("KettleFoundation", "https://repo.hexeption.co.uk/artifactory/Kettle/")
+    addRepo("MagmaFoundation", "https://repo.hexeption.co.uk/artifactory/Magma/")
 }
 
 import groovy.json.JsonSlurper
@@ -231,9 +231,9 @@ githubRelease {
     }else{
         token ""
     }
-    owner "KettleFoundation"
-    repo "Kettle"
-    releaseName "Kettle Dev " + versioning.info.branch + "-" + versioning.info.build
+    owner "MagmaFoundation"
+    repo "Magma"
+    releaseName "Magma Dev " + versioning.info.branch + "-" + versioning.info.build
     body {
         """\
 ## Setup Info

@@ -28,7 +28,7 @@
 +    public int foodTimer;
 +    public int prevFoodLevel = 20;
  
-+    public EntityPlayer player;  // CraftBukkit // Kettle private - public  entityplayer - player Fix mcp duplicate naming causes AppleCore to recognize errors
++    public EntityPlayer player;  // CraftBukkit // Magma private - public  entityplayer - player Fix mcp duplicate naming causes AppleCore to recognize errors
 +
 +    public FoodStats() {
 +    }

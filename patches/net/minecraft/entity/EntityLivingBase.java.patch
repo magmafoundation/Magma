@@ -512,10 +512,10 @@
  
                  if (!net.minecraftforge.common.ForgeHooks.onLivingDrops(this, cause, capturedDrops, i, recentlyHit > 0))
                  {
-+                	// Kettle start - first allow forge to alter drops, then plugins and finally spawn items
++                	// Magma start - first allow forge to alter drops, then plugins and finally spawn items
 +                	if (capturedDrops.size() > 0) {
 +                		this.drops = new ArrayList<>();
-+                		// Kettle - don't use forceDrops
++                		// Magma - don't use forceDrops
 +                      for(EntityItem item: capturedDrops)
 +                      {
 +                          this.drops.add(CraftItemStack.asCraftMirror(item.getItem()));
@@ -523,7 +523,7 @@
 +                		CraftEventFactory.callEntityDeathEvent(this, this.drops);
 +                	} else {
 +                		CraftEventFactory.callEntityDeathEvent(this);
-+                		// Kettle end
++                		// Magma end
 +                	}
 +                	
                      for (EntityItem item : capturedDrops)

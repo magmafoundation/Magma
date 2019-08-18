@@ -347,7 +347,7 @@
 +        // CraftBukkit start - Quitting must be before we do final save of data, in case plugins need to modify it
 +        org.bukkit.craftbukkit.event.CraftEventFactory.handleInventoryCloseEvent(playerIn);
 +        if(playerIn.connection != null) {
-+            // Kettle CraftServer Changed to Bukkit
++            // Magma CraftServer Changed to Bukkit
 +            PlayerQuitEvent playerQuitEvent = new PlayerQuitEvent(cserver.getPlayer(playerIn), "\u00A7e" + playerIn.getName() + " left the game");
 +            Bukkit.getPluginManager().callEvent(playerQuitEvent);
 +            playerIn.getBukkitEntity().disconnect(playerQuitEvent.getQuitMessage());
@@ -584,7 +584,7 @@
  
 -        entityplayermp.connection.sendPacket(new SPacketRespawn(entityplayermp.dimension, entityplayermp.world.getDifficulty(), entityplayermp.world.getWorldInfo().getTerrainType(), entityplayermp.interactionManager.getGameType()));
 +        int actualDimension = worldserver.provider.getDimension();
-+        // Kettle - change dim for bukkit added dimensions
++        // Magma - change dim for bukkit added dimensions
 +        if (DimensionManager.isBukkitDimension(actualDimension))
 +        {
 +            FMLEmbeddedChannel serverChannel = ForgeNetworkHandler.getServerChannel();
@@ -592,7 +592,7 @@
 +            serverChannel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(entityplayermp);
 +            serverChannel.writeOutbound(new DimensionRegisterMessage(actualDimension, DimensionManager.getProviderType(actualDimension).name()));
 +        }
-+        // Kettle end
++        // Magma end
 +
 +        // entityplayermp.connection.sendPacket(new SPacketRespawn(entityplayermp.dimension, entityplayermp.world.getDifficulty(), entityplayermp.world.getWorldInfo().getTerrainType(), entityplayermp.interactionManager.getGameType()));
 +        entityplayermp.connection.sendPacket(new SPacketRespawn(actualDimension, worldserver.getDifficulty(), worldserver.getWorldInfo().getTerrainType(), entityplayermp.interactionManager.getGameType()));

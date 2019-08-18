@@ -187,7 +187,7 @@
 +        this.isRemote = client;
 +        this.worldBorder = providerIn.createWorldBorder();
 +        perWorldStorage = new MapStorage(null);
-+        // Kettle start
++        // Magma start
 +        if (DimensionManager.getWorld(0) != null) // if overworld has loaded, use its mapstorage
 +        {
 +            this.mapStorage = DimensionManager.getWorld(0).mapStorage;
@@ -212,7 +212,7 @@
 +            generator = this.getServer().getGenerator(this.worldInfo.getWorldName());
 +            getWorld().generator = generator;
 +        }
-+        // Kettle end
++        // Magma end
 +        // CraftBukkit start
 +        getWorldBorder().world = (WorldServer) this;
 +        // From PlayerList.setPlayerFileData

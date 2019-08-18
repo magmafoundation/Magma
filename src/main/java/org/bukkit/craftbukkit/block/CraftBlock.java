@@ -275,7 +275,7 @@ public class CraftBlock implements Block {
     public BlockState getState() {
         Material material = getType();
 
-        // Kettle start - if null, check for TE that implements IInventory (cauldron stuff)
+        // Magma start - if null, check for TE that implements IInventory (cauldron stuff)
         if (material == null)
         {
             TileEntity te = ((CraftWorld)this.getWorld()).getHandle().getTileEntity(new BlockPos(this.getX(), this.getY(), this.getZ()));
@@ -288,7 +288,7 @@ public class CraftBlock implements Block {
             // pass default state
             return new CraftBlockState(this);
         }
-        // Kettle end
+        // Magma end
 
         switch (material) {
         case SIGN:

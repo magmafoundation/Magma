@@ -45,7 +45,7 @@
              worldIn.setBlockState(pos, state, 4);
          }
 -        this.dropBlockAsItem(worldIn, pos, state, 0);
-+        // this.dropBlockAsItem(worldIn, pos, state, 0); Kettle - prevents doubled and creative mode drops
++        // this.dropBlockAsItem(worldIn, pos, state, 0); Magma - prevents doubled and creative mode drops
  
          super.onBlockHarvested(worldIn, pos, state, player);
      }

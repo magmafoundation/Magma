@@ -29,7 +29,7 @@
              Container remoteGuiContainer = NetworkRegistry.INSTANCE.getRemoteGuiContainer(mc, entityPlayerMP, modGuiId, world, x, y, z);
              if (remoteGuiContainer != null)
              {
-+                // Kettle start
++                // Magma start
 +                if(remoteGuiContainer.getBukkitView() == null){
 +                    TileEntity te = entityPlayer.world.getTileEntity(new BlockPos(x,y,z));
 +                    if(te instanceof  IInventory){
@@ -42,7 +42,7 @@
 +                        return;
 +                    }
 +                }
-+                // Kettle end
++                // Magma end
                  entityPlayerMP.getNextWindowId();
                  entityPlayerMP.closeContainer();
                  int windowId = entityPlayerMP.currentWindowId;

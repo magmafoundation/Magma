@@ -12,7 +12,7 @@
          else
          {
              player.addStat(StatList.CAKE_SLICES_EATEN);
-+            // Kettle Restore CraftBukkit changes for AppleCore recognition
++            // Magma Restore CraftBukkit changes for AppleCore recognition
              player.getFoodStats().addStats(2, 0.1F);
 +            int oldFoodLevel = player.getFoodStats().foodLevel;
 +

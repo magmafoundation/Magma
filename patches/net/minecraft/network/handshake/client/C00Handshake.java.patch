@@ -24,7 +24,7 @@
 +        if(this.hasFMLMarker){
 +            this.ip = this.ip.replace("\0FML\0", "");
 +        }else if(this.ip.split("\0").length > 2){
-+            this.hasFMLMarker = true; // Kettle - Bungee Support
++            this.hasFMLMarker = true; // Magma - Bungee Support
 +        }
      }
  
