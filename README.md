@@ -8,9 +8,9 @@
 
 Magma next  generation in hybrid servers.
 
-Kettle is based on Forge and Paper builds, meaning it can run both Craftbukkit/Spigot/Paper-based plugins and forge-based mods.
+Magma is based on Forge and Paper builds, meaning it can run both Craftbukkit/Spigot/Paper-based plugins and forge-based mods.
 
-We hope to eliminate all issues with craftbukkit forge servers. In the end, we envision a seamless, low lag Kettle experience with support for new 1.12+ versions of Minecraft.
+We hope to eliminate all issues with craftbukkit forge servers. In the end, we envision a seamless, low lag Magma experience with support for new 1.12+ versions of Minecraft.
 
 ## Deployment
 
@@ -28,7 +28,7 @@ All builds are available in `build/distributions`
 
 - Clone the Project
   - You can use GitHub Desktop/GitKraken or clone using the terminal 
-    - `git clone https://github.com/KettleFoundation/Kettle` 
+    - `git clone https://github.com/MagmaFoundation/Magma` 
   - Next you are gonna want to clone the submodule
     - `git submodule update --init --recursive` 
 - Building
@@ -40,7 +40,7 @@ All builds are available in `build/distributions`
 
 ## Chat
 
-You are welcome to visit Kettle Discord server [here](https://discord.gg/RqDjbcM).
+You are welcome to visit Magma Discord server [here](https://discord.gg/6rkqngA).
 
 ## Unstable/Test builds
 
