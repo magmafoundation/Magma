@@ -17,7 +17,7 @@
  import net.minecraft.nbt.NBTTagCompound;
  import net.minecraft.nbt.NBTTagList;
  import net.minecraft.tileentity.TileEntity;
-@@ -79,14 +76,14 @@
+@@ -79,15 +76,14 @@
  
          if (nbttagcompound == null)
          {
@@ -31,11 +31,12 @@
              }
  
 -            nbttagcompound = this.fixer.process(FixTypes.CHUNK, CompressedStreamTools.read(datainputstream));
+-            datainputstream.close(); // Forge: close stream after use
 +            nbttagcompound = this.fixer.process(FixTypes.CHUNK, nbtTagCompound);
          }
  
          return this.checkedReadChunkFromNBT__Async(worldIn, x, z, nbttagcompound);
-@@ -237,9 +234,10 @@
+@@ -238,9 +234,10 @@
  
      private void writeChunkData(ChunkPos pos, NBTTagCompound compound) throws IOException
      {
@@ -49,7 +50,7 @@
      }
  
      public void saveExtraChunkData(World worldIn, Chunk chunkIn) throws IOException
-@@ -608,8 +606,11 @@
+@@ -609,8 +606,11 @@
  
      public static void spawnEntity(Entity entityIn, World worldIn)
      {
