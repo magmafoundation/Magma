@@ -10,7 +10,7 @@
  import com.google.common.util.concurrent.Futures;
  import com.google.common.util.concurrent.ListenableFuture;
  import com.google.common.util.concurrent.ListenableFutureTask;
-@@ -17,91 +19,96 @@
+@@ -17,91 +19,97 @@
  import java.awt.image.BufferedImage;
  import java.io.File;
  import java.io.IOException;
@@ -111,6 +111,7 @@
 +import org.bukkit.craftbukkit.entity.CraftCustomEntity;
 +import org.bukkit.entity.EntityType;
 +import org.bukkit.potion.PotionEffectType;
++import org.magmafoundation.magma.configuration.MagmaConfig;
 +import org.spigotmc.SlackActivityAccountant;
  
 -public abstract class MinecraftServer implements ICommandSender, Runnable, IThreadListener, ISnooperInfo
@@ -137,7 +138,7 @@
      @SideOnly(Side.SERVER)
      private String hostname;
      private int serverPort = -1;
-@@ -128,7 +135,6 @@
+@@ -128,7 +136,6 @@
      private KeyPair serverKeyPair;
      private String serverOwner;
      private String folderName;
@@ -145,7 +146,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +150,264 @@
+@@ -144,178 +151,271 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -173,6 +174,10 @@
  
 -    public MinecraftServer(File anvilFileIn, Proxy proxyIn, DataFixer dataFixerIn, YggdrasilAuthenticationService authServiceIn, MinecraftSessionService sessionServiceIn, GameProfileRepository profileRepoIn, PlayerProfileCache profileCacheIn)
 -    {
++    // Magma start
++    public static MagmaConfig magmaConfig;
++    // Magma end
++
 +    private static MinecraftServer instance;
 +
 +    public MinecraftServer(OptionSet options, Proxy proxyIn, DataFixer dataFixerIn,
@@ -192,6 +197,9 @@
 +        // this.anvilConverterForAnvilFile = new AnvilSaveConverter(anvilFileIn, dataFixerIn); // CraftBukkit - moved to DedicatedServer.init
          this.dataFixer = dataFixerIn;
 +        this.options = options;
++
++        magmaConfig = new MagmaConfig();
++
 +        // Try to see if we're actually running in a terminal, disable jline if not
 +        if (System.console() == null && System.getProperty("jline.terminal") == null) {
 +            System.setProperty("jline.terminal", "jline.UnsupportedTerminal");
@@ -507,7 +515,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +415,52 @@
+@@ -323,45 +423,52 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -587,7 +595,7 @@
          }
      }
  
-@@ -379,73 +478,79 @@
+@@ -379,73 +486,79 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -699,7 +707,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +558,213 @@
+@@ -453,159 +566,213 @@
                      worldserver1.flush();
                  }
              }
@@ -987,7 +995,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +772,42 @@
+@@ -613,52 +780,42 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1050,7 +1058,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +816,15 @@
+@@ -667,16 +824,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1072,7 +1080,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,7 +832,7 @@
+@@ -684,7 +840,7 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1081,7 +1089,7 @@
          {
              this.profiler.startSection("save");
              this.playerList.saveAllPlayerData();
-@@ -697,95 +845,100 @@
+@@ -697,95 +853,100 @@
          this.profiler.endSection();
          this.profiler.startSection("snooper");
  
@@ -1230,7 +1238,7 @@
          this.profiler.endStartSection("connection");
          this.getNetworkSystem().networkTick();
          this.profiler.endStartSection("players");
-@@ -794,33 +947,30 @@
+@@ -794,33 +955,30 @@
          this.getFunctionManager().update();
          this.profiler.endStartSection("tickables");
  
@@ -1272,7 +1280,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +985,51 @@
+@@ -835,53 +993,51 @@
          return ret;
      }
  
@@ -1350,7 +1358,7 @@
                  }
              });
          }
-@@ -889,145 +1037,115 @@
+@@ -889,145 +1045,115 @@
          return report;
      }
  
@@ -1540,7 +1548,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1153,75 @@
+@@ -1035,80 +1161,75 @@
          }
      }
  
@@ -1650,7 +1658,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1230,186 @@
+@@ -1117,228 +1238,186 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -1927,7 +1935,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1418,212 @@
+@@ -1347,316 +1426,212 @@
          return null;
      }
  
