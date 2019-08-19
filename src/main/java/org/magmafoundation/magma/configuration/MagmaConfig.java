@@ -2,6 +2,7 @@ package org.magmafoundation.magma.configuration;
 
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.magmafoundation.magma.commands.MagmaCommand;
 import org.magmafoundation.magma.commands.VersionCommand;
 import org.magmafoundation.magma.configuration.value.Value;
 
@@ -52,6 +53,7 @@ public class MagmaConfig extends ConfigBase {
 
     @Override
     protected void addCommands() {
+        commands.put("magma", new MagmaCommand("magma"));
         commands.put("version", new VersionCommand("version"));
     }
 
