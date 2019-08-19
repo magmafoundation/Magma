@@ -29,6 +29,7 @@ public class VersionCommand extends Command {
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
         if (!sender.isOp()) {
             sender.sendMessage(TextFormatting.RED + "You don't have permission to do that!");
+            return false;
         }
 
         sender.sendMessage("This server is running " + Bukkit.getName() + " version " + Magma.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ", Forge Version " + ForgeVersion.getVersion() + ")");
