@@ -20,7 +20,7 @@ buildscript {
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3+'
         classpath 'net.nemerosa:versioning:2.7.1'
-        classpath "gradle.plugin.com.github.breadmoirai:github-release:2.2.4"
+        classpath "gradle.plugin.com.github.breadmoirai:github-release:2.2.9"
     }
 }
 
