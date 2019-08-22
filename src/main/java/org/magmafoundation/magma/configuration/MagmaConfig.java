@@ -1,11 +1,15 @@
 package org.magmafoundation.magma.configuration;
 
 import net.minecraft.server.MinecraftServer;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.magmafoundation.magma.Metrics;
 import org.magmafoundation.magma.commands.MagmaCommand;
 import org.magmafoundation.magma.commands.VersionCommand;
 import org.magmafoundation.magma.configuration.value.Value;
+import org.magmafoundation.magma.configuration.value.values.BooleanValue;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.logging.Level;
@@ -23,7 +27,11 @@ public class MagmaConfig extends ConfigBase {
             "Site: https://magmafoundation.org\n" +
             "Discord: https://discord.gg/6rkqngA\n";
 
-    public MagmaConfig instance;
+    public static MagmaConfig instance;
+
+    public final BooleanValue debugPrintBukkitMatterials = new BooleanValue(this, "debug.debugPrintBukkitMatterials", false, "Prints the Forge Bukkit Materials");
+
+    private static Metrics metrics;
 
     public MagmaConfig() {
         super("magma.yml", "magma");
@@ -46,6 +54,9 @@ public class MagmaConfig extends ConfigBase {
                     t.printStackTrace();
                 }
             }
+        }
+        if(metrics == null){
+            metrics = new Metrics();
         }
         load();
     }

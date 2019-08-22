@@ -23,7 +23,7 @@ public class BooleanValue extends Value<Boolean> {
 
     @Override
     public Boolean getValues() {
-        return null;
+        return value;
     }
 
     @Override
