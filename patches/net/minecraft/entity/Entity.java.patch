@@ -526,21 +526,23 @@
              compound.setTag("Rotation", this.newFloatNBTList(this.rotationYaw, this.rotationPitch));
              compound.setFloat("FallDistance", this.fallDistance);
              compound.setShort("Fire", (short)this.fire);
-@@ -1696,7 +1866,12 @@
+@@ -1696,7 +1866,14 @@
              compound.setBoolean("Invulnerable", this.invulnerable);
              compound.setInteger("PortalCooldown", this.timeUntilPortal);
              compound.setUniqueId("UUID", this.getUniqueID());
 -
 +            // CraftBukkit start
 +            // PAIL: Check above UUID reads 1.8 properly, ie: UUIDMost / UUIDLeast
-+            compound.setLong("WorldUUIDLeast", this.world.getSaveHandler().getUUID().getLeastSignificantBits());
-+            compound.setLong("WorldUUIDMost", this.world.getSaveHandler().getUUID().getMostSignificantBits());
++            if(this.world != null) {
++                compound.setLong("WorldUUIDLeast", this.world.getSaveHandler().getUUID().getLeastSignificantBits());
++                compound.setLong("WorldUUIDMost", this.world.getSaveHandler().getUUID().getMostSignificantBits());
++            }
 +            compound.setInteger("Bukkit.updateLevel", CURRENT_LEVEL);
 +            // CraftBukkit end
              if (this.hasCustomName())
              {
                  compound.setString("CustomName", this.getCustomNameTag());
-@@ -1784,21 +1959,6 @@
+@@ -1784,21 +1961,6 @@
              this.motionY = nbttaglist2.getDoubleAt(1);
              this.motionZ = nbttaglist2.getDoubleAt(2);
  
@@ -562,7 +564,7 @@
              this.posX = nbttaglist.getDoubleAt(0);
              this.posY = nbttaglist.getDoubleAt(1);
              this.posZ = nbttaglist.getDoubleAt(2);
-@@ -1869,6 +2029,50 @@
+@@ -1869,6 +2031,50 @@
              {
                  this.setPosition(this.posX, this.posY, this.posZ);
              }
@@ -613,7 +615,7 @@
          }
          catch (Throwable throwable)
          {
-@@ -1885,7 +2089,7 @@
+@@ -1885,7 +2091,7 @@
      }
  
      @Nullable
@@ -622,7 +624,7 @@
      {
          ResourceLocation resourcelocation = EntityList.getKey(this);
          return resourcelocation == null ? null : resourcelocation.toString();
-@@ -1945,7 +2149,9 @@
+@@ -1945,7 +2151,9 @@
              if (captureDrops)
                  this.capturedDrops.add(entityitem);
              else
@@ -633,7 +635,7 @@
              return entityitem;
          }
      }
-@@ -2013,7 +2219,7 @@
+@@ -2013,7 +2221,7 @@
              this.motionY = 0.0D;
              this.motionZ = 0.0D;
              if(!updateBlocked)
@@ -642,7 +644,7 @@
  
              if (this.isRiding())
              {
-@@ -2110,6 +2316,29 @@
+@@ -2110,6 +2318,29 @@
          }
          else
          {
@@ -672,7 +674,7 @@
              if (!this.world.isRemote && passenger instanceof EntityPlayer && !(this.getControllingPassenger() instanceof EntityPlayer))
              {
                  this.riddenByEntities.add(0, passenger);
-@@ -2129,6 +2358,27 @@
+@@ -2129,6 +2360,27 @@
          }
          else
          {
@@ -700,7 +702,7 @@
              this.riddenByEntities.remove(passenger);
              passenger.rideCooldown = 60;
          }
-@@ -2325,12 +2575,12 @@
+@@ -2325,12 +2577,12 @@
          this.setFlag(5, invisible);
      }
  
@@ -715,7 +717,7 @@
      {
          byte b0 = ((Byte)this.dataManager.get(FLAGS)).byteValue();
  
-@@ -2351,17 +2601,52 @@
+@@ -2351,17 +2603,52 @@
  
      public void setAir(int air)
      {
@@ -771,7 +773,7 @@
          }
      }
  
-@@ -2502,7 +2787,7 @@
+@@ -2502,7 +2789,7 @@
  
      public String toString()
      {
@@ -780,7 +782,7 @@
      }
  
      public boolean isEntityInvulnerable(DamageSource source)
-@@ -2540,7 +2825,7 @@
+@@ -2540,7 +2827,7 @@
      public Entity changeDimension(int dimensionIn)
      {
          if (this.world.isRemote || this.isDead) return null;
@@ -789,7 +791,7 @@
      }
  
      @Nullable // Forge: Entities that require custom handling should override this method, not the other
-@@ -2551,53 +2836,67 @@
+@@ -2551,53 +2838,67 @@
              if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(this, dimensionIn)) return null;
              this.world.profiler.startSection("changeDimension");
              MinecraftServer minecraftserver = this.getServer();
@@ -897,7 +899,7 @@
              this.world.profiler.endStartSection("reloading");
              Entity entity = EntityList.newEntity(this.getClass(), worldserver1);
  
-@@ -2605,28 +2904,26 @@
+@@ -2605,28 +2906,26 @@
              {
                  entity.copyDataFromOld(this);
  
@@ -935,7 +937,7 @@
              return entity;
          }
          else
-@@ -2755,6 +3052,11 @@
+@@ -2755,6 +3054,11 @@
  
      public void setCustomNameTag(String name)
      {
@@ -947,7 +949,7 @@
          this.dataManager.set(CUSTOM_NAME, name);
      }
  
-@@ -2838,7 +3140,25 @@
+@@ -2838,7 +3142,25 @@
  
      public void setEntityBoundingBox(AxisAlignedBB bb)
      {
@@ -974,7 +976,7 @@
      }
  
      public float getEyeHeight()
-@@ -2870,6 +3190,11 @@
+@@ -2870,6 +3192,11 @@
          return true;
      }
  
@@ -986,7 +988,7 @@
      public BlockPos getPosition()
      {
          return new BlockPos(this.posX, this.posY + 0.5D, this.posZ);
-@@ -3030,7 +3355,7 @@
+@@ -3030,7 +3357,7 @@
          {
              return ((net.minecraft.entity.item.EntityMinecart)this).getCartItem();
          }
@@ -995,7 +997,7 @@
          {
              return new ItemStack(((EntityBoat)this).getItemBoat());
          }
-@@ -3109,14 +3434,14 @@
+@@ -3109,14 +3436,14 @@
      }
  
      @Override
@@ -1012,7 +1014,7 @@
      {
          return capabilities == null ? null : capabilities.getCapability(capability, facing);
      }
-@@ -3319,7 +3644,7 @@
+@@ -3319,7 +3646,7 @@
          return SoundCategory.NEUTRAL;
      }
  

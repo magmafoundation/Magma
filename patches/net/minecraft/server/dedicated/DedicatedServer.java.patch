@@ -192,7 +192,7 @@
                  LOGGER.info("Done ({})! For help, type \"help\" or \"?\"", (Object)s3);
 -                this.currentTime = getCurrentTimeMillis();
  
-+                LOGGER.info(String.format("Starting Minecraft server on {0}:{1}", this.getServerHostname().isEmpty() ? "0.0.0.0" : this.getServerHostname(), String.valueOf(this.getServerPort())));
++                LOGGER.info("Starting Minecraft server on {}:{}", this.getServerHostname().isEmpty() ? "0.0.0.0" : this.getServerHostname(), String.valueOf(this.getServerPort()));
                  if (this.settings.hasProperty("announce-player-achievements"))
                  {
                      this.worlds[0].getGameRules().setOrCreateGameRule("announceAdvancements", this.settings.getBooleanProperty("announce-player-achievements", true) ? "true" : "false");
