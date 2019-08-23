@@ -242,7 +242,7 @@ public class CraftWorld implements World {
     public boolean setSpawnLocation(Location location) {
         Preconditions.checkArgument(location != null, "location");
 
-        return equals(location.getWorld()) && setSpawnLocation(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        return equals(location.getWorld()) ? setSpawnLocation(location.getBlockX(), location.getBlockY(), location.getBlockZ()) : false;
     }
 
     public boolean setSpawnLocation(int x, int y, int z) {
@@ -730,6 +730,12 @@ public class CraftWorld implements World {
 
     public ChunkGenerator getGenerator() {
         return generator;
+    }
+
+    public void setGenerator(ChunkGenerator generator) {
+        if (this.generator == null) {
+            this.generator = generator;
+        }
     }
 
     public List<BlockPopulator> getPopulators() {

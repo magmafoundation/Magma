@@ -333,9 +333,9 @@ public class JavaPluginLoader implements PluginLoader {
             try {
                 jPlugin.setEnabled(true);
             } catch (Throwable ex) {
-                server.getLogger().log(Level.SEVERE, "Error occurred while enabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
-                server.getPluginManager().disablePlugin(jPlugin, true); // Paper - close Classloader on disable - She's dead jim
-                return;
+//                server.getLogger().log(Level.SEVERE, "Error occurred while enabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
+//                server.getPluginManager().disablePlugin(jPlugin, true); // Paper - close Classloader on disable - She's dead jim
+//                return;
                 // Paper end
             }
 
@@ -380,16 +380,16 @@ public class JavaPluginLoader implements PluginLoader {
                 for (String name : names) {
                     removeClass(name);
                 }
-                // Paper start - close Class Loader on disable
-                try {
-                    if (closeClassloader) {
-                        loader.close();
-                    }
-                } catch (IOException e) {
-                    server.getLogger().warning("Error closing the Plugin Class Loader for " + plugin.getDescription().getFullName());
-                    e.printStackTrace();
-                }
-                // Paper end
+//                // Paper start - close Class Loader on disable
+//                try {
+//                    if (closeClassloader) {
+//                        loader.close();
+//                    }
+//                } catch (IOException e) {
+//                    server.getLogger().warning("Error closing the Plugin Class Loader for " + plugin.getDescription().getFullName());
+//                    e.printStackTrace();
+//                }
+//                // Paper end
             }
         }
     }

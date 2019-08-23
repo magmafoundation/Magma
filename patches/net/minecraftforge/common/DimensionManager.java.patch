@@ -68,11 +68,10 @@
              worlds.remove(id);
              server.worldTickTimes.remove(id);
              FMLLog.log.info("Unloading dimension {}", id);
-@@ -257,12 +273,40 @@
-             return; // If a provider hasn't been registered then we can't hotload the dim
+@@ -258,11 +274,40 @@
          }
          MinecraftServer mcServer = overworld.getMinecraftServer();
--        ISaveHandler savehandler = overworld.getSaveHandler();
+         ISaveHandler savehandler = overworld.getSaveHandler();
 -        //WorldSettings worldSettings = new WorldSettings(overworld.getWorldInfo());
 +        WorldSettings worldSettings = new WorldSettings(overworld.getWorldInfo());
  
@@ -112,7 +111,7 @@
          if (!mcServer.isSinglePlayer())
          {
              world.getWorldInfo().setGameType(mcServer.getGameType());
-@@ -390,20 +434,7 @@
+@@ -390,20 +435,7 @@
                  FMLLog.log.debug("Aborting unload for dimension {} as status changed", id);
                  continue;
              }
@@ -134,7 +133,7 @@
          }
      }
  
-@@ -499,4 +530,100 @@
+@@ -499,4 +531,100 @@
              return null;
          }
      }
@@ -188,7 +187,7 @@
 +        if(worldInfo == null){
 +            worldInfo = new WorldInfo(worldSettings, name);
 +        }
-+
++        worldInfo.setWorldName(name);
 +        WorldServer world = (WorldServer) new WorldServerMulti(mcServer, saveHandler, dim, overworld,mcServer.profiler, worldInfo, environment, generator).init();
 +        world.initialize(worldSettings);
 +        world.provider.setDimension(dim);
