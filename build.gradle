@@ -33,7 +33,9 @@ apply plugin: 'net.nemerosa.versioning'
 apply plugin: "com.github.breadmoirai.github-release"
 
 group 'magmafoundation'
-version 'git-' +  versioning.info.branch + "-" + versioning.info.build
+version versioning.info.build
+
+println(version)
 
 repositories {
     clear()
@@ -172,7 +174,7 @@ build.dependsOn signUniversal
 installer.dependsOn signUniversal
 
 outputJar {
-    classifier = 'universal'
+    classifier = 'server'
 
     manifest.attributes([
             "Implementation-Title": "Magma",
