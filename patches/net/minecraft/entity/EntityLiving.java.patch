@@ -212,13 +212,13 @@
      public boolean canPickUpLoot()
      {
 -        return this.canPickUpLoot;
-+        return canPickUpLoot;
++        return super.canPickUpLoot;
      }
  
      public void setCanPickUpLoot(boolean canPickup)
      {
 -        this.canPickUpLoot = canPickup;
-+        canPickUpLoot = canPickup;
++        super.canPickUpLoot = canPickup;
      }
  
      public boolean isNoDespawnRequired()
