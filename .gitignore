@@ -44,3 +44,7 @@ gradle-app.setting
 classes/
 
 run/
+
+patches/net/minecraftforge/fml/relauncher/Side.java.patch
+
+patches/net/minecraftforge/common/ForgeVersion.java.patch
