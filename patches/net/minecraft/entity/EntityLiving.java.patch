@@ -129,15 +129,6 @@
      public boolean canAttackClass(Class <? extends EntityLivingBase > cls)
      {
          return cls != EntityGhast.class;
-@@ -355,7 +381,7 @@
-     public void writeEntityToNBT(NBTTagCompound compound)
-     {
-         super.writeEntityToNBT(compound);
--        compound.setBoolean("CanPickUpLoot", this.canPickUpLoot());
-+        compound.setBoolean("CanPickUpLoot", this.thisisatestof());
-         compound.setBoolean("PersistenceRequired", this.persistenceRequired);
-         NBTTagList nbttaglist = new NBTTagList();
- 
 @@ -447,12 +473,21 @@
      {
          super.readEntityFromNBT(compound);
@@ -149,7 +140,7 @@
 +            // this.idkwhyreyoudoingthis(compound.getBoolean("CanPickUpLoot"));
 +            boolean data = compound.getBoolean("CanPickUpLoot");
 +            if (isLevelAtLeast(compound, 1) || data) {
-+                this.idkwhyreyoudoingthis(data);
++                this.setCanPickUpLoot(data);
 +            }
          }
  
@@ -162,15 +153,6 @@
  
          if (compound.hasKey("ArmorItems", 9))
          {
-@@ -577,7 +612,7 @@
-         super.onLivingUpdate();
-         this.world.profiler.startSection("looting");
- 
--        if (!this.world.isRemote && this.canPickUpLoot() && !this.dead && net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.world, this))
-+        if (!this.world.isRemote && this.thisisatestof() && !this.dead && net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.world, this))
-         {
-             for (EntityItem entityitem : this.world.getEntitiesWithinAABB(EntityItem.class, this.getEntityBoundingBox().grow(1.0D, 0.0D, 1.0D)))
-             {
 @@ -653,8 +688,14 @@
              }
          }
@@ -225,22 +207,18 @@
          this.world.profiler.startSection("sensing");
          this.senses.clearSensingCache();
          this.world.profiler.endSection();
-@@ -1190,14 +1237,14 @@
-         }
-     }
+@@ -1192,12 +1239,12 @@
  
--    public boolean canPickUpLoot()
-+    public boolean thisisatestof()
+     public boolean canPickUpLoot()
      {
 -        return this.canPickUpLoot;
-+        return thisisatest;
++        return canPickUpLoot;
      }
  
--    public void setCanPickUpLoot(boolean canPickup)
-+    public void idkwhyreyoudoingthis(boolean canPickup)
+     public void setCanPickUpLoot(boolean canPickup)
      {
 -        this.canPickUpLoot = canPickup;
-+        thisisatest = canPickup;
++        canPickUpLoot = canPickup;
      }
  
      public boolean isNoDespawnRequired()

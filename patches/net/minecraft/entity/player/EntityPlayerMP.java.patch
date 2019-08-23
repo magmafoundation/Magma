@@ -136,7 +136,7 @@
          }
 +
 +        this.displayName = this.getName();
-+        this.thisisatest = true;
++        this.canPickUpLoot = true;
 +        this.maxHealthCache = this.getMaxHealth();
      }
  

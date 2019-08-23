@@ -38,7 +38,7 @@
  
      public EntityVillager(World worldIn)
      {
-@@ -125,11 +132,11 @@
+@@ -125,7 +132,7 @@
      public EntityVillager(World worldIn, int professionId)
      {
          super(worldIn);
@@ -47,11 +47,6 @@
          this.setProfession(professionId);
          this.setSize(0.6F, 1.95F);
          ((PathNavigateGround)this.getNavigator()).setBreakDoors(true);
--        this.setCanPickUpLoot(true);
-+        this.idkwhyreyoudoingthis(true);
-     }
- 
-     protected void initEntityAI()
 @@ -186,6 +193,22 @@
          this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
      }
@@ -91,12 +86,7 @@
                          }
                      }
  
-@@ -388,11 +418,11 @@
-             }
-         }
- 
--        this.setCanPickUpLoot(true);
-+        this.idkwhyreyoudoingthis(true);
+@@ -392,7 +422,7 @@
          this.setAdditionalAItasks();
      }
  

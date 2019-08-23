@@ -88,12 +88,7 @@
              this.world.playEvent((EntityPlayer)null, 1026, new BlockPos(this), 0);
          }
      }
-@@ -443,16 +461,16 @@
-     {
-         livingdata = super.onInitialSpawn(difficulty, livingdata);
-         float f = difficulty.getClampedAdditionalDifficulty();
--        this.setCanPickUpLoot(this.rand.nextFloat() < 0.55F * f);
-+        this.idkwhyreyoudoingthis(this.rand.nextFloat() < 0.55F * f);
+@@ -447,12 +465,12 @@
  
          if (livingdata == null)
          {

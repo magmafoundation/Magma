@@ -23,15 +23,6 @@
                  }
              }
          }
-@@ -168,7 +175,7 @@
-         this.setEquipmentBasedOnDifficulty(difficulty);
-         this.setEnchantmentBasedOnDifficulty(difficulty);
-         this.setCombatTask();
--        this.setCanPickUpLoot(this.rand.nextFloat() < 0.55F * difficulty.getClampedAdditionalDifficulty());
-+        this.idkwhyreyoudoingthis(this.rand.nextFloat() < 0.55F * difficulty.getClampedAdditionalDifficulty());
- 
-         if (this.getItemStackFromSlot(EntityEquipmentSlot.HEAD).isEmpty())
-         {
 @@ -221,8 +228,17 @@
          double d2 = target.posZ - this.posZ;
          double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
