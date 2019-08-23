@@ -77,10 +77,11 @@
  
              this.chunkLoader.chunkTick();
          }
-@@ -284,6 +293,37 @@
+@@ -284,6 +293,39 @@
          return false;
      }
  
++    // CraftBukkit start
 +    public boolean unloadChunk(Chunk chunk, boolean save) {
 +        ChunkUnloadEvent event = new ChunkUnloadEvent(chunk.bukkitChunk, save);
 +        this.world.getServer().getPluginManager().callEvent(event);
@@ -111,6 +112,7 @@
 +        this.id2ChunkMap.remove(chunk.chunkKey);
 +        return true;
 +    }
++    // CraftBukkit end
 +
      public boolean canSave()
      {

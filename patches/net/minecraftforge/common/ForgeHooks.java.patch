@@ -1,6 +1,51 @@
 --- ../src-base/minecraft/net/minecraftforge/common/ForgeHooks.java
 +++ ../src-work/minecraft/net/minecraftforge/common/ForgeHooks.java
-@@ -450,7 +450,7 @@
+@@ -44,9 +44,7 @@
+ 
+ import net.minecraft.advancements.Advancement;
+ import net.minecraft.advancements.AdvancementManager;
+-import net.minecraft.block.Block;
+-import net.minecraft.block.BlockFarmland;
+-import net.minecraft.block.BlockLiquid;
++import net.minecraft.block.*;
+ import net.minecraft.block.material.Material;
+ import net.minecraft.block.state.IBlockState;
+ import net.minecraft.client.Minecraft;
+@@ -66,16 +64,7 @@
+ import net.minecraft.inventory.ContainerRepair;
+ import net.minecraft.inventory.IInventory;
+ import net.minecraft.inventory.InventoryCrafting;
+-import net.minecraft.item.Item;
+-import net.minecraft.item.ItemAxe;
+-import net.minecraft.item.ItemBucket;
+-import net.minecraft.item.ItemEnchantedBook;
+-import net.minecraft.item.ItemMonsterPlacer;
+-import net.minecraft.item.ItemPickaxe;
+-import net.minecraft.item.ItemPotion;
+-import net.minecraft.item.ItemSpade;
+-import net.minecraft.item.ItemStack;
+-import net.minecraft.item.ItemTippedArrow;
++import net.minecraft.item.*;
+ import net.minecraft.item.crafting.IRecipe;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.nbt.NBTTagList;
+@@ -90,6 +79,7 @@
+ import net.minecraft.stats.StatList;
+ import net.minecraft.tileentity.TileEntity;
+ import net.minecraft.tileentity.TileEntityNote;
++import net.minecraft.tileentity.TileEntitySkull;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.EnumActionResult;
+ import net.minecraft.util.EnumFacing;
+@@ -118,6 +108,7 @@
+ import net.minecraft.world.storage.loot.conditions.LootCondition;
+ import net.minecraftforge.common.crafting.CraftingHelper;
+ import net.minecraftforge.common.util.BlockSnapshot;
++import net.minecraftforge.common.util.FakePlayer;
+ import net.minecraftforge.event.AnvilUpdateEvent;
+ import net.minecraftforge.event.DifficultyChangeEvent;
+ import net.minecraftforge.event.ForgeEventFactory;
+@@ -450,7 +441,7 @@
                  }
                  else
                  {
@@ -9,7 +54,7 @@
  
                      if (resourcelocation == null || !EntityList.ENTITY_EGGS.containsKey(resourcelocation))
                      {
-@@ -472,7 +472,7 @@
+@@ -472,7 +463,7 @@
                  }
                  else if (this.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY)
                  {
@@ -18,7 +63,100 @@
                  }
  
                  LOGGER.warn("Picking on: [{}] {} gave null item", new Object[] {this.objectMouseOver.typeOfHit, s});
-@@ -992,7 +992,7 @@
+@@ -816,27 +807,8 @@
+ 
+     public static int onBlockBreakEvent(World world, GameType gameType, EntityPlayerMP entityPlayer, BlockPos pos)
+     {
+-        // Logic from tryHarvestBlock for pre-canceling the event
+-        boolean preCancelEvent = false;
+-        ItemStack itemstack = entityPlayer.getHeldItemMainhand();
+-        if (gameType.isCreative() && !itemstack.isEmpty()
+-                && !itemstack.getItem().canDestroyBlockInCreative(world, pos, itemstack, entityPlayer))
+-            preCancelEvent = true;
+-
+-        if (gameType.hasLimitedInteractions())
+-        {
+-            if (gameType == GameType.SPECTATOR)
+-                preCancelEvent = true;
+-
+-            if (!entityPlayer.isAllowEdit())
+-            {
+-                if (itemstack.isEmpty() || !itemstack.canDestroy(world.getBlockState(pos).getBlock()))
+-                    preCancelEvent = true;
+-            }
+-        }
+-
+         // Tell client the block is gone immediately then process events
+-        if (world.getTileEntity(pos) == null)
++        if (world.getTileEntity(pos) == null  && !(entityPlayer instanceof FakePlayer))
+         {
+             SPacketBlockChange packet = new SPacketBlockChange(world, pos);
+             packet.blockState = Blocks.AIR.getDefaultState();
+@@ -846,11 +818,11 @@
+         // Post the block break event
+         IBlockState state = world.getBlockState(pos);
+         BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, entityPlayer);
+-        event.setCanceled(preCancelEvent);
++        //event.setCanceled(preCancelEvent); // Cauldron
+         MinecraftForge.EVENT_BUS.post(event);
+ 
+         // Handle if the event is canceled
+-        if (event.isCanceled())
++        if (event.isCanceled() && !(entityPlayer instanceof FakePlayer)) // Cauldron - don't send packets to fakeplayers
+         {
+             // Let the client know the block still exists
+             entityPlayer.connection.sendPacket(new SPacketBlockChange(world, pos));
+@@ -865,6 +837,11 @@
+                     entityPlayer.connection.sendPacket(pkt);
+                 }
+             }
++            // Update the visual error caused by the broken door
++            if (state.getBlock() instanceof BlockDoor) {
++                boolean bottom = state.getValue(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER;
++                entityPlayer.connection.sendPacket(new SPacketBlockChange(world, bottom ? pos.up() : pos.down()));
++            }
+         }
+         return event.isCanceled() ? -1 : event.getExpToDrop();
+     }
+@@ -929,6 +906,7 @@
+                     blocksnapshot.restore(true, false);
+                     world.restoringBlockSnapshots = false;
+                 }
++				((org.bukkit.craftbukkit.entity.CraftPlayer) player.getBukkitEntity()).updateInventory();
+             }
+             else
+             {
+@@ -953,6 +931,29 @@
+                     world.markAndNotifyBlock(snap.getPos(), null, oldBlock, newBlock, updateFlag);
+                 }
+                 player.addStat(StatList.getObjectUseStats(itemstack.getItem()));
++                if (itemstack.item instanceof ItemRecord) {
++                    ((BlockJukebox) Blocks.JUKEBOX).insertRecord(world, pos, world.getBlockState(pos), itemstack);
++                    world.playEvent((EntityPlayer) null, 1010, pos, Item.getIdFromItem(itemstack.item));
++                    itemstack.shrink(1);
++                    player.addStat(StatList.RECORD_PLAYED);
++                }
++
++                if (itemstack.item == Items.SKULL) {
++                    BlockPos bp = pos;
++                    if (!world.getBlockState(pos).getMaterial().isReplaceable()) {
++                        if (!world.getBlockState(pos).getMaterial().isSolid()) {
++                            bp = null;
++                        } else {
++                            bp = bp.offset(side);
++                        }
++                    }
++                    if (bp != null) {
++                        TileEntity te = world.getTileEntity(bp);
++                        if (te instanceof TileEntitySkull) {
++                            Blocks.SKULL.checkWitherSpawn(world, bp, (TileEntitySkull) te);
++                        }
++                    }
++                }
+             }
+         }
+         world.capturedBlockSnapshots.clear();
+@@ -992,7 +993,7 @@
      }
  
      /**
