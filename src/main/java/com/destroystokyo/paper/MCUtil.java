@@ -11,8 +11,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.util.Waitable;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.util.Waitable;
 import org.spigotmc.AsyncCatcher;
 
 import javax.annotation.Nonnull;

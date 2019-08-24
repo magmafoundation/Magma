@@ -1,14 +1,22 @@
 --- ../src-base/minecraft/net/minecraft/advancements/Advancement.java
 +++ ../src-work/minecraft/net/minecraft/advancements/Advancement.java
-@@ -32,6 +32,7 @@
+@@ -21,6 +21,7 @@
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
+ import org.apache.commons.lang3.ArrayUtils;
++import org.bukkit.craftbukkit.v1_12_R1.advancement.CraftAdvancement;
+ 
+ public class Advancement
+ {
+@@ -32,6 +33,7 @@
      private final String[][] requirements;
      private final Set<Advancement> children = Sets.<Advancement>newLinkedHashSet();
      private final ITextComponent displayText;
-+    public final org.bukkit.advancement.Advancement bukkit = new org.bukkit.craftbukkit.advancement.CraftAdvancement(this); // CraftBukkit
++    public final org.bukkit.advancement.Advancement bukkit = new CraftAdvancement(this); // CraftBukkit
  
      public Advancement(ResourceLocation id, @Nullable Advancement parentIn, @Nullable DisplayInfo displayIn, AdvancementRewards rewardsIn, Map<String, Criterion> criteriaIn, String[][] requirementsIn)
      {
-@@ -68,9 +69,9 @@
+@@ -68,9 +70,9 @@
          }
      }
  
@@ -20,7 +28,7 @@
      }
  
      @Nullable
-@@ -230,7 +231,7 @@
+@@ -230,7 +232,7 @@
                  return "Task Advancement{parentId=" + this.parentId + ", display=" + this.display + ", rewards=" + this.rewards + ", criteria=" + this.criteria + ", requirements=" + Arrays.deepToString(this.requirements) + '}';
              }
  
@@ -29,7 +37,7 @@
              {
                  ResourceLocation resourcelocation = json.has("parent") ? new ResourceLocation(JsonUtils.getString(json, "parent")) : null;
                  DisplayInfo displayinfo = json.has("display") ? DisplayInfo.deserialize(JsonUtils.getJsonObject(json, "display"), context) : null;
-@@ -303,11 +304,11 @@
+@@ -303,11 +305,11 @@
                          }
                      }
  
@@ -43,7 +51,7 @@
              {
                  ResourceLocation resourcelocation = buf.readBoolean() ? buf.readResourceLocation() : null;
                  DisplayInfo displayinfo = buf.readBoolean() ? DisplayInfo.read(buf) : null;
-@@ -324,7 +325,7 @@
+@@ -324,7 +326,7 @@
                      }
                  }
  

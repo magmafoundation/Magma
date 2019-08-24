@@ -20,20 +20,31 @@
  import net.minecraft.block.material.Material;
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
-@@ -71,6 +65,12 @@
+@@ -31,7 +25,6 @@
+ import net.minecraft.entity.item.EntityFireworkRocket;
+ import net.minecraft.entity.item.EntityTNTPrimed;
+ import net.minecraft.entity.player.EntityPlayer;
+-import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.entity.projectile.EntityArrow;
+ import net.minecraft.entity.projectile.EntityEgg;
+ import net.minecraft.entity.projectile.EntityPotion;
+@@ -71,6 +64,15 @@
  import net.minecraftforge.fml.relauncher.SideOnly;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.bukkit.Location;
 +import org.bukkit.TreeType;
 +import org.bukkit.block.BlockState;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlockState;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 +import org.bukkit.event.block.BlockDispenseEvent;
 +import org.bukkit.event.world.StructureGrowEvent;
++import org.bukkit.craftbukkit.v1_12_R1.projectiles.CraftBlockProjectileSource;
  
  public class Bootstrap
  {
-@@ -193,15 +193,42 @@
+@@ -193,15 +195,42 @@
                  double d0 = source.getX() + (double)enumfacing.getFrontOffsetX();
                  double d1 = (double)((float)(source.getBlockPos().getY() + enumfacing.getFrontOffsetY()) + 0.2F);
                  double d2 = source.getZ() + (double)enumfacing.getFrontOffsetZ();
@@ -78,7 +89,7 @@
                  return stack;
              }
          });
-@@ -213,7 +240,33 @@
+@@ -213,7 +242,33 @@
                  double d0 = source.getX() + (double)enumfacing.getFrontOffsetX();
                  double d1 = (double)((float)source.getBlockPos().getY() + 0.2F);
                  double d2 = source.getZ() + (double)enumfacing.getFrontOffsetZ();
@@ -113,7 +124,7 @@
                  source.getWorld().spawnEntity(entityfireworkrocket);
                  stack.shrink(1);
                  return stack;
-@@ -237,8 +290,34 @@
+@@ -237,8 +292,34 @@
                  double d3 = random.nextGaussian() * 0.05D + (double)enumfacing.getFrontOffsetX();
                  double d4 = random.nextGaussian() * 0.05D + (double)enumfacing.getFrontOffsetY();
                  double d5 = random.nextGaussian() * 0.05D + (double)enumfacing.getFrontOffsetZ();
@@ -144,13 +155,13 @@
 +                }
 +
 +                EntitySmallFireball fireball = new EntitySmallFireball(world, d0, d1, d2, event.getVelocity().getX(), event.getVelocity().getY(), event.getVelocity().getZ());
-+                fireball.projectileSource = new org.bukkit.craftbukkit.projectiles.CraftBlockProjectileSource((TileEntityDispenser) source.getBlockTileEntity());
++                fireball.projectileSource = new CraftBlockProjectileSource((TileEntityDispenser) source.getBlockTileEntity());
 +
 +//                stack.shrink(1);
                  return stack;
              }
              protected void playDispenseSound(IBlockSource source)
-@@ -246,20 +325,63 @@
+@@ -246,20 +327,63 @@
                  source.getWorld().playEvent(1018, source.getBlockPos(), 0);
              }
          });
@@ -223,7 +234,7 @@
              }
          };
          BlockDispenser.DISPENSE_BEHAVIOR_REGISTRY.putObject(Items.LAVA_BUCKET, ibehaviordispenseitem);
-@@ -293,6 +415,26 @@
+@@ -293,6 +417,26 @@
                      item = Items.LAVA_BUCKET;
                  }
  
@@ -250,7 +261,7 @@
                  world.setBlockToAir(blockpos);
                  stack.shrink(1);
  
-@@ -311,21 +453,42 @@
+@@ -311,21 +455,42 @@
                  }
              }
          });
@@ -292,7 +303,7 @@
 -                    if (stack.attemptDamageItem(1, world.rand, (EntityPlayerMP)null))
 -                    {
 -                        stack.setCount(0);
-+                    if (!org.bukkit.craftbukkit.event.CraftEventFactory.callBlockIgniteEvent(world, blockpos.getX(), blockpos.getY(), blockpos.getZ(), source.getBlockPos().getX(), source.getBlockPos().getY(), source.getBlockPos().getZ()).isCancelled()) {
++                    if (!CraftEventFactory.callBlockIgniteEvent(world, blockpos.getX(), blockpos.getY(), blockpos.getZ(), source.getBlockPos().getX(), source.getBlockPos().getY(), source.getBlockPos().getZ()).isCancelled()) {
 +                        world.setBlockState(blockpos, Blocks.FIRE.getDefaultState());
 +                        if (stack.attemptDamageItem(1, world.rand, null)) {
 +                            stack.setCount(0);
@@ -300,7 +311,7 @@
                      }
                  }
                  else if (world.getBlockState(blockpos).getBlock() == Blocks.TNT)
-@@ -341,7 +504,7 @@
+@@ -341,7 +506,7 @@
                  return stack;
              }
          });
@@ -309,7 +320,7 @@
          {
              protected ItemStack dispenseStack(IBlockSource source, ItemStack stack)
              {
-@@ -351,7 +514,28 @@
+@@ -351,7 +516,28 @@
                  {
                      World world = source.getWorld();
                      BlockPos blockpos = source.getBlockPos().offset((EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING));
@@ -338,7 +349,7 @@
                      if (ItemDye.applyBonemeal(stack, world, blockpos))
                      {
                          if (!world.isRemote)
-@@ -364,6 +548,28 @@
+@@ -364,6 +550,28 @@
                          this.successful = false;
                      }
  
@@ -350,7 +361,7 @@
 +                        List<net.minecraftforge.common.util.BlockSnapshot> blocks = (List) world.capturedBlockSnapshots.clone();
 +                        List<BlockState> blockstates = new java.util.ArrayList();
 +                        for (net.minecraftforge.common.util.BlockSnapshot snapshot : blocks) {
-+                            blockstates.add(new org.bukkit.craftbukkit.block.CraftBlockState(snapshot));
++                            blockstates.add(new CraftBlockState(snapshot));
 +                        }
 +                        world.capturedBlockSnapshots.clear();
 +                        StructureGrowEvent structureEvent = null;
@@ -367,7 +378,7 @@
                      return stack;
                  }
                  else
-@@ -378,14 +584,38 @@
+@@ -378,14 +586,38 @@
              {
                  World world = source.getWorld();
                  BlockPos blockpos = source.getBlockPos().offset((EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING));
@@ -409,7 +420,7 @@
          {
              protected ItemStack dispenseStack(IBlockSource source, ItemStack stack)
              {
-@@ -393,6 +623,27 @@
+@@ -393,6 +625,27 @@
                  EnumFacing enumfacing = (EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING);
                  BlockPos blockpos = source.getBlockPos().offset(enumfacing);
                  BlockSkull blockskull = Blocks.SKULL;
@@ -437,7 +448,7 @@
                  this.successful = true;
  
                  if (world.isAirBlock(blockpos) && blockskull.canDispenserPlace(world, blockpos, stack))
-@@ -449,13 +700,34 @@
+@@ -449,13 +702,34 @@
                  return stack;
              }
          });
@@ -473,7 +484,7 @@
                  this.successful = true;
  
                  if (world.isAirBlock(blockpos) && blockpumpkin.canDispenserPlace(world, blockpos))
-@@ -483,7 +755,7 @@
+@@ -483,7 +757,7 @@
  
          for (EnumDyeColor enumdyecolor : EnumDyeColor.values())
          {
@@ -482,7 +493,7 @@
          }
      }
  
-@@ -588,11 +860,37 @@
+@@ -588,11 +862,37 @@
                      d3 = 0.0D;
                  }
  
@@ -523,7 +534,7 @@
                  return stack;
              }
  
-@@ -612,7 +910,7 @@
+@@ -612,7 +912,7 @@
              }
          }
  
@@ -532,7 +543,7 @@
          {
              private BehaviorDispenseShulkerBox()
              {
-@@ -624,6 +922,27 @@
+@@ -624,6 +924,27 @@
                  World world = source.getWorld();
                  EnumFacing enumfacing = (EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING);
                  BlockPos blockpos = source.getBlockPos().offset(enumfacing);

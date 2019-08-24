@@ -8,16 +8,17 @@
  import net.minecraft.item.ItemStack;
  import net.minecraft.tileentity.TileEntity;
  import net.minecraft.tileentity.TileEntityDispenser;
-@@ -11,6 +12,8 @@
+@@ -11,6 +12,9 @@
  import net.minecraft.util.EnumFacing;
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.world.World;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryDoubleChest;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 +import org.bukkit.event.inventory.InventoryMoveItemEvent;
  
  public class BlockDropper extends BlockDispenser
  {
-@@ -26,7 +29,7 @@
+@@ -26,7 +30,7 @@
          return new TileEntityDropper();
      }
  
@@ -26,7 +27,7 @@
      {
          BlockSourceImpl blocksourceimpl = new BlockSourceImpl(worldIn, pos);
          TileEntityDispenser tileentitydispenser = (TileEntityDispenser)blocksourceimpl.getBlockTileEntity();
-@@ -56,9 +59,22 @@
+@@ -56,9 +60,22 @@
                      }
                      else
                      {
@@ -35,7 +36,7 @@
 +                        org.bukkit.inventory.Inventory destinationInventory;
 +                        // Have to special case large chests as they work oddly
 +                        if (iinventory instanceof InventoryLargeChest) {
-+                            destinationInventory = new org.bukkit.craftbukkit.inventory.CraftInventoryDoubleChest((InventoryLargeChest) iinventory);
++                            destinationInventory = new CraftInventoryDoubleChest((InventoryLargeChest) iinventory);
 +                        } else {
 +                            destinationInventory = iinventory.getOwner().getInventory();
 +                        }

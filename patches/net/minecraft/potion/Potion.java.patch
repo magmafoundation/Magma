@@ -14,7 +14,7 @@
  import net.minecraft.util.registry.RegistryNamespaced;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
  
  public class Potion extends net.minecraftforge.registries.IForgeRegistryEntry.Impl<Potion>

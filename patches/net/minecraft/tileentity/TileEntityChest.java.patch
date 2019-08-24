@@ -8,18 +8,19 @@
  import net.minecraft.init.SoundEvents;
  import net.minecraft.inventory.Container;
  import net.minecraft.inventory.ContainerChest;
-@@ -23,6 +24,10 @@
+@@ -23,6 +24,11 @@
  import net.minecraft.util.math.AxisAlignedBB;
  import net.minecraft.util.math.BlockPos;
  
 +import java.util.List;
-+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 +import org.bukkit.entity.HumanEntity;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +
  public class TileEntityChest extends TileEntityLockableLoot implements ITickable
  {
      private NonNullList<ItemStack> chestContents = NonNullList.<ItemStack>withSize(27, ItemStack.EMPTY);
-@@ -37,6 +42,8 @@
+@@ -37,6 +43,8 @@
      private int ticksSinceSync;
      private BlockChest.Type cachedChestType;
  
@@ -28,7 +29,7 @@
      public TileEntityChest()
      {
      }
-@@ -45,7 +52,27 @@
+@@ -45,7 +53,27 @@
      {
          this.cachedChestType = typeIn;
      }
@@ -56,7 +57,7 @@
      public int getSizeInventory()
      {
          return 27;
-@@ -109,7 +136,7 @@
+@@ -109,7 +137,7 @@
  
      public int getInventoryStackLimit()
      {
@@ -65,7 +66,7 @@
      }
  
      public void updateContainingBlockInfo()
-@@ -325,8 +352,18 @@
+@@ -325,8 +353,18 @@
                  this.numPlayersUsing = 0;
              }
  
@@ -78,13 +79,13 @@
 +                int newPower = Math.max(0, Math.min(15, this.numPlayersUsing));
 +
 +                if (oldPower != newPower) {
-+                    org.bukkit.craftbukkit.event.CraftEventFactory.callRedstoneChange(world, pos.getX(), pos.getY(), pos.getZ(), oldPower, newPower);
++                    CraftEventFactory.callRedstoneChange(world, pos.getX(), pos.getY(), pos.getZ(), oldPower, newPower);
 +                }
 +            }
              this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockType(), false);
  
              if (this.getChestType() == BlockChest.Type.TRAP)
-@@ -356,7 +393,7 @@
+@@ -356,7 +394,7 @@
      @SuppressWarnings("unchecked")
      @Override
      @Nullable

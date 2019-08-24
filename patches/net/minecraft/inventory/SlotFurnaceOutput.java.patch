@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/inventory/SlotFurnaceOutput.java
 +++ ../src-work/minecraft/net/minecraft/inventory/SlotFurnaceOutput.java
-@@ -4,7 +4,11 @@
+@@ -4,7 +4,12 @@
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.item.ItemStack;
  import net.minecraft.item.crafting.FurnaceRecipes;
@@ -9,10 +9,11 @@
 +import org.bukkit.entity.ExperienceOrb;
 +import org.bukkit.entity.Player;
 +import org.bukkit.event.inventory.FurnaceExtractEvent;
++import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
  
  public class SlotFurnaceOutput extends Slot
  {
-@@ -70,11 +74,21 @@
+@@ -70,11 +75,21 @@
                  i = j;
              }
  
@@ -21,7 +22,7 @@
 +            org.bukkit.block.Block block = this.player.world.getWorld().getBlockAt(furnace.getPos().getX(), furnace.getPos().getY(), furnace.getPos().getZ());
 +
 +            if (removeCount != 0) {
-+                FurnaceExtractEvent event = new FurnaceExtractEvent(player, block, org.bukkit.craftbukkit.util.CraftMagicNumbers.getMaterial(stack.getItem()), removeCount, i);
++                FurnaceExtractEvent event = new FurnaceExtractEvent(player, block, CraftMagicNumbers.getMaterial(stack.getItem()), removeCount, i);
 +                this.player.world.getServer().getPluginManager().callEvent(event);
 +                i = event.getExpToDrop();
 +            }

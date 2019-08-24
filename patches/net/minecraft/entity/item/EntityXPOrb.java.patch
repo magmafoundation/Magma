@@ -1,9 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/entity/item/EntityXPOrb.java
 +++ ../src-work/minecraft/net/minecraft/entity/item/EntityXPOrb.java
-@@ -1,10 +1,13 @@
- package net.minecraft.entity.item;
- 
-+import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
+@@ -3,8 +3,10 @@
  import net.minecraft.block.material.Material;
  import net.minecraft.enchantment.EnchantmentHelper;
  import net.minecraft.entity.Entity;
@@ -14,23 +11,22 @@
  import net.minecraft.init.Enchantments;
  import net.minecraft.init.SoundEvents;
  import net.minecraft.item.ItemStack;
-@@ -15,7 +18,15 @@
+@@ -15,7 +17,14 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.entity.ExperienceOrb;
-+import org.bukkit.entity.Player;
-+import org.bukkit.event.entity.CreatureSpawnEvent;
 +import org.bukkit.event.entity.EntityTargetEvent;
 +import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
  
 +import java.util.UUID;
 +
  public class EntityXPOrb extends Entity
  {
      public int xpColor;
-@@ -26,9 +37,60 @@
+@@ -26,9 +35,60 @@
      private EntityPlayer closestPlayer;
      private int xpTargetColor;
  
@@ -92,7 +88,7 @@
          this.setSize(0.5F, 0.5F);
          this.setPosition(x, y, z);
          this.rotationYaw = (float)(Math.random() * 360.0D);
-@@ -74,6 +136,7 @@
+@@ -74,6 +134,7 @@
      public void onUpdate()
      {
          super.onUpdate();
@@ -100,7 +96,7 @@
  
          if (this.delayBeforeCanPickup > 0)
          {
-@@ -117,19 +180,30 @@
+@@ -117,19 +178,30 @@
  
          if (this.closestPlayer != null)
          {
@@ -113,7 +109,7 @@
 +            boolean cancelled = false;
 +            if (this.closestPlayer != prevTarget) {
 +                EntityTargetLivingEntityEvent event = CraftEventFactory.callEntityTargetLivingEvent(this, closestPlayer, EntityTargetEvent.TargetReason.CLOSEST_PLAYER);
-+                EntityLivingBase target = event.getTarget() == null ? null : ((org.bukkit.craftbukkit.entity.CraftLivingEntity) event.getTarget()).getHandle();
++                EntityLivingBase target = event.getTarget() == null ? null : ((CraftLivingEntity) event.getTarget()).getHandle();
 +                closestPlayer = target instanceof EntityPlayer ? (EntityPlayer) target : null;
 +                cancelled = event.isCancelled();
 +            }
@@ -142,7 +138,7 @@
          }
  
          this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
-@@ -195,21 +269,23 @@
+@@ -195,21 +267,23 @@
      {
          compound.setShort("Health", (short)this.xpOrbHealth);
          compound.setShort("Age", (short)this.xpOrbAge);
@@ -169,7 +165,7 @@
              {
                  if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.player.PlayerPickupXpEvent(entityIn, this))) return;
                  entityIn.xpCooldown = 2;
-@@ -220,13 +296,17 @@
+@@ -220,13 +294,17 @@
                  {
                      float ratio = itemstack.getItem().getXpRepairRatio(itemstack);
                      int i = Math.min(roundAverage(this.xpValue * ratio), itemstack.getItemDamage());
@@ -190,7 +186,7 @@
                  }
  
                  this.setDead();
-@@ -234,12 +314,12 @@
+@@ -234,12 +312,12 @@
          }
      }
  
@@ -205,7 +201,7 @@
      {
          return xp * 2;
      }
-@@ -296,6 +376,24 @@
+@@ -296,6 +374,24 @@
  
      public static int getXPSplit(int expValue)
      {

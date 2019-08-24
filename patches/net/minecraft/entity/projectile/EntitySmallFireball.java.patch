@@ -1,14 +1,15 @@
 --- ../src-base/minecraft/net/minecraft/entity/projectile/EntitySmallFireball.java
 +++ ../src-work/minecraft/net/minecraft/entity/projectile/EntitySmallFireball.java
-@@ -8,6 +8,7 @@
+@@ -8,6 +8,8 @@
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.RayTraceResult;
  import net.minecraft.world.World;
 +import org.bukkit.event.entity.EntityCombustByEntityEvent;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class EntitySmallFireball extends EntityFireball
  {
-@@ -21,6 +22,9 @@
+@@ -21,6 +23,9 @@
      {
          super(worldIn, shooter, accelX, accelY, accelZ);
          this.setSize(0.3125F, 0.3125F);
@@ -18,7 +19,7 @@
      }
  
      public EntitySmallFireball(World worldIn, double x, double y, double z, double accelX, double accelY, double accelZ)
-@@ -42,12 +46,17 @@
+@@ -42,12 +47,17 @@
              {
                  if (!result.entityHit.isImmuneToFire())
                  {
@@ -41,7 +42,7 @@
                      }
                  }
              }
-@@ -60,13 +69,15 @@
+@@ -60,13 +70,15 @@
                      flag1 = net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.world, this.shootingEntity);
                  }
  
@@ -53,7 +54,7 @@
                      if (this.world.isAirBlock(blockpos))
                      {
 -                        this.world.setBlockState(blockpos, Blocks.FIRE.getDefaultState());
-+                        if (!org.bukkit.craftbukkit.event.CraftEventFactory.callBlockIgniteEvent(world, blockpos.getX(), blockpos.getY(), blockpos.getZ(), this).isCancelled()) {
++                        if (!CraftEventFactory.callBlockIgniteEvent(world, blockpos.getX(), blockpos.getY(), blockpos.getZ(), this).isCancelled()) {
 +                            this.world.setBlockState(blockpos, Blocks.FIRE.getDefaultState());
 +                        }
                      }

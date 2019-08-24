@@ -1,14 +1,15 @@
 --- ../src-base/minecraft/net/minecraft/inventory/ContainerMerchant.java
 +++ ../src-work/minecraft/net/minecraft/inventory/ContainerMerchant.java
-@@ -5,6 +5,7 @@
+@@ -5,6 +5,8 @@
  import net.minecraft.entity.player.InventoryPlayer;
  import net.minecraft.item.ItemStack;
  import net.minecraft.world.World;
-+import org.bukkit.craftbukkit.inventory.CraftInventoryView;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryMerchant;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
  
  public class ContainerMerchant extends Container
  {
-@@ -12,6 +13,9 @@
+@@ -12,6 +14,9 @@
      private final InventoryMerchant merchantInventory;
      private final World world;
  
@@ -18,7 +19,7 @@
      public ContainerMerchant(InventoryPlayer playerInventory, IMerchant merchant, World worldIn)
      {
          this.merchant = merchant;
-@@ -20,6 +24,7 @@
+@@ -20,6 +25,7 @@
          this.addSlotToContainer(new Slot(this.merchantInventory, 0, 36, 53));
          this.addSlotToContainer(new Slot(this.merchantInventory, 1, 62, 53));
          this.addSlotToContainer(new SlotMerchantResult(playerInventory.player, merchant, this.merchantInventory, 2, 120, 53));
@@ -26,7 +27,7 @@
  
          for (int i = 0; i < 3; ++i)
          {
-@@ -137,4 +142,12 @@
+@@ -137,4 +143,12 @@
              }
          }
      }
@@ -34,7 +35,7 @@
 +    @Override
 +    public CraftInventoryView getBukkitView() {
 +        if (bukkitEntity == null) {
-+            bukkitEntity = new CraftInventoryView(this.player.player.getBukkitEntity(), new org.bukkit.craftbukkit.inventory.CraftInventoryMerchant(merchantInventory), this);
++            bukkitEntity = new CraftInventoryView(this.player.player.getBukkitEntity(), new CraftInventoryMerchant(merchantInventory), this);
 +        }
 +        return bukkitEntity;
 +    }

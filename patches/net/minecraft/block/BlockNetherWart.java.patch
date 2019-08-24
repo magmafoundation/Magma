@@ -1,6 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockNetherWart.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockNetherWart.java
-@@ -49,10 +49,11 @@
+@@ -16,6 +16,7 @@
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public class BlockNetherWart extends BlockBush
+ {
+@@ -49,10 +50,11 @@
      {
          int i = ((Integer)state.getValue(AGE)).intValue();
  
@@ -10,7 +18,7 @@
              IBlockState newState = state.withProperty(AGE, Integer.valueOf(i + 1));
 -            worldIn.setBlockState(pos, newState, 2);
 +//            worldIn.setBlockState(pos, newState, 2);
-+            org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(worldIn, pos.getX(), pos.getY(), pos.getZ(), this, getMetaFromState(newState));
++            CraftEventFactory.handleBlockGrowEvent(worldIn, pos.getX(), pos.getY(), pos.getZ(), this, getMetaFromState(newState));
              net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state, newState);
          }
  

@@ -1,10 +1,18 @@
 --- ../src-base/minecraft/net/minecraft/entity/ai/EntityAIBreakDoor.java
 +++ ../src-work/minecraft/net/minecraft/entity/ai/EntityAIBreakDoor.java
-@@ -84,6 +84,10 @@
+@@ -4,6 +4,7 @@
+ import net.minecraft.block.BlockDoor;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.world.EnumDifficulty;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public class EntityAIBreakDoor extends EntityAIDoorInteract
+ {
+@@ -84,6 +85,10 @@
  
          if (this.breakingTime == 240 && this.entity.world.getDifficulty() == EnumDifficulty.HARD)
          {
-+            if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityBreakDoorEvent(this.entity, this.doorPosition.getX(), this.doorPosition.getY(), this.doorPosition.getZ()).isCancelled()) {
++            if (CraftEventFactory.callEntityBreakDoorEvent(this.entity, this.doorPosition.getX(), this.doorPosition.getY(), this.doorPosition.getZ()).isCancelled()) {
 +                this.startExecuting();
 +                return;
 +            }

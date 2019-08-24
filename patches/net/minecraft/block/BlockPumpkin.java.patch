@@ -4,7 +4,7 @@
  import net.minecraft.util.Rotation;
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.world.World;
-+import org.bukkit.craftbukkit.util.BlockStateListPopulator;
++import org.bukkit.craftbukkit.v1_12_R1.util.BlockStateListPopulator;
 +import org.bukkit.event.entity.CreatureSpawnEvent;
  
  public class BlockPumpkin extends BlockHorizontal

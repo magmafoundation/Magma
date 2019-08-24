@@ -26,6 +26,7 @@ import net.minecraft.server.MinecraftServer;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.remapper.MagmaRemapper;
 
 /**
@@ -93,7 +94,7 @@ final class PluginClassLoader extends URLClassLoader {
             Map<String, String> relocations = new HashMap<>();
             relocations.put("net.minecraft.server", "net.minecraft.server.v1_12_R1");
 
-            jarMapping.loadMappings(new BufferedReader(new InputStreamReader(PluginClassLoader.class.getResourceAsStream("mappings/NMSMappings.srg"))), new MavenShade(relocations), null, false);
+            jarMapping.loadMappings(new BufferedReader(new InputStreamReader(Magma.class.getClassLoader().getResourceAsStream("mappings/NMSMappings.srg"))), new MavenShade(relocations), null, false);
         }catch (Exception e){
             e.printStackTrace();
         }

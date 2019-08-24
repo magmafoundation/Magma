@@ -1,10 +1,18 @@
 --- ../src-base/minecraft/net/minecraft/item/ItemFireball.java
 +++ ../src-work/minecraft/net/minecraft/item/ItemFireball.java
-@@ -38,6 +38,12 @@
+@@ -11,6 +11,7 @@
+ import net.minecraft.util.SoundCategory;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.world.World;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public class ItemFireball extends Item
+ {
+@@ -38,6 +39,12 @@
              {
                  if (worldIn.getBlockState(pos).getMaterial() == Material.AIR)
                  {
-+                    if (org.bukkit.craftbukkit.event.CraftEventFactory.callBlockIgniteEvent(worldIn, pos.getX(), pos.getY(), pos.getZ(), org.bukkit.event.block.BlockIgniteEvent.IgniteCause.FIREBALL, player).isCancelled()) {
++                    if (CraftEventFactory.callBlockIgniteEvent(worldIn, pos.getX(), pos.getY(), pos.getZ(), org.bukkit.event.block.BlockIgniteEvent.IgniteCause.FIREBALL, player).isCancelled()) {
 +                        if (!player.capabilities.isCreativeMode) {
 +                            itemstack.shrink(1);
 +                        }

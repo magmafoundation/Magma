@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraftforge/event/world/BlockEvent.java
 +++ ../src-work/minecraft/net/minecraftforge/event/world/BlockEvent.java
-@@ -19,29 +19,26 @@
+@@ -19,29 +19,27 @@
  
  package net.minecraftforge.event.world;
  
@@ -25,7 +25,8 @@
  import net.minecraftforge.common.util.BlockSnapshot;
  import net.minecraftforge.fml.common.eventhandler.Cancelable;
  import net.minecraftforge.fml.common.eventhandler.Event;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlockState;
  
 -import com.google.common.collect.ImmutableList;
 -
@@ -36,7 +37,7 @@
  
  public class BlockEvent extends Event
  {
-@@ -125,16 +122,17 @@
+@@ -125,16 +123,17 @@
              super(world, pos, state);
              this.player = player;
  
@@ -60,7 +61,7 @@
          }
  
          public EntityPlayer getPlayer()
-@@ -204,8 +202,7 @@
+@@ -204,8 +203,7 @@
       */
      @Cancelable
      @Deprecated // Remove in 1.13
@@ -70,14 +71,14 @@
          private final EntityPlayer player;
          private final EnumHand hand;
  
-@@ -213,17 +210,31 @@
+@@ -213,17 +211,31 @@
              super(blockSnapshot, placedAgainst, player);
              this.player = player;
              this.hand = hand;
 -            if (DEBUG)
 -            {
 +            // Cauldron start - handle event on bukkit side
-+            org.bukkit.craftbukkit.block.CraftBlockState blockstate = org.bukkit.craftbukkit.block.CraftBlockState.getBlockState(getWorld(), getPos().getX(), getPos().getY(), getPos().getZ());
++            CraftBlockState blockstate = CraftBlockState.getBlockState(getWorld(), getPos().getX(), getPos().getY(), getPos().getZ());
 +            org.bukkit.event.block.BlockPlaceEvent bukkitEvent = CraftEventFactory.callBlockPlaceEvent(getWorld(), player, hand, blockstate, getPos().getX(), getPos().getY(), getPos().getZ());
 +            if (bukkitEvent.isCancelled() || !bukkitEvent.canBuild()) {
 +                this.setCanceled(true);

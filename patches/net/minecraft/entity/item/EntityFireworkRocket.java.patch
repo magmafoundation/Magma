@@ -4,7 +4,7 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class EntityFireworkRocket extends Entity
  {
@@ -38,7 +38,7 @@
          {
 -            this.world.setEntityState(this, (byte)17);
 -            this.dealExplosionDamage();
-+            if (!org.bukkit.craftbukkit.event.CraftEventFactory.callFireworkExplodeEvent(this).isCancelled()) {
++            if (!CraftEventFactory.callFireworkExplodeEvent(this).isCancelled()) {
 +                this.world.setEntityState(this, (byte) 17);
 +                this.dealExplosionDamage();
 +            }

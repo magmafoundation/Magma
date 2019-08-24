@@ -5,7 +5,7 @@
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.world.World;
 +import org.bukkit.Material;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class EntityAIEatGrass extends EntityAIBase
  {

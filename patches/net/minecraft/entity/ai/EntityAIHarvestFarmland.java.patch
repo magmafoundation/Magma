@@ -1,17 +1,25 @@
 --- ../src-base/minecraft/net/minecraft/entity/ai/EntityAIHarvestFarmland.java
 +++ ../src-work/minecraft/net/minecraft/entity/ai/EntityAIHarvestFarmland.java
-@@ -61,7 +61,9 @@
+@@ -11,6 +11,7 @@
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.world.World;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public class EntityAIHarvestFarmland extends EntityAIMoveToBlock
+ {
+@@ -61,7 +62,9 @@
  
              if (this.currentTask == 0 && block instanceof BlockCrops && ((BlockCrops)block).isMaxAge(iblockstate))
              {
 -                world.destroyBlock(blockpos, true);
-+                if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.villager, blockpos, Blocks.AIR, 0).isCancelled()) {
++                if (!CraftEventFactory.callEntityChangeBlockEvent(this.villager, blockpos, Blocks.AIR, 0).isCancelled()) {
 +                    world.destroyBlock(blockpos, true);
 +                }
              }
              else if (this.currentTask == 1 && iblockstate.getMaterial() == Material.AIR)
              {
-@@ -74,32 +76,42 @@
+@@ -74,32 +77,42 @@
  
                      if (!itemstack.isEmpty())
                      {
@@ -54,7 +62,7 @@
                                  flag = true;
                              }
                          }
-+                        if (planted != null && !org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.villager, blockpos, planted, 0).isCancelled()) {
++                        if (planted != null && !CraftEventFactory.callEntityChangeBlockEvent(this.villager, blockpos, planted, 0).isCancelled()) {
 +                            world.setBlockState(blockpos, planted.getDefaultState(), 3);
 +                        } else {
 +                            flag = false;

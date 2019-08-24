@@ -4,7 +4,7 @@
  import net.minecraft.util.math.MathHelper;
  import net.minecraft.world.World;
  import net.minecraft.world.storage.loot.LootTableList;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class EntityPig extends EntityAnimal
  {

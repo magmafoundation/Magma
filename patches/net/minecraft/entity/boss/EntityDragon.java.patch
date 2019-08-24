@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/entity/boss/EntityDragon.java
 +++ ../src-work/minecraft/net/minecraft/entity/boss/EntityDragon.java
-@@ -19,16 +19,19 @@
+@@ -19,12 +19,14 @@
  import net.minecraft.entity.item.EntityXPOrb;
  import net.minecraft.entity.monster.IMob;
  import net.minecraft.entity.player.EntityPlayer;
@@ -15,28 +15,22 @@
  import net.minecraft.pathfinding.Path;
  import net.minecraft.pathfinding.PathHeap;
  import net.minecraft.pathfinding.PathPoint;
- import net.minecraft.potion.PotionEffect;
-+import net.minecraft.server.MinecraftServer;
- import net.minecraft.util.DamageSource;
- import net.minecraft.util.EntityDamageSource;
- import net.minecraft.util.EnumParticleTypes;
-@@ -40,8 +43,10 @@
+@@ -40,6 +42,7 @@
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.MathHelper;
  import net.minecraft.util.math.Vec3d;
 +import net.minecraft.world.Explosion;
  import net.minecraft.world.World;
  import net.minecraft.world.WorldProviderEnd;
-+import net.minecraft.world.WorldServer;
  import net.minecraft.world.end.DragonFightManager;
- import net.minecraft.world.gen.feature.WorldGenEndPodium;
- import net.minecraft.world.storage.loot.LootTableList;
-@@ -49,6 +54,8 @@
+@@ -49,6 +52,10 @@
  import net.minecraftforge.fml.relauncher.SideOnly;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.bukkit.event.entity.EntityExplodeEvent;
 +import org.bukkit.event.entity.EntityRegainHealthEvent;
++import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
++import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
  
  public class EntityDragon extends EntityLiving implements IEntityMultiPart, IMob
  {
@@ -81,7 +75,7 @@
  
 +        // CraftBukkit start - Create a list to hold all the destroyed blocks
 +        List<org.bukkit.block.Block> destroyedBlocks = new java.util.ArrayList<org.bukkit.block.Block>();
-+        org.bukkit.craftbukkit.CraftWorld craftWorld = this.world.getWorld();
++        CraftWorld craftWorld = this.world.getWorld();
 +        // CraftBukkit end
 +
          for (int k1 = i; k1 <= l; ++k1)
@@ -128,7 +122,7 @@
 +                int blockY = block.getY();
 +                int blockZ = block.getZ();
 +
-+                Block nmsBlock = org.bukkit.craftbukkit.util.CraftMagicNumbers.getBlock(blockId);
++                Block nmsBlock = CraftMagicNumbers.getBlock(blockId);
 +                if (nmsBlock.canDropFromExplosion(explosionSource)) {
 +                    nmsBlock.dropBlockAsItemWithChance(this.world, new BlockPos(blockX, blockY, blockZ), nmsBlock.getStateFromMeta(block.getData()), event.getYield(), 0);
 +                }

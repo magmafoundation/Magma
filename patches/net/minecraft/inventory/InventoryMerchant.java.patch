@@ -13,8 +13,8 @@
  import net.minecraft.village.MerchantRecipe;
  import net.minecraft.village.MerchantRecipeList;
 +import org.bukkit.Location;
-+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
-+import org.bukkit.craftbukkit.entity.CraftVillager;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftVillager;
  
 +import java.util.List;
 +import org.bukkit.entity.HumanEntity;

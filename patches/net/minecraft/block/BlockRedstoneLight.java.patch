@@ -4,7 +4,7 @@
  import net.minecraft.item.ItemStack;
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.world.World;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class BlockRedstoneLight extends Block
  {

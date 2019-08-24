@@ -16,7 +16,7 @@
  import net.minecraft.world.gen.structure.template.TemplateManager;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
-+import org.bukkit.craftbukkit.entity.CraftPlayer;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
  
  public class SaveHandler implements ISaveHandler, IPlayerFileData
  {

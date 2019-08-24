@@ -1,12 +1,20 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockMagma.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockMagma.java
-@@ -40,7 +40,9 @@
+@@ -20,6 +20,7 @@
+ import net.minecraft.world.WorldServer;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public class BlockMagma extends Block
+ {
+@@ -40,7 +41,9 @@
      {
          if (!entityIn.isImmuneToFire() && entityIn instanceof EntityLivingBase && !EnchantmentHelper.hasFrostWalkerEnchantment((EntityLivingBase)entityIn))
          {
-+            org.bukkit.craftbukkit.event.CraftEventFactory.blockDamage = worldIn.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
++            CraftEventFactory.blockDamage = worldIn.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
              entityIn.attackEntityFrom(DamageSource.HOT_FLOOR, 1.0F);
-+            org.bukkit.craftbukkit.event.CraftEventFactory.blockDamage = null;
++            CraftEventFactory.blockDamage = null;
          }
  
          super.onEntityWalk(worldIn, pos, entityIn);

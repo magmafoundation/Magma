@@ -1,11 +1,19 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockLiquid.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockLiquid.java
-@@ -285,14 +285,18 @@
+@@ -27,6 +27,7 @@
+ import net.minecraft.world.World;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public abstract class BlockLiquid extends Block
+ {
+@@ -285,14 +286,18 @@
                  if (integer.intValue() == 0)
                  {
                      worldIn.setBlockState(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(worldIn, pos, pos, Blocks.OBSIDIAN.getDefaultState()));
 -                    this.triggerMixEffects(worldIn, pos);
-+                    if (org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockFormEvent(worldIn, pos, Blocks.OBSIDIAN.getDefaultState(), null)) {
++                    if (CraftEventFactory.handleBlockFormEvent(worldIn, pos, Blocks.OBSIDIAN.getDefaultState(), null)) {
 +                        this.triggerMixEffects(worldIn, pos);
 +                    }
                      return true;
@@ -15,7 +23,7 @@
                  {
                      worldIn.setBlockState(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(worldIn, pos, pos, Blocks.COBBLESTONE.getDefaultState()));
 -                    this.triggerMixEffects(worldIn, pos);
-+                    if (org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockFormEvent(worldIn, pos, Blocks.COBBLESTONE.getDefaultState(), null)) {
++                    if (CraftEventFactory.handleBlockFormEvent(worldIn, pos, Blocks.COBBLESTONE.getDefaultState(), null)) {
 +                        this.triggerMixEffects(worldIn, pos);
 +                    }
                      return true;

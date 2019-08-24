@@ -1,14 +1,22 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockCactus.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockCactus.java
-@@ -19,6 +19,7 @@
+@@ -9,7 +9,6 @@
+ import net.minecraft.block.state.IBlockState;
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.entity.Entity;
+-import net.minecraft.init.Blocks;
+ import net.minecraft.util.BlockRenderLayer;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.EnumFacing;
+@@ -19,6 +18,7 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class BlockCactus extends Block implements net.minecraftforge.common.IPlantable
  {
-@@ -54,10 +55,11 @@
+@@ -54,10 +54,11 @@
  
                  if(net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, blockpos, state, true))
                  {
@@ -22,7 +30,7 @@
                      worldIn.setBlockState(pos, iblockstate, 4);
                      iblockstate.neighborChanged(worldIn, blockpos, this, pos);
                  }
-@@ -123,7 +125,9 @@
+@@ -123,7 +124,9 @@
  
      public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
      {

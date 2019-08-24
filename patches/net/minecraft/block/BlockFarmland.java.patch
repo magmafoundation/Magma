@@ -1,15 +1,23 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockFarmland.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockFarmland.java
-@@ -19,6 +19,8 @@
+@@ -8,7 +8,6 @@
+ import net.minecraft.block.state.BlockStateContainer;
+ import net.minecraft.block.state.IBlockState;
+ import net.minecraft.entity.Entity;
+-import net.minecraft.entity.EntityLivingBase;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.init.Blocks;
+ import net.minecraft.item.Item;
+@@ -19,6 +18,8 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.event.entity.EntityInteractEvent;
  
  public class BlockFarmland extends Block
  {
-@@ -72,16 +74,36 @@
+@@ -72,16 +73,36 @@
  
      public void onFallenUpon(World worldIn, BlockPos pos, Entity entityIn, float fallDistance)
      {
@@ -47,7 +55,7 @@
          p_190970_0_.setBlockState(worldIn, Blocks.DIRT.getDefaultState());
          AxisAlignedBB axisalignedbb = field_194405_c.offset(worldIn);
  
-@@ -95,7 +117,7 @@
+@@ -95,7 +116,7 @@
      private boolean hasCrops(World worldIn, BlockPos pos)
      {
          Block block = worldIn.getBlockState(pos.up()).getBlock();

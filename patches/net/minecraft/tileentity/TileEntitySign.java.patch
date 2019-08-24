@@ -1,6 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/tileentity/TileEntitySign.java
 +++ ../src-work/minecraft/net/minecraft/tileentity/TileEntitySign.java
-@@ -24,9 +24,11 @@
+@@ -19,14 +19,19 @@
+ import net.minecraft.world.World;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
++import org.bukkit.craftbukkit.v1_12_R1.command.CraftBlockCommandSender;
++import org.bukkit.craftbukkit.v1_12_R1.command.ProxiedNativeCommandSender;
++import org.bukkit.craftbukkit.v1_12_R1.util.CraftChatMessage;
+ 
+ public class TileEntitySign extends TileEntity
  {
      public final ITextComponent[] signText = new ITextComponent[] {new TextComponentString(""), new TextComponentString(""), new TextComponentString(""), new TextComponentString("")};
      public int lineBeingEdited = -1;
@@ -13,7 +21,7 @@
  
      public NBTTagCompound writeToNBT(NBTTagCompound compound)
      {
-@@ -38,6 +40,10 @@
+@@ -38,6 +43,10 @@
              compound.setString("Text" + (i + 1), s);
          }
  
@@ -24,7 +32,7 @@
          this.stats.writeStatsToNBT(compound);
          return compound;
      }
-@@ -61,6 +67,10 @@
+@@ -61,6 +70,10 @@
              {
                  return permLevel <= 2; //Forge: Fixes  MC-75630 - Exploit with signs and command blocks
              }
@@ -35,7 +43,7 @@
              public BlockPos getPosition()
              {
                  return TileEntitySign.this.pos;
-@@ -79,19 +89,38 @@
+@@ -79,19 +92,38 @@
              }
          };
  
@@ -60,7 +68,7 @@
 +                ITextComponent ichatbasecomponent = ITextComponent.Serializer.jsonToComponent(s);
 +
 +                if (oldSign) {
-+                    signText[i] = org.bukkit.craftbukkit.util.CraftChatMessage.fromString(s)[0];
++                    signText[i] = CraftChatMessage.fromString(s)[0];
 +                    continue;
 +                }
 +                // CraftBukkit end
@@ -80,7 +88,7 @@
          }
  
          this.stats.readStatsFromNBT(compound);
-@@ -131,7 +160,10 @@
+@@ -131,7 +163,10 @@
  
      public void setPlayer(EntityPlayer playerIn)
      {
@@ -92,7 +100,7 @@
      }
  
      public EntityPlayer getPlayer()
-@@ -158,6 +190,11 @@
+@@ -158,6 +193,11 @@
              {
                  return permLevel <= 2;
              }
@@ -104,15 +112,15 @@
              public BlockPos getPosition()
              {
                  return TileEntitySign.this.pos;
-@@ -201,7 +238,12 @@
+@@ -201,7 +241,12 @@
  
                  if (clickevent.getAction() == ClickEvent.Action.RUN_COMMAND)
                  {
 -                    playerIn.getServer().getCommandManager().executeCommand(icommandsender, clickevent.getValue());
 +                    // playerIn.getServer().getCommandManager().executeCommand(icommandsender, clickevent.getValue());
-+                    CommandBlockBaseLogic.executeSafely(icommandsender, new org.bukkit.craftbukkit.command.ProxiedNativeCommandSender(
++                    CommandBlockBaseLogic.executeSafely(icommandsender, new ProxiedNativeCommandSender(
 +                            icommandsender,
-+                            new org.bukkit.craftbukkit.command.CraftBlockCommandSender(icommandsender),
++                            new CraftBlockCommandSender(icommandsender),
 +                            playerIn.getBukkitEntity()
 +                    ), clickevent.getValue());
                  }

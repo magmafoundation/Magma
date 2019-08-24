@@ -8,7 +8,14 @@
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityAgeable;
-@@ -47,6 +46,7 @@
+@@ -41,12 +40,14 @@
+ import net.minecraft.world.DifficultyInstance;
+ import net.minecraft.world.World;
+ import net.minecraft.world.storage.loot.LootTableList;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public class EntityOcelot extends EntityTameable
+ {
      private static final DataParameter<Integer> OCELOT_VARIANT = EntityDataManager.<Integer>createKey(EntityOcelot.class, DataSerializers.VARINT);
      private EntityAIAvoidEntity<EntityPlayer> avoidEntity;
      private EntityAITempt aiTempt;
@@ -16,7 +23,7 @@
  
      public EntityOcelot(World worldIn)
      {
-@@ -106,9 +106,10 @@
+@@ -106,9 +107,10 @@
          }
      }
  
@@ -29,7 +36,7 @@
      }
  
      protected void applyEntityAttributes()
-@@ -189,7 +190,8 @@
+@@ -189,7 +191,8 @@
          {
              if (this.aiSit != null)
              {
@@ -39,17 +46,17 @@
              }
  
              return super.attackEntityFrom(source, amount);
-@@ -222,7 +224,8 @@
+@@ -222,7 +225,8 @@
  
              if (!this.world.isRemote)
              {
 -                if (this.rand.nextInt(3) == 0 && !net.minecraftforge.event.ForgeEventFactory.onAnimalTame(this, player))
 +                // CraftBukkit - added event call and isCancelled check
-+                if (this.rand.nextInt(3) == 0 && !net.minecraftforge.event.ForgeEventFactory.onAnimalTame(this, player) && !org.bukkit.craftbukkit.event.CraftEventFactory.callEntityTameEvent(this, player).isCancelled())
++                if (this.rand.nextInt(3) == 0 && !net.minecraftforge.event.ForgeEventFactory.onAnimalTame(this, player) && !CraftEventFactory.callEntityTameEvent(this, player).isCancelled())
                  {
                      this.setTamedBy(player);
                      this.setTameSkin(1 + this.world.rand.nextInt(3));
-@@ -361,14 +364,14 @@
+@@ -361,14 +365,14 @@
      {
          livingdata = super.onInitialSpawn(difficulty, livingdata);
  

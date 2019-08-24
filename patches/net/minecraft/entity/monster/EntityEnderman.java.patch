@@ -45,14 +45,15 @@
  import net.minecraft.util.datafix.DataFixer;
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.MathHelper;
-@@ -47,7 +34,16 @@
+@@ -47,7 +34,17 @@
  import net.minecraft.util.math.Vec3d;
  import net.minecraft.world.World;
  import net.minecraft.world.storage.loot.LootTableList;
-+import org.bukkit.craftbukkit.entity.CraftEnderman;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEnderman;
 +import org.bukkit.entity.Enderman;
 +import org.bukkit.entity.Player;
 +import org.bukkit.event.entity.EntityTargetEvent;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
 +import javax.annotation.Nullable;
 +import java.util.Random;
@@ -62,7 +63,7 @@
  public class EntityEnderman extends EntityMob
  {
      private static final UUID ATTACKING_SPEED_BOOST_ID = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
-@@ -97,25 +93,38 @@
+@@ -97,25 +94,38 @@
  
      public void setAttackTarget(@Nullable EntityLivingBase entitylivingbaseIn)
      {
@@ -109,7 +110,7 @@
      }
  
      protected void entityInit()
-@@ -187,8 +196,17 @@
+@@ -187,8 +197,17 @@
          this.setHeldBlockState(iblockstate);
      }
  
@@ -128,7 +129,7 @@
          ItemStack itemstack = player.inventory.armorInventory.get(3);
  
          if (itemstack.getItem() == Item.getItemFromBlock(Blocks.PUMPKIN))
-@@ -236,7 +254,7 @@
+@@ -236,7 +255,7 @@
          {
              float f = this.getBrightness();
  
@@ -137,7 +138,7 @@
              {
                  this.setAttackTarget((EntityLivingBase)null);
                  this.teleportRandomly();
-@@ -331,7 +349,7 @@
+@@ -331,7 +350,7 @@
          {
              return false;
          }
@@ -146,7 +147,7 @@
          {
              for (int i = 0; i < 64; ++i)
              {
-@@ -347,7 +365,7 @@
+@@ -347,7 +366,7 @@
          {
              boolean flag = super.attackEntityFrom(source, amount);
  
@@ -155,7 +156,7 @@
              {
                  this.teleportRandomly();
              }
-@@ -399,6 +417,12 @@
+@@ -399,6 +418,12 @@
              private int aggroTime;
              private int teleportTime;
  
@@ -168,7 +169,7 @@
              public AIFindPlayer(EntityEnderman p_i45842_1_)
              {
                  super(p_i45842_1_, EntityPlayer.class, false);
-@@ -467,7 +491,7 @@
+@@ -467,7 +492,7 @@
                      {
                          if (this.enderman.shouldAttackPlayer((EntityPlayer)this.targetEntity))
                          {
@@ -177,14 +178,14 @@
                              {
                                  this.enderman.teleportRandomly();
                              }
-@@ -524,8 +548,12 @@
+@@ -524,8 +549,12 @@
  
                  if (iblockstate2 != null && this.canPlaceBlock(world, blockpos, iblockstate2.getBlock(), iblockstate, iblockstate1) && net.minecraftforge.event.ForgeEventFactory.onBlockPlace(enderman, new net.minecraftforge.common.util.BlockSnapshot(world, blockpos, iblockstate2), net.minecraft.util.EnumFacing.UP).isCanceled())
                  {
 -                    world.setBlockState(blockpos, iblockstate2, 3);
 -                    this.enderman.setHeldBlockState((IBlockState)null);
 +                    // CraftBukkit start - Place event
-+                    if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.enderman, blockpos, this.enderman.getHeldBlockState().getBlock(), this.enderman.getHeldBlockState().getBlock().getMetaFromState(this.enderman.getHeldBlockState())).isCancelled()) {
++                    if (!CraftEventFactory.callEntityChangeBlockEvent(this.enderman, blockpos, this.enderman.getHeldBlockState().getBlock(), this.enderman.getHeldBlockState().getBlock().getMetaFromState(this.enderman.getHeldBlockState())).isCancelled()) {
 +                        world.setBlockState(blockpos, iblockstate2, 3);
 +                        this.enderman.setHeldBlockState((IBlockState) null);
 +                    }
@@ -192,14 +193,14 @@
                  }
              }
  
-@@ -590,8 +618,12 @@
+@@ -590,8 +619,12 @@
  
                  if (EntityEnderman.CARRIABLE_BLOCKS.contains(block) && flag)
                  {
 -                    this.enderman.setHeldBlockState(iblockstate);
 -                    world.setBlockToAir(blockpos);
 +                    // CraftBukkit start - Pickup event
-+                    if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.enderman, this.enderman.world.getWorld().getBlockAt(blockpos.getX(), blockpos.getY(), blockpos.getZ()), org.bukkit.Material.AIR).isCancelled()) {
++                    if (!CraftEventFactory.callEntityChangeBlockEvent(this.enderman, this.enderman.world.getWorld().getBlockAt(blockpos.getX(), blockpos.getY(), blockpos.getZ()), org.bukkit.Material.AIR).isCancelled()) {
 +                        this.enderman.setHeldBlockState(iblockstate);
 +                        world.setBlockToAir(blockpos);
 +                    }

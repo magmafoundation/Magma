@@ -1,11 +1,19 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockLilyPad.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockLilyPad.java
-@@ -34,7 +34,7 @@
+@@ -12,6 +12,7 @@
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.world.IBlockAccess;
+ import net.minecraft.world.World;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public class BlockLilyPad extends BlockBush
+ {
+@@ -34,7 +35,7 @@
      {
          super.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
  
 -        if (entityIn instanceof EntityBoat)
-+        if (entityIn instanceof EntityBoat && !org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(entityIn, pos, Blocks.AIR, 0).isCancelled())
++        if (entityIn instanceof EntityBoat && !CraftEventFactory.callEntityChangeBlockEvent(entityIn, pos, Blocks.AIR, 0).isCancelled())
          {
              worldIn.destroyBlock(new BlockPos(pos), true);
          }

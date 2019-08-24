@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/item/ItemMap.java
 +++ ../src-work/minecraft/net/minecraft/item/ItemMap.java
-@@ -21,11 +21,14 @@
+@@ -21,11 +21,15 @@
  import net.minecraft.util.math.MathHelper;
  import net.minecraft.util.text.translation.I18n;
  import net.minecraft.world.World;
@@ -12,10 +12,11 @@
  import net.minecraftforge.fml.relauncher.SideOnly;
 +import org.bukkit.Bukkit;
 +import org.bukkit.event.server.MapInitializeEvent;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class ItemMap extends ItemMapBase
  {
-@@ -36,16 +39,20 @@
+@@ -36,16 +40,20 @@
  
      public static ItemStack setupNewMap(World worldIn, double worldX, double worldZ, byte scale, boolean trackingPosition, boolean unlimitedTracking)
      {
@@ -35,11 +36,11 @@
          mapdata.trackingPosition = trackingPosition;
          mapdata.unlimitedTracking = unlimitedTracking;
          mapdata.markDirty();
-+        org.bukkit.craftbukkit.event.CraftEventFactory.callEvent(new MapInitializeEvent(mapdata.mapView));
++        CraftEventFactory.callEvent(new MapInitializeEvent(mapdata.mapView));
          return itemstack;
      }
  
-@@ -60,19 +67,25 @@
+@@ -60,19 +68,25 @@
      @Nullable
      public MapData getMapData(ItemStack stack, World worldIn)
      {
@@ -69,7 +70,7 @@
          }
  
          return mapdata;
-@@ -80,7 +93,8 @@
+@@ -80,7 +94,8 @@
  
      public void updateMapData(World worldIn, Entity viewer, MapData data)
      {
@@ -79,7 +80,7 @@
          {
              int i = 1 << data.scale;
              int j = data.xCenter;
-@@ -425,6 +439,7 @@
+@@ -425,6 +440,7 @@
      protected static void scaleMap(ItemStack p_185063_0_, World p_185063_1_, int p_185063_2_)
      {
          MapData mapdata = Items.FILLED_MAP.getMapData(p_185063_0_, p_185063_1_);
@@ -87,7 +88,7 @@
          p_185063_0_.setItemDamage(p_185063_1_.getUniqueDataId("map"));
          MapData mapdata1 = new MapData("map_" + p_185063_0_.getMetadata());
  
-@@ -436,12 +451,15 @@
+@@ -436,12 +452,15 @@
              mapdata1.dimension = mapdata.dimension;
              mapdata1.markDirty();
              p_185063_1_.setData("map_" + p_185063_0_.getMetadata(), mapdata1);
@@ -103,7 +104,7 @@
          p_185064_0_.setItemDamage(p_185064_1_.getUniqueDataId("map"));
          MapData mapdata1 = new MapData("map_" + p_185064_0_.getMetadata());
          mapdata1.trackingPosition = true;
-@@ -454,6 +472,8 @@
+@@ -454,6 +473,8 @@
              mapdata1.dimension = mapdata.dimension;
              mapdata1.markDirty();
              p_185064_1_.setData("map_" + p_185064_0_.getMetadata(), mapdata1);

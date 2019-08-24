@@ -1,10 +1,11 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockPressurePlate.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockPressurePlate.java
-@@ -14,13 +14,14 @@
+@@ -14,13 +14,15 @@
  import net.minecraft.util.math.AxisAlignedBB;
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.world.World;
 +import org.bukkit.event.entity.EntityInteractEvent;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class BlockPressurePlate extends BlockBasePressurePlate
  {
@@ -17,7 +18,7 @@
      {
          super(materialIn);
          this.setDefaultState(this.blockState.getBaseState().withProperty(POWERED, Boolean.valueOf(false)));
-@@ -82,6 +83,24 @@
+@@ -82,6 +84,24 @@
          {
              for (Entity entity : list)
              {
@@ -27,7 +28,7 @@
 +                    org.bukkit.event.Cancellable cancellable;
 +
 +                    if (entity instanceof EntityPlayer) {
-+                        cancellable = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerInteractEvent((EntityPlayer) entity, org.bukkit.event.block.Action.PHYSICAL, pos, null, null, null);
++                        cancellable = CraftEventFactory.callPlayerInteractEvent((EntityPlayer) entity, org.bukkit.event.block.Action.PHYSICAL, pos, null, null, null);
 +                    } else {
 +                        cancellable = new EntityInteractEvent(entity.getBukkitEntity(), bworld.getBlockAt(pos.getX(), pos.getY(), pos.getZ()));
 +                        manager.callEvent((EntityInteractEvent) cancellable);

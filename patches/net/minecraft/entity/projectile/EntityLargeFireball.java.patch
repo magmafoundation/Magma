@@ -1,10 +1,18 @@
 --- ../src-base/minecraft/net/minecraft/entity/projectile/EntityLargeFireball.java
 +++ ../src-work/minecraft/net/minecraft/entity/projectile/EntityLargeFireball.java
-@@ -9,6 +9,7 @@
+@@ -1,6 +1,5 @@
+ package net.minecraft.entity.projectile;
+ 
+-import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLivingBase;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.util.DamageSource;
+@@ -9,6 +8,8 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
 +import org.bukkit.event.entity.ExplosionPrimeEvent;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
  
  public class EntityLargeFireball extends EntityFireball
  {
@@ -33,7 +41,7 @@
 -            this.world.newExplosion((Entity)null, this.posX, this.posY, this.posZ, (float)this.explosionPower, flag, flag);
 +            // this.world.newExplosion((Entity)null, this.posX, this.posY, this.posZ, (float)this.explosionPower, flag, flag);
 +            // CraftBukkit start - fire ExplosionPrimeEvent
-+            ExplosionPrimeEvent event = new ExplosionPrimeEvent((org.bukkit.entity.Explosive) org.bukkit.craftbukkit.entity.CraftEntity.getEntity(this.world.getServer(), this));
++            ExplosionPrimeEvent event = new ExplosionPrimeEvent((org.bukkit.entity.Explosive) CraftEntity.getEntity(this.world.getServer(), this));
 +            this.world.getServer().getPluginManager().callEvent(event);
 +            if (!event.isCancelled()) {
 +                // give 'this' instead of (Entity) null so we know what causes the damage

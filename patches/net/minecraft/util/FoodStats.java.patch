@@ -12,7 +12,7 @@
  import net.minecraft.world.EnumDifficulty;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.event.entity.FoodLevelChangeEvent;
  
  public class FoodStats
@@ -70,7 +70,7 @@
 +                {
 +                    this.foodLevel = Math.max(this.foodLevel - 1, 0);
 +                } else {
-+                    org.bukkit.event.entity.FoodLevelChangeEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callFoodLevelChangeEvent(player, Math.max(this.foodLevel - 1, 0));
++                    org.bukkit.event.entity.FoodLevelChangeEvent event = CraftEventFactory.callFoodLevelChangeEvent(player, Math.max(this.foodLevel - 1, 0));
 +
 +                    if (!event.isCancelled()) {
 +                        this.foodLevel = event.getFoodLevel();

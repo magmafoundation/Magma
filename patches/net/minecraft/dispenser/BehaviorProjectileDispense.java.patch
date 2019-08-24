@@ -1,15 +1,16 @@
 --- ../src-base/minecraft/net/minecraft/dispenser/BehaviorProjectileDispense.java
 +++ ../src-work/minecraft/net/minecraft/dispenser/BehaviorProjectileDispense.java
-@@ -6,6 +6,8 @@
+@@ -6,6 +6,9 @@
  import net.minecraft.item.ItemStack;
  import net.minecraft.util.EnumFacing;
  import net.minecraft.world.World;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 +import org.bukkit.event.block.BlockDispenseEvent;
++import org.bukkit.craftbukkit.v1_12_R1.projectiles.CraftBlockProjectileSource;
  
  public abstract class BehaviorProjectileDispense extends BehaviorDefaultDispenseItem
  {
-@@ -15,9 +17,36 @@
+@@ -15,9 +18,36 @@
          IPosition iposition = BlockDispenser.getDispensePosition(source);
          EnumFacing enumfacing = (EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING);
          IProjectile iprojectile = this.getProjectileEntity(world, iposition, stack);
@@ -40,7 +41,7 @@
 +        }
 +
 +        iprojectile.shoot(event.getVelocity().getX(), event.getVelocity().getY(), event.getVelocity().getZ(), this.getProjectileVelocity(), this.getProjectileInaccuracy());
-+        ((Entity) iprojectile).projectileSource = new org.bukkit.craftbukkit.projectiles.CraftBlockProjectileSource(source.getBlockTileEntity());
++        ((Entity) iprojectile).projectileSource = new CraftBlockProjectileSource(source.getBlockTileEntity());
 +        // CraftBukkit end
          world.spawnEntity((Entity)iprojectile);
 -        stack.shrink(1);

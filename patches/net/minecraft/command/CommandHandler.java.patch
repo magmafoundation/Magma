@@ -18,8 +18,8 @@
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.bukkit.command.CommandWrapper;
-+import org.bukkit.craftbukkit.command.CraftSimpleCommandMap;
-+import org.bukkit.craftbukkit.command.ModCustomCommand;
++import org.bukkit.craftbukkit.v1_12_R1.command.CraftSimpleCommandMap;
++import org.bukkit.craftbukkit.v1_12_R1.command.ModCustomCommand;
  
 +import javax.annotation.Nullable;
 +import java.util.Collections;

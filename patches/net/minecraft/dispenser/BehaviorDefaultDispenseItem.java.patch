@@ -4,7 +4,7 @@
  import net.minecraft.item.ItemStack;
  import net.minecraft.util.EnumFacing;
  import net.minecraft.world.World;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 +import org.bukkit.event.block.BlockDispenseEvent;
  
  public class BehaviorDefaultDispenseItem implements IBehaviorDispenseItem

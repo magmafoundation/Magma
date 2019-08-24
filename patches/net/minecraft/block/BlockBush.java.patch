@@ -1,6 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockBush.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockBush.java
-@@ -41,7 +41,7 @@
+@@ -16,6 +16,7 @@
+ import net.minecraft.world.World;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public class BlockBush extends Block implements net.minecraftforge.common.IPlantable
+ {
+@@ -41,7 +42,7 @@
      public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
      {
          IBlockState soil = worldIn.getBlockState(pos.down());
@@ -9,17 +17,17 @@
      }
  
      protected boolean canSustainBush(IBlockState state)
-@@ -64,6 +64,9 @@
+@@ -64,6 +65,9 @@
      {
          if (!this.canBlockStay(worldIn, pos, state))
          {
-+            if (org.bukkit.craftbukkit.event.CraftEventFactory.callBlockPhysicsEvent(worldIn, pos).isCancelled()) {
++            if (CraftEventFactory.callBlockPhysicsEvent(worldIn, pos).isCancelled()) {
 +                return;
 +            }
              this.dropBlockAsItem(worldIn, pos, state, 0);
              worldIn.setBlockState(pos, Blocks.AIR.getDefaultState(), 3);
          }
-@@ -74,7 +77,7 @@
+@@ -74,7 +78,7 @@
          if (state.getBlock() == this) //Forge: This function is called during world gen and placement, before this block is set, so if we are not 'here' then assume it's the pre-check.
          {
              IBlockState soil = worldIn.getBlockState(pos.down());

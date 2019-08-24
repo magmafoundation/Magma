@@ -8,17 +8,19 @@
  import javax.annotation.Nullable;
  import net.minecraft.entity.item.EntityItemFrame;
  import net.minecraft.entity.player.EntityPlayer;
-@@ -15,6 +16,9 @@
+@@ -15,6 +16,11 @@
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.MathHelper;
  import net.minecraft.world.World;
-+import org.bukkit.craftbukkit.CraftServer;
-+import org.bukkit.craftbukkit.CraftWorld;
-+import org.bukkit.craftbukkit.map.CraftMapView;
++import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
++import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
++import org.bukkit.craftbukkit.v1_12_R1.map.CraftMapView;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
++import org.bukkit.craftbukkit.v1_12_R1.map.RenderData;
  
  public class MapData extends WorldSavedData
  {
-@@ -25,13 +29,19 @@
+@@ -25,13 +31,19 @@
      public boolean unlimitedTracking;
      public byte scale;
      public byte[] colors = new byte[16384];
@@ -40,7 +42,7 @@
      }
  
      public void calculateMapCenter(double x, double z, int mapScale)
-@@ -45,7 +55,31 @@
+@@ -45,7 +57,31 @@
  
      public void readFromNBT(NBTTagCompound nbt)
      {
@@ -73,7 +75,7 @@
          this.xCenter = nbt.getInteger("xCenter");
          this.zCenter = nbt.getInteger("zCenter");
          this.scale = nbt.getByte("scale");
-@@ -97,6 +131,25 @@
+@@ -97,6 +133,25 @@
  
      public NBTTagCompound writeToNBT(NBTTagCompound compound)
      {
@@ -99,7 +101,7 @@
          compound.setInteger("dimension", this.dimension);
          compound.setInteger("xCenter", this.xCenter);
          compound.setInteger("zCenter", this.zCenter);
-@@ -113,7 +166,7 @@
+@@ -113,7 +168,7 @@
      {
          if (!this.playersHashMap.containsKey(player))
          {
@@ -108,7 +110,7 @@
              this.playersHashMap.put(player, mapdata$mapinfo);
              this.playersArrayList.add(mapdata$mapinfo);
          }
-@@ -125,7 +178,7 @@
+@@ -125,7 +180,7 @@
  
          for (int i = 0; i < this.playersArrayList.size(); ++i)
          {
@@ -117,7 +119,7 @@
  
              if (!mapdata$mapinfo1.player.isDead && (mapdata$mapinfo1.player.inventory.hasItemStack(mapStack) || mapStack.isOnItemFrame()))
              {
-@@ -268,7 +321,7 @@
+@@ -268,7 +323,7 @@
      @Nullable
      public Packet<?> getMapPacket(ItemStack mapStack, World worldIn, EntityPlayer player)
      {
@@ -126,7 +128,7 @@
          return mapdata$mapinfo == null ? null : mapdata$mapinfo.getPacket(mapStack);
      }
  
-@@ -276,19 +329,19 @@
+@@ -276,19 +331,19 @@
      {
          super.markDirty();
  
@@ -150,11 +152,11 @@
              this.playersHashMap.put(player, mapdata$mapinfo);
              this.playersArrayList.add(mapdata$mapinfo);
          }
-@@ -315,14 +368,25 @@
+@@ -315,14 +370,25 @@
          @Nullable
          public Packet<?> getPacket(ItemStack stack)
          {
-+            org.bukkit.craftbukkit.map.RenderData render = MapData.this.mapView.render((org.bukkit.craftbukkit.entity.CraftPlayer) this.player.getBukkitEntity());
++            RenderData render = MapData.this.mapView.render((CraftPlayer) this.player.getBukkitEntity());
 +
 +            java.util.Collection<MapDecoration> icons = new java.util.ArrayList<>();
 +

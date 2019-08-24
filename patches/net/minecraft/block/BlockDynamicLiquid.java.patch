@@ -1,15 +1,17 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockDynamicLiquid.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockDynamicLiquid.java
-@@ -9,6 +9,8 @@
+@@ -9,6 +9,10 @@
  import net.minecraft.util.EnumFacing;
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.world.World;
 +import org.bukkit.block.BlockFace;
 +import org.bukkit.event.block.BlockFromToEvent;
++import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlock;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class BlockDynamicLiquid extends BlockLiquid
  {
-@@ -82,7 +84,7 @@
+@@ -82,7 +86,7 @@
                  }
              }
  
@@ -18,7 +20,7 @@
              {
                  k *= 4;
              }
-@@ -113,14 +115,22 @@
+@@ -113,14 +117,22 @@
              this.placeStaticBlock(worldIn, pos, state);
          }
  
@@ -37,19 +39,19 @@
              {
 -                worldIn.setBlockState(pos.down(), net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(worldIn, pos.down(), pos, Blocks.STONE.getDefaultState()));
 -                this.triggerMixEffects(worldIn, pos.down());
-+                if (org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockFormEvent(worldIn, pos.down(), net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(worldIn, pos.down(), pos, Blocks.STONE.getDefaultState()), null)) {
++                if (CraftEventFactory.handleBlockFormEvent(worldIn, pos.down(), net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(worldIn, pos.down(), pos, Blocks.STONE.getDefaultState()), null)) {
 +                    this.triggerMixEffects(worldIn, pos.down());
 +                }
                  return;
              }
  
-@@ -150,14 +160,20 @@
+@@ -150,14 +162,20 @@
  
              for (EnumFacing enumfacing1 : set)
              {
 -                this.tryFlowInto(worldIn, pos.offset(enumfacing1), worldIn.getBlockState(pos.offset(enumfacing1)), k1);
 +                // CraftBukkit start
-+                BlockFromToEvent event = new BlockFromToEvent(source, org.bukkit.craftbukkit.block.CraftBlock.notchToBlockFace(enumfacing1));
++                BlockFromToEvent event = new BlockFromToEvent(source, CraftBlock.notchToBlockFace(enumfacing1));
 +                worldIn.getServer().getPluginManager().callEvent(event);
 +
 +                if (!event.isCancelled()) {

@@ -12,16 +12,17 @@
  import java.util.Map.Entry;
  import javax.annotation.Nullable;
  import net.minecraft.block.material.EnumPushReaction;
-@@ -23,6 +20,8 @@
+@@ -23,6 +20,9 @@
  import net.minecraft.util.math.MathHelper;
  import net.minecraft.world.World;
  import net.minecraft.world.WorldServer;
-+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
 +import org.bukkit.entity.LivingEntity;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class EntityAreaEffectCloud extends Entity
  {
-@@ -33,15 +32,15 @@
+@@ -33,15 +33,15 @@
      private static final DataParameter<Integer> PARTICLE_PARAM_1 = EntityDataManager.<Integer>createKey(EntityAreaEffectCloud.class, DataSerializers.VARINT);
      private static final DataParameter<Integer> PARTICLE_PARAM_2 = EntityDataManager.<Integer>createKey(EntityAreaEffectCloud.class, DataSerializers.VARINT);
      private PotionType potion;
@@ -43,7 +44,7 @@
      private EntityLivingBase owner;
      private UUID ownerUniqueId;
  
-@@ -126,6 +125,23 @@
+@@ -126,6 +126,23 @@
          }
      }
  
@@ -67,7 +68,7 @@
      public int getColor()
      {
          return ((Integer)this.getDataManager().get(COLOR)).intValue();
-@@ -192,7 +208,12 @@
+@@ -192,7 +209,12 @@
          super.onUpdate();
          boolean flag = this.shouldIgnoreRadius();
          float f = this.getRadius();
@@ -81,7 +82,7 @@
          if (this.world.isRemote)
          {
              EnumParticleTypes enumparticletypes = this.getParticle();
-@@ -284,11 +305,13 @@
+@@ -284,11 +306,13 @@
              {
                  f += this.radiusPerTick;
  
@@ -100,7 +101,7 @@
  
                  this.setRadius(f);
              }
-@@ -326,6 +349,7 @@
+@@ -326,6 +350,7 @@
  
                      if (!list.isEmpty())
                      {
@@ -108,7 +109,7 @@
                          for (EntityLivingBase entitylivingbase : list)
                          {
                              if (!this.reapplicationDelayMap.containsKey(entitylivingbase) && entitylivingbase.canBeHitWithPotion())
-@@ -336,6 +360,15 @@
+@@ -336,6 +361,15 @@
  
                                  if (d2 <= (double)(f * f))
                                  {
@@ -116,7 +117,7 @@
 +                                }
 +                            }
 +                        }
-+                        org.bukkit.event.entity.AreaEffectCloudApplyEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callAreaEffectCloudApplyEvent(this, entities);
++                        org.bukkit.event.entity.AreaEffectCloudApplyEvent event = CraftEventFactory.callAreaEffectCloudApplyEvent(this, entities);
 +                        if (true) { // Preserve NMS spacing and bracket count for smallest diff
 +                            for (LivingEntity entity : event.getAffectedEntities()) {
 +                                if (entity instanceof CraftLivingEntity) {

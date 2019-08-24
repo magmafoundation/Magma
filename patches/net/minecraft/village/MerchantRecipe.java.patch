@@ -4,7 +4,7 @@
  import net.minecraft.nbt.NBTTagCompound;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.inventory.CraftMerchantRecipe;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMerchantRecipe;
  
  public class MerchantRecipe
  {

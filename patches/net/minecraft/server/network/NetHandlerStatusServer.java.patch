@@ -10,12 +10,13 @@
  import net.minecraft.network.status.INetHandlerStatusServer;
  import net.minecraft.network.status.client.CPacketPing;
  import net.minecraft.network.status.client.CPacketServerQuery;
-@@ -9,7 +12,13 @@
+@@ -9,7 +12,14 @@
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.util.text.ITextComponent;
  import net.minecraft.util.text.TextComponentString;
 +import net.minecraft.util.text.TextComponentTranslation;
-+import org.bukkit.craftbukkit.util.CraftIconCache;
++import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
++import org.bukkit.craftbukkit.v1_12_R1.util.CraftIconCache;
 +import org.bukkit.entity.Player;
  
 +import java.net.InetSocketAddress;
@@ -24,7 +25,7 @@
  public class NetHandlerStatusServer implements INetHandlerStatusServer
  {
      private static final ITextComponent EXIT_MESSAGE = new TextComponentString("Status request has been handled.");
-@@ -36,8 +45,102 @@
+@@ -36,8 +46,102 @@
          else
          {
              this.handled = true;
@@ -43,7 +44,7 @@
 +                @Override
 +                public void setServerIcon(org.bukkit.util.CachedServerIcon icon) {
 +                    if (!(icon instanceof CraftIconCache)) {
-+                        throw new IllegalArgumentException(icon + " was not created by " + org.bukkit.craftbukkit.CraftServer.class);
++                        throw new IllegalArgumentException(icon + " was not created by " + CraftServer.class);
 +                    }
 +                    this.icon = (CraftIconCache) icon;
 +                }

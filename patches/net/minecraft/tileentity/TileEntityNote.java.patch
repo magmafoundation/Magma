@@ -1,6 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/tileentity/TileEntityNote.java
 +++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityNote.java
-@@ -44,7 +44,7 @@
+@@ -8,6 +8,7 @@
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.MathHelper;
+ import net.minecraft.world.World;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public class TileEntityNote extends TileEntity
+ {
+@@ -44,7 +45,7 @@
          {
              IBlockState iblockstate = worldIn.getBlockState(posIn.down());
              Material material = iblockstate.getMaterial();
@@ -9,13 +17,13 @@
  
              if (material == Material.ROCK)
              {
-@@ -93,7 +93,11 @@
+@@ -93,7 +94,11 @@
                  i = 9;
              }
  
 -            worldIn.addBlockEvent(posIn, Blocks.NOTEBLOCK, i, this.note);
 +            // worldIn.addBlockEvent(posIn, Blocks.NOTEBLOCK, i, this.note);
-+            org.bukkit.event.block.NotePlayEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callNotePlayEvent(this.world, posIn.getX(), posIn.getY(), posIn.getZ(), i, this.note);
++            org.bukkit.event.block.NotePlayEvent event = CraftEventFactory.callNotePlayEvent(this.world, posIn.getX(), posIn.getY(), posIn.getZ(), i, this.note);
 +            if (!event.isCancelled()) {
 +                worldIn.addBlockEvent(posIn, Blocks.NOTEBLOCK, event.getInstrument().getType(), event.getNote().getId());
 +            }

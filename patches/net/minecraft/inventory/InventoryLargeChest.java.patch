@@ -5,7 +5,7 @@
  import net.minecraft.world.ILockableContainer;
  import net.minecraft.world.LockCode;
 +import org.bukkit.Location;
-+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 +import org.bukkit.entity.HumanEntity;
  
 +import java.util.ArrayList;

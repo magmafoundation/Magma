@@ -45,7 +45,15 @@
  import net.minecraftforge.event.AnvilUpdateEvent;
  import net.minecraftforge.event.DifficultyChangeEvent;
  import net.minecraftforge.event.ForgeEventFactory;
-@@ -450,7 +441,7 @@
+@@ -164,6 +155,7 @@
+ 
+ import org.apache.commons.io.FilenameUtils;
+ import org.apache.commons.io.IOUtils;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+ 
+ public class ForgeHooks
+ {
+@@ -450,7 +442,7 @@
                  }
                  else
                  {
@@ -54,7 +62,7 @@
  
                      if (resourcelocation == null || !EntityList.ENTITY_EGGS.containsKey(resourcelocation))
                      {
-@@ -472,7 +463,7 @@
+@@ -472,7 +464,7 @@
                  }
                  else if (this.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY)
                  {
@@ -63,7 +71,7 @@
                  }
  
                  LOGGER.warn("Picking on: [{}] {} gave null item", new Object[] {this.objectMouseOver.typeOfHit, s});
-@@ -816,27 +807,8 @@
+@@ -816,27 +808,8 @@
  
      public static int onBlockBreakEvent(World world, GameType gameType, EntityPlayerMP entityPlayer, BlockPos pos)
      {
@@ -92,7 +100,7 @@
          {
              SPacketBlockChange packet = new SPacketBlockChange(world, pos);
              packet.blockState = Blocks.AIR.getDefaultState();
-@@ -846,11 +818,11 @@
+@@ -846,11 +819,11 @@
          // Post the block break event
          IBlockState state = world.getBlockState(pos);
          BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, entityPlayer);
@@ -106,7 +114,7 @@
          {
              // Let the client know the block still exists
              entityPlayer.connection.sendPacket(new SPacketBlockChange(world, pos));
-@@ -865,6 +837,11 @@
+@@ -865,6 +838,11 @@
                      entityPlayer.connection.sendPacket(pkt);
                  }
              }
@@ -118,15 +126,15 @@
          }
          return event.isCanceled() ? -1 : event.getExpToDrop();
      }
-@@ -929,6 +906,7 @@
+@@ -929,6 +907,7 @@
                      blocksnapshot.restore(true, false);
                      world.restoringBlockSnapshots = false;
                  }
-+				((org.bukkit.craftbukkit.entity.CraftPlayer) player.getBukkitEntity()).updateInventory();
++				((CraftPlayer) player.getBukkitEntity()).updateInventory();
              }
              else
              {
-@@ -953,6 +931,29 @@
+@@ -953,6 +932,29 @@
                      world.markAndNotifyBlock(snap.getPos(), null, oldBlock, newBlock, updateFlag);
                  }
                  player.addStat(StatList.getObjectUseStats(itemstack.getItem()));
@@ -156,7 +164,7 @@
              }
          }
          world.capturedBlockSnapshots.clear();
-@@ -992,7 +993,7 @@
+@@ -992,7 +994,7 @@
      }
  
      /**

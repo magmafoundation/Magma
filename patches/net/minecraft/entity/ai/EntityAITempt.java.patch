@@ -9,8 +9,8 @@
  import net.minecraft.item.Item;
  import net.minecraft.item.ItemStack;
  import net.minecraft.pathfinding.PathNavigateGround;
-+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.event.entity.EntityTargetEvent;
 +import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
  

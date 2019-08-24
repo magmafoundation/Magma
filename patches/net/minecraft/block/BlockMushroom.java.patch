@@ -1,16 +1,17 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockMushroom.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockMushroom.java
-@@ -9,6 +9,9 @@
+@@ -9,6 +9,10 @@
  import net.minecraft.world.World;
  import net.minecraft.world.gen.feature.WorldGenBigMushroom;
  import net.minecraft.world.gen.feature.WorldGenerator;
 +import org.bukkit.TreeType;
 +import org.bukkit.block.BlockState;
 +import org.bukkit.event.block.BlockSpreadEvent;
++import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
  
  public class BlockMushroom extends BlockBush implements IGrowable
  {
-@@ -26,7 +29,8 @@
+@@ -26,7 +30,8 @@
  
      public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
      {
@@ -20,7 +21,7 @@
          {
              int i = 5;
              int j = 4;
-@@ -58,7 +62,17 @@
+@@ -58,7 +63,17 @@
  
              if (worldIn.isAirBlock(blockpos1) && this.canBlockStay(worldIn, blockpos1, this.getDefaultState()))
              {
@@ -28,7 +29,7 @@
 +//                worldIn.setBlockState(blockpos1, this.getDefaultState(), 2);
 +                org.bukkit.World bworld = worldIn.getWorld();
 +                BlockState blockState = bworld.getBlockAt(blockpos1.getX(), blockpos1.getY(), blockpos1.getZ()).getState();
-+                blockState.setType(org.bukkit.craftbukkit.util.CraftMagicNumbers.getMaterial(this)); // nms: this.id, 0, 2
++                blockState.setType(CraftMagicNumbers.getMaterial(this)); // nms: this.id, 0, 2
 +
 +                BlockSpreadEvent event = new BlockSpreadEvent(blockState.getBlock(), bworld.getBlockAt(sourceX, sourceY, sourceZ), blockState);
 +                worldIn.getServer().getPluginManager().callEvent(event);
@@ -39,7 +40,7 @@
              }
          }
      }
-@@ -105,10 +119,12 @@
+@@ -105,10 +120,12 @@
  
          if (this == Blocks.BROWN_MUSHROOM)
          {

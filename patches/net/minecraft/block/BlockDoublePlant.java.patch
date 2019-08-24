@@ -4,7 +4,7 @@
  import net.minecraft.world.IBlockAccess;
  import net.minecraft.world.World;
  
-+import net.minecraft.block.Block.EnumOffsetType;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +
  public class BlockDoublePlant extends BlockBush implements IGrowable, net.minecraftforge.common.IShearable
  {
@@ -58,7 +58,7 @@
          if (!this.canBlockStay(worldIn, pos, state))
          {
 -            boolean flag = state.getValue(HALF) == BlockDoublePlant.EnumBlockHalf.UPPER;
-+            if (org.bukkit.craftbukkit.event.CraftEventFactory.callBlockPhysicsEvent(worldIn, pos).isCancelled()) {
++            if (CraftEventFactory.callBlockPhysicsEvent(worldIn, pos).isCancelled()) {
 +                return;
 +            }
 +            boolean flag = state.getValue(HALF) == EnumBlockHalf.UPPER;

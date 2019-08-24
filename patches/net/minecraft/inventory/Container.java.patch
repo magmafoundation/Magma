@@ -1,33 +1,32 @@
 --- ../src-base/minecraft/net/minecraft/inventory/Container.java
 +++ ../src-work/minecraft/net/minecraft/inventory/Container.java
-@@ -18,7 +18,26 @@
+@@ -18,7 +18,25 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
 +import org.bukkit.Bukkit;
-+import org.bukkit.craftbukkit.entity.CraftPlayer;
-+import org.bukkit.craftbukkit.inventory.CraftInventory;
-+import org.bukkit.craftbukkit.inventory.CraftInventoryView;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 +import org.bukkit.event.Event;
 +import org.bukkit.event.inventory.InventoryDragEvent;
 +import org.bukkit.event.inventory.InventoryType;
 +import org.bukkit.inventory.Inventory;
 +import org.bukkit.inventory.InventoryView;
  
-+import javax.annotation.Nullable;
 +import java.util.ArrayList;
 +import java.util.HashMap;
 +import java.util.HashSet;
 +import java.util.Iterator;
-+import java.util.List;
 +import java.util.Map;
-+import java.util.Set;
 +
  public abstract class Container
  {
      public NonNullList<ItemStack> inventoryItemStacks = NonNullList.<ItemStack>create();
-@@ -31,7 +50,77 @@
+@@ -31,7 +49,77 @@
      private final Set<Slot> dragSlots = Sets.<Slot>newHashSet();
      protected List<IContainerListener> listeners = Lists.<IContainerListener>newArrayList();
      private final Set<EntityPlayer> playerList = Sets.<EntityPlayer>newHashSet();
@@ -47,7 +46,7 @@
 +        return bukkitView;
 +    }
 +
-+    public void transferTo(Container other, org.bukkit.craftbukkit.entity.CraftHumanEntity player) {
++    public void transferTo(Container other, CraftHumanEntity player) {
 +        InventoryView source = this.getBukkitView(), destination = other.getBukkitView();
 +        if (source != null) {
 +            try {
@@ -105,7 +104,7 @@
      protected Slot addSlotToContainer(Slot slotIn)
      {
          slotIn.slotNumber = this.inventorySlots.size();
-@@ -79,7 +168,7 @@
+@@ -79,7 +167,7 @@
              ItemStack itemstack = ((Slot)this.inventorySlots.get(i)).getStack();
              ItemStack itemstack1 = this.inventoryItemStacks.get(i);
  
@@ -114,7 +113,7 @@
              {
                  boolean clientStackChanged = !ItemStack.areItemStacksEqualUsingNBTShareTag(itemstack1, itemstack);
                  itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
-@@ -92,6 +181,7 @@
+@@ -92,6 +180,7 @@
                  }
              }
          }
@@ -122,7 +121,7 @@
      }
  
      public boolean enchantItem(EntityPlayer playerIn, int id)
-@@ -174,7 +264,7 @@
+@@ -174,7 +263,7 @@
                  {
                      ItemStack itemstack9 = inventoryplayer.getItemStack().copy();
                      int k1 = inventoryplayer.getItemStack().getCount();
@@ -131,7 +130,7 @@
                      for (Slot slot8 : this.dragSlots)
                      {
                          ItemStack itemstack13 = inventoryplayer.getItemStack();
-@@ -192,12 +282,50 @@
+@@ -192,12 +281,50 @@
                              }
  
                              k1 -= itemstack14.getCount() - j3;
@@ -185,7 +184,7 @@
                  }
  
                  this.resetDrag();
-@@ -219,8 +347,9 @@
+@@ -219,8 +346,9 @@
                  {
                      if (dragType == 0)
                      {
@@ -196,7 +195,7 @@
                      }
  
                      if (dragType == 1)
-@@ -348,6 +477,15 @@
+@@ -348,6 +476,15 @@
                      }
  
                      slot6.onSlotChanged();
@@ -212,13 +211,13 @@
                  }
              }
          }
-@@ -797,7 +935,9 @@
+@@ -797,7 +934,9 @@
                  p_192389_4_.setRecipeUsed(irecipe);
                  itemstack = irecipe.getCraftingResult(p_192389_3_);
              }
 -
 +            if (p_192389_3_.resultInventory != null && getBukkitView() != null) {
-+                itemstack = org.bukkit.craftbukkit.event.CraftEventFactory.callPreCraftEvent(p_192389_3_, itemstack, getBukkitView(), false); // CraftBukkit
++                itemstack = CraftEventFactory.callPreCraftEvent(p_192389_3_, itemstack, getBukkitView(), false); // CraftBukkit
 +            }
              p_192389_4_.setInventorySlotContents(0, itemstack);
              entityplayermp.connection.sendPacket(new SPacketSetSlot(this.windowId, 0, itemstack));

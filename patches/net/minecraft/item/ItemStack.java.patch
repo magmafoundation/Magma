@@ -9,34 +9,13 @@
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.client.util.ITooltipFlag;
  import net.minecraft.enchantment.Enchantment;
-@@ -30,12 +30,16 @@
- import net.minecraft.nbt.NBTBase;
- import net.minecraft.nbt.NBTTagCompound;
- import net.minecraft.nbt.NBTTagList;
-+import net.minecraft.server.MinecraftServer;
- import net.minecraft.stats.StatList;
-+import net.minecraft.tileentity.TileEntity;
-+import net.minecraft.tileentity.TileEntitySkull;
- import net.minecraft.util.ActionResult;
- import net.minecraft.util.EnumActionResult;
- import net.minecraft.util.EnumFacing;
- import net.minecraft.util.EnumHand;
- import net.minecraft.util.ResourceLocation;
-+import net.minecraft.util.SoundCategory;
- import net.minecraft.util.datafix.DataFixer;
- import net.minecraft.util.datafix.FixTypes;
- import net.minecraft.util.datafix.walkers.BlockEntityTag;
-@@ -49,14 +53,21 @@
+@@ -49,14 +49,17 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.Location;
-+import org.bukkit.TreeType;
-+import org.bukkit.block.BlockState;
-+import org.bukkit.craftbukkit.block.CraftBlockState;
-+import org.bukkit.craftbukkit.util.CraftMagicNumbers;
-+import org.bukkit.entity.Player;
-+import org.bukkit.event.world.StructureGrowEvent;
++import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
  
  public final class ItemStack implements net.minecraftforge.common.capabilities.ICapabilitySerializable<NBTTagCompound>
  {
@@ -50,7 +29,7 @@
      private NBTTagCompound stackTagCompound;
      private boolean isEmpty;
      int itemDamage;
-@@ -119,23 +130,33 @@
+@@ -119,23 +122,33 @@
  
      public ItemStack(NBTTagCompound compound)
      {
@@ -90,7 +69,7 @@
      }
  
      public boolean isEmpty()
-@@ -160,6 +181,7 @@
+@@ -160,6 +173,7 @@
              return true;
          }
      }
@@ -98,7 +77,7 @@
  
      public static void registerFixes(DataFixer fixer)
      {
-@@ -185,11 +207,10 @@
+@@ -185,11 +199,10 @@
      {
          if (!worldIn.isRemote) return net.minecraftforge.common.ForgeHooks.onPlaceItemIntoWorld(this, playerIn, worldIn, pos, side, hitX, hitY, hitZ, hand);
          EnumActionResult enumactionresult = this.getItem().onItemUse(playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ);
@@ -112,7 +91,7 @@
  
          return enumactionresult;
      }
-@@ -231,7 +252,8 @@
+@@ -231,7 +244,8 @@
  
          if (this.stackTagCompound != null)
          {
@@ -122,7 +101,7 @@
          }
  
          if (this.capabilities != null)
-@@ -291,6 +313,26 @@
+@@ -291,6 +305,26 @@
  
      public void setItemDamage(int meta)
      {
@@ -149,13 +128,13 @@
          getItem().setDamage(this, meta);
      }
  
-@@ -322,6 +364,19 @@
+@@ -322,6 +356,19 @@
  
                  amount -= j;
  
 +                // Spigot start
 +                if (damager != null) {
-+                    org.bukkit.craftbukkit.inventory.CraftItemStack item = org.bukkit.craftbukkit.inventory.CraftItemStack.asCraftMirror(this);
++                    CraftItemStack item = CraftItemStack.asCraftMirror(this);
 +                    org.bukkit.event.player.PlayerItemDamageEvent event = new org.bukkit.event.player.PlayerItemDamageEvent(damager.getBukkitEntity(), item, amount);
 +                    org.bukkit.Bukkit.getServer().getPluginManager().callEvent(event);
 +                    if (amount != event.getDamage() || event.isCancelled()) {
@@ -169,19 +148,19 @@
                  if (amount <= 0)
                  {
                      return false;
-@@ -347,6 +402,11 @@
+@@ -347,6 +394,11 @@
                  if (this.attemptDamageItem(amount, entityIn.getRNG(), entityIn instanceof EntityPlayerMP ? (EntityPlayerMP)entityIn : null))
                  {
                      entityIn.renderBrokenItemStack(this);
 +                    // CraftBukkit start - Check for item breaking
 +                    if (this.stackSize == 1 && entityIn instanceof EntityPlayer) {
-+                        org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerItemBreakEvent((EntityPlayer) entityIn, this);
++                        CraftEventFactory.callPlayerItemBreakEvent((EntityPlayer) entityIn, this);
 +                    }
 +                    // CraftBukkit end
                      this.shrink(1);
  
                      if (entityIn instanceof EntityPlayer)
-@@ -983,6 +1043,14 @@
+@@ -983,6 +1035,14 @@
  
      public void setRepairCost(int cost)
      {
@@ -196,7 +175,7 @@
          if (!this.hasTagCompound())
          {
              this.stackTagCompound = new NBTTagCompound();
-@@ -1043,6 +1111,14 @@
+@@ -1043,6 +1103,14 @@
          nbttaglist.appendTag(nbttagcompound);
      }
  
@@ -211,7 +190,7 @@
      public ITextComponent getTextComponent()
      {
          TextComponentString textcomponentstring = new TextComponentString(this.getDisplayName());
-@@ -1280,4 +1356,16 @@
+@@ -1280,4 +1348,16 @@
      {
          return this.isEmpty() || this.getItem().doesSneakBypassUse(this, world, pos, player);
      }

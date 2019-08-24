@@ -1,11 +1,36 @@
 --- ../src-base/minecraft/net/minecraft/entity/player/EntityPlayer.java
 +++ ../src-work/minecraft/net/minecraft/entity/player/EntityPlayer.java
-@@ -92,6 +92,16 @@
+@@ -8,7 +8,6 @@
+ import java.util.UUID;
+ import javax.annotation.Nullable;
+ import net.minecraft.block.Block;
+-import net.minecraft.block.BlockBed;
+ import net.minecraft.block.BlockHorizontal;
+ import net.minecraft.block.material.Material;
+ import net.minecraft.block.state.IBlockState;
+@@ -32,7 +31,6 @@
+ import net.minecraft.entity.passive.EntityPig;
+ import net.minecraft.entity.passive.EntityTameable;
+ import net.minecraft.entity.projectile.EntityFishHook;
+-import net.minecraft.init.Blocks;
+ import net.minecraft.init.Items;
+ import net.minecraft.init.MobEffects;
+ import net.minecraft.init.SoundEvents;
+@@ -42,7 +40,6 @@
+ import net.minecraft.inventory.IInventory;
+ import net.minecraft.inventory.InventoryEnderChest;
+ import net.minecraft.item.ItemArmor;
+-import net.minecraft.item.ItemAxe;
+ import net.minecraft.item.ItemElytra;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.item.ItemSword;
+@@ -92,6 +89,18 @@
  import net.minecraft.world.WorldServer;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
-+import org.bukkit.craftbukkit.entity.CraftItem;
++import org.bukkit.craftbukkit.v1_12_R1.TrigMath;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftItem;
 +import org.bukkit.entity.Player;
 +import org.bukkit.event.entity.CreatureSpawnEvent;
 +import org.bukkit.event.entity.EntityCombustByEntityEvent;
@@ -14,10 +39,11 @@
 +import org.bukkit.event.player.PlayerDropItemEvent;
 +import org.bukkit.event.player.PlayerVelocityEvent;
 +import org.bukkit.util.Vector;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  @SuppressWarnings("incomplete-switch")
  public abstract class EntityPlayer extends EntityLivingBase
-@@ -109,10 +119,10 @@
+@@ -109,10 +118,10 @@
      protected static final DataParameter<NBTTagCompound> LEFT_SHOULDER_ENTITY = EntityDataManager.<NBTTagCompound>createKey(EntityPlayer.class, DataSerializers.COMPOUND_TAG);
      protected static final DataParameter<NBTTagCompound> RIGHT_SHOULDER_ENTITY = EntityDataManager.<NBTTagCompound>createKey(EntityPlayer.class, DataSerializers.COMPOUND_TAG);
      public InventoryPlayer inventory = new InventoryPlayer(this);
@@ -30,7 +56,7 @@
      protected int flyToggleTimer;
      public float prevCameraYaw;
      public float cameraYaw;
-@@ -123,9 +133,9 @@
+@@ -123,9 +132,9 @@
      public double chasingPosX;
      public double chasingPosY;
      public double chasingPosZ;
@@ -42,7 +68,7 @@
      public float renderOffsetX;
      @SideOnly(Side.CLIENT)
      public float renderOffsetY;
-@@ -147,6 +157,12 @@
+@@ -147,6 +156,12 @@
      @Nullable
      public EntityFishHook fishEntity;
  
@@ -55,7 +81,7 @@
      protected CooldownTracker createCooldownTracker()
      {
          return new CooldownTracker();
-@@ -159,9 +175,13 @@
+@@ -159,9 +174,13 @@
          this.gameProfile = gameProfileIn;
          this.inventoryContainer = new ContainerPlayer(this.inventory, !worldIn.isRemote, this);
          this.openContainer = this.inventoryContainer;
@@ -69,7 +95,7 @@
      }
  
      protected void applyEntityAttributes()
-@@ -408,7 +428,7 @@
+@@ -408,7 +427,7 @@
          return SoundCategory.PLAYERS;
      }
  
@@ -78,7 +104,7 @@
      {
          return 20;
      }
-@@ -499,7 +519,8 @@
+@@ -499,7 +518,8 @@
          {
              if (this.getHealth() < this.getMaxHealth() && this.ticksExisted % 20 == 0)
              {
@@ -88,16 +114,16 @@
              }
  
              if (this.foodStats.needFood() && this.ticksExisted % 10 == 0)
-@@ -527,7 +548,7 @@
+@@ -527,7 +547,7 @@
  
          this.setAIMoveSpeed((float)iattributeinstance.getAttributeValue());
          float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
 -        float f1 = (float)(Math.atan(-this.motionY * 0.20000000298023224D) * 15.0D);
-+        float f1 = (float) (org.bukkit.craftbukkit.TrigMath.atan(-this.motionY * 0.20000000298023224D) * 15.0D);// CraftBukkit
++        float f1 = (float) (TrigMath.atan(-this.motionY * 0.20000000298023224D) * 15.0D);// CraftBukkit
  
          if (f > 0.1F)
          {
-@@ -691,6 +712,7 @@
+@@ -691,6 +711,7 @@
      @Nullable
      public EntityItem dropItem(boolean dropAll)
      {
@@ -105,7 +131,7 @@
          ItemStack stack = inventory.getCurrentItem();
  
          if (stack.isEmpty())
-@@ -750,6 +772,30 @@
+@@ -750,6 +771,30 @@
                  entityitem.motionZ += Math.sin((double)f3) * (double)f2;
              }
  
@@ -136,7 +162,7 @@
              ItemStack itemstack = this.dropItemAndGetStack(entityitem);
  
              if (traceItem)
-@@ -893,6 +939,13 @@
+@@ -893,6 +938,13 @@
              this.wakeUpPlayer(true, true, false);
          }
  
@@ -150,7 +176,7 @@
          if (compound.hasKey("SpawnX", 99) && compound.hasKey("SpawnY", 99) && compound.hasKey("SpawnZ", 99))
          {
              this.spawnPos = new BlockPos(compound.getInteger("SpawnX"), compound.getInteger("SpawnY"), compound.getInteger("SpawnZ"));
-@@ -987,6 +1040,7 @@
+@@ -987,6 +1039,7 @@
          {
              compound.setTag("ShoulderEntityRight", this.getRightShoulderEntity());
          }
@@ -158,7 +184,7 @@
      }
  
      public boolean attackEntityFrom(DamageSource source, float amount)
-@@ -1015,13 +1069,13 @@
+@@ -1015,13 +1068,13 @@
                      this.wakeUpPlayer(true, true, false);
                  }
  
@@ -174,7 +200,7 @@
                      }
  
                      if (this.world.getDifficulty() == EnumDifficulty.EASY)
-@@ -1035,7 +1089,14 @@
+@@ -1035,7 +1088,14 @@
                      }
                  }
  
@@ -190,7 +216,7 @@
              }
          }
      }
-@@ -1052,17 +1113,29 @@
+@@ -1052,17 +1112,29 @@
  
      public boolean canAttackPlayer(EntityPlayer other)
      {
@@ -229,7 +255,7 @@
      }
  
      protected void damageArmor(float damage)
-@@ -1113,8 +1186,11 @@
+@@ -1113,8 +1185,11 @@
          return (float)i / (float)this.inventory.armorInventory.size();
      }
  
@@ -243,7 +269,7 @@
          if (!this.isEntityInvulnerable(damageSrc))
          {
              damageAmount = net.minecraftforge.common.ForgeHooks.onLivingHurt(this, damageSrc, damageAmount);
-@@ -1140,8 +1216,15 @@
+@@ -1140,8 +1215,15 @@
                  }
              }
          }
@@ -259,7 +285,7 @@
      public void openEditSign(TileEntitySign signTile)
      {
      }
-@@ -1317,8 +1400,17 @@
+@@ -1317,8 +1399,17 @@
  
                          if (j > 0 && !targetEntity.isBurning())
                          {
@@ -279,7 +305,7 @@
                          }
                      }
  
-@@ -1353,8 +1445,10 @@
+@@ -1353,8 +1444,10 @@
                              {
                                  if (entitylivingbase != this && entitylivingbase != targetEntity && !this.isOnSameTeam(entitylivingbase) && this.getDistanceSq(entitylivingbase) < 9.0D)
                                  {
@@ -292,7 +318,7 @@
                                  }
                              }
  
-@@ -1364,11 +1458,28 @@
+@@ -1364,11 +1457,28 @@
  
                          if (targetEntity instanceof EntityPlayerMP && targetEntity.velocityChanged)
                          {
@@ -326,7 +352,7 @@
                          }
  
                          if (flag2)
-@@ -1434,7 +1545,15 @@
+@@ -1434,7 +1544,15 @@
  
                              if (j > 0)
                              {
@@ -343,7 +369,7 @@
                              }
  
                              if (this.world instanceof WorldServer && f5 > 2.0F)
-@@ -1454,6 +1573,11 @@
+@@ -1454,6 +1572,11 @@
                          {
                              targetEntity.extinguish();
                          }
@@ -355,7 +381,7 @@
                      }
                  }
              }
-@@ -1527,9 +1651,9 @@
+@@ -1527,9 +1650,9 @@
          return this.gameProfile;
      }
  
@@ -367,7 +393,7 @@
          if (ret != null) return ret;
          final IBlockState state = this.world.isBlockLoaded(bedLocation) ? this.world.getBlockState(bedLocation) : null;
          final boolean isBed = state != null && state.getBlock().isBed(state, this.world, bedLocation, this);
-@@ -1539,31 +1663,31 @@
+@@ -1539,31 +1662,31 @@
          {
              if (this.isPlayerSleeping() || !this.isEntityAlive())
              {
@@ -406,7 +432,7 @@
              }
          }
  
-@@ -1572,6 +1696,20 @@
+@@ -1572,6 +1695,20 @@
              this.dismountRidingEntity();
          }
  
@@ -427,7 +453,7 @@
          this.spawnShoulderEntities();
          this.setSize(0.2F, 0.2F);
  
-@@ -1598,7 +1736,7 @@
+@@ -1598,7 +1735,7 @@
              this.world.updateAllPlayersSleepingFlag();
          }
  
@@ -436,7 +462,7 @@
      }
  
      private boolean bedInRange(BlockPos p_190774_1_, EnumFacing p_190774_2_)
-@@ -1651,6 +1789,23 @@
+@@ -1651,6 +1788,23 @@
              this.world.updateAllPlayersSleepingFlag();
          }
  
@@ -460,7 +486,7 @@
          this.sleepTimer = immediately ? 0 : 100;
  
          if (setSpawn)
-@@ -1757,11 +1912,13 @@
+@@ -1757,11 +1911,13 @@
          {
              this.spawnPos = pos;
              this.spawnForced = forced;
@@ -474,21 +500,21 @@
          }
      }
  
-@@ -1820,7 +1977,12 @@
+@@ -1820,7 +1976,12 @@
              this.motionY = d3 * 0.6D;
              this.jumpMovementFactor = f;
              this.fallDistance = 0.0F;
 -            this.setFlag(7, false);
 +            // this.setFlag(7, false);
 +          // CraftBukkit start
-+            if (getFlag(7) && !org.bukkit.craftbukkit.event.CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) {
++            if (getFlag(7) && !CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) {
 +                this.setFlag(7, false);
 +            }
 +          // CraftBukkit end
          }
          else
          {
-@@ -2225,10 +2387,16 @@
+@@ -2225,10 +2386,16 @@
  
      protected void spawnShoulderEntities()
      {
@@ -509,7 +535,7 @@
      }
  
      private void spawnShoulderEntity(@Nullable NBTTagCompound p_192026_1_)
-@@ -2247,6 +2415,23 @@
+@@ -2247,6 +2414,23 @@
          }
      }
  
@@ -533,7 +559,7 @@
      @SideOnly(Side.CLIENT)
      public boolean isInvisibleToPlayer(EntityPlayer player)
      {
-@@ -2481,7 +2666,7 @@
+@@ -2481,7 +2665,7 @@
          return (NBTTagCompound)this.dataManager.get(LEFT_SHOULDER_ENTITY);
      }
  
@@ -542,7 +568,7 @@
      {
          this.dataManager.set(LEFT_SHOULDER_ENTITY, tag);
      }
-@@ -2491,7 +2676,7 @@
+@@ -2491,7 +2675,7 @@
          return (NBTTagCompound)this.dataManager.get(RIGHT_SHOULDER_ENTITY);
      }
  
@@ -551,7 +577,7 @@
      {
          this.dataManager.set(RIGHT_SHOULDER_ENTITY, tag);
      }
-@@ -2531,7 +2716,7 @@
+@@ -2531,7 +2715,7 @@
  
      public boolean canUseCommandBlock()
      {
@@ -560,7 +586,7 @@
      }
  
      /**
-@@ -2671,7 +2856,7 @@
+@@ -2671,7 +2855,7 @@
      @SuppressWarnings("unchecked")
      @Override
      @Nullable
@@ -569,7 +595,7 @@
      {
          if (capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
          {
-@@ -2683,7 +2868,7 @@
+@@ -2683,7 +2867,7 @@
      }
  
      @Override
@@ -578,7 +604,7 @@
      {
          return capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(capability, facing);
      }
-@@ -2702,7 +2887,7 @@
+@@ -2702,7 +2886,7 @@
          SYSTEM(1, "options.chat.visibility.system"),
          HIDDEN(2, "options.chat.visibility.hidden");
  
@@ -587,7 +613,7 @@
          private final int chatVisibility;
          private final String resourceKey;
  
-@@ -2732,7 +2917,7 @@
+@@ -2732,7 +2916,7 @@
  
          static
          {
@@ -596,7 +622,7 @@
              {
                  ID_LOOKUP[entityplayer$enumchatvisibility.chatVisibility] = entityplayer$enumchatvisibility;
              }
-@@ -2763,4 +2948,11 @@
+@@ -2763,4 +2947,11 @@
          OTHER_PROBLEM,
          NOT_SAFE;
      }

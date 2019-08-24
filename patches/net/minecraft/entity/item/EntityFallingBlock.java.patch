@@ -1,14 +1,22 @@
 --- ../src-base/minecraft/net/minecraft/entity/item/EntityFallingBlock.java
 +++ ../src-work/minecraft/net/minecraft/entity/item/EntityFallingBlock.java
-@@ -31,6 +31,7 @@
+@@ -6,7 +6,6 @@
+ import net.minecraft.block.Block;
+ import net.minecraft.block.BlockAnvil;
+ import net.minecraft.block.BlockFalling;
+-import net.minecraft.block.ITileEntityProvider;
+ import net.minecraft.block.material.Material;
+ import net.minecraft.block.state.IBlockState;
+ import net.minecraft.crash.CrashReportCategory;
+@@ -31,6 +30,7 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class EntityFallingBlock extends Entity
  {
-@@ -38,7 +39,7 @@
+@@ -38,7 +38,7 @@
      public int fallTime;
      public boolean shouldDropItem = true;
      private boolean dontSetBlock;
@@ -17,7 +25,7 @@
      private int fallHurtMax = 40;
      private float fallHurtAmount = 2.0F;
      public NBTTagCompound tileEntityData;
-@@ -114,7 +115,7 @@
+@@ -114,7 +114,7 @@
              {
                  BlockPos blockpos = new BlockPos(this);
  
@@ -26,7 +34,7 @@
                  {
                      this.world.setBlockToAir(blockpos);
                  }
-@@ -170,7 +171,7 @@
+@@ -170,7 +170,7 @@
                      if (!flag1 && BlockFalling.canFallThrough(this.world.getBlockState(new BlockPos(this.posX, this.posY - 0.009999999776482582D, this.posZ))))
                      {
                          this.onGround = false;
@@ -35,7 +43,7 @@
                      }
  
                      this.motionX *= 0.699999988079071D;
-@@ -185,10 +186,20 @@
+@@ -185,10 +185,20 @@
                          {
                              if (this.world.mayPlace(block, blockpos1, true, EnumFacing.UP, this) && (flag1 || !BlockFalling.canFallThrough(this.world.getBlockState(blockpos1.down()))) && this.world.setBlockState(blockpos1, this.fallTile, 3))
                              {
@@ -56,7 +64,7 @@
  
                                  if (this.tileEntityData != null && block.hasTileEntity(this.fallTile))
                                  {
-@@ -248,7 +259,9 @@
+@@ -248,7 +258,9 @@
  
                  for (Entity entity : list)
                  {

@@ -48,8 +48,8 @@
  import net.minecraft.world.storage.loot.LootTable;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.entity.LivingEntity;
 +import org.bukkit.event.entity.EntityPickupItemEvent;
 +import org.bukkit.event.entity.EntityTargetEvent;

@@ -4,7 +4,7 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.event.entity.EntityInteractEvent;
  
  public class BlockRedstoneOre extends Block
@@ -25,7 +25,7 @@
 +//        this.activate(worldIn, pos);
 +//        super.onEntityWalk(worldIn, pos, entityIn);
 +        if (entityIn instanceof EntityPlayer) {
-+            org.bukkit.event.player.PlayerInteractEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerInteractEvent((EntityPlayer) entityIn, org.bukkit.event.block.Action.PHYSICAL, pos, null, null, null);
++            org.bukkit.event.player.PlayerInteractEvent event = CraftEventFactory.callPlayerInteractEvent((EntityPlayer) entityIn, org.bukkit.event.block.Action.PHYSICAL, pos, null, null, null);
 +            if (!event.isCancelled()) {
 +                this.activate(worldIn, pos, entityIn); // add entity
 +                super.onEntityWalk(worldIn, pos, entityIn);

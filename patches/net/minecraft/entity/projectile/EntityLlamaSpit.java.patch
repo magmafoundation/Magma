@@ -8,7 +8,11 @@
  import net.minecraft.entity.IProjectile;
  import net.minecraft.entity.passive.EntityLlama;
  import net.minecraft.nbt.NBTTagCompound;
-@@ -20,7 +21,7 @@
+@@ -17,10 +18,11 @@
+ import net.minecraft.world.World;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class EntityLlamaSpit extends Entity implements IProjectile
  {
@@ -17,11 +21,11 @@
      private NBTTagCompound ownerNbt;
  
      public EntityLlamaSpit(World worldIn)
-@@ -211,6 +212,7 @@
+@@ -211,6 +213,7 @@
  
      public void onHit(RayTraceResult p_190536_1_)
      {
-+        org.bukkit.craftbukkit.event.CraftEventFactory.callProjectileHitEvent(this, p_190536_1_); // CraftBukkit
++        CraftEventFactory.callProjectileHitEvent(this, p_190536_1_); // CraftBukkit
          if (p_190536_1_.entityHit != null && this.owner != null)
          {
              p_190536_1_.entityHit.attackEntityFrom(DamageSource.causeIndirectDamage(this, this.owner).setProjectile(), 1.0F);

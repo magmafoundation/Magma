@@ -8,7 +8,7 @@
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.Vec3d;
  import net.minecraft.world.World;
-+import org.bukkit.craftbukkit.command.ProxiedNativeCommandSender;
++import org.bukkit.craftbukkit.v1_12_R1.command.ProxiedNativeCommandSender;
  
  public class CommandExecuteAt extends CommandBase
  {

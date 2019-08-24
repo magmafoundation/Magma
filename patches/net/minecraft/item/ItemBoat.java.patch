@@ -1,10 +1,18 @@
 --- ../src-base/minecraft/net/minecraft/item/ItemBoat.java
 +++ ../src-work/minecraft/net/minecraft/item/ItemBoat.java
-@@ -84,6 +84,11 @@
+@@ -16,6 +16,7 @@
+ import net.minecraft.util.math.RayTraceResult;
+ import net.minecraft.util.math.Vec3d;
+ import net.minecraft.world.World;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
+ 
+ public class ItemBoat extends Item
+ {
+@@ -84,6 +85,11 @@
              }
              else
              {
-+                org.bukkit.event.player.PlayerInteractEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerInteractEvent(playerIn, org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK, raytraceresult.getBlockPos(), raytraceresult.sideHit, itemstack, handIn);
++                org.bukkit.event.player.PlayerInteractEvent event = CraftEventFactory.callPlayerInteractEvent(playerIn, org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK, raytraceresult.getBlockPos(), raytraceresult.sideHit, itemstack, handIn);
 +
 +                if (event.isCancelled()) {
 +                    return new ActionResult<>(EnumActionResult.PASS, itemstack);
@@ -12,7 +20,7 @@
                  Block block = worldIn.getBlockState(raytraceresult.getBlockPos()).getBlock();
                  boolean flag1 = block == Blocks.WATER || block == Blocks.FLOWING_WATER;
                  EntityBoat entityboat = new EntityBoat(worldIn, raytraceresult.hitVec.x, flag1 ? raytraceresult.hitVec.y - 0.12D : raytraceresult.hitVec.y, raytraceresult.hitVec.z);
-@@ -98,7 +103,9 @@
+@@ -98,7 +104,9 @@
                  {
                      if (!worldIn.isRemote)
                      {

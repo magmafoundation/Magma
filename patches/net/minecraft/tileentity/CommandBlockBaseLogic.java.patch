@@ -36,7 +36,7 @@
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
 +import org.bukkit.command.CommandSender;
-+import org.bukkit.craftbukkit.command.VanillaCommandWrapper;
++import org.bukkit.craftbukkit.v1_12_R1.command.VanillaCommandWrapper;
 +import org.bukkit.event.server.ServerCommandEvent;
  
  public abstract class CommandBlockBaseLogic implements ICommandSender

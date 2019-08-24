@@ -10,16 +10,17 @@
  import javax.annotation.Nullable;
  import net.minecraft.entity.EntityAreaEffectCloud;
  import net.minecraft.entity.EntityLivingBase;
-@@ -31,6 +33,8 @@
+@@ -31,6 +33,9 @@
  import net.minecraft.world.World;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
-+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
 +import org.bukkit.entity.LivingEntity;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
  public class EntityPotion extends EntityThrowable
  {
-@@ -124,7 +128,7 @@
+@@ -124,7 +129,7 @@
              {
                  this.applyWater();
              }
@@ -28,7 +29,7 @@
              {
                  if (this.isLingering())
                  {
-@@ -161,45 +165,55 @@
+@@ -161,45 +166,55 @@
          }
      }
  
@@ -65,7 +66,7 @@
 +                }
 +            }
 +        }
-+        org.bukkit.event.entity.PotionSplashEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callPotionSplashEvent(this, affected);
++        org.bukkit.event.entity.PotionSplashEvent event = CraftEventFactory.callPotionSplashEvent(this, affected);
 +        if (!event.isCancelled() && p_190543_2_ != null && !p_190543_2_.isEmpty()) { // do not process effects if there are no effects to process
 +            for (LivingEntity victim : event.getAffectedEntities()) {
 +                if (!(victim instanceof CraftLivingEntity)) {
@@ -112,13 +113,13 @@
                          }
                      }
                  }
-@@ -229,10 +243,16 @@
+@@ -229,10 +244,16 @@
              entityareaeffectcloud.setColor(nbttagcompound.getInteger("CustomPotionColor"));
          }
  
 -        this.world.spawnEntity(entityareaeffectcloud);
 +        // this.world.spawnEntity(entityareaeffectcloud);
-+        org.bukkit.event.entity.LingeringPotionSplashEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callLingeringPotionSplashEvent(this, entityareaeffectcloud);
++        org.bukkit.event.entity.LingeringPotionSplashEvent event = CraftEventFactory.callLingeringPotionSplashEvent(this, entityareaeffectcloud);
 +        if (!(event.isCancelled() || entityareaeffectcloud.isDead)) {
 +            this.world.spawnEntity(entityareaeffectcloud);
 +        } else {

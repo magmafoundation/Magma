@@ -4,8 +4,8 @@
  import net.minecraft.item.ItemStack;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.inventory.CraftInventoryCrafting;
-+import org.bukkit.craftbukkit.inventory.CraftInventoryView;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCrafting;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
  
  public class ContainerPlayer extends Container
  {

@@ -9,7 +9,7 @@
  import net.minecraft.item.ItemStack;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
-+import org.bukkit.craftbukkit.inventory.CraftInventoryView;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
 +import org.bukkit.inventory.InventoryView;
  
  public class ContainerHorseInventory extends Container
@@ -17,7 +17,7 @@
      private final IInventory horseInventory;
      private final AbstractHorse horse;
  
-+    org.bukkit.craftbukkit.inventory.CraftInventoryView bukkitEntity;
++    CraftInventoryView bukkitEntity;
 +    InventoryPlayer player;
 +
      public ContainerHorseInventory(IInventory playerInventory, IInventory horseInventoryIn, final AbstractHorse horse, EntityPlayer player)

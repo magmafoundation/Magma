@@ -13,9 +13,9 @@
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
 +import org.bukkit.Location;
-+import org.bukkit.craftbukkit.inventory.CraftInventoryEnchanting;
-+import org.bukkit.craftbukkit.inventory.CraftInventoryView;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryEnchanting;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 +import org.bukkit.enchantments.EnchantmentOffer;
 +import org.bukkit.entity.Player;
 +import org.bukkit.event.enchantment.EnchantItemEvent;

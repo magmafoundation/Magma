@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/item/crafting/RecipeRepairItem.java
 +++ ../src-work/minecraft/net/minecraft/item/crafting/RecipeRepairItem.java
-@@ -2,14 +2,22 @@
+@@ -2,14 +2,23 @@
  
  import com.google.common.collect.Lists;
  import java.util.List;
@@ -12,6 +12,7 @@
  import net.minecraft.util.NonNullList;
 +import net.minecraft.util.ResourceLocation;
  import net.minecraft.world.World;
++import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
  
 -public class RecipeRepairItem extends net.minecraftforge.registries.IForgeRegistryEntry.Impl<IRecipe> implements IRecipe
 +public class RecipeRepairItem extends ShapelessRecipes implements IRecipe
@@ -25,7 +26,7 @@
      public boolean matches(InventoryCrafting inv, World worldIn)
      {
          List<ItemStack> list = Lists.<ItemStack>newArrayList();
-@@ -79,7 +87,18 @@
+@@ -79,7 +88,18 @@
                      i1 = 0;
                  }
  
@@ -38,7 +39,7 @@
 +                ShapelessRecipes recipe = new ShapelessRecipes("", result.copy(), ingredients);
 +                recipe.key = new ResourceLocation("repairitem");
 +                inv.currentRecipe = recipe;
-+                result = org.bukkit.craftbukkit.event.CraftEventFactory.callPreCraftEvent(inv, result, inv.eventHandler.getBukkitView(), true);
++                result = CraftEventFactory.callPreCraftEvent(inv, result, inv.eventHandler.getBukkitView(), true);
 +                return result;
 +                // return new ItemStack(itemstack2.getItem(), 1, i1);
 +                // CraftBukkit end
