@@ -76,7 +76,7 @@
 +                    String key = this.getEntityId().getResourcePath();
 +                    EntityType type = EntityType.fromName(key);
 +                    if (type != null) {
-+                        PreCreatureSpawnEvent event = new PreCreatureSpawnEvent(MCUtil.toLocation(, world, d0, d1, d2), type, CreatureSpawnEvent.SpawnReason.SPAWNER);
++                        PreCreatureSpawnEvent event = new PreCreatureSpawnEvent(MCUtil.toLocation(world, d0, d1, d2), type, CreatureSpawnEvent.SpawnReason.SPAWNER);
 +                        if(!event.callEvent()){
 +                            flag = true;
 +                            if(event.shouldAbortSpawn()){
