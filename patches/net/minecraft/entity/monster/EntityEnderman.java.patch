@@ -1,14 +1,25 @@
 --- ../src-base/minecraft/net/minecraft/entity/monster/EntityEnderman.java
 +++ ../src-work/minecraft/net/minecraft/entity/monster/EntityEnderman.java
-@@ -47,6 +47,7 @@
+@@ -1,5 +1,7 @@
+ package net.minecraft.entity.monster;
+ 
++import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
++import com.destroystokyo.paper.event.entity.EndermanEscapeEvent;
+ import com.google.common.base.Function;
+ import com.google.common.base.Optional;
+ import com.google.common.base.Predicate;
+@@ -47,6 +49,10 @@
  import net.minecraft.util.math.Vec3d;
  import net.minecraft.world.World;
  import net.minecraft.world.storage.loot.LootTableList;
++import org.bukkit.craftbukkit.entity.CraftEnderman;
++import org.bukkit.entity.Enderman;
++import org.bukkit.entity.Player;
 +import org.bukkit.event.entity.EntityTargetEvent;
  
  public class EntityEnderman extends EntityMob
  {
-@@ -97,25 +98,32 @@
+@@ -97,25 +103,38 @@
  
      public void setAttackTarget(@Nullable EntityLivingBase entitylivingbaseIn)
      {
@@ -16,6 +27,12 @@
 +        // CraftBukkit start - fire event
 +        setAttackTarget(entitylivingbaseIn, EntityTargetEvent.TargetReason.UNKNOWN, true);
 +    }
++
++    // Paper start
++    private boolean tryEscape(EndermanEscapeEvent.Reason reason){
++        return new EndermanEscapeEvent((CraftEnderman) this.getBukkitEntity(), reason).callEvent();
++    }
++    // Paper end
 +
 +    @Override
 +    public boolean setAttackTarget(@Nullable EntityLivingBase entityliving, EntityTargetEvent.TargetReason reason, boolean fireEvent) {
@@ -49,7 +66,75 @@
      }
  
      protected void entityInit()
-@@ -524,8 +532,12 @@
+@@ -187,8 +206,17 @@
+         this.setHeldBlockState(iblockstate);
+     }
+ 
+-    private boolean shouldAttackPlayer(EntityPlayer player)
++    // Paper start
++    private boolean shouldAttackPlayer(EntityPlayer player){
++        boolean shouldAttack = shouldAttackPlayer_default(player);
++        EndermanAttackPlayerEvent event =new EndermanAttackPlayerEvent((Enderman) getBukkitEntity(), (Player) player.getBukkitEntity());
++        event.setCancelled(!shouldAttack);
++        return event.callEvent();
++    }
++
++    private boolean shouldAttackPlayer_default(EntityPlayer player)
+     {
++        // Paper ends
+         ItemStack itemstack = player.inventory.armorInventory.get(3);
+ 
+         if (itemstack.getItem() == Item.getItemFromBlock(Blocks.PUMPKIN))
+@@ -236,7 +264,7 @@
+         {
+             float f = this.getBrightness();
+ 
+-            if (f > 0.5F && this.world.canSeeSky(new BlockPos(this)) && this.rand.nextFloat() * 30.0F < (f - 0.4F) * 2.0F)
++            if (f > 0.5F && this.world.canSeeSky(new BlockPos(this)) && this.rand.nextFloat() * 30.0F < (f - 0.4F) * 2.0F && tryEscape(EndermanEscapeEvent.Reason.RUNAWAY)) // Paper
+             {
+                 this.setAttackTarget((EntityLivingBase)null);
+                 this.teleportRandomly();
+@@ -331,7 +359,7 @@
+         {
+             return false;
+         }
+-        else if (source instanceof EntityDamageSourceIndirect)
++        else if (source instanceof EntityDamageSourceIndirect && tryEscape(EndermanEscapeEvent.Reason.INDIRECT)) // Paper
+         {
+             for (int i = 0; i < 64; ++i)
+             {
+@@ -347,7 +375,7 @@
+         {
+             boolean flag = super.attackEntityFrom(source, amount);
+ 
+-            if (source.isUnblockable() && this.rand.nextInt(10) != 0)
++            if (source.isUnblockable() && this.rand.nextInt(10) != 0 && tryEscape(source == DamageSource.DROWN ? EndermanEscapeEvent.Reason.DROWN : EndermanEscapeEvent.Reason.CRITICAL_HIT)) // Paper
+             {
+                 this.teleportRandomly();
+             }
+@@ -399,6 +427,12 @@
+             private int aggroTime;
+             private int teleportTime;
+ 
++            // Paper start
++            public EntityEnderman getEnderman() {
++                return enderman;
++            }
++            // Paper end
++
+             public AIFindPlayer(EntityEnderman p_i45842_1_)
+             {
+                 super(p_i45842_1_, EntityPlayer.class, false);
+@@ -467,7 +501,7 @@
+                     {
+                         if (this.enderman.shouldAttackPlayer((EntityPlayer)this.targetEntity))
+                         {
+-                            if (((EntityPlayer)this.targetEntity).getDistanceSq(this.enderman) < 16.0D)
++                            if (((EntityPlayer)this.targetEntity).getDistanceSq(this.enderman) < 16.0D && this.getEnderman().tryEscape(EndermanEscapeEvent.Reason.STARE)) // Paper
+                             {
+                                 this.enderman.teleportRandomly();
+                             }
+@@ -524,8 +558,12 @@
  
                  if (iblockstate2 != null && this.canPlaceBlock(world, blockpos, iblockstate2.getBlock(), iblockstate, iblockstate1) && net.minecraftforge.event.ForgeEventFactory.onBlockPlace(enderman, new net.minecraftforge.common.util.BlockSnapshot(world, blockpos, iblockstate2), net.minecraft.util.EnumFacing.UP).isCanceled())
                  {
@@ -64,7 +149,7 @@
                  }
              }
  
-@@ -590,8 +602,12 @@
+@@ -590,8 +628,12 @@
  
                  if (EntityEnderman.CARRIABLE_BLOCKS.contains(block) && flag)
                  {
