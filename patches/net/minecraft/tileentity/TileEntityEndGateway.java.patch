@@ -1,19 +1,25 @@
 --- ../src-base/minecraft/net/minecraft/tileentity/TileEntityEndGateway.java
 +++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityEndGateway.java
-@@ -5,6 +5,7 @@
+@@ -3,8 +3,12 @@
+ import java.util.List;
+ import java.util.Random;
  import javax.annotation.Nullable;
++
++import com.destroystokyo.paper.MCUtil;
++import com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent;
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.entity.Entity;
 +import net.minecraft.entity.player.EntityPlayerMP;
  import net.minecraft.init.Blocks;
  import net.minecraft.nbt.NBTTagCompound;
  import net.minecraft.nbt.NBTUtil;
-@@ -24,14 +25,18 @@
+@@ -24,14 +28,19 @@
  import net.minecraftforge.fml.relauncher.SideOnly;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.bukkit.Bukkit;
 +import org.bukkit.Location;
++import org.bukkit.craftbukkit.block.CraftEndGateway;
 +import org.bukkit.craftbukkit.entity.CraftPlayer;
 +import org.bukkit.event.player.PlayerTeleportEvent;
  
@@ -29,10 +35,11 @@
  
      public NBTTagCompound writeToNBT(NBTTagCompound compound)
      {
-@@ -171,6 +176,22 @@
+@@ -171,7 +180,35 @@
              if (this.exitPortal != null)
              {
                  BlockPos blockpos = this.exactTeleport ? this.exitPortal : this.findExitPosition();
+-                entityIn.setPositionAndUpdate((double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.5D, (double)blockpos.getZ() + 0.5D);
 +                if (entityIn instanceof EntityPlayerMP) {
 +                    org.bukkit.craftbukkit.entity.CraftPlayer player = (CraftPlayer) entityIn.getBukkitEntity();
 +                    Location location = new Location(world.getWorld(), (double) blockpos.getX() + 0.5D, (double) blockpos.getY() + 0.5D, (double) blockpos.getZ() + 0.5D);
@@ -49,6 +56,19 @@
 +                    this.triggerCooldown(); // CraftBukkit - call at end of method
 +                    return;
 +                }
-                 entityIn.setPositionAndUpdate((double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.5D, (double)blockpos.getZ() + 0.5D);
++                // Paper start - EntityTeleportEndGatewayEvent - replicated from above
++                org.bukkit.craftbukkit.entity.CraftPlayer player = (CraftPlayer) entityIn.getBukkitEntity();
++                Location location = new Location(world.getWorld(), (double) blockpos.getX() + 0.5D, (double) blockpos.getY() + 0.5D, (double) blockpos.getZ() + 0.5D);
++                location.setPitch(player.getLocation().getPitch());
++                location.setYaw(player.getLocation().getYaw());
++
++                com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent event = new com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent(player, player.getLocation(), location, new org.bukkit.craftbukkit.block.CraftEndGateway(MCUtil.toLocation(world, this.getPos()).getBlock()));
++                if(!event.callEvent()){
++                    return;
++                }
++
++                entityIn.setPositionAndUpdate(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
++                // Paper end - EntityTeleportEndGatewayEvent
              }
  
+             this.triggerCooldown();
