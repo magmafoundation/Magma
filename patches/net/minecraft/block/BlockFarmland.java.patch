@@ -56,12 +56,3 @@
      }
  
      private boolean hasWater(World worldIn, BlockPos pos)
-@@ -108,7 +130,7 @@
-             }
-         }
- 
--        return net.minecraftforge.common.FarmlandWaterManager.hasBlockWaterTicket(worldIn, pos);
-+        return false;
-     }
- 
-     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)

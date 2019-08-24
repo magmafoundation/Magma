@@ -160,15 +160,16 @@
                  this.armorItems.set(j, ItemStack.EMPTY);
              }
          }
-@@ -791,6 +827,7 @@
+@@ -791,6 +827,8 @@
  
      public void onKillCommand()
      {
-+        org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDeathEvent(this, drops); // CraftBukkit - call event
++        org.bukkit.event.entity.EntityDeathEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callEntityDeathEvent(this, drops); // CraftBukkit - call event // Paper - make cancellable
++        if (event.isCancelled()) return; // Paper - make cancellable
          this.setDead();
      }
  
-@@ -804,7 +841,7 @@
+@@ -804,7 +842,7 @@
          return this.hasMarker() ? EnumPushReaction.IGNORE : super.getPushReaction();
      }
  
@@ -177,7 +178,7 @@
      {
          this.dataManager.set(STATUS, Byte.valueOf(this.setBit(((Byte)this.dataManager.get(STATUS)).byteValue(), 1, small)));
          this.setSize(0.5F, 1.975F);
-@@ -815,7 +852,7 @@
+@@ -815,7 +853,7 @@
          return (((Byte)this.dataManager.get(STATUS)).byteValue() & 1) != 0;
      }
  
@@ -186,7 +187,7 @@
      {
          this.dataManager.set(STATUS, Byte.valueOf(this.setBit(((Byte)this.dataManager.get(STATUS)).byteValue(), 4, showArms)));
      }
-@@ -825,7 +862,7 @@
+@@ -825,7 +863,7 @@
          return (((Byte)this.dataManager.get(STATUS)).byteValue() & 4) != 0;
      }
  
@@ -195,7 +196,7 @@
      {
          this.dataManager.set(STATUS, Byte.valueOf(this.setBit(((Byte)this.dataManager.get(STATUS)).byteValue(), 8, noBasePlate)));
      }
-@@ -835,7 +872,7 @@
+@@ -835,7 +873,7 @@
          return (((Byte)this.dataManager.get(STATUS)).byteValue() & 8) != 0;
      }
  
@@ -204,7 +205,7 @@
      {
          this.dataManager.set(STATUS, Byte.valueOf(this.setBit(((Byte)this.dataManager.get(STATUS)).byteValue(), 16, marker)));
          this.setSize(0.5F, 1.975F);
-@@ -957,7 +994,7 @@
+@@ -957,7 +995,7 @@
          return SoundEvents.ENTITY_ARMORSTAND_BREAK;
      }
  

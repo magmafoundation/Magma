@@ -49,12 +49,69 @@ public class CraftBlock implements Block {
         this.chunk = chunk;
     }
 
-    private net.minecraft.block.Block getNMSBlock() {
-        return CraftMagicNumbers.getBlock(this); // TODO: UPDATE THIS
-    }
-
     private static net.minecraft.block.Block getNMSBlock(int type) {
         return CraftMagicNumbers.getBlock(type);
+    }
+
+    public static BlockFace notchToBlockFace(EnumFacing notch) {
+        if (notch == null) {
+            return BlockFace.SELF;
+        }
+        switch (notch) {
+            case DOWN:
+                return BlockFace.DOWN;
+            case UP:
+                return BlockFace.UP;
+            case NORTH:
+                return BlockFace.NORTH;
+            case SOUTH:
+                return BlockFace.SOUTH;
+            case WEST:
+                return BlockFace.WEST;
+            case EAST:
+                return BlockFace.EAST;
+            default:
+                return BlockFace.SELF;
+        }
+    }
+
+    public static EnumFacing blockFaceToNotch(BlockFace face) {
+        switch (face) {
+            case DOWN:
+                return EnumFacing.DOWN;
+            case UP:
+                return EnumFacing.UP;
+            case NORTH:
+                return EnumFacing.NORTH;
+            case SOUTH:
+                return EnumFacing.SOUTH;
+            case WEST:
+                return EnumFacing.WEST;
+            case EAST:
+                return EnumFacing.EAST;
+            default:
+                return null;
+        }
+    }
+
+    public static Biome biomeBaseToBiome(net.minecraft.world.biome.Biome base) {
+        if (base == null) {
+            return null;
+        }
+
+        return Biome.valueOf(net.minecraft.world.biome.Biome.REGISTRY.getNameForObject(base).getResourcePath().toUpperCase(java.util.Locale.ENGLISH));
+    }
+
+    public static net.minecraft.world.biome.Biome biomeToBiomeBase(Biome bio) {
+        if (bio == null) {
+            return null;
+        }
+
+        return net.minecraft.world.biome.Biome.REGISTRY.getObject(new ResourceLocation(bio.name().toLowerCase(java.util.Locale.ENGLISH)));
+    }
+
+    private net.minecraft.block.Block getNMSBlock() {
+        return CraftMagicNumbers.getBlock(this); // TODO: UPDATE THIS
     }
 
     public World getWorld() {
@@ -98,10 +155,6 @@ public class CraftBlock implements Block {
         return chunk;
     }
 
-    public void setData(final byte data) {
-        setData(data, 3);
-    }
-
     public void setData(final byte data, boolean applyPhysics) {
         if (applyPhysics) {
             setData(data, 3);
@@ -126,8 +179,8 @@ public class CraftBlock implements Block {
         return (byte) blockData.getBlock().getMetaFromState(blockData);
     }
 
-    public void setType(final Material type) {
-        setType(type, true);
+    public void setData(final byte data) {
+        setData(data, 3);
     }
 
     @Override
@@ -172,6 +225,10 @@ public class CraftBlock implements Block {
 
     public Material getType() {
         return Material.getMaterial(getTypeId());
+    }
+
+    public void setType(final Material type) {
+        setType(type, true);
     }
 
     @Deprecated
@@ -233,63 +290,19 @@ public class CraftBlock implements Block {
         return "CraftBlock{" + "chunk=" + chunk + ",x=" + x + ",y=" + y + ",z=" + z + ",type=" + getType() + ",data=" + getData() + '}';
     }
 
-    public static BlockFace notchToBlockFace(EnumFacing notch) {
-        if (notch == null) return BlockFace.SELF;
-        switch (notch) {
-        case DOWN:
-            return BlockFace.DOWN;
-        case UP:
-            return BlockFace.UP;
-        case NORTH:
-            return BlockFace.NORTH;
-        case SOUTH:
-            return BlockFace.SOUTH;
-        case WEST:
-            return BlockFace.WEST;
-        case EAST:
-            return BlockFace.EAST;
-        default:
-            return BlockFace.SELF;
-        }
-    }
-
-    public static EnumFacing blockFaceToNotch(BlockFace face) {
-        switch (face) {
-        case DOWN:
-            return EnumFacing.DOWN;
-        case UP:
-            return EnumFacing.UP;
-        case NORTH:
-            return EnumFacing.NORTH;
-        case SOUTH:
-            return EnumFacing.SOUTH;
-        case WEST:
-            return EnumFacing.WEST;
-        case EAST:
-            return EnumFacing.EAST;
-        default:
-            return null;
-        }
-    }
-
     public BlockState getState() {
         Material material = getType();
-
-        // Magma start - if null, check for TE that implements IInventory (cauldron stuff)
-        if (material == null)
-        {
-            TileEntity te = ((CraftWorld)this.getWorld()).getHandle().getTileEntity(new BlockPos(this.getX(), this.getY(), this.getZ()));
-            if (te != null && te instanceof IInventory)
-            {
-                // In order to allow plugins to properly grab the container location, we must pass a class that extends CraftBlockState and implements InventoryHolder.
-                // Note: This will be returned when TileEntity.getOwner() is called
-                return new CraftCustomContainer(this);
-            }
-            // pass default state
+        // Megma start - if null, check for TE that implements IInventory
+        if (material == null) {
+            TileEntity tileEntity = chunk.getCraftWorld().getTileEntityAt(x, y, z);
+            if (tileEntity == null) {
             return new CraftBlockState(this);
         }
-        // Magma end
-
+            if (tileEntity instanceof IInventory) {
+                return new CraftCustomContainer(this);
+            }
+            return new CraftBlockEntityState<TileEntity>(this, (Class<TileEntity>) tileEntity.getClass());
+        }
         switch (material) {
         case SIGN:
         case SIGN_POST:
@@ -363,14 +376,17 @@ public class CraftBlock implements Block {
         case BED_BLOCK:
             return new CraftBed(this);
         default:
+            // Magma start
             TileEntity tileEntity = chunk.getCraftWorld().getTileEntityAt(x, y, z);
-            if (tileEntity != null) {
-                // block with unhandled TileEntity:
-                return new CraftBlockEntityState<TileEntity>(this, (Class<TileEntity>) tileEntity.getClass());
-            } else {
-                // Block without TileEntity:
+            if (tileEntity == null) {
                 return new CraftBlockState(this);
             }
+            if (tileEntity instanceof IInventory) {
+                // In order to allow plugins to properly grab the container location, we must pass a class that extends CraftBlockState and implements InventoryHolder.
+                // Note: This will be returned when TileEntity.getOwner() is called
+                return new CraftCustomContainer(this);
+            }
+                return new CraftBlockEntityState<TileEntity>(this, (Class<TileEntity>) tileEntity.getClass());
         }
     }
 
@@ -380,22 +396,6 @@ public class CraftBlock implements Block {
 
     public void setBiome(Biome bio) {
         getWorld().setBiome(x, z, bio);
-    }
-
-    public static Biome biomeBaseToBiome(net.minecraft.world.biome.Biome base) {
-        if (base == null) {
-            return null;
-        }
-
-        return Biome.valueOf(net.minecraft.world.biome.Biome.REGISTRY.getNameForObject(base).getResourcePath().toUpperCase(java.util.Locale.ENGLISH));
-    }
-
-    public static net.minecraft.world.biome.Biome biomeToBiomeBase(Biome bio) {
-        if (bio == null) {
-            return null;
-        }
-
-        return net.minecraft.world.biome.Biome.REGISTRY.getObject(new ResourceLocation(bio.name().toLowerCase(java.util.Locale.ENGLISH)));
     }
 
     public double getTemperature() {
@@ -461,7 +461,16 @@ public class CraftBlock implements Block {
     }
 
     public boolean isEmpty() {
-        return getType() == Material.AIR;
+        // Magma start - support custom air blocks (Railcraft player aura tracking block)
+        //return getType() == Material.AIR;
+        if (getType() == Material.AIR) {
+            return true;
+        }
+        if (!(getWorld() instanceof CraftWorld)) {
+            return false;
+        }
+        return ((CraftWorld) getWorld()).getHandle().isAirBlock(new BlockPos(getX(), getY(), getZ()));
+        // Magma end
     }
 
     public boolean isLiquid() {

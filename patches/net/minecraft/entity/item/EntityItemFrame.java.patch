@@ -1,6 +1,17 @@
 --- ../src-base/minecraft/net/minecraft/entity/item/EntityItemFrame.java
 +++ ../src-work/minecraft/net/minecraft/entity/item/EntityItemFrame.java
-@@ -63,6 +63,9 @@
+@@ -24,7 +24,10 @@
+ import net.minecraft.world.storage.MapData;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
++import org.apache.commons.io.Charsets;
+ 
++import java.util.UUID;
++
+ public class EntityItemFrame extends EntityHanging
+ {
+     private static final DataParameter<ItemStack> ITEM = EntityDataManager.<ItemStack>createKey(EntityItemFrame.class, DataSerializers.ITEM_STACK);
+@@ -63,6 +66,9 @@
          {
              if (!this.world.isRemote)
              {
@@ -10,3 +21,12 @@
                  this.dropItemOrSelf(source.getTrueSource(), false);
                  this.playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);
                  this.setDisplayedItem(ItemStack.EMPTY);
+@@ -143,7 +149,7 @@
+             if (stack.getItem() instanceof net.minecraft.item.ItemMap)
+             {
+                 MapData mapdata = ((ItemMap)stack.getItem()).getMapData(stack, this.world);
+-                mapdata.mapDecorations.remove("frame-" + this.getEntityId());
++                mapdata.mapDecorations.remove(UUID.nameUUIDFromBytes(("frame-" + this.getEntityId()).getBytes(Charsets.US_ASCII))); // Spigot
+             }
+ 
+             stack.setItemFrame((EntityItemFrame)null);
