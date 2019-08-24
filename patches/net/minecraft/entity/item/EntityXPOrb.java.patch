@@ -30,7 +30,7 @@
  public class EntityXPOrb extends Entity
  {
      public int xpColor;
-@@ -26,9 +37,56 @@
+@@ -26,9 +37,60 @@
      private EntityPlayer closestPlayer;
      private int xpTargetColor;
  
@@ -74,6 +74,10 @@
 +        nbttagcompound.setTag("Paper.ExpData", comp);
 +    }
 +
++    public EntityXPOrb(World worldIn, double x, double y, double z, int expValue){
++        this(worldIn, x, y,z, expValue, null, null, null);
++    }
++
 +    public EntityXPOrb(World world, double x, double y, double z, int expValue, org.bukkit.entity.ExperienceOrb.SpawnReason reason, Entity triggerId) {
 +        this(world, x, y, z, expValue, reason, triggerId, null);
 +    }
@@ -88,7 +92,7 @@
          this.setSize(0.5F, 0.5F);
          this.setPosition(x, y, z);
          this.rotationYaw = (float)(Math.random() * 360.0D);
-@@ -74,6 +132,7 @@
+@@ -74,6 +136,7 @@
      public void onUpdate()
      {
          super.onUpdate();
@@ -96,7 +100,7 @@
  
          if (this.delayBeforeCanPickup > 0)
          {
-@@ -117,19 +176,30 @@
+@@ -117,19 +180,30 @@
  
          if (this.closestPlayer != null)
          {
@@ -138,7 +142,7 @@
          }
  
          this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
-@@ -195,21 +265,23 @@
+@@ -195,21 +269,23 @@
      {
          compound.setShort("Health", (short)this.xpOrbHealth);
          compound.setShort("Age", (short)this.xpOrbAge);
@@ -165,7 +169,7 @@
              {
                  if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.player.PlayerPickupXpEvent(entityIn, this))) return;
                  entityIn.xpCooldown = 2;
-@@ -220,13 +292,17 @@
+@@ -220,13 +296,17 @@
                  {
                      float ratio = itemstack.getItem().getXpRepairRatio(itemstack);
                      int i = Math.min(roundAverage(this.xpValue * ratio), itemstack.getItemDamage());
@@ -186,7 +190,7 @@
                  }
  
                  this.setDead();
-@@ -234,12 +310,12 @@
+@@ -234,12 +314,12 @@
          }
      }
  
@@ -201,7 +205,7 @@
      {
          return xp * 2;
      }
-@@ -296,6 +372,24 @@
+@@ -296,6 +376,24 @@
  
      public static int getXPSplit(int expValue)
      {
