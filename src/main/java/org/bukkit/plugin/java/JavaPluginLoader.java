@@ -78,7 +78,7 @@ public class JavaPluginLoader implements PluginLoader {
         } else if (dataFolder.isDirectory() && oldDataFolder.isDirectory()) {
             server.getLogger().warning(String.format(
                 "While loading %s (%s) found old-data folder: `%s' next to the new one `%s'",
-                description.getFullName(),
+                    description.getName(),
                 file,
                 oldDataFolder,
                 dataFolder
@@ -89,7 +89,7 @@ public class JavaPluginLoader implements PluginLoader {
             }
             server.getLogger().log(Level.INFO, String.format(
                 "While loading %s (%s) renamed data folder: `%s' to `%s'",
-                description.getFullName(),
+                description.getName(),
                 file,
                 oldDataFolder,
                 dataFolder
@@ -100,7 +100,7 @@ public class JavaPluginLoader implements PluginLoader {
             throw new InvalidPluginException(String.format(
                 "Projected datafolder: `%s' for %s (%s) exists and is not a directory",
                 dataFolder,
-                description.getFullName(),
+                    description.getName(),
                 file
             ));
         }
@@ -166,9 +166,7 @@ public class JavaPluginLoader implements PluginLoader {
 
             return new PluginDescriptionFile(stream);
 
-        } catch (IOException ex) {
-            throw new InvalidDescriptionException(ex);
-        } catch (YAMLException ex) {
+        } catch (IOException | YAMLException ex) {
             throw new InvalidDescriptionException(ex);
         } finally {
             if (jar != null) {

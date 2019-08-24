@@ -146,7 +146,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +151,276 @@
+@@ -144,178 +151,273 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -399,7 +399,7 @@
 +                    Item item = entry.getValue();
 +                    if(!key.getResourceDomain().equals("minecraft")) {
 +                        String materialName = key.toString().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
-+                        Material material = Material.addMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE, Integer.TYPE}, new Object[]{Item.getIdFromItem(item), item.getItemStackLimit()}));
++                        Material material = Material.addMaterial(Item.getIdFromItem(item), item.getItemStackLimit(), materialName);
 +                        if(MagmaConfig.instance.debugPrintBukkitMatterials.getValues()){
 +                            if (material != null) {
 +                                MinecraftServer.LOGGER.info(String.format("Injected new Forge item material %s with ID %d.", material.name(), material.getId()));
@@ -412,16 +412,13 @@
 -                else
 -                {
 -                    this.worlds[i] = (WorldServer)(new WorldServer(this, isavehandler, worldinfo, j, this.profiler)).init();
-+                for (Material material : Material.values()) {
-+                    if (material.getId() < 256)
-+                        Material.addBlockMaterial(material);
-                 }
++
 +                for (Map.Entry<ResourceLocation, Block> entry : ForgeRegistries.BLOCKS.getEntries()) {
 +                    ResourceLocation key = entry.getKey();
 +                    Block block = entry.getValue();
 +                    if(!key.getResourceDomain().equals("minecraft")) {
 +                        String materialName = key.toString().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
-+                        Material material = Material.addBlockMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE}, new Object[]{Block.getIdFromBlock(block)}));
++                        Material material = Material.addMaterial(Block.getIdFromBlock(block), materialName);
 +                        if(MagmaConfig.instance.debugPrintBukkitMatterials.getValues()) {
 +                            if (material != null) {
 +                                MinecraftServer.LOGGER.info(String.format("Injected new Forge block material %s with ID %d.", material.name(), material.getId()));
@@ -430,7 +427,7 @@
 +                            }
 +                        }
 +                    }
-+                }
+                 }
 +                Map<String, EntityType> NAME_MAP = ReflectionHelper.getPrivateValue(EntityType.class, null, "NAME_MAP");
 +                Map<Short, EntityType> ID_MAP = ReflectionHelper.getPrivateValue(EntityType.class, null, "ID_MAP");
  
@@ -520,7 +517,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +428,51 @@
+@@ -323,45 +425,51 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -599,7 +596,7 @@
          }
      }
  
-@@ -379,73 +490,79 @@
+@@ -379,73 +487,79 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -711,7 +708,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +570,215 @@
+@@ -453,159 +567,215 @@
                      worldserver1.flush();
                  }
              }
@@ -1001,7 +998,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +786,42 @@
+@@ -613,52 +783,42 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1064,7 +1061,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +830,15 @@
+@@ -667,16 +827,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1086,7 +1083,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,7 +846,7 @@
+@@ -684,7 +843,7 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1095,7 +1092,7 @@
          {
              this.profiler.startSection("save");
              this.playerList.saveAllPlayerData();
-@@ -697,95 +859,100 @@
+@@ -697,95 +856,100 @@
          this.profiler.endSection();
          this.profiler.startSection("snooper");
  
@@ -1244,7 +1241,7 @@
          this.profiler.endStartSection("connection");
          this.getNetworkSystem().networkTick();
          this.profiler.endStartSection("players");
-@@ -794,33 +961,30 @@
+@@ -794,33 +958,30 @@
          this.getFunctionManager().update();
          this.profiler.endStartSection("tickables");
  
@@ -1286,7 +1283,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +999,51 @@
+@@ -835,53 +996,51 @@
          return ret;
      }
  
@@ -1364,7 +1361,7 @@
                  }
              });
          }
-@@ -889,145 +1051,115 @@
+@@ -889,145 +1048,115 @@
          return report;
      }
  
@@ -1554,7 +1551,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1167,75 @@
+@@ -1035,80 +1164,75 @@
          }
      }
  
@@ -1664,7 +1661,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1244,186 @@
+@@ -1117,228 +1241,186 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -1941,7 +1938,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1432,212 @@
+@@ -1347,316 +1429,212 @@
          return null;
      }
  

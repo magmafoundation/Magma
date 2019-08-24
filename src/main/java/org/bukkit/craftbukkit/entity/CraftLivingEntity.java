@@ -77,8 +77,9 @@ import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+    public String entityName;
+    public Class<? extends net.minecraft.entity.EntityLivingBase> entityClass;
     private CraftEntityEquipment equipment;
-	public String entityName;
 
     public CraftLivingEntity(final CraftServer server, final EntityLivingBase entity) {
         super(server, entity);
@@ -86,7 +87,8 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
         if (entity instanceof EntityLiving || entity instanceof EntityArmorStand) {
             equipment = new CraftEntityEquipment(this);
         }
-        this.entityName = EntityRegistry.entityTypeMap.get(entity.getClass());
+        this.entityClass = entity.getClass();
+        this.entityName = EntityRegistry.getCustomEntityTypeName(entityClass);
         if (entityName == null) {
             entityName = entity.getName();
         }
@@ -300,6 +302,9 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     public Collection<PotionEffect> getActivePotionEffects() {
         List<PotionEffect> effects = new ArrayList<PotionEffect>();
         for (net.minecraft.potion.PotionEffect handle : getHandle().getActivePotionMap().values()) {
+            if (PotionEffectType.getById(Potion.getIdFromPotion(handle.getPotion())) == null) {
+                continue; // Magma - ignore null types
+            }
             effects.add(new PotionEffect(PotionEffectType.getById(Potion.getIdFromPotion(handle.getPotion())), handle.getDuration(), handle.getAmplifier(), handle.getIsAmbient(), handle.doesShowParticles()));
         }
         return effects;
@@ -388,7 +393,13 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     }
 
     public EntityType getType() {
-        return EntityType.UNKNOWN;
+        // Magma start
+        EntityType type = EntityType.fromName(this.entityName);
+        if (type != null) {
+            return type;
+        }
+        return EntityType.FORGE_MOD;
+        // Magma end
     }
 
     public boolean hasLineOfSight(Entity other) {
@@ -490,16 +501,16 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
 
     @Override
     public boolean hasAI() {
-        return (this.getHandle() instanceof EntityLiving) && !((EntityLiving) this.getHandle()).isAIDisabled();
-    }
-
-    @Override
-    public void setCollidable(boolean collidable) {
-        getHandle().collides = collidable;
+        return (this.getHandle() instanceof EntityLiving) ? !((EntityLiving) this.getHandle()).isAIDisabled() : false;
     }
 
     @Override
     public boolean isCollidable() {
         return getHandle().collides;
+    }
+
+    @Override
+    public void setCollidable(boolean collidable) {
+        getHandle().collides = collidable;
     }
 }

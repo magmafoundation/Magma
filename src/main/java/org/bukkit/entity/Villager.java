@@ -228,19 +228,17 @@ public interface Villager extends Ageable, NPC, InventoryHolder, Merchant {
         NITWIT(Profession.NITWIT);
 
         private static final Multimap<Profession, Career> careerMap = LinkedListMultimap.create();
+
+        static {
+            for (Career career : Career.values()) {
+                careerMap.put(career.profession, career);
+            }
+        }
+
         private final Profession profession;
 
         private Career(Profession profession) {
             this.profession = profession;
-        }
-
-        /**
-         * Get the {@link Profession} this {@link Career} belongs to.
-         *
-         * @return the {@link Profession}.
-         */
-        public Profession getProfession() {
-            return profession;
         }
 
         /**
@@ -255,10 +253,13 @@ public interface Villager extends Ageable, NPC, InventoryHolder, Merchant {
             return careerMap.containsKey(profession) ? ImmutableList.copyOf(careerMap.get(profession)) : ImmutableList.<Career>of();
         }
 
-        static {
-            for (Career career : Career.values()) {
-                careerMap.put(career.profession, career);
-            }
+        /**
+         * Get the {@link Profession} this {@link Career} belongs to.
+         *
+         * @return the {@link Profession}.
+         */
+        public Profession getProfession() {
+            return profession;
         }
     }
 }

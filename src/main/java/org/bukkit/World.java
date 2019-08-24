@@ -295,7 +295,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
      * 
      * @deprecated This method is not guaranteed to work suitably across all client implementations.
      */
-    @Deprecated
+
     public boolean refreshChunk(int x, int z);
 
     /**
@@ -411,7 +411,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
      * @return A List of all Entities currently residing in this world that
      *     match the given class/interface
      */
-    @Deprecated
+
     public <T extends Entity> Collection<T> getEntitiesByClass(Class<T>... classes);
 
     /**
@@ -653,7 +653,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
      * @param setFire Whether or not to set blocks on fire
      * @return false if explosion was canceled, otherwise true
      */
-    boolean createExplosion(Location loc, float power, boolean setFire);
+    public boolean createExplosion(Location loc, float power, boolean setFire);
 
     // Paper start
     /**
@@ -667,7 +667,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
    * @param breakBlocks Whether or not to have blocks be destroyed
    * @return false if explosion was canceled, otherwise true
    */
-    boolean createExplosion(Entity source, Location loc, float power, boolean setFire, boolean breakBlocks);
+    public boolean createExplosion(Entity source, Location loc, float power, boolean setFire, boolean breakBlocks);
 
     /**
    * Creates explosion at given location with given power and optionally
@@ -681,7 +681,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
    * @param setFire Whether or not to set blocks on fire
    * @return false if explosion was canceled, otherwise true
    */
-    default boolean createExplosion(Entity source, Location loc, float power, boolean setFire) {
+    public default boolean createExplosion(Entity source, Location loc, float power, boolean setFire) {
         return createExplosion(source, loc, power, setFire, true);
     }
     /**
@@ -693,7 +693,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
    * @param power The power of explosion, where 4F is TNT
    * @return false if explosion was canceled, otherwise true
    */
-    default boolean createExplosion(Entity source, Location loc, float power) {
+    public default boolean createExplosion(Entity source, Location loc, float power) {
         return createExplosion(source, loc, power, true, true);
     }
     /**
@@ -706,7 +706,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
    * @param breakBlocks Whether or not to have blocks be destroyed
    * @return false if explosion was canceled, otherwise true
    */
-    default boolean createExplosion(Entity source, float power, boolean setFire, boolean breakBlocks) {
+    public default boolean createExplosion(Entity source, float power, boolean setFire, boolean breakBlocks) {
         return createExplosion(source, source.getLocation(), power, setFire, breakBlocks);
     }
     /**
@@ -720,7 +720,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
    * @param setFire Whether or not to set blocks on fire
    * @return false if explosion was canceled, otherwise true
    */
-    default boolean createExplosion(Entity source, float power, boolean setFire) {
+    public default boolean createExplosion(Entity source, float power, boolean setFire) {
         return createExplosion(source, source.getLocation(), power, setFire, true);
     }
 
@@ -732,7 +732,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
    * @param power The power of explosion, where 4F is TNT
    * @return false if explosion was canceled, otherwise true
    */
-    default boolean createExplosion(Entity source, float power) {
+    public default boolean createExplosion(Entity source, float power) {
         return createExplosion(source, source.getLocation(), power, true, true);
     }
 
@@ -746,7 +746,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
    * @param breakBlocks Whether or not to have blocks be destroyed
    * @return false if explosion was canceled, otherwise true
    */
-    default boolean createExplosion(Location loc, float power, boolean setFire, boolean breakBlocks) {
+    public default boolean createExplosion(Location loc, float power, boolean setFire, boolean breakBlocks) {
         return createExplosion(loc.getX(), loc.getY(), loc.getZ(), power, setFire, breakBlocks);
     }
     // Paper end
@@ -1566,6 +1566,69 @@ public interface World extends PluginMessageRecipient, Metadatable {
      */
     public <T> void spawnParticle(Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra, T data);
 
+    Spigot spigot();
+
+    /**
+     * Represents various map environment types that a world may be
+     */
+    public enum Environment {
+
+        /**
+         * Represents the "normal"/"surface world" map
+         */
+        NORMAL(0),
+        /**
+         * Represents a nether based map ("hell")
+         */
+        NETHER(-1),
+        /**
+         * Represents the "end" map
+         */
+        THE_END(1);
+
+        private static final Map<Integer, Environment> lookup = new HashMap<Integer, Environment>();
+
+        static {
+            for (Environment env : values()) {
+                lookup.put(env.getId(), env);
+            }
+        }
+
+        private final int id;
+
+        private Environment(int id) {
+            this.id = id;
+        }
+
+        public static void registerEnvironment(Environment env) {
+            lookup.put(env.getId(), env);
+        }
+
+        /**
+         * Get an environment by ID
+         *
+         * @param id The ID of the environment
+         * @return The environment
+         * @deprecated Magic value
+         */
+
+        public static Environment getEnvironment(int id) {
+            return lookup.get(id);
+        }
+
+        /**
+         * Gets the dimension ID of this environment
+         *
+         * @return dimension ID
+         * @deprecated Magic value
+         */
+
+        public int getId() {
+            return id;
+        }
+    }
+    // Spigot end
+
     // Spigot start
     public class Spigot
     {
@@ -1581,7 +1644,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
          * It also throws when the effect requires a material or a material data
          * @deprecated Spigot specific API, use {@link Particle}.
          */
-        @Deprecated
+
         public void playEffect(Location location, Effect effect)
         {
             throw new UnsupportedOperationException( "Not supported yet." );
@@ -1610,7 +1673,7 @@ public interface World extends PluginMessageRecipient, Metadatable {
          * @param radius the radius around the location
          * @deprecated Spigot specific API, use {@link Particle}.
          */
-        @Deprecated
+
         public void playEffect(Location location, Effect effect, int id, int data, float offsetX, float offsetY, float offsetZ, float speed, int particleCount, int radius)
         {
             throw new UnsupportedOperationException( "Not supported yet." );
@@ -1622,12 +1685,12 @@ public interface World extends PluginMessageRecipient, Metadatable {
          * @param loc The location to strike lightning
          * @param isSilent Whether this strike makes no sound
          * @return The lightning entity.
-         */        
+         */
         public LightningStrike strikeLightning(Location loc, boolean isSilent)
         {
             throw new UnsupportedOperationException( "Not supported yet." );
         }
-        
+
         /**
          * Strikes lightning at the given {@link Location} without doing damage and possibly without sound
          *
@@ -1638,68 +1701,6 @@ public interface World extends PluginMessageRecipient, Metadatable {
         public LightningStrike strikeLightningEffect(Location loc, boolean isSilent)
         {
             throw new UnsupportedOperationException( "Not supported yet." );
-        }
-    }
-
-    Spigot spigot();
-    // Spigot end
-
-    /**
-     * Represents various map environment types that a world may be
-     */
-    public enum Environment {
-
-        /**
-         * Represents the "normal"/"surface world" map
-         */
-        NORMAL(0),
-        /**
-         * Represents a nether based map ("hell")
-         */
-        NETHER(-1),
-        /**
-         * Represents the "end" map
-         */
-        THE_END(1);
-
-        private final int id;
-        private static final Map<Integer, Environment> lookup = new HashMap<Integer, Environment>();
-
-        private Environment(int id) {
-            this.id = id;
-        }
-
-        public static void registerEnvironment(Environment env){
-            lookup.put(env.getId(), env);
-        }
-
-        /**
-         * Gets the dimension ID of this environment
-         *
-         * @return dimension ID
-         * @deprecated Magic value
-         */
-        @Deprecated
-        public int getId() {
-            return id;
-        }
-
-        /**
-         * Get an environment by ID
-         *
-         * @param id The ID of the environment
-         * @return The environment
-         * @deprecated Magic value
-         */
-        @Deprecated
-        public static Environment getEnvironment(int id) {
-            return lookup.get(id);
-        }
-
-        static {
-            for (Environment env : values()) {
-                lookup.put(env.getId(), env);
-            }
         }
     }
 }

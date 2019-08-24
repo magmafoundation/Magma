@@ -24,6 +24,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
+import com.destroystokyo.paper.PaperMCConfig;
 import jline.console.ConsoleReader;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -158,6 +159,7 @@ import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.scheduler.BukkitWorker;
 import org.bukkit.util.StringUtil;
 import org.bukkit.util.permissions.DefaultPermissions;
+import org.magmafoundation.magma.Magma;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
@@ -184,7 +186,14 @@ import org.bukkit.event.server.TabCompleteEvent;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 public final class CraftServer implements Server {
-    private final String serverName = "Magma";
+    static {
+        ConfigurationSerialization.registerClass(CraftOfflinePlayer.class);
+        CraftItemFactory.instance();
+    }
+
+    protected final MinecraftServer console;
+    protected final DedicatedPlayerList playerList;
+    private final String serverName = Magma.getName();
     private final String serverVersion;
     private final String bukkitVersion = Versioning.getBukkitVersion();
     private final Logger logger = Logger.getLogger("Minecraft");
@@ -195,53 +204,77 @@ public final class CraftServer implements Server {
     private final SimpleHelpMap helpMap = new SimpleHelpMap(this);
     private final StandardMessenger messenger = new StandardMessenger();
     private final SimplePluginManager pluginManager = new SimplePluginManager(this, commandMap);
-    protected final MinecraftServer console;
-    protected final DedicatedPlayerList playerList;
     private final Map<String, World> worlds = new LinkedHashMap<String, World>();
-    private YamlConfiguration configuration;
-    private YamlConfiguration commandsConfiguration;
     private final Yaml yaml = new Yaml(new SafeConstructor());
     private final Map<UUID, OfflinePlayer> offlinePlayers = new MapMaker().weakValues().makeMap();
     private final EntityMetadataStore entityMetadata = new EntityMetadataStore();
     private final PlayerMetadataStore playerMetadata = new PlayerMetadataStore();
     private final WorldMetadataStore worldMetadata = new WorldMetadataStore();
+    private final BooleanWrapper online = new BooleanWrapper();
+    private final List<CraftPlayer> playerView;
+    private final Spigot spigot = new Spigot() {
+
+        @Deprecated
+        @Override
+        public YamlConfiguration getConfig()
+        {
+            return org.spigotmc.SpigotConfig.config;
+        }
+
+        @Override
+        public YamlConfiguration getBukkitConfig()
+        {
+            return configuration;
+        }
+
+        @Override
+        public YamlConfiguration getSpigotConfig()
+        {
+            return org.spigotmc.SpigotConfig.config;
+        }
+
+        @Override
+        public YamlConfiguration getPaperConfig()
+        {
+            return PaperMCConfig.config;
+        }
+
+        @Override
+        public void broadcast(BaseComponent component) {
+            for (Player player : getOnlinePlayers()) {
+                player.spigot().sendMessage(component);
+            }
+        }
+
+        @Override
+        public void broadcast(BaseComponent... components) {
+            for (Player player : getOnlinePlayers()) {
+                player.spigot().sendMessage(components);
+            }
+        }
+    };
+    public int chunkGCPeriod = -1;
+    public int chunkGCLoadThresh = 0;
+    public CraftScoreboardManager scoreboardManager;
+    public boolean playerCommandState;
+    public int reloadCount;
+    private YamlConfiguration configuration;
+    private YamlConfiguration commandsConfiguration;
     private int monsterSpawn = -1;
     private int animalSpawn = -1;
     private int waterAnimalSpawn = -1;
     private int ambientSpawn = -1;
-    public int chunkGCPeriod = -1;
-    public int chunkGCLoadThresh = 0;
     private File container;
     private WarningState warningState = WarningState.DEFAULT;
-    private final BooleanWrapper online = new BooleanWrapper();
-    public CraftScoreboardManager scoreboardManager;
-    public boolean playerCommandState;
     private boolean printSaveWarning;
     private CraftIconCache icon;
     private boolean overrideAllCommandBlockCommands = false;
     private boolean unrestrictedAdvancements;
-    private final List<CraftPlayer> playerView;
-    public int reloadCount;
-
-    private final class BooleanWrapper {
-        private boolean value = true;
-    }
-
-    static {
-        ConfigurationSerialization.registerClass(CraftOfflinePlayer.class);
-        CraftItemFactory.instance();
-    }
 
     public CraftServer(MinecraftServer console, PlayerList playerList) {
         this.console = console;
         this.playerList = (DedicatedPlayerList) playerList;
-        this.playerView = Collections
-                .unmodifiableList(Lists.transform(playerList.getPlayers(), new Function<EntityPlayerMP, CraftPlayer>() {
-                    @Override
-                    public CraftPlayer apply(EntityPlayerMP player) {
-                        return player.getBukkitEntity();
-                    }
-                }));
+        this.playerView = Collections.unmodifiableList(Lists.transform(playerList.getPlayers(), player -> player.getBukkitEntity()));
         this.serverVersion = CraftServer.class.getPackage().getImplementationVersion();
         online.value = console.getPropertyManager().getBooleanProperty("online-mode", true);
 
@@ -412,8 +445,18 @@ public final class CraftServer implements Server {
     private void setVanillaCommands(boolean first) {
         Map<String, ICommand> commands = console.getCommandManager().getCommands();
         for (ICommand cmd : commands.values()) {
-            commandMap.register("minecraft",
-                    new VanillaCommandWrapper((CommandBase) cmd, I18n.translateToLocal(cmd.getUsage(null))));
+            // Spigot start
+            if (console.getCommandManager().getCommandMod().containsValue(cmd))
+                continue;
+            VanillaCommandWrapper wrapper = new VanillaCommandWrapper((CommandBase) cmd, I18n.translateToLocal(cmd.getUsage(null)));
+            if (org.spigotmc.SpigotConfig.replaceCommands.contains(wrapper.getName())) {
+                if (first) {
+                    commandMap.register("minecraft", wrapper);
+                }
+            } else if (!first) {
+                commandMap.register("minecraft", wrapper);
+            }
+            // Spigot end
         }
     }
 
@@ -1576,6 +1619,12 @@ public final class CraftServer implements Server {
     }
 
     public List<String> tabCompleteCommand(Player player, String message, BlockPos pos) {
+        // Spigot Start
+        if ( (org.spigotmc.SpigotConfig.tabComplete < 0 || message.length() <= org.spigotmc.SpigotConfig.tabComplete) && !message.contains( " " ) )
+        {
+            return ImmutableList.of();
+        }
+        // Spigot End
         List<String> completions = null;
         try {
             if (message.startsWith("/")) {
@@ -1713,14 +1762,8 @@ public final class CraftServer implements Server {
 
     @Override
     public Iterator<org.bukkit.advancement.Advancement> advancementIterator() {
-        return Iterators
-                .unmodifiableIterator(Iterators.transform(console.getAdvancementManager().getAdvancements().iterator(),
-                        new Function<Advancement, org.bukkit.advancement.Advancement>() { // PAIL: rename
-                            @Override
-                            public org.bukkit.advancement.Advancement apply(Advancement advancement) {
-                                return advancement.bukkit;
-                            }
-                        }));
+        // PAIL: rename
+        return Iterators.unmodifiableIterator(Iterators.transform(console.getAdvancementManager().getAdvancements().iterator(), advancement -> advancement.bukkit));
     }
 
     @Deprecated
@@ -1740,31 +1783,6 @@ public final class CraftServer implements Server {
     }
     // Paper end
 
-    private final Spigot spigot = new Spigot()
-    {
-
-        @Override
-        public YamlConfiguration getConfig()
-        {
-            return org.spigotmc.SpigotConfig.config;
-        }
-
-        @Override
-        public void broadcast(BaseComponent component) {
-            for (Player player : getOnlinePlayers()) {
-                player.spigot().sendMessage(component);
-            }
-        }
-
-        @Override
-        public void broadcast(BaseComponent... components) {
-            for (Player player : getOnlinePlayers()) {
-                player.spigot().sendMessage(components);
-            }
-        }
-    };
-
-    @Override
     public Spigot spigot() {
         return spigot;
     }
@@ -1783,6 +1801,10 @@ public final class CraftServer implements Server {
             return new com.destroystokyo.paper.profile.CraftPlayerProfile((CraftPlayer)player);
         }
         return new com.destroystokyo.paper.profile.CraftPlayerProfile(uuid, name);
+    }
+
+    private static final class BooleanWrapper {
+        private boolean value = true;
     }
     // Paper end
 }

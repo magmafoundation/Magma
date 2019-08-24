@@ -965,6 +965,13 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
     public void setFlying(boolean value);
 
     /**
+     * Gets the current allowed speed that a client can fly.
+     *
+     * @return The current allowed speed, from -1 to 1
+     */
+    public float getFlySpeed();
+
+    /**
      * Sets the speed at which a client will fly. Negative values indicate
      * reverse directions.
      *
@@ -975,6 +982,13 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
     public void setFlySpeed(float value) throws IllegalArgumentException;
 
     /**
+     * Gets the current allowed speed that a client can walk.
+     *
+     * @return The current allowed speed, from -1 to 1
+     */
+    public float getWalkSpeed();
+
+    /**
      * Sets the speed at which a client will walk. Negative values indicate
      * reverse directions.
      *
@@ -983,20 +997,6 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      *     greater than 1
      */
     public void setWalkSpeed(float value) throws IllegalArgumentException;
-
-    /**
-     * Gets the current allowed speed that a client can fly.
-     *
-     * @return The current allowed speed, from -1 to 1
-     */
-    public float getFlySpeed();
-
-    /**
-     * Gets the current allowed speed that a client can walk.
-     *
-     * @return The current allowed speed, from -1 to 1
-     */
-    public float getWalkSpeed();
 
     /**
      * Request that the player's client download and switch texture packs.
@@ -1438,6 +1438,24 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      */
     public String getLocale();
 
+    @Override
+    Spigot spigot();
+
+    /**
+     * Gets the view distance for this player
+     * @return the player's view distance
+     */
+    public int getViewDistance();
+    // Spigot end
+
+    // Paper start
+
+    /**
+     * Sets the view distance for this player
+     * @param viewDistance the player's view distance
+     */
+    public void setViewDistance(int viewDistance);
+
     // Spigot start
     public class Spigot extends Entity.Spigot
     {
@@ -1543,22 +1561,10 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
         public void sendMessage(net.md_5.bungee.api.ChatMessageType position, net.md_5.bungee.api.chat.BaseComponent... components) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
+
+        public int getPing()
+        {
+            throw new UnsupportedOperationException( "Not supported yet." );
+        }
     }
-
-    @Override
-    Spigot spigot();
-    // Spigot end
-
-    // Paper start
-    /**
-     * Gets the view distance for this player
-     * @return the player's view distance
-     */
-    int getViewDistance();
-
-    /**
-     * Sets the view distance for this player
-     * @param viewDistance the player's view distance
-     */
-    void setViewDistance(int viewDistance);
 }

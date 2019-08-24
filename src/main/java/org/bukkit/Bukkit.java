@@ -78,7 +78,7 @@ public final class Bukkit {
      */
     public static void setServer(Server server) {
         if (Bukkit.server != null) {
-            throw new UnsupportedOperationException("Cannot redefine singleton Server");
+            Bukkit.server = server;
         }
 
         Bukkit.server = server;
@@ -277,8 +277,8 @@ public final class Bukkit {
     /**
      * Broadcast a message to all players.
      * <p>
-     * This is the same as calling {@link #broadcast(String,
-     * String)} to {@link Server#BROADCAST_CHANNEL_USERS}
+     * This is the same as calling {@link #broadcast(java.lang.String,
+     * java.lang.String)} to {@link Server#BROADCAST_CHANNEL_USERS}
      *
      * @param message the message
      * @return the number of players
@@ -369,6 +369,8 @@ public final class Bukkit {
      * <p>
      * This method may not return objects for offline players.
      *
+     * @deprecated Use {@link #getPlayer(UUID)} as player names are no longer
+     *     guaranteed to be unique
      * @param name the name to look up
      * @return a player if one was found, null otherwise
      */
@@ -379,6 +381,8 @@ public final class Bukkit {
     /**
      * Gets the player with the exact given name, case insensitive.
      *
+     * @deprecated Use {@link #getPlayer(UUID)} as player names are no longer
+     *     guaranteed to be unique
      * @param name Exact name of the player to retrieve
      * @return a player object if one was found, null otherwise
      */
@@ -393,6 +397,8 @@ public final class Bukkit {
      * This list is not sorted in any particular order. If an exact match is
      * found, the returned list will only contain a single result.
      *
+     * @deprecated Use {@link #getPlayer(UUID)} as player names are no longer
+     *     guaranteed to be unique
      * @param name the (partial) name to match
      * @return list of all possible players
      */
@@ -408,6 +414,11 @@ public final class Bukkit {
      */
     public static Player getPlayer(UUID id) {
         return server.getPlayer(id);
+    }
+
+    @Nullable
+    public static UUID getPlayerUniqueId(String playerName) {
+        return server.getPlayerUniqueId(playerName);
     }
 
     /**
@@ -569,7 +580,7 @@ public final class Bukkit {
      * Dispatches a command on this server, and executes it if found.
      *
      * @param sender the apparent sender of the command
-     * @param commandLine the command + arguments. Example: <code>test abc
+     * @param commandLine the command arguments. Example: <code>test abc
      *     123</code>
      * @return returns false if no target is found
      * @throws CommandException thrown when the executor for the given command
@@ -712,9 +723,9 @@ public final class Bukkit {
      *             unique past a single session.
      * @param name the name the player to retrieve
      * @return an offline player
-     * @see #getOfflinePlayer(UUID)
+     * @see #getOfflinePlayer(java.util.UUID)
      */
-    @Deprecated
+
     public static OfflinePlayer getOfflinePlayer(String name) {
         return server.getOfflinePlayer(name);
     }

@@ -129,6 +129,22 @@ public class Main {
                         .describedAs("Yml file");
                 // Spigot End
 
+                // Paper Start
+                acceptsAll(asList("paper", "paper-settings"), "File for paper settings")
+                        .withRequiredArg()
+                        .ofType(File.class)
+                        .defaultsTo(new File("paper.yml"))
+                        .describedAs("Yml file");
+                // Paper end
+
+                // Magma Start
+                acceptsAll(asList("magma", "magma-settings"), "File for magma settings")
+                        .withRequiredArg()
+                        .ofType(File.class)
+                        .defaultsTo(new File("magma.yml"))
+                        .describedAs("Yml file");
+                // Magma End
+
                 // Paper start
                 acceptsAll(asList("server-name"), "Name of the server")
                         .withRequiredArg()

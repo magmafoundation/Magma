@@ -21,7 +21,7 @@ public interface Tameable extends Entity {
      *
      * @param tame true if tame
      */
-    void setTamed(boolean tame);
+    public void setTamed(boolean tame);
 
     // Paper start
     /**
@@ -29,7 +29,7 @@ public interface Tameable extends Entity {
      *
      * @return the owners UUID, or null if not owned
      */
-    java.util.UUID getOwnerUUID();
+    public java.util.UUID getOwnerUUID();
     // Paper end
 
     /**

@@ -1,22 +1,21 @@
 package org.bukkit.plugin;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.EventException;
-import org.bukkit.event.Listener;
-
-// Paper start
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
-
 import com.destroystokyo.paper.event.executor.MethodHandleEventExecutor;
 import com.destroystokyo.paper.event.executor.StaticMethodHandleEventExecutor;
 import com.destroystokyo.paper.event.executor.asm.ASMEventExecutorGenerator;
 import com.destroystokyo.paper.event.executor.asm.ClassDefiner;
 import com.google.common.base.Preconditions;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventException;
+import org.bukkit.event.Listener;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
+
+// Paper start
 // Paper end
 
 /**
@@ -33,7 +32,6 @@ public interface EventExecutor {
             if (executorClass != null)
                 return executorClass;
 
-            //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (key) {
                 executorClass = get(key);
                 if (executorClass != null)
@@ -62,15 +60,12 @@ public interface EventExecutor {
             try {
                 EventExecutor asmExecutor = executorClass.newInstance();
                 // Define a wrapper to conform to bukkit stupidity (passing in events that don't match and wrapper exception)
-                return new EventExecutor() {
-                    @Override
-                    public void execute(Listener listener, Event event) throws EventException {
-                        if (!eventClass.isInstance(event)) return;
-                        try {
-                            asmExecutor.execute(listener, event);
-                        } catch (Exception e) {
-                            throw new EventException(e);
-                        }
+                return (listener, event) -> {
+                    if (!eventClass.isInstance(event)) return;
+                    try {
+                        asmExecutor.execute(listener, event);
+                    } catch (Exception e) {
+                        throw new EventException(e);
                     }
                 };
             } catch (InstantiationException | IllegalAccessException e) {

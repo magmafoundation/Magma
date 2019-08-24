@@ -87,7 +87,7 @@ public interface Server extends PluginMessageRecipient {
      *
      * @return version of Bukkit
      */
-    String getBukkitVersion();
+    public String getBukkitVersion();
 
     public Player[] _INVALID_getOnlinePlayers();
 
@@ -302,6 +302,8 @@ public interface Server extends PluginMessageRecipient {
      * <p>
      * This method may not return objects for offline players.
      *
+     * @deprecated Use {@link #getPlayer(UUID)} as player names are no longer
+     *     guaranteed to be unique
      * @param name the name to look up
      * @return a player if one was found, null otherwise
      */
@@ -310,6 +312,8 @@ public interface Server extends PluginMessageRecipient {
     /**
      * Gets the player with the exact given name, case insensitive.
      *
+     * @deprecated Use {@link #getPlayer(UUID)} as player names are no longer
+     *     guaranteed to be unique
      * @param name Exact name of the player to retrieve
      * @return a player object if one was found, null otherwise
      */
@@ -322,6 +326,8 @@ public interface Server extends PluginMessageRecipient {
      * This list is not sorted in any particular order. If an exact match is
      * found, the returned list will only contain a single result.
      *
+     * @deprecated Use {@link #getPlayer(UUID)} as player names are no longer
+     *     guaranteed to be unique
      * @param name the (partial) name to match
      * @return list of all possible players
      */
@@ -333,10 +339,10 @@ public interface Server extends PluginMessageRecipient {
      * @param id UUID of the player to retrieve
      * @return a player object if one was found, null otherwise
      */
-    Player getPlayer(UUID id);
+    public Player getPlayer(UUID id);
 
     @Nullable
-    UUID getPlayerUniqueId(String playerName);
+    public UUID getPlayerUniqueId(String playerName);
 
     /**
      * Gets the plugin manager for interfacing with plugins.
@@ -419,7 +425,7 @@ public interface Server extends PluginMessageRecipient {
      * @return a map view if it exists, or null otherwise
      * @deprecated Magic value
      */
-    @Deprecated
+
     public MapView getMap(short id);
 
     /**
@@ -465,7 +471,7 @@ public interface Server extends PluginMessageRecipient {
      * Dispatches a command on this server, and executes it if found.
      *
      * @param sender the apparent sender of the command
-     * @param commandLine the command + arguments. Example: <code>test abc
+     * @param commandLine the command arguments. Example: <code>test abc
      *     123</code>
      * @return returns false if no target is found
      * @throws CommandException thrown when the executor for the given command
@@ -582,7 +588,7 @@ public interface Server extends PluginMessageRecipient {
      * @return an offline player
      * @see #getOfflinePlayer(UUID)
      */
-    @Deprecated
+
     public OfflinePlayer getOfflinePlayer(String name);
 
     /**
@@ -929,7 +935,7 @@ public interface Server extends PluginMessageRecipient {
       *
       * @return current server TPS (1m, 5m, 15m in Paper-Server)
       */
-    double[] getTPS();
+    public double[] getTPS();
 
     /**
      * Gets the active {@link CommandMap}
@@ -959,16 +965,69 @@ public interface Server extends PluginMessageRecipient {
      * @see UnsafeValues
      * @return the unsafe values instance
      */
-    @Deprecated
+
     UnsafeValues getUnsafe();
 
-    // Spigot start
-    public class Spigot
-    {
+    Spigot spigot();
 
+    /**
+     * Checks if player names should be suggested when a command returns {@code null} as
+     * their tab completion result.
+     *
+     * @return true if player names should be suggested
+     */
+    boolean suggestPlayerNamesWhenNullTabCompletions();
+    // Spigot end
+
+    // Paper start - allow preventing player name suggestions by default
+
+    /**
+     * Creates a PlayerProfile for the specified uuid, with name as null
+     * @param uuid UUID to create profile for
+     * @return A PlayerProfile object
+     */
+    com.destroystokyo.paper.profile.PlayerProfile createProfile(@Nonnull UUID uuid);
+
+    /**
+     * Creates a PlayerProfile for the specified name, with UUID as null
+     * @param name Name to create profile for
+     * @return A PlayerProfile object
+     */
+    com.destroystokyo.paper.profile.PlayerProfile createProfile(@Nonnull String name);
+
+    /**
+     * Creates a PlayerProfile for the specified name/uuid
+     *
+     * Both UUID and Name can not be null at same time. One must be supplied.
+     *
+     * @param uuid UUID to create profile for
+     * @param name Name to create profile for
+     * @return A PlayerProfile object
+     */
+    com.destroystokyo.paper.profile.PlayerProfile createProfile(@Nullable UUID uuid, @Nullable String name);
+
+    // Spigot start
+    public class Spigot {
+
+        @Deprecated
         public org.bukkit.configuration.file.YamlConfiguration getConfig()
         {
             throw new UnsupportedOperationException( "Not supported yet." );
+        }
+
+        public org.bukkit.configuration.file.YamlConfiguration getBukkitConfig()
+        {
+            throw new UnsupportedOperationException( "Not supported yet." );
+        }
+
+        public org.bukkit.configuration.file.YamlConfiguration getSpigotConfig()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public org.bukkit.configuration.file.YamlConfiguration getPaperConfig()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
         /**
@@ -996,42 +1055,5 @@ public interface Server extends PluginMessageRecipient {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     }
-
-    Spigot spigot();
-    // Spigot end
-
-    // Paper start - allow preventing player name suggestions by default
-    /**
-     * Checks if player names should be suggested when a command returns {@code null} as
-     * their tab completion result.
-     *
-     * @return true if player names should be suggested
-     */
-    boolean suggestPlayerNamesWhenNullTabCompletions();
-
-    /**
-     * Creates a PlayerProfile for the specified uuid, with name as null
-     * @param uuid UUID to create profile for
-     * @return A PlayerProfile object
-     */
-    com.destroystokyo.paper.profile.PlayerProfile createProfile(@Nonnull UUID uuid);
-
-    /**
-     * Creates a PlayerProfile for the specified name, with UUID as null
-     * @param name Name to create profile for
-     * @return A PlayerProfile object
-     */
-    com.destroystokyo.paper.profile.PlayerProfile createProfile(@Nonnull String name);
-
-    /**
-     * Creates a PlayerProfile for the specified name/uuid
-     *
-     * Both UUID and Name can not be null at same time. One must be supplied.
-     *
-     * @param uuid UUID to create profile for
-     * @param name Name to create profile for
-     * @return A PlayerProfile object
-     */
-    com.destroystokyo.paper.profile.PlayerProfile createProfile(@Nullable UUID uuid, @Nullable String name);
     // Paper end
 }

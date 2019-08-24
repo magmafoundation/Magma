@@ -51,6 +51,15 @@ public class CraftAsyncScheduler extends CraftScheduler {
         executor.prestartAllCoreThreads();
     }
 
+    /**
+     * Task is not cancelled
+     * @param runningTask
+     * @return
+     */
+    static boolean isValid(CraftTask runningTask) {
+        return runningTask.getPeriod() >= CraftTask.NO_REPEATING;
+    }
+
     @Override
     public void cancelTask(int taskId) {
         this.management.execute(() -> this.removeTask(taskId));
@@ -116,12 +125,4 @@ public class CraftAsyncScheduler extends CraftScheduler {
         cancelTasks(null);
     }
 
-    /**
-     * Task is not cancelled
-     * @param runningTask
-     * @return
-     */
-    static boolean isValid(CraftTask runningTask) {
-        return runningTask.getPeriod() >= CraftTask.NO_REPEATING;
-    }
 }

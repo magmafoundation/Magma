@@ -3,6 +3,7 @@ package org.bukkit.entity;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.craftbukkit.entity.CraftCustomEntity;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.entity.minecart.HopperMinecart;
 import org.bukkit.entity.minecart.SpawnerMinecart;
@@ -265,7 +266,8 @@ public enum EntityType {
     /**
      * An unknown entity without an Entity Class
      */
-    UNKNOWN(null, null, -1, false);
+    UNKNOWN(null, null, -1, false),
+    FORGE_MOD("forge_mod", CraftCustomEntity.class, -1, false);
 
     private String name;
     private Class<? extends Entity> clazz;

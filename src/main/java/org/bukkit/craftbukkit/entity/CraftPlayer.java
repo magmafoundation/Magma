@@ -124,6 +124,134 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     private static final WeakHashMap<Plugin, WeakReference<Plugin>> pluginWeakReferences = new WeakHashMap<>();
     private int hash = 0;
     private double health = 20;
+    // Spigot start
+    private final Player.Spigot spigot = new Player.Spigot() {
+
+        @Override
+        public InetSocketAddress getRawAddress() {
+            return (InetSocketAddress) getHandle().connection.netManager.getRawAddress();
+        }
+
+        @Override
+        public boolean getCollidesWithEntities() {
+            return CraftPlayer.this.isCollidable();
+        }
+
+        @Override
+        public void setCollidesWithEntities(boolean collides) {
+            CraftPlayer.this.setCollidable(collides);
+        }
+
+        @Override
+        public void respawn() {
+            if (getHealth() <= 0 && isOnline()) {
+                server.getServer().getPlayerList().recreatePlayerEntity(getHandle(), 0, false);
+            }
+        }
+
+        @Override
+        public void playEffect(Location location, Effect effect, int id, int data, float offsetX, float offsetY, float offsetZ, float speed, int particleCount, int radius) {
+            Validate.notNull(location, "Location cannot be null");
+            Validate.notNull(effect, "Effect cannot be null");
+            Validate.notNull(location.getWorld(), "World cannot be null");
+            Packet packet;
+            if (effect.getType() != Effect.Type.PARTICLE) {
+                int packetData = effect.getId();
+                packet = new SPacketEffect(packetData, new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()), id, false);
+            } else {
+                net.minecraft.util.EnumParticleTypes particle = null;
+                int[] extra = null;
+                for (net.minecraft.util.EnumParticleTypes p : net.minecraft.util.EnumParticleTypes.values()) {
+                    if (effect.getName().startsWith(p.getParticleName().replace("_", ""))) {
+                        particle = p;
+                        if (effect.getData() != null) {
+                            if (effect.getData().equals(org.bukkit.Material.class)) {
+                                extra = new int[]{id};
+                            } else {
+                                extra = new int[]{(data << 12) | (id & 0xFFF)};
+                            }
+                        }
+                        break;
+                    }
+                }
+                if (extra == null) {
+                    extra = new int[0];
+                }
+                packet = new SPacketParticles(particle, true, (float) location.getX(), (float) location.getY(), (float) location.getZ(), offsetX, offsetY, offsetZ, speed, particleCount, extra);
+            }
+            int distance;
+            radius *= radius;
+            if (getHandle().connection == null) {
+                return;
+            }
+            if (!location.getWorld().equals(getWorld())) {
+                return;
+            }
+
+            distance = (int) getLocation().distanceSquared(location);
+            if (distance <= radius) {
+                getHandle().connection.sendPacket(packet);
+            }
+        }
+
+        @Override
+        public String getLocale() {
+            return getHandle().language;
+        }
+
+        @Override
+        public Set<Player> getHiddenPlayers() {
+            Set<Player> ret = new HashSet<Player>();
+            for (UUID u : hiddenPlayers.keySet()) {
+                ret.add(getServer().getPlayer(u));
+            }
+
+            return java.util.Collections.unmodifiableSet(ret);
+        }
+
+        @Override
+        public void sendMessage(BaseComponent component) {
+            sendMessage(new BaseComponent[]{component});
+        }
+
+        @Override
+        public void sendMessage(BaseComponent... components) {
+            if (getHandle().connection == null) {
+                return;
+            }
+
+            SPacketChat packet = new SPacketChat(null, ChatType.CHAT);
+            packet.components = components;
+            getHandle().connection.sendPacket(packet);
+        }
+
+        @Override
+        public void sendMessage(net.md_5.bungee.api.ChatMessageType position, BaseComponent component) {
+            sendMessage(position, new BaseComponent[]{component});
+        }
+
+        @Override
+        public void sendMessage(ChatMessageType position, BaseComponent... components) {
+            if (getHandle().connection == null) {
+                return;
+            }
+
+            SPacketChat packet = new SPacketChat(null, ChatType.byId((byte) position.ordinal()));
+            // Action bar doesn't render colours, replace colours with legacy section symbols
+            if (position == net.md_5.bungee.api.ChatMessageType.ACTION_BAR) {
+                components = new BaseComponent[]{new net.md_5.bungee.api.chat.TextComponent(BaseComponent.toLegacyText(components))};
+            }
+            packet.components = components;
+            getHandle().connection.sendPacket(packet);
+        }
+
+        @Override
+        public int getPing()
+        {
+            return getHandle().ping;
+        }
+    };
+
     private boolean scaledHealth = false;
     private double healthScale = 20;
 
@@ -131,6 +259,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         super(server, entity);
 
         firstPlayed = System.currentTimeMillis();
+    }
+
+    @Nullable
+    private static WeakReference<Plugin> getPluginWeakReference(@Nullable Plugin plugin) {
+        return (plugin == null) ? null : pluginWeakReferences.computeIfAbsent(plugin, WeakReference::new);
     }
 
     public GameProfile getProfile() {
@@ -953,11 +1086,6 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         }
     }
 
-    @Nullable
-    private static WeakReference<Plugin> getPluginWeakReference(@Nullable Plugin plugin) {
-        return (plugin == null) ? null : pluginWeakReferences.computeIfAbsent(plugin, WeakReference::new);
-    }
-
     @Override
     @Deprecated
     public void hidePlayer(Player player) {
@@ -1212,6 +1340,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     public void addChannel(String channel) {
+        com.google.common.base.Preconditions.checkState( channels.size() < 128, "Too many channels registered" ); // Spigot
         if (channels.add(channel)) {
             server.getPluginManager().callEvent(new PlayerRegisterChannelEvent(this, channel));
         }
@@ -1328,6 +1457,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     @Override
+    public float getFlySpeed() {
+        return getHandle().capabilities.flySpeed * 2f;
+    }
+
+    @Override
     public void setFlySpeed(float value) {
         validateSpeed(value);
         EntityPlayer player = getHandle();
@@ -1337,21 +1471,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     @Override
+    public float getWalkSpeed() {
+        return getHandle().capabilities.walkSpeed * 2f;
+    }
+
+    @Override
     public void setWalkSpeed(float value) {
         validateSpeed(value);
         EntityPlayer player = getHandle();
         player.capabilities.walkSpeed = value / 2f;
         player.sendPlayerAbilities();
-    }
-
-    @Override
-    public float getFlySpeed() {
-        return getHandle().capabilities.flySpeed * 2f;
-    }
-
-    @Override
-    public float getWalkSpeed() {
-        return getHandle().capabilities.walkSpeed * 2f;
     }
 
     private void validateSpeed(float value) {
@@ -1453,7 +1582,15 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     public void sendHealthUpdate() {
-        getHandle().connection.sendPacket(new SPacketUpdateHealth(getScaledHealth(), getHandle().getFoodStats().getFoodLevel(), getHandle().getFoodStats().getSaturationLevel()));
+        // Paper start - cancellable death event
+        //getHandle().connection.sendPacket(new SPacketUpdateHealth(getScaledHealth(), getHandle().getFoodStats().getFoodLevel(), getHandle().getFoodStats().getSaturationLevel()));
+        SPacketUpdateHealth packet = new SPacketUpdateHealth(getScaledHealth(), getHandle().getFoodStats().getFoodLevel(), getHandle().getFoodStats().getSaturationLevel());
+        if (this.getHandle().queueHealthUpdatePacket) {
+            this.getHandle().queuedHealthUpdatePacket = packet;
+        } else {
+            this.getHandle().connection.sendPacket(packet);
+        }
+        // Paper end
     }
 
     public void injectScaledMaxHealth(Collection<IAttributeInstance> collection, boolean force) {
@@ -1496,6 +1633,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
+        if (getHandle().connection == null) {
+            return;
+        }
         SPacketTitle times = new SPacketTitle(fadeIn, stay, fadeOut);
         getHandle().connection.sendPacket(times);
 
@@ -1603,143 +1743,6 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         return getHandle().language;
     }
 
-    // Spigot start
-    private final Player.Spigot spigot = new Player.Spigot()
-    {
-        @Override
-        public InetSocketAddress getRawAddress()
-        {
-            return (InetSocketAddress) getHandle().connection.netManager.getRawAddress();
-        }
-
-        @Override
-        public boolean getCollidesWithEntities() {
-            return CraftPlayer.this.isCollidable();
-        }
-
-        @Override
-        public void setCollidesWithEntities(boolean collides) {
-            CraftPlayer.this.setCollidable(collides);
-        }
-
-        public void respawn()
-        {
-            if ( getHealth() <= 0 && isOnline() )
-            {
-                server.getServer().getPlayerList().recreatePlayerEntity( getHandle(), 0, false );
-            }
-        }
-
-        @Override
-        public void playEffect( Location location, Effect effect, int id, int data, float offsetX, float offsetY, float offsetZ, float speed, int particleCount, int radius )
-        {
-            Validate.notNull( location, "Location cannot be null" );
-            Validate.notNull( effect, "Effect cannot be null" );
-            Validate.notNull( location.getWorld(), "World cannot be null" );
-            Packet packet;
-            if ( effect.getType() != Effect.Type.PARTICLE )
-            {
-                int packetData = effect.getId();
-                packet = new SPacketEffect( packetData, new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ() ), id, false );
-            } else
-            {
-                net.minecraft.util.EnumParticleTypes particle = null;
-                int[] extra = null;
-                for ( net.minecraft.util.EnumParticleTypes p : net.minecraft.util.EnumParticleTypes.values() )
-                {
-                    if ( effect.getName().startsWith( p.getParticleName().replace("_", "") ) )
-                    {
-                        particle = p;
-                        if ( effect.getData() != null )
-                        {
-                            if ( effect.getData().equals( Material.class ) )
-                            {
-                                extra = new int[]{ id };
-                            } else
-                            {
-                                extra = new int[]{ (data << 12) | (id & 0xFFF) };
-                            }
-                        }
-                        break;
-                    }
-                }
-                if ( extra == null )
-                {
-                    extra = new int[0];
-                }
-                packet = new SPacketParticles( particle, true, (float) location.getX(), (float) location.getY(), (float) location.getZ(), offsetX, offsetY, offsetZ, speed, particleCount, extra );
-            }
-            int distance;
-            radius *= radius;
-            if ( getHandle().connection == null )
-            {
-                return;
-            }
-            if ( !location.getWorld().equals( getWorld() ) )
-            {
-                return;
-            }
-
-            distance = (int) getLocation().distanceSquared( location );
-            if ( distance <= radius )
-            {
-                getHandle().connection.sendPacket( packet );
-            }
-        }
-
-        public String getLocale()
-        {
-            return getHandle().language;
-        }
-
-        public Set<Player> getHiddenPlayers()
-        {
-            Set<Player> ret = new HashSet<Player>();
-            for ( UUID u : hiddenPlayers.keySet() )
-            {
-                ret.add( getServer().getPlayer( u ) );
-            }
-
-            return java.util.Collections.unmodifiableSet( ret );
-        }
-@Override
-        public void sendMessage(BaseComponent component) {
-            sendMessage( new BaseComponent[] { component } );
-        }
-
-        @Override
-        public void sendMessage(BaseComponent... components) {
-            if ( getHandle().connection == null ) {
-                return;
-            }
-
-            SPacketChat packet = new SPacketChat(null, ChatType.CHAT);
-            packet.components = components;
-            getHandle().connection.sendPacket(packet);
-        }
-
-        @Override
-        public void sendMessage(net.md_5.bungee.api.ChatMessageType position, BaseComponent component) {
-            sendMessage( position, new BaseComponent[] { component } );
-        }
-
-        @Override
-        public void sendMessage(ChatMessageType position, BaseComponent... components) {
-            if ( getHandle().connection == null ) {
-                return;
-            }
-
-            SPacketChat packet = new SPacketChat(null, ChatType.byId((byte) position.ordinal()));
-            // Action bar doesn't render colours, replace colours with legacy section symbols
-            if (position == net.md_5.bungee.api.ChatMessageType.ACTION_BAR) {
-                components = new BaseComponent[]{new net.md_5.bungee.api.chat.TextComponent(BaseComponent.toLegacyText(components))};
-            }
-            packet.components = components;
-            getHandle().connection.sendPacket(packet);
-        }
-    };
-
-    @Override
     public Player.Spigot spigot()
     {
         return spigot;

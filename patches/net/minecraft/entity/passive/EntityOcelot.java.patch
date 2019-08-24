@@ -8,7 +8,15 @@
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityAgeable;
-@@ -106,9 +105,10 @@
+@@ -47,6 +46,7 @@
+     private static final DataParameter<Integer> OCELOT_VARIANT = EntityDataManager.<Integer>createKey(EntityOcelot.class, DataSerializers.VARINT);
+     private EntityAIAvoidEntity<EntityPlayer> avoidEntity;
+     private EntityAITempt aiTempt;
++    public boolean spawnBonus = true; // Spigot
+ 
+     public EntityOcelot(World worldIn)
+     {
+@@ -106,9 +106,10 @@
          }
      }
  
@@ -21,7 +29,7 @@
      }
  
      protected void applyEntityAttributes()
-@@ -189,7 +189,8 @@
+@@ -189,7 +190,8 @@
          {
              if (this.aiSit != null)
              {
@@ -31,7 +39,7 @@
              }
  
              return super.attackEntityFrom(source, amount);
-@@ -222,7 +223,8 @@
+@@ -222,7 +224,8 @@
  
              if (!this.world.isRemote)
              {
@@ -41,7 +49,15 @@
                  {
                      this.setTamedBy(player);
                      this.setTameSkin(1 + this.world.rand.nextInt(3));
-@@ -368,7 +370,7 @@
+@@ -361,14 +364,14 @@
+     {
+         livingdata = super.onInitialSpawn(difficulty, livingdata);
+ 
+-        if (this.getTameSkin() == 0 && this.world.rand.nextInt(7) == 0)
++        if (spawnBonus && this.getTameSkin() == 0 && this.world.rand.nextInt(7) == 0) // Spigot
+         {
+             for (int i = 0; i < 2; ++i)
+             {
                  EntityOcelot entityocelot = new EntityOcelot(this.world);
                  entityocelot.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, 0.0F);
                  entityocelot.setGrowingAge(-24000);
