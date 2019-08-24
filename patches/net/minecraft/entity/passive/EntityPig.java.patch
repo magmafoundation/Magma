@@ -25,7 +25,7 @@
      }
  
      @Nullable
-@@ -222,11 +224,20 @@
+@@ -222,11 +224,26 @@
          }
      }
  
@@ -38,6 +38,12 @@
 +                lightningBolt = new EntityLightningBolt(this.world, this.posX, this.posY, this.posZ, false);
              EntityPigZombie entitypigzombie = new EntityPigZombie(this.world);
 +
++            // Paper start
++            if(CraftEventFactory.callEntityZapEvent(this, lightningBolt, entitypigzombie).isCancelled()){
++                return;
++            }
++            // Paper end
++
 +            // CraftBukkit start
 +            if (CraftEventFactory.callPigZapEvent(this, lightningBolt, entitypigzombie).isCancelled()) {
 +                return;
@@ -47,7 +53,7 @@
              entitypigzombie.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
              entitypigzombie.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
              entitypigzombie.setNoAI(this.isAIDisabled());
-@@ -237,7 +248,8 @@
+@@ -237,7 +254,8 @@
                  entitypigzombie.setAlwaysRenderNameTag(this.getAlwaysRenderNameTag());
              }
  

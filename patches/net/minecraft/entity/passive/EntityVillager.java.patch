@@ -1,11 +1,12 @@
 --- ../src-base/minecraft/net/minecraft/entity/passive/EntityVillager.java
 +++ ../src-work/minecraft/net/minecraft/entity/passive/EntityVillager.java
-@@ -92,6 +92,13 @@
+@@ -92,6 +92,14 @@
  import net.minecraftforge.fml.relauncher.SideOnly;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.bukkit.Bukkit;
 +import org.bukkit.craftbukkit.entity.CraftVillager;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.inventory.CraftMerchantRecipe;
 +import org.bukkit.entity.Villager;
 +import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -14,7 +15,7 @@
  
  public class EntityVillager extends EntityAgeable implements INpc, IMerchant
  {
-@@ -104,18 +111,18 @@
+@@ -104,18 +112,18 @@
      @Nullable
      private EntityPlayer buyingPlayer;
      @Nullable
@@ -38,7 +39,7 @@
  
      public EntityVillager(World worldIn)
      {
-@@ -125,7 +132,7 @@
+@@ -125,7 +133,7 @@
      public EntityVillager(World worldIn, int professionId)
      {
          super(worldIn);
@@ -47,7 +48,7 @@
          this.setProfession(professionId);
          this.setSize(0.6F, 1.95F);
          ((PathNavigateGround)this.getNavigator()).setBreakDoors(true);
-@@ -186,6 +193,22 @@
+@@ -186,6 +194,22 @@
          this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
      }
  
@@ -70,7 +71,7 @@
      protected void updateAITasks()
      {
          if (--this.randomTickDivider <= 0)
-@@ -224,7 +247,14 @@
+@@ -224,7 +248,14 @@
                      {
                          if (merchantrecipe.isRecipeDisabled())
                          {
@@ -86,7 +87,7 @@
                          }
                      }
  
-@@ -392,7 +422,7 @@
+@@ -392,7 +423,7 @@
          this.setAdditionalAItasks();
      }
  
@@ -95,7 +96,7 @@
      {
          return false;
      }
-@@ -654,7 +684,7 @@
+@@ -654,7 +685,7 @@
          return net.minecraftforge.event.ForgeEventFactory.listTradeOffers(this, player, buyingList);
      }
  
@@ -104,7 +105,7 @@
      {
          if (this.careerId != 0 && this.careerLevel != 0)
          {
-@@ -679,7 +709,20 @@
+@@ -679,7 +710,20 @@
          {
              for (EntityVillager.ITradeList entityvillager$itradelist : trades)
              {
@@ -126,7 +127,7 @@
              }
          }
      }
-@@ -880,7 +923,7 @@
+@@ -880,11 +924,18 @@
          return false;
      }
  
@@ -135,12 +136,23 @@
      {
          if (!this.world.isRemote && !this.isDead)
          {
-@@ -895,7 +938,7 @@
+             EntityWitch entitywitch = new EntityWitch(this.world);
++
++            // Paper start
++            if(CraftEventFactory.callEntityZapEvent(this, lightningBolt, entitywitch).isCancelled()){
++                return;
++            }
++            // Paper end
++
+             entitywitch.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, this.rotationPitch);
+             entitywitch.onInitialSpawn(this.world.getDifficultyForLocation(new BlockPos(entitywitch)), (IEntityLivingData)null);
+             entitywitch.setNoAI(this.isAIDisabled());
+@@ -895,7 +946,7 @@
                  entitywitch.setAlwaysRenderNameTag(this.getAlwaysRenderNameTag());
              }
  
 -            this.world.spawnEntity(entitywitch);
-+            this.world.spawnEntity(entitywitch, SpawnReason.LIGHTNING);
++            this.world.spawnEntity(entitywitch, SpawnReason.LIGHTNING); // Paper - Added lightning spawn reason for this entity
              this.setDead();
          }
      }

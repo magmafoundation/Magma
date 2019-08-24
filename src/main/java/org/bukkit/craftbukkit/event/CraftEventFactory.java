@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.event;
 
+import com.destroystokyo.paper.event.entity.EntityZapEvent;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import net.minecraft.block.state.IBlockState;
@@ -1232,4 +1233,13 @@ public class CraftEventFactory {
         world.getServer().getPluginManager().callEvent(blockBreakEvent);
         return blockBreakEvent;
     }
+
+    // Paper start
+    public static EntityZapEvent callEntityZapEvent(Entity entity, Entity lightning, Entity changedEntity) {
+        EntityZapEvent entityZapEvent = new EntityZapEvent(entity.getBukkitEntity(), (LightningStrike) lightning.getBukkitEntity(), changedEntity.getBukkitEntity());
+        entity.getBukkitEntity().getServer().getPluginManager().callEvent(entityZapEvent);
+        return entityZapEvent;
+    }
+    // Paper end
+
 }
