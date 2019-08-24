@@ -1,8 +1,9 @@
 --- ../src-base/minecraft/net/minecraft/world/WorldEntitySpawner.java
 +++ ../src-work/minecraft/net/minecraft/world/WorldEntitySpawner.java
-@@ -1,9 +1,7 @@
+@@ -1,9 +1,8 @@
  package net.minecraft.world;
  
++import com.destroystokyo.paper.event.entity.PlayerNaturallySpawnCreaturesEvent;
  import com.google.common.collect.Sets;
 -import java.util.List;
 -import java.util.Random;
@@ -11,11 +12,12 @@
  import net.minecraft.block.Block;
  import net.minecraft.block.BlockRailBase;
  import net.minecraft.block.material.Material;
-@@ -21,12 +19,33 @@
+@@ -21,12 +20,34 @@
  import net.minecraft.util.math.MathHelper;
  import net.minecraft.world.biome.Biome;
  import net.minecraft.world.chunk.Chunk;
 +import net.minecraft.world.gen.ChunkProviderServer;
++import org.bukkit.entity.Player;
 +import org.bukkit.event.entity.CreatureSpawnEvent;
  
  public final class WorldEntitySpawner
@@ -45,7 +47,7 @@
      public int findChunksForSpawning(WorldServer worldServerIn, boolean spawnHostileMobs, boolean spawnPeacefulMobs, boolean spawnOnSetTickRate)
      {
          if (!spawnHostileMobs && !spawnPeacefulMobs)
-@@ -46,11 +65,14 @@
+@@ -46,11 +67,23 @@
                      int k = MathHelper.floor(entityplayer.posZ / 16.0D);
                      int l = 8;
  
@@ -58,6 +60,15 @@
 +                    byte b0 = worldServerIn.spigotConfig.mobSpawnRange;
 +                    b0 = ( b0 > worldServerIn.spigotConfig.viewDistance ) ? (byte) worldServerIn.spigotConfig.viewDistance : b0;
 +                    b0 = ( b0 > 8 ) ? 8 : b0;
++
++                    // Paper start
++                    PlayerNaturallySpawnCreaturesEvent event = new PlayerNaturallySpawnCreaturesEvent((Player) entityplayer.getBukkitEntity(), b0);
++                    if(!event.callEvent()){
++                        continue;
++                    }
++                    b0 = event.getSpawnRadius();
++                    // Paper end
++
 +                    for (int i1 = -b0; i1 <= b0; ++i1) {
 +                        for (int j1 = -b0; j1 <= b0; ++j1) {
 +                            boolean flag = i1 == -b0 || i1 == b0 || j1 == -b0 || j1 == b0;
@@ -65,7 +76,7 @@
                              ChunkPos chunkpos = new ChunkPos(i1 + j, j1 + k);
  
                              if (!this.eligibleChunksForSpawning.contains(chunkpos))
-@@ -77,20 +99,46 @@
+@@ -77,20 +110,46 @@
  
              for (EnumCreatureType enumcreaturetype : EnumCreatureType.values())
              {
@@ -118,7 +129,7 @@
                              BlockPos blockpos = getRandomChunkPosition(worldServerIn, chunkpos1.x, chunkpos1.z);
                              int k1 = blockpos.getX();
                              int l1 = blockpos.getY();
-@@ -156,15 +204,17 @@
+@@ -156,15 +215,17 @@
  
                                                      if (entityliving.isNotColliding())
                                                      {
@@ -139,7 +150,7 @@
                                                      {
                                                          continue label134;
                                                      }
-@@ -295,8 +345,11 @@
+@@ -295,8 +356,11 @@
  
                              if (net.minecraftforge.event.ForgeEventFactory.canEntitySpawn(entityliving, worldIn, j + 0.5f, (float) blockpos.getY(), k +0.5f, false) == net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) continue;
                              entityliving.setLocationAndAngles((double)((float)j + 0.5F), (double)blockpos.getY(), (double)((float)k + 0.5F), randomIn.nextFloat() * 360.0F, 0.0F);
