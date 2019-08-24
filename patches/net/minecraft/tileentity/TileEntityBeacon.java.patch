@@ -1,6 +1,20 @@
 --- ../src-base/minecraft/net/minecraft/tileentity/TileEntityBeacon.java
 +++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityBeacon.java
-@@ -16,7 +16,6 @@
+@@ -1,12 +1,8 @@
+ package net.minecraft.tileentity;
+ 
++import com.destroystokyo.paper.event.block.BeaconEffectEvent;
+ import com.google.common.collect.Lists;
+ import com.google.common.collect.Sets;
+-import java.util.Arrays;
+-import java.util.Collections;
+-import java.util.List;
+-import java.util.Set;
+-import javax.annotation.Nullable;
+ import net.minecraft.advancements.CriteriaTriggers;
+ import net.minecraft.block.Block;
+ import net.minecraft.block.BlockStainedGlass;
+@@ -16,7 +12,6 @@
  import net.minecraft.entity.player.EntityPlayerMP;
  import net.minecraft.entity.player.InventoryPlayer;
  import net.minecraft.init.Blocks;
@@ -8,17 +22,25 @@
  import net.minecraft.init.MobEffects;
  import net.minecraft.inventory.Container;
  import net.minecraft.inventory.ContainerBeacon;
-@@ -33,29 +32,62 @@
+@@ -33,29 +28,70 @@
  import net.minecraft.util.math.BlockPos;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
 +import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.potion.CraftPotionUtil;
 +import org.bukkit.entity.HumanEntity;
++import org.bukkit.entity.Player;
  
 -public class TileEntityBeacon extends TileEntityLockable implements ITickable, ISidedInventory
 -{
 -    public static final Potion[][] EFFECTS_LIST = new Potion[][] {{MobEffects.SPEED, MobEffects.HASTE}, {MobEffects.RESISTANCE, MobEffects.JUMP_BOOST}, {MobEffects.STRENGTH}, {MobEffects.REGENERATION}};
++import javax.annotation.Nullable;
++import java.util.Arrays;
++import java.util.Collections;
++import java.util.List;
++import java.util.Set;
++
 +public class TileEntityBeacon extends TileEntityLockable implements ITickable, ISidedInventory {
 +    public static final Potion[][] EFFECTS_LIST = new Potion[][]{{MobEffects.SPEED, MobEffects.HASTE}, {MobEffects.RESISTANCE, MobEffects.JUMP_BOOST}, {MobEffects.STRENGTH}, {MobEffects.REGENERATION}};
      private static final Set<Potion> VALID_EFFECTS = Sets.<Potion>newHashSet();
@@ -82,7 +104,7 @@
              this.updateBeacon();
          }
      }
-@@ -69,39 +101,54 @@
+@@ -69,39 +105,67 @@
          }
      }
  
@@ -137,9 +159,22 @@
 +    }
 +
 +    private void applyEffect(List<EntityPlayer> list, Potion effects, int i, int b0) {
-+        for (EntityPlayer entityplayer : list)
-+            entityplayer.addPotionEffect(new PotionEffect(effects, i, b0, true, true));
++        // Paper - BeaconEffectEvent
++        applyEffect(list, effects, i, b0);
 +    }
++
++    // Paper start - BeaconEffectEvent
++    private void applyEffect(List<EntityPlayer> list, Potion effects, int durationIn, int amplifierIn, boolean isPrimary) {
++        for (EntityPlayer entityPlayer : list) {
++            org.bukkit.block.Block block = world.getWorld().getBlockAt(this.pos.getX(), this.pos.getY(), this.pos.getZ());
++            org.bukkit.potion.PotionEffect effect = CraftPotionUtil.toBukkit(new PotionEffect(effects, durationIn, amplifierIn, true, true));
++            BeaconEffectEvent effectEvent = new BeaconEffectEvent(block, effect, (Player) entityPlayer.getBukkitEntity(), isPrimary);
++            if (CraftEventFactory.callEvent(effectEvent).isCancelled()) continue;
++            org.bukkit.potion.PotionEffect eventEffect = effectEvent.getEffect();
++            entityPlayer.getBukkitEntity().addPotionEffect(eventEffect, true);
++        }
++    }
++    // Paper end
 +
 +    private boolean hasSecondaryEffect() {
 +        return this.levels >= 4 && this.primaryEffect != this.secondaryEffect && this.secondaryEffect != null;
@@ -152,10 +187,10 @@
 +            int i = getLevel();
 +            List list = getHumansInRange();
 +
-+            applyEffect(list, this.primaryEffect, i, b0);
++            applyEffect(list, this.primaryEffect, i, b0, true); // Paper - BeaconEffectEvent
 +
 +            if (hasSecondaryEffect()) {
-+                applyEffect(list, this.secondaryEffect, i, 0);
++                applyEffect(list, this.secondaryEffect, i, 0, false); // Paper - BeaconEffectEvent
              }
          }
      }
@@ -163,7 +198,7 @@
  
      private void updateSegmentColors()
      {
-@@ -112,7 +159,7 @@
+@@ -112,7 +176,7 @@
          this.levels = 0;
          this.beamSegments.clear();
          this.isComplete = true;
@@ -172,7 +207,7 @@
          this.beamSegments.add(tileentitybeacon$beamsegment);
          boolean flag = true;
          BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
-@@ -159,7 +206,7 @@
+@@ -159,7 +223,7 @@
              }
              else
              {
@@ -181,7 +216,7 @@
                  this.beamSegments.add(tileentitybeacon$beamsegment);
              }
  
-@@ -215,7 +262,7 @@
+@@ -215,7 +279,7 @@
      }
  
      @SideOnly(Side.CLIENT)
@@ -190,7 +225,7 @@
      {
          return this.beamSegments;
      }
-@@ -285,8 +332,12 @@
+@@ -285,8 +349,12 @@
      public void readFromNBT(NBTTagCompound compound)
      {
          super.readFromNBT(compound);
@@ -205,7 +240,7 @@
          this.levels = compound.getInteger("Levels");
      }
  
-@@ -374,7 +425,7 @@
+@@ -374,7 +442,7 @@
  
      public int getInventoryStackLimit()
      {
