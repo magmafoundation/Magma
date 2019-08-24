@@ -1,9 +1,10 @@
 --- ../src-base/minecraft/net/minecraft/entity/projectile/EntityFishHook.java
 +++ ../src-work/minecraft/net/minecraft/entity/projectile/EntityFishHook.java
-@@ -32,20 +32,23 @@
+@@ -32,20 +32,24 @@
  import net.minecraft.world.storage.loot.LootTableList;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
++import org.bukkit.entity.ExperienceOrb;
 +import org.bukkit.entity.Fish;
 +import org.bukkit.entity.Player;
 +import org.bukkit.event.player.PlayerFishEvent;
@@ -26,7 +27,7 @@
      private int luck;
      private int lureSpeed;
  
-@@ -169,14 +172,14 @@
+@@ -169,14 +173,14 @@
                  f = BlockLiquid.getBlockLiquidHeight(iblockstate, this.world, blockpos);
              }
  
@@ -43,7 +44,7 @@
                      return;
                  }
  
-@@ -185,7 +188,7 @@
+@@ -185,7 +189,7 @@
                      this.motionX *= 0.3D;
                      this.motionY *= 0.2D;
                      this.motionZ *= 0.3D;
@@ -52,7 +53,7 @@
                      return;
                  }
  
-@@ -208,14 +211,14 @@
+@@ -208,14 +212,14 @@
              }
              else
              {
@@ -69,7 +70,7 @@
                          }
                          else
                          {
-@@ -230,7 +233,7 @@
+@@ -230,7 +234,7 @@
                      return;
                  }
  
@@ -78,7 +79,7 @@
                  {
                      this.motionX *= 0.9D;
                      this.motionZ *= 0.9D;
-@@ -356,6 +359,7 @@
+@@ -356,6 +360,7 @@
  
          if (raytraceresult != null && raytraceresult.typeOfHit != RayTraceResult.Type.MISS)
          {
@@ -86,7 +87,7 @@
              if (raytraceresult.typeOfHit == RayTraceResult.Type.ENTITY)
              {
                  this.caughtEntity = raytraceresult.entityHit;
-@@ -397,6 +401,10 @@
+@@ -397,6 +402,10 @@
              {
                  this.ticksCaughtDelay = 0;
                  this.ticksCatchableDelay = 0;
@@ -97,7 +98,7 @@
              }
              else
              {
-@@ -433,6 +441,13 @@
+@@ -433,6 +442,13 @@
              }
              else
              {
@@ -111,7 +112,7 @@
                  this.motionY = (double)(-0.4F * MathHelper.nextFloat(this.rand, 0.6F, 1.0F));
                  this.playSound(SoundEvents.ENTITY_BOBBER_SPLASH, 0.25F, 1.0F + (this.rand.nextFloat() - this.rand.nextFloat()) * 0.4F);
                  double d3 = this.getEntityBoundingBox().minY + 0.5D;
-@@ -509,6 +524,11 @@
+@@ -509,6 +525,11 @@
              net.minecraftforge.event.entity.player.ItemFishedEvent event = null;
              if (this.caughtEntity != null)
              {
@@ -123,7 +124,7 @@
                  this.bringInHookedEntity();
                  this.world.setEntityState(this, (byte)31);
                  i = this.caughtEntity instanceof EntityItem ? 3 : 5;
-@@ -529,6 +549,15 @@
+@@ -529,6 +550,15 @@
                  for (ItemStack itemstack : result)
                  {
                      EntityItem entityitem = new EntityItem(this.world, this.posX, this.posY, this.posZ, itemstack);
@@ -139,7 +140,7 @@
                      double d0 = this.angler.posX - this.posX;
                      double d1 = this.angler.posY - this.posY;
                      double d2 = this.angler.posZ - this.posZ;
-@@ -538,7 +567,12 @@
+@@ -538,7 +568,12 @@
                      entityitem.motionY = d1 * 0.1D + (double)MathHelper.sqrt(d3) * 0.08D;
                      entityitem.motionZ = d2 * 0.1D;
                      this.world.spawnEntity(entityitem);
@@ -147,13 +148,13 @@
 +                    // this.angler.world.spawnEntity(new EntityXPOrb(this.angler.world, this.angler.posX, this.angler.posY + 0.5D, this.angler.posZ + 0.5D, this.rand.nextInt(6) + 1));
 +                    // CraftBukkit start - this.random.nextInt(6) + 1 -> playerFishEvent.getExpToDrop()
 +                    if (playerFishEvent.getExpToDrop() > 0) {
-+                        this.angler.world.spawnEntity(new EntityXPOrb(this.angler.world, this.angler.posX, this.angler.posY + 0.5D, this.angler.posZ + 0.5D, playerFishEvent.getExpToDrop()));
++                        this.angler.world.spawnEntity(new EntityXPOrb(this.angler.world, this.angler.posX, this.angler.posY + 0.5D, this.angler.posZ + 0.5D, playerFishEvent.getExpToDrop(), ExperienceOrb.SpawnReason.FISHING, this.angler, this));
 +                    }
 +                    // CraftBukkit end
                      Item item = itemstack.getItem();
  
                      if (item == Items.FISH || item == Items.COOKED_FISH)
-@@ -552,8 +586,25 @@
+@@ -552,8 +587,25 @@
  
              if (this.inGround)
              {

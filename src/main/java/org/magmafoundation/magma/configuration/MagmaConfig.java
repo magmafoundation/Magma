@@ -8,6 +8,7 @@ import org.magmafoundation.magma.commands.MagmaCommand;
 import org.magmafoundation.magma.commands.VersionCommand;
 import org.magmafoundation.magma.configuration.value.Value;
 import org.magmafoundation.magma.configuration.value.values.BooleanValue;
+import org.magmafoundation.magma.configuration.value.values.IntValue;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -30,6 +31,10 @@ public class MagmaConfig extends ConfigBase {
     public static MagmaConfig instance;
 
     public final BooleanValue debugPrintBukkitMatterials = new BooleanValue(this, "debug.debugPrintBukkitMatterials", false, "Prints the Forge Bukkit Materials");
+
+    //=============================WORLD SETTINGS=============================
+    public final IntValue expMergeMaxValue = new IntValue(this, "experience-merge-max-value", -1, "Instructs the server put a maximum value on experience orbs, preventing them all from merging down into 1 single orb.");
+    //=============================WORLD SETTINGS=============================
 
     private static Metrics metrics;
 

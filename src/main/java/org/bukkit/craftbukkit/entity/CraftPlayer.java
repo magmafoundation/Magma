@@ -30,17 +30,18 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.PlayerAdvancements;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityTracker;
-import net.minecraft.entity.EntityTrackerEntry;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeMap;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Enchantments;
 import net.minecraft.inventory.Container;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import net.minecraft.network.NetHandlerPlayServer;
@@ -984,8 +985,34 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         return GameMode.getByValue(getHandle().interactionManager.getGameType().getID());
     }
 
-    @Override
-    public void giveExp(int exp) {
+    // Paper start
+    public int applyMending(int amount) {
+        EntityLivingBase handle = getHandle();
+        ItemStack itemstack = EnchantmentHelper.getRandomEquippedItemWithEnchant(Enchantments.MENDING, handle);
+        if (!itemstack.isEmpty() && itemstack.isItemDamaged()) {
+            EntityXPOrb orb = new EntityXPOrb(handle.world);
+            orb.xpValue = amount;
+            orb.spawnReason = org.bukkit.entity.ExperienceOrb.SpawnReason.CUSTOM;
+            orb.posX = handle.posX;
+            orb.posY = handle.posY;
+            orb.posZ = handle.posZ;
+            int i = Math.min(orb.xpToDurability(amount), itemstack.getItemDamage());
+            org.bukkit.event.player.PlayerItemMendEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerItemMendEvent(handle, orb, itemstack, i);
+            i = event.getRepairAmount();
+            orb.isDead = true;
+            if (!event.isCancelled()) {
+                amount -= orb.xpToDurability(i);
+                itemstack.setItemDamage(itemstack.getItemDamage() - i);
+            }
+        }
+        return amount;
+    }
+
+    public void giveExp(int exp, boolean applyMending) {
+        if(applyMending){
+            exp = this.applyMending(exp);
+        }
+        //Paper end
         getHandle().addExperience(exp);
     }
 

@@ -20,7 +20,7 @@
      private static final Logger LOGGER = LogManager.getLogger();
      private static final Pattern SIMPLE_VALUE = Pattern.compile("[A-Za-z0-9._+-]+");
 -    private final Map<String, NBTBase> tagMap = Maps.<String, NBTBase>newHashMap();
-+    private Map<String, NBTBase> tagMap = Maps.newHashMap(); // Paper
++    public Map<String, NBTBase> tagMap = Maps.newHashMap(); // Paper
  
 -    void write(DataOutput output) throws IOException
 +    public void write(DataOutput output) throws IOException

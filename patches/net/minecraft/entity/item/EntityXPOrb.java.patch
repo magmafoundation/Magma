@@ -1,24 +1,94 @@
 --- ../src-base/minecraft/net/minecraft/entity/item/EntityXPOrb.java
 +++ ../src-work/minecraft/net/minecraft/entity/item/EntityXPOrb.java
-@@ -3,6 +3,7 @@
+@@ -1,10 +1,13 @@
+ package net.minecraft.entity.item;
+ 
++import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
  import net.minecraft.block.material.Material;
  import net.minecraft.enchantment.EnchantmentHelper;
  import net.minecraft.entity.Entity;
 +import net.minecraft.entity.EntityLivingBase;
  import net.minecraft.entity.MoverType;
  import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.entity.player.EntityPlayerMP;
  import net.minecraft.init.Enchantments;
-@@ -15,6 +16,9 @@
+ import net.minecraft.init.SoundEvents;
+ import net.minecraft.item.ItemStack;
+@@ -15,7 +18,15 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
 +import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.entity.ExperienceOrb;
++import org.bukkit.entity.Player;
++import org.bukkit.event.entity.CreatureSpawnEvent;
 +import org.bukkit.event.entity.EntityTargetEvent;
 +import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
  
++import java.util.UUID;
++
  public class EntityXPOrb extends Entity
  {
-@@ -74,6 +78,7 @@
+     public int xpColor;
+@@ -26,9 +37,56 @@
+     private EntityPlayer closestPlayer;
+     private int xpTargetColor;
+ 
+-    public EntityXPOrb(World worldIn, double x, double y, double z, int expValue)
++    // Paper start
++    public UUID sourceEntityId;
++    public UUID triggerEntityId;
++    public ExperienceOrb.SpawnReason spawnReason = ExperienceOrb.SpawnReason.UNKNOWN;
++
++    private void loadPaperNBT(NBTTagCompound nbttagcompound) {
++        if (!nbttagcompound.hasKey("Paper.ExpData", 10)) { // 10 = compound
++            return;
++        }
++        NBTTagCompound comp = nbttagcompound.getCompoundTag("Paper.ExpData");
++        if (comp.hasUniqueId("source")) {
++            this.sourceEntityId = comp.getUniqueId("source");
++        }
++        if (comp.hasUniqueId("trigger")) {
++            this.triggerEntityId = comp.getUniqueId("trigger");
++        }
++        if (comp.hasKey("reason")) {
++            String reason = comp.getString("reason");
++            try {
++                spawnReason = org.bukkit.entity.ExperienceOrb.SpawnReason.valueOf(reason);
++            } catch (Exception e) {
++                this.world.getServer().getLogger().warning("Invalid spawnReason set for experience orb: " + e.getMessage() + " - " + reason);
++            }
++        }
++    }
++    private void savePaperNBT(NBTTagCompound nbttagcompound) {
++        NBTTagCompound comp = new NBTTagCompound();
++        if (sourceEntityId != null) {
++            comp.setUniqueId("source", sourceEntityId);
++        }
++        if (triggerEntityId != null) {
++            comp.setUniqueId("trigger", triggerEntityId);
++        }
++        if (spawnReason != null && spawnReason != org.bukkit.entity.ExperienceOrb.SpawnReason.UNKNOWN) {
++            comp.setString("reason", spawnReason.name());
++        }
++        nbttagcompound.setTag("Paper.ExpData", comp);
++    }
++
++    public EntityXPOrb(World world, double x, double y, double z, int expValue, org.bukkit.entity.ExperienceOrb.SpawnReason reason, Entity triggerId) {
++        this(world, x, y, z, expValue, reason, triggerId, null);
++    }
++
++    public EntityXPOrb(World worldIn, double x, double y, double z, int expValue, ExperienceOrb.SpawnReason reason, Entity triggerId, Entity sourceId)
+     {
+         super(worldIn);
++        this.sourceEntityId = sourceId != null ? sourceId.getUniqueID() : null;
++        this.triggerEntityId = triggerId != null ? triggerId.getUniqueID() : null;
++        this.spawnReason = reason != null ? reason : org.bukkit.entity.ExperienceOrb.SpawnReason.UNKNOWN;
++        // Paper end
+         this.setSize(0.5F, 0.5F);
+         this.setPosition(x, y, z);
+         this.rotationYaw = (float)(Math.random() * 360.0D);
+@@ -74,6 +132,7 @@
      public void onUpdate()
      {
          super.onUpdate();
@@ -26,7 +96,7 @@
  
          if (this.delayBeforeCanPickup > 0)
          {
-@@ -117,19 +122,30 @@
+@@ -117,19 +176,30 @@
  
          if (this.closestPlayer != null)
          {
@@ -68,12 +138,13 @@
          }
  
          this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
-@@ -195,14 +211,14 @@
+@@ -195,21 +265,23 @@
      {
          compound.setShort("Health", (short)this.xpOrbHealth);
          compound.setShort("Age", (short)this.xpOrbAge);
 -        compound.setShort("Value", (short)this.xpValue);
 +        compound.setInteger("Value", this.xpValue); // Paper - save as Integer
++        savePaperNBT(compound);
      }
  
      public void readEntityFromNBT(NBTTagCompound compound)
@@ -82,10 +153,19 @@
          this.xpOrbAge = compound.getShort("Age");
 -        this.xpValue = compound.getShort("Value");
 +        this.xpValue = compound.getInteger("Value"); // Paper - save as Integer
++        loadPaperNBT(compound);
      }
  
      public void onCollideWithPlayer(EntityPlayer entityIn)
-@@ -220,13 +236,17 @@
+     {
+         if (!this.world.isRemote)
+         {
+-            if (this.delayBeforeCanPickup == 0 && entityIn.xpCooldown == 0)
++            if (this.delayBeforeCanPickup == 0 && entityIn.xpCooldown == 0 && new com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent(((EntityPlayerMP) entityIn).getBukkitEntity(), (org.bukkit.entity.ExperienceOrb) this.getBukkitEntity()).callEvent()) // Paper
+             {
+                 if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.player.PlayerPickupXpEvent(entityIn, this))) return;
+                 entityIn.xpCooldown = 2;
+@@ -220,13 +292,17 @@
                  {
                      float ratio = itemstack.getItem().getXpRepairRatio(itemstack);
                      int i = Math.min(roundAverage(this.xpValue * ratio), itemstack.getItemDamage());
@@ -102,11 +182,26 @@
                  if (this.xpValue > 0)
                  {
 -                    entityIn.addExperience(this.xpValue);
-+                    entityIn.addExperience(CraftEventFactory.callPlayerExpChangeEvent(entityIn, this.xpValue).getAmount()); // CraftBukkit - this.value -> event.getAmount()
++                    entityIn.addExperience(CraftEventFactory.callPlayerExpChangeEvent(entityIn, this).getAmount()); // CraftBukkit - this.value -> event.getAmount() // Paper - supply experience orb object
                  }
  
                  this.setDead();
-@@ -296,6 +316,24 @@
+@@ -234,12 +310,12 @@
+         }
+     }
+ 
+-    private int durabilityToXp(int durability)
++    public int durabilityToXp(int durability)
+     {
+         return durability / 2;
+     }
+ 
+-    private int xpToDurability(int xp)
++    public int xpToDurability(int xp)
+     {
+         return xp * 2;
+     }
+@@ -296,6 +372,24 @@
  
      public static int getXPSplit(int expValue)
      {
