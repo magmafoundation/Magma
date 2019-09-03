@@ -13,7 +13,7 @@
  
  public class SlotFurnaceOutput extends Slot
  {
-@@ -70,11 +75,21 @@
+@@ -70,6 +75,16 @@
                  i = j;
              }
  
@@ -30,9 +30,3 @@
              while (i > 0)
              {
                  int k = EntityXPOrb.getXPSplit(i);
-                 i -= k;
--                this.player.world.spawnEntity(new EntityXPOrb(this.player.world, this.player.posX, this.player.posY + 0.5D, this.player.posZ + 0.5D, k));
-+                this.player.world.spawnEntity(new EntityXPOrb(this.player.world, this.player.posX, this.player.posY + 0.5D, this.player.posZ + 0.5D, k, ExperienceOrb.SpawnReason.FURNACE, this.player)); // Paper
-             }
-         }
- 

@@ -756,7 +756,7 @@ public class CraftEventFactory {
         return event;
     }
 
-    public static PlayerItemMendEvent callPlayerItemMendEvent(EntityLivingBase entity, EntityXPOrb orb, ItemStack nmsMendedItem, int repairAmount) {
+    public static PlayerItemMendEvent callPlayerItemMendEvent(EntityPlayer entity, EntityXPOrb orb, ItemStack nmsMendedItem, int repairAmount) {
         Player player = (Player) entity.getBukkitEntity();
         org.bukkit.inventory.ItemStack bukkitStack = CraftItemStack.asCraftMirror(nmsMendedItem);
         PlayerItemMendEvent event = new PlayerItemMendEvent(player, bukkitStack, (ExperienceOrb) orb.getBukkitEntity(), repairAmount);
@@ -1240,15 +1240,6 @@ public class CraftEventFactory {
         EntityZapEvent entityZapEvent = new EntityZapEvent(entity.getBukkitEntity(), (LightningStrike) lightning.getBukkitEntity(), changedEntity.getBukkitEntity());
         entity.getBukkitEntity().getServer().getPluginManager().callEvent(entityZapEvent);
         return entityZapEvent;
-    }
-
-    public static PlayerExpChangeEvent callPlayerExpChangeEvent(EntityPlayer entity, EntityXPOrb entityOrb) {
-        Player player = (Player) entity.getBukkitEntity();
-        ExperienceOrb source = (ExperienceOrb) entityOrb.getBukkitEntity();
-        int expAmount = source.getExperience();
-        PlayerExpChangeEvent event = new PlayerExpChangeEvent(player, source, expAmount);
-        Bukkit.getPluginManager().callEvent(event);
-        return event;
     }
     // Paper end
 

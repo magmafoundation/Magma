@@ -987,34 +987,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         return GameMode.getByValue(getHandle().interactionManager.getGameType().getID());
     }
 
-    // Paper start
-    public int applyMending(int amount) {
-        EntityLivingBase handle = getHandle();
-        ItemStack itemstack = EnchantmentHelper.getRandomEquippedItemWithEnchant(Enchantments.MENDING, handle);
-        if (!itemstack.isEmpty() && itemstack.isItemDamaged()) {
-            EntityXPOrb orb = new EntityXPOrb(handle.world);
-            orb.xpValue = amount;
-            orb.spawnReason = org.bukkit.entity.ExperienceOrb.SpawnReason.CUSTOM;
-            orb.posX = handle.posX;
-            orb.posY = handle.posY;
-            orb.posZ = handle.posZ;
-            int i = Math.min(orb.xpToDurability(amount), itemstack.getItemDamage());
-            org.bukkit.event.player.PlayerItemMendEvent event = CraftEventFactory.callPlayerItemMendEvent(handle, orb, itemstack, i);
-            i = event.getRepairAmount();
-            orb.isDead = true;
-            if (!event.isCancelled()) {
-                amount -= orb.xpToDurability(i);
-                itemstack.setItemDamage(itemstack.getItemDamage() - i);
-            }
-        }
-        return amount;
-    }
-
-    public void giveExp(int exp, boolean applyMending) {
-        if(applyMending){
-            exp = this.applyMending(exp);
-        }
-        //Paper end
+    @Override
+    public void giveExp(int exp) {
         getHandle().addExperience(exp);
     }
 

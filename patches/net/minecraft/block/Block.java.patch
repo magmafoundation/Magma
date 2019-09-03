@@ -38,7 +38,7 @@
                  {
                      spawnAsEntity(worldIn, pos, drop);
                  }
-@@ -596,19 +597,34 @@
+@@ -596,12 +597,27 @@
              double d2 = (double)(worldIn.rand.nextFloat() * 0.5F) + 0.25D;
              EntityItem entityitem = new EntityItem(worldIn, (double)pos.getX() + d0, (double)pos.getY() + d1, (double)pos.getZ() + d2, stack);
              entityitem.setDefaultPickupDelay();
@@ -67,14 +67,6 @@
          if (!worldIn.isRemote && worldIn.getGameRules().getBoolean("doTileDrops"))
          {
              while (amount > 0)
-             {
-                 int i = EntityXPOrb.getXPSplit(amount);
-                 amount -= i;
--                worldIn.spawnEntity(new EntityXPOrb(worldIn, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, i));
-+                worldIn.spawnEntity(new EntityXPOrb(worldIn, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, i, ExperienceOrb.SpawnReason.BLOCK_BREAK, player));
-             }
-         }
-     }
 @@ -714,7 +730,7 @@
  
          if (this.canSilkHarvest(worldIn, pos, state, player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0)
