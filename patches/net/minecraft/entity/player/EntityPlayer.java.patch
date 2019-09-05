@@ -43,7 +43,7 @@
  
  @SuppressWarnings("incomplete-switch")
  public abstract class EntityPlayer extends EntityLivingBase
-@@ -109,10 +118,10 @@
+@@ -109,10 +118,11 @@
      protected static final DataParameter<NBTTagCompound> LEFT_SHOULDER_ENTITY = EntityDataManager.<NBTTagCompound>createKey(EntityPlayer.class, DataSerializers.COMPOUND_TAG);
      protected static final DataParameter<NBTTagCompound> RIGHT_SHOULDER_ENTITY = EntityDataManager.<NBTTagCompound>createKey(EntityPlayer.class, DataSerializers.COMPOUND_TAG);
      public InventoryPlayer inventory = new InventoryPlayer(this);
@@ -52,11 +52,12 @@
      public Container inventoryContainer;
      public Container openContainer;
 -    protected FoodStats foodStats = new FoodStats();
-+    protected FoodStats foodStats = new FoodStats(); // Magma - Restore CraftBukkit modifications, compatible with AppleCore and other mods that modify FoodStats
++    protected FoodStats applecores_vanilla = new FoodStats(); // Magma - Restore CraftBukkit modifications, compatible with AppleCore and other mods that modify FoodStats
++    protected FoodStats foodStats = new FoodStats(this); // CraftBukkit - add "this" to constructor
      protected int flyToggleTimer;
      public float prevCameraYaw;
      public float cameraYaw;
-@@ -123,9 +132,9 @@
+@@ -123,9 +133,9 @@
      public double chasingPosX;
      public double chasingPosY;
      public double chasingPosZ;
@@ -68,7 +69,7 @@
      public float renderOffsetX;
      @SideOnly(Side.CLIENT)
      public float renderOffsetY;
-@@ -147,6 +156,12 @@
+@@ -147,6 +157,12 @@
      @Nullable
      public EntityFishHook fishEntity;
  
@@ -81,11 +82,7 @@
      protected CooldownTracker createCooldownTracker()
      {
          return new CooldownTracker();
-@@ -159,9 +174,13 @@
-         this.gameProfile = gameProfileIn;
-         this.inventoryContainer = new ContainerPlayer(this.inventory, !worldIn.isRemote, this);
-         this.openContainer = this.inventoryContainer;
-+        this.foodStats.player = this;
+@@ -162,6 +178,9 @@
          BlockPos blockpos = worldIn.getSpawnPoint();
          this.setLocationAndAngles((double)blockpos.getX() + 0.5D, (double)(blockpos.getY() + 1), (double)blockpos.getZ() + 0.5D, 0.0F, 0.0F);
          this.unused180 = 180.0F;
