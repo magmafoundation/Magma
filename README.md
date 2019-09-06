@@ -32,10 +32,8 @@ All builds are available in `build/distributions`
   - Next you are gonna want to clone the submodule
     - `git submodule update --init --recursive` 
 - Building
-  - First you want to setup the project
-    - `./gradlew setup`
-  - After you have setup the project you are going to want to run the build
-    - `./gradlew build`
+  - First you want to run the build command 
+    - `./gradlew launch4j`
   - Now go and get a drink this may take some time
 
 ## Chat
