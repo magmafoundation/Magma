@@ -37,15 +37,15 @@
  import net.minecraft.util.DamageSource;
  import net.minecraft.util.EnumActionResult;
  import net.minecraft.util.EnumFacing;
-@@ -118,6 +108,7 @@
- import net.minecraft.world.storage.loot.conditions.LootCondition;
+@@ -119,6 +109,7 @@
  import net.minecraftforge.common.crafting.CraftingHelper;
+ import net.minecraftforge.common.crafting.JsonContext;
  import net.minecraftforge.common.util.BlockSnapshot;
 +import net.minecraftforge.common.util.FakePlayer;
  import net.minecraftforge.event.AnvilUpdateEvent;
  import net.minecraftforge.event.DifficultyChangeEvent;
  import net.minecraftforge.event.ForgeEventFactory;
-@@ -164,6 +155,7 @@
+@@ -165,6 +156,7 @@
  
  import org.apache.commons.io.FilenameUtils;
  import org.apache.commons.io.IOUtils;
@@ -53,7 +53,7 @@
  
  public class ForgeHooks
  {
-@@ -450,7 +442,7 @@
+@@ -451,7 +443,7 @@
                  }
                  else
                  {
@@ -62,7 +62,7 @@
  
                      if (resourcelocation == null || !EntityList.ENTITY_EGGS.containsKey(resourcelocation))
                      {
-@@ -472,7 +464,7 @@
+@@ -473,7 +465,7 @@
                  }
                  else if (this.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY)
                  {
@@ -71,7 +71,7 @@
                  }
  
                  LOGGER.warn("Picking on: [{}] {} gave null item", new Object[] {this.objectMouseOver.typeOfHit, s});
-@@ -816,27 +808,8 @@
+@@ -817,27 +809,8 @@
  
      public static int onBlockBreakEvent(World world, GameType gameType, EntityPlayerMP entityPlayer, BlockPos pos)
      {
@@ -100,7 +100,7 @@
          {
              SPacketBlockChange packet = new SPacketBlockChange(world, pos);
              packet.blockState = Blocks.AIR.getDefaultState();
-@@ -846,11 +819,11 @@
+@@ -847,11 +820,11 @@
          // Post the block break event
          IBlockState state = world.getBlockState(pos);
          BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, entityPlayer);
@@ -114,7 +114,7 @@
          {
              // Let the client know the block still exists
              entityPlayer.connection.sendPacket(new SPacketBlockChange(world, pos));
-@@ -865,6 +838,11 @@
+@@ -866,6 +839,11 @@
                      entityPlayer.connection.sendPacket(pkt);
                  }
              }
@@ -126,7 +126,7 @@
          }
          return event.isCanceled() ? -1 : event.getExpToDrop();
      }
-@@ -929,6 +907,7 @@
+@@ -930,6 +908,7 @@
                      blocksnapshot.restore(true, false);
                      world.restoringBlockSnapshots = false;
                  }
@@ -134,7 +134,7 @@
              }
              else
              {
-@@ -953,6 +932,29 @@
+@@ -954,6 +933,29 @@
                      world.markAndNotifyBlock(snap.getPos(), null, oldBlock, newBlock, updateFlag);
                  }
                  player.addStat(StatList.getObjectUseStats(itemstack.getItem()));
@@ -164,7 +164,7 @@
              }
          }
          world.capturedBlockSnapshots.clear();
-@@ -992,7 +994,7 @@
+@@ -993,7 +995,7 @@
      }
  
      /**
