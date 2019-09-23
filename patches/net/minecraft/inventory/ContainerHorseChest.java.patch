@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/inventory/ContainerHorseChest.java
 +++ ../src-work/minecraft/net/minecraft/inventory/ContainerHorseChest.java
-@@ -1,14 +1,19 @@
+@@ -1,19 +1,35 @@
  package net.minecraft.inventory;
  
 +import net.minecraft.entity.passive.AbstractHorse;
@@ -11,18 +11,23 @@
  
  public class ContainerHorseChest extends InventoryBasic
  {
--    public ContainerHorseChest(String inventoryTitle, int slotCount)
 +    private EntityAnimal entityAnimal;
 +
-+    public ContainerHorseChest(String inventoryTitle, int slotCount, AbstractHorse owner)
++    // Magma - Ice and Fire #6
+     public ContainerHorseChest(String inventoryTitle, int slotCount)
      {
 -        super(inventoryTitle, false, slotCount);
-+        super(inventoryTitle, false, slotCount, (org.bukkit.entity.AbstractHorse) owner.getBukkitEntity());
-+        this.entityAnimal = owner;
++        super(inventoryTitle, false, slotCount, null);
      }
  
++    public ContainerHorseChest(String inventoryTitle, int slotCount, AbstractHorse owner)
++    {
++        super(inventoryTitle, false, slotCount, (org.bukkit.entity.AbstractHorse) owner.getBukkitEntity());
++        this.entityAnimal = owner;
++    }
++
      @SideOnly(Side.CLIENT)
-@@ -16,4 +21,9 @@
+     public ContainerHorseChest(ITextComponent inventoryTitle, int slotCount)
      {
          super(inventoryTitle, slotCount);
      }
