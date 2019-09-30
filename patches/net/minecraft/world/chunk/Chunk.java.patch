@@ -218,19 +218,28 @@
              {
                  this.tileEntityPosQueue.add(pos.toImmutable());
              }
-@@ -834,6 +911,11 @@
- 
-             tileEntityIn.validate();
-             this.tileEntities.put(pos, tileEntityIn);
-+        } else {
-+            System.out.println("Attempted to place a tile entity (" + tileEntityIn + ") at " + tileEntityIn.getPos().getX() + "," + tileEntityIn.getPos().getY() + "," + tileEntityIn.getPos().getZ()
-+                    + " (" + CraftMagicNumbers.getMaterial(getBlockState(pos).getBlock()) + ") where there was no entity tile!");
-+            System.out.println("Chunk coordinates: " + (this.x * 16) + "," + (this.z * 16));
-+            new Exception().printStackTrace();
-         }
-     }
- 
-@@ -864,7 +946,7 @@
+@@ -824,9 +901,18 @@
+         if (tileEntityIn.getWorld() != this.world) //Forge don't call unless it's changed, could screw up bad mods.
+         tileEntityIn.setWorld(this.world);
+         tileEntityIn.setPos(pos);
+-
+-        if (this.getBlockState(pos).getBlock().hasTileEntity(this.getBlockState(pos)))
++        // Magma start - validate TileEntitys for corrupted data
++        Block block = null;
++        try {
++            block = this.getBlockState(pos).getBlock();
++        }
++        catch (ArrayIndexOutOfBoundsException e)
+         {
++            tileEntityIn.invalidate();
++            return;
++        }
++        if (block != null && block.hasTileEntity(this.getBlockState(pos))) // Magma end
++        {
+             if (this.tileEntities.containsKey(pos))
+             {
+                 ((TileEntity)this.tileEntities.get(pos)).invalidate();
+@@ -864,7 +950,7 @@
  
      public void onUnload()
      {
@@ -239,7 +248,7 @@
          this.loaded = false;
  
          for (TileEntity tileentity : this.tileEntities.values())
-@@ -874,7 +956,14 @@
+@@ -874,7 +960,14 @@
  
          for (ClassInheritanceMultiMap<Entity> classinheritancemultimap : this.entityLists)
          {
@@ -255,7 +264,7 @@
          }
          net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.ChunkEvent.Unload(this));
      }
-@@ -955,7 +1044,7 @@
+@@ -955,7 +1048,7 @@
              return true;
          }
  
@@ -264,7 +273,7 @@
      }
  
      public Random getRandomWithSeed(long seed)
-@@ -1001,6 +1090,63 @@
+@@ -1001,6 +1094,63 @@
          }
      }
  
@@ -328,7 +337,7 @@
      protected void populate(IChunkGenerator generator)
      {
          if (populating != null && net.minecraftforge.common.ForgeModContainer.logCascadingWorldGeneration) logCascadingWorldGeneration();
-@@ -1017,6 +1163,26 @@
+@@ -1017,6 +1167,26 @@
          {
              this.checkLight();
              generator.populate(this.x, this.z);
@@ -355,7 +364,7 @@
              net.minecraftforge.fml.common.registry.GameRegistry.generateWorld(this.x, this.z, this.world, generator, this.world.getChunkProvider());
              this.markDirty();
          }
-@@ -1075,7 +1241,7 @@
+@@ -1075,7 +1245,7 @@
          {
              BlockPos blockpos = this.tileEntityPosQueue.poll();
  
@@ -364,7 +373,7 @@
              {
                  TileEntity tileentity = this.createNewTileEntity(blockpos);
                  this.world.setTileEntity(blockpos, tileentity);
-@@ -1086,7 +1252,7 @@
+@@ -1086,7 +1256,7 @@
  
      public boolean isPopulated()
      {
