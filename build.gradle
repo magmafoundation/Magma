@@ -130,7 +130,6 @@ sourceCompatibility = 1.8
 tasks.generateXmlConfig.dependsOn installer
 tasks.compileJava.enabled = false
 tasks.build.dependsOn 'launch4j'
-tasks.reobfuscate.setProperty("extraSrg",["PK: org/bukkit/craftbukkit org/bukkit/craftbukkit/v1_12_R1"])
 
 installer {
     classifier = 'installer'
