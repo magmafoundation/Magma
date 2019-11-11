@@ -1,38 +1,32 @@
 package org.bukkit.plugin.java;
 
-import java.io.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.JarURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSigner;
 import java.security.CodeSource;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import com.maxqia.remapper.ClassInheritanceProvider;
-import com.maxqia.remapper.Transformer;
-import net.md_5.specialsource.JarMapping;
-import net.md_5.specialsource.JarRemapper;
-import net.md_5.specialsource.provider.ClassLoaderProvider;
-import net.md_5.specialsource.provider.JointProvider;
-import net.md_5.specialsource.repo.RuntimeRepo;
-import net.md_5.specialsource.transformer.MavenShade;
-import net.minecraft.launchwrapper.LaunchClassLoader;
-import net.minecraft.server.MinecraftServer;
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.magmafoundation.magma.Magma;
-import org.magmafoundation.magma.remapper.MagmaRemapper;
+import org.magmafoundation.magma.remapper.ClassLoaderContext;
+import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 
 /**
  * A ClassLoader for plugins, to allow shared classes across multiple plugins
  */
 final class PluginClassLoader extends URLClassLoader {
+
+    final JavaPlugin plugin;
     private final JavaPluginLoader loader;
     private final Map<String, Class<?>> classes = new java.util.concurrent.ConcurrentHashMap<String, Class<?>>(); // Spigot
     private final PluginDescriptionFile description;
@@ -41,38 +35,22 @@ final class PluginClassLoader extends URLClassLoader {
     private final JarFile jar;
     private final Manifest manifest;
     private final URL url;
-    final JavaPlugin plugin;
     private JavaPlugin pluginInit;
     private IllegalStateException pluginState;
 
-    private JarRemapper remapper;
-    private JarMapping jarMapping;
+    static {
+        try {
+            Class.forName("org.bukkit.FINDME");
+            Class.forName("org.bukkit.craftbukkit.FINDME");
+            Class.forName("org.spigotmc.FINDME");
+            Class.forName("com.destroystokyo.paper.FINDME");
 
-    // Spigot Start
-    static
-    {
-        try
-        {
-            java.lang.reflect.Method method = ClassLoader.class.getDeclaredMethod( "registerAsParallelCapable" );
-            if ( method != null )
-            {
-                boolean oldAccessible = method.isAccessible();
-                method.setAccessible( true );
-                method.invoke( null );
-                method.setAccessible( oldAccessible );
-                org.bukkit.Bukkit.getLogger().log( java.util.logging.Level.INFO, "Set PluginClassLoader as parallel capable" );
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
             }
-        } catch ( NoSuchMethodException ex )
-        {
-            // Ignore
-        } catch ( Exception ex )
-        {
-            org.bukkit.Bukkit.getLogger().log( java.util.logging.Level.WARNING, "Error setting PluginClassLoader as parallel capable", ex );
         }
-    }
-    // Spigot End
 
-    PluginClassLoader(final JavaPluginLoader loader, final ClassLoader parent, final PluginDescriptionFile description, final File dataFolder, final File file) throws IOException, InvalidPluginException, MalformedURLException {
+    PluginClassLoader(final JavaPluginLoader loader, final ClassLoader parent, final PluginDescriptionFile description, final File dataFolder, final File file) throws IOException, InvalidPluginException {
         super(new URL[] {file.toURI().toURL()}, parent);
         Validate.notNull(loader, "Loader cannot be null");
 
@@ -83,28 +61,6 @@ final class PluginClassLoader extends URLClassLoader {
         this.jar = new JarFile(file);
         this.manifest = jar.getManifest();
         this.url = file.toURI().toURL();
-
-        jarMapping = new JarMapping();
-
-        try{
-            jarMapping.packages.put("org/bukkit/craftbukkit/libs/it/unimi/dsi/fastutil", "it/unimi/dsi/fastutil");
-            jarMapping.packages.put("org/bukkit/craftbukkit/libs/jline", "jline");
-            jarMapping.packages.put("org/bukkit/craftbukkit/libs/joptsimple", "joptsimple");
-
-            Map<String, String> relocations = new HashMap<>();
-            relocations.put("net.minecraft.server", "net.minecraft.server.v1_12_R1");
-
-            jarMapping.loadMappings(new BufferedReader(new InputStreamReader(Magma.class.getClassLoader().getResourceAsStream("mappings/NMSMappings.srg"))), new MavenShade(relocations), null, false);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        JointProvider provider = new JointProvider();
-        provider.add(new ClassInheritanceProvider());
-        provider.add(new ClassLoaderProvider(this));
-        this.jarMapping.setFallbackInheritanceProvider(provider);
-        remapper = new MagmaRemapper(jarMapping);
-        Transformer.init(jarMapping, remapper);
 
         try {
             Class<?> jarClass;
@@ -135,37 +91,41 @@ final class PluginClassLoader extends URLClassLoader {
     }
 
     Class<?> findClass(String name, boolean checkGlobal) throws ClassNotFoundException {
-        if(name.startsWith("net.minecraft.server.v1_12_R1")) {
-            String remappedClass = jarMapping.classes.get(name.replaceAll("\\.", "\\/"));
-            return ((LaunchClassLoader) MinecraftServer.getServerInstance().getClass().getClassLoader()).findClass(remappedClass);
-        }
+        ClassLoaderContext.put(this);
+        Class<?> result;
+        try {
+            if (name.startsWith("net.minecraft.server." + Magma.getBukkitVersion())) {
+                String remappedClass = RemappingUtils.jarMapping.byNMSName.get(name).getMcpName();
+                return Class.forName(remappedClass);
+            }
 
-        if(name.startsWith("org.bukkit.")){
-            throw  new ClassNotFoundException(name);
-        }
-
-        Class<?> result = classes.get(name);
-
-        synchronized (name.intern()){
-            if (result == null) {
-                if (checkGlobal) {
-                    result = loader.getClassByName(name);
-                }
-
+            if (name.startsWith("org.bukkit.")) {
+                throw new ClassNotFoundException(name);
+            }
+            result = classes.get(name);
+            synchronized (name.intern()) {
                 if (result == null) {
+                    if (checkGlobal) {
+                        result = loader.getClassByName(name);
+                    }
+
+                    if (result == null) {
                         result = remappedFindClass(name);
 
-                    if (result != null) {
-                        loader.setClass(name, result);
+                        if (result != null) {
+                            loader.setClass(name, result);
+                        }
                     }
-                }
 
                     if (result == null) {
                         throw new ClassNotFoundException(name);
                     }
 
-                classes.put(name, result);
+                    classes.put(name, result);
+                }
             }
+        } finally {
+            ClassLoaderContext.pop();
         }
         return result;
     }
@@ -205,11 +165,8 @@ final class PluginClassLoader extends URLClassLoader {
             if (url != null) {
                 InputStream stream = url.openStream();
                 if (stream != null) {
-                    byte[] bytecode = null;
-
-                    bytecode = remapper.remapClassFile(stream, RuntimeRepo.getInstance());
-                    bytecode = Transformer.transform(bytecode);
-
+                    byte[] bytecode = IOUtils.toByteArray(stream);
+                    bytecode = RemappingUtils.remapFindClass(description, name, bytecode);
                     JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
                     URL jarURL = jarURLConnection.getJarFileURL();
                     CodeSource codeSource = new CodeSource(jarURL, new CodeSigner[0]);
