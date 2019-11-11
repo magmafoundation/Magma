@@ -24,7 +24,7 @@ import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 /**
  * A ClassLoader for plugins, to allow shared classes across multiple plugins
  */
-final class PluginClassLoader extends URLClassLoader {
+public final class PluginClassLoader extends URLClassLoader {
 
     final JavaPlugin plugin;
     private final JavaPluginLoader loader;
@@ -182,5 +182,9 @@ final class PluginClassLoader extends URLClassLoader {
         }
 
         return result;
+    }
+
+    public PluginDescriptionFile getDescription() {
+        return description;
     }
 }

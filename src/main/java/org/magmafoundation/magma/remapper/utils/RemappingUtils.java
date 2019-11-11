@@ -12,7 +12,6 @@ import net.md_5.specialsource.transformer.MavenShade;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.remapper.RemapContext;
-import org.magmafoundation.magma.remapper.RemapSecurityManager;
 import org.magmafoundation.magma.remapper.inter.ClassRemapperSupplier;
 import org.magmafoundation.magma.remapper.mappingsModel.ClassMappings;
 import org.magmafoundation.magma.remapper.remappers.*;
@@ -22,6 +21,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.ClassNode;
+import sun.reflect.Reflection;
 
 /**
  * RemappingUtils
@@ -34,7 +34,6 @@ public class RemappingUtils {
     public static final String nmsPrefix = "net.minecraft.server.";
     public static final MagmaJarMapping jarMapping;
     private static final List<Remapper> remappers = new ArrayList<>();
-    private static RemapSecurityManager rsm = new RemapSecurityManager();
 
     static {
         jarMapping = new MagmaJarMapping();
@@ -55,9 +54,11 @@ public class RemappingUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        remappers.add(new NMSVersionRemapper());
 
         MagmaJarRemapper jarRemapper = new MagmaJarRemapper(jarMapping);
         remappers.add(jarRemapper);
+        remappers.add(new ReflectionRemapper());
         jarMapping.initFastMethodMapping(jarRemapper);
     }
 
@@ -149,7 +150,7 @@ public class RemappingUtils {
     }
 
     public static ClassLoader getCallerClassLoder() {
-        return rsm.getCallerClass(3).getClassLoader();
+        return Reflection.getCallerClass(3).getClassLoader();
     }
 
     public static String inverseMapName(Class clazz) {
