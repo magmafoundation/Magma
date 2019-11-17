@@ -36,6 +36,12 @@ All builds are available in `build/distributions`
     - `./gradlew launch4j`
   - Now go and get a drink this may take some time
 
+### Contribute to Magma
+If you wish to actually inspect Magma, submit PRs or otherwise work with Magma itself, you're in the right place!.
+
+Please read the [CONTRIBUTING.md](https://github.com/magmafoundation/Magma/blob/master/CONTRIBUTING.md) to see how to contribute and how to setup and run.
+
+
 ## Chat
 
 You are welcome to visit Magma Discord server [here](https://discord.gg/6rkqngA).
