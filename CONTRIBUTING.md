@@ -58,7 +58,7 @@ Please adhere to the coding conventions in the project (indentation, accurate co
 
   - Wait for the project to be synced 
 
-- Now open the gradle tab and open the Magma Tasks and run the setup task.
+- Now open the gradle tab and open the Magma Tasks and run the `forgegradle/setup task`.
 
   - This may take a few minutes go get a drink or make food.
 
