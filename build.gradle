@@ -82,20 +82,24 @@ dependencies {
     compile 'net.md-5:bungeecord-chat:1.12-SNAPSHOT'
     compile 'net.minecraft:launchwrapper:1.12'
     compile 'net.sf.jopt-simple:jopt-simple:5.0.3'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
+    compile 'com.mojang:authlib:1.5.25'
+    compile 'com.google.code.findbugs:jsr305:3.0.1'
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.google.guava:guava:21.0'
+    compile 'commons-lang:commons-lang:2.6'
+    compile 'jline:jline:2.13'
+    compile 'mysql:mysql-connector-java:5.1.46'
+    compile 'it.unimi.dsi:fastutil:7.1.0'
     compile 'org.yaml:snakeyaml:1.19'
+    compile 'org.jline:jline:3.5.1'
+    compile 'io.netty:netty-all:4.1.9.Final'
     compile 'org.xerial:sqlite-jdbc:3.21.0.1'
     compile 'org.apache.commons:commons-lang3:3.5'
     compile 'org.ow2.asm:asm-debug-all:5.2'
     compile 'org.apache.logging.log4j:log4j-iostreams:2.12.1'
-    compile 'org.jline:jline:3.5.1'
-    compile 'io.netty:netty-all:4.1.9.Final'
-    compile 'com.google.code.findbugs:jsr305:3.0.1'
-    compile 'com.mojang:authlib:1.5.25'
-    compile 'it.unimi.dsi:fastutil:7.1.0'
     compile 'org.apache.logging.log4j:log4j-api:2.8.1'
     compile 'org.apache.logging.log4j:log4j-core:2.8.1'
-    compile 'com.google.code.gson:gson:2.8.0'
-    compile 'com.google.guava:guava:21.0'
 }
 
 jar{
@@ -108,7 +112,6 @@ jar{
 }
 
 sourceSets {
-    // Fix idea can't import module automatically
     main.java.srcDir 'src/main/java/'
     main.java.srcDir 'projects/Magma/src/main/java/'
     test.java.srcDir 'src/test/java/'
