@@ -43,8 +43,11 @@ public class CraftSimpleCommandMap extends SimpleCommandMap {
                 if (!target.testPermission(sender)) return true;
                 if (sender instanceof ConsoleCommandSender) {
                     FMLCommonHandler.instance().getMinecraftServerInstance().getCommandManager().executeCommand(this.vanillaConsoleSender, commandLine);
-                } else FMLCommonHandler.instance().getMinecraftServerInstance().getCommandManager().executeCommand(((CraftPlayer)sender).getHandle(), commandLine);
             } else {
+                    FMLCommonHandler.instance().getMinecraftServerInstance().getCommandManager().executeCommand(((CraftPlayer) sender).getHandle(), commandLine);
+                }
+            } else {
+                // Cauldron end
                 // Note: we don't return the result of target.execute as thats success / failure, we return handled (true) or not handled (false)
                 target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length)); //TODO testing Arrays.copyOfRange()..
             }

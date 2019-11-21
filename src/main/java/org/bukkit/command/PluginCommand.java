@@ -41,8 +41,11 @@ public final class PluginCommand extends Command implements PluginIdentifiableCo
         }
 
         try {
+            System.out.println("exec:"+executor.getClass().getName()+"#"+executor.toString());
             success = executor.onCommand(sender, this, commandLabel, args);
+
         } catch (Throwable ex) {
+            System.out.println(ex);
             throw new CommandException("Unhandled exception executing command '" + commandLabel + "' in plugin " + owningPlugin.getDescription().getFullName(), ex);
         }
 

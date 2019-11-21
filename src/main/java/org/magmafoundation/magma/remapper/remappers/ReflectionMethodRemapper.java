@@ -1,5 +1,6 @@
 package org.magmafoundation.magma.remapper.remappers;
 
+import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
@@ -8,6 +9,7 @@ import java.net.URL;
 import java.net.URLStreamHandlerFactory;
 import java.util.HashMap;
 import java.util.Map;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.magmafoundation.magma.remapper.mappingsModel.MethodRedirectRule;
 import org.magmafoundation.magma.remapper.proxy.*;
 import org.magmafoundation.magma.remapper.utils.ASMUtils;
@@ -49,6 +51,7 @@ public class ReflectionMethodRemapper extends MethodRemapper {
         registerMethodRemapper("java/net/URLClassLoader", "<init>", void.class, new Class[]{URL[].class, ClassLoader.class, URLStreamHandlerFactory.class}, DelegateURLClassLoder.class);
         registerMethodRemapper("java/net/URLClassLoader", "<init>", void.class, new Class[]{URL[].class, ClassLoader.class}, DelegateURLClassLoder.class);
         registerMethodRemapper("java/net/URLClassLoader", "<init>", void.class, new Class[]{URL[].class}, DelegateURLClassLoder.class);
+        registerMethodRemapper("org/bukkit/configuration/file/YamlConfiguration", "loadConfiguration", YamlConfiguration.class, new Class[]{InputStream.class}, ProxyYamlConfiguration.class);
     }
 
     public ReflectionMethodRemapper(MethodVisitor mv, Remapper remapper) {

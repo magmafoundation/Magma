@@ -39,7 +39,7 @@ public class CommandWrapper implements ICommand {
     public static CommandWrapper toNMSCommand(ICommandSender sender, String name) {
         Command command;
         CommandSender bukkitSender;
-        if ((command = ServerAPI.getCBServer().getCommandMap().getCommand(name)) != null && (bukkitSender = toBukkitSender(sender)) != null) {
+        if ((command = MinecraftServer.getServerInstance().server.getCommandMap().getCommand(name)) != null && (bukkitSender = toBukkitSender(sender)) != null) {
             return new CommandWrapper(bukkitSender, name, command);
         }
         return null;

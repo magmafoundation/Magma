@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/entity/EntityList.java
++++ ../src-work/minecraft/net/minecraft/entity/EntityList.java
+@@ -107,6 +107,8 @@
+     public static final ResourceLocation LIGHTNING_BOLT = new ResourceLocation("lightning_bolt");
+     private static final ResourceLocation PLAYER = new ResourceLocation("player");
+     private static final Logger LOGGER = LogManager.getLogger();
++    // Magma NMS Custom Entity
++    public static final RegistryNamespaced< ResourceLocation, Class <? extends Entity >> REGISTRY = new RegistryNamespaced < ResourceLocation, Class <? extends Entity >> ();
+     public static final Map<ResourceLocation, EntityList.EntityEggInfo> ENTITY_EGGS = Maps.<ResourceLocation, EntityList.EntityEggInfo>newLinkedHashMap();
+     private static final Set<ResourceLocation> EXTRA_NAMES = Sets.newHashSet();
+ 

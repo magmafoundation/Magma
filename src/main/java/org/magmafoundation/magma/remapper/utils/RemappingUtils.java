@@ -54,8 +54,8 @@ public class RemappingUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        remappers.add(new NMSVersionRemapper());
 
+        remappers.add(new NMSVersionRemapper());
         MagmaJarRemapper jarRemapper = new MagmaJarRemapper(jarMapping);
         remappers.add(jarRemapper);
         remappers.add(new ReflectionRemapper());

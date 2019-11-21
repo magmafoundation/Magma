@@ -1,16 +1,33 @@
 --- ../src-base/minecraft/net/minecraftforge/fml/common/registry/EntityRegistry.java
 +++ ../src-work/minecraft/net/minecraftforge/fml/common/registry/EntityRegistry.java
-@@ -19,6 +19,9 @@
+@@ -19,11 +19,11 @@
  
  package net.minecraftforge.fml.common.registry;
  
+-import net.minecraft.entity.Entity;
 +import com.google.common.collect.Maps;
++import net.minecraft.entity.*;
 +import net.minecraftforge.fml.common.Loader;
 +
- import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityList.EntityEggInfo;
- import net.minecraft.entity.EntityLiving;
-@@ -148,6 +151,9 @@
+-import net.minecraft.entity.EntityLiving;
+-import net.minecraft.entity.EntityTracker;
+-import net.minecraft.entity.EnumCreatureType;
+ import net.minecraft.util.ResourceLocation;
+ import net.minecraft.world.World;
+ import net.minecraft.world.biome.Biome;
+@@ -84,6 +84,10 @@
+                         return String.valueOf(EntityRegistration.this.getRegistryName());
+                     }
+                 };
++            // Magma NMS Custom Entity
++            if (EntityList.REGISTRY.getNameForObject(entityClass) == null) {
++                EntityList.REGISTRY.register(id, registryName, entityClass);
++            }
+         }
+         public ResourceLocation getRegistryName()
+         {
+@@ -148,6 +152,9 @@
      private final BiMap<Class<? extends Entity>, EntityRegistration> entityClassRegistrations = HashBiMap.create();
      private final Map<Class<? extends Entity>, EntityEntry> entityClassEntries = GameData.getEntityClassMap();
  
@@ -20,7 +37,7 @@
      public static EntityRegistry instance()
      {
          return INSTANCE;
-@@ -171,6 +177,7 @@
+@@ -171,6 +178,7 @@
      public static void registerModEntity(ResourceLocation registryName, Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates)
      {
          instance().doModEntityRegistration(registryName, entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
@@ -28,7 +45,7 @@
      }
  
      /**
-@@ -191,6 +198,7 @@
+@@ -191,6 +199,7 @@
      {
          instance().doModEntityRegistration(registryName, entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
          EntityRegistry.registerEgg(registryName, eggPrimary, eggSecondary);
@@ -36,7 +53,7 @@
      }
  
      private void doModEntityRegistration(ResourceLocation registryName, Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates)
-@@ -385,4 +393,30 @@
+@@ -385,4 +394,30 @@
          this.entityClassRegistrations.put(entity, registration);
          this.entityRegistrations.put(registration.container, registration);
      }
