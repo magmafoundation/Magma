@@ -26,23 +26,25 @@ pipeline {
           }
         }
         stage('Notify') {
-          script {
-          msg = "**Status:** " + currentBuild.currentResult.toLowerCase() + "\n"
-          msg += "**Branch:** ${branch}\n"
-          msg += "**Changes:** \n"
-          if (!currentBuild.changeSets.isEmpty()) {
-              currentBuild.changeSets.first().getLogs().each {
-                  msg += "- `" + it.getCommitId().substring(0, 8) + "` *" + it.getComment().substring(0, it.getComment().length()-1) + "*\n"
-              }
-          } else {
-              msg += "no changes for this run\n"
-          }
+          steps {
+            script {
+            msg = "**Status:** " + currentBuild.currentResult.toLowerCase() + "\n"
+            msg += "**Branch:** ${branch}\n"
+            msg += "**Changes:** \n"
+            if (!currentBuild.changeSets.isEmpty()) {
+                currentBuild.changeSets.first().getLogs().each {
+                    msg += "- `" + it.getCommitId().substring(0, 8) + "` *" + it.getComment().substring(0, it.getComment().length()-1) + "*\n"
+                }
+            } else {
+                msg += "no changes for this run\n"
+            }
 
-          if (msg.length() > 1024) msg.take(msg.length() - 1024)
+            if (msg.length() > 1024) msg.take(msg.length() - 1024)
 
-          }
-          withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'discordWebhook')]) {
-            discordSend thumbnail: "https://img.hexeption.co.uk/Magma_Block.png", successful: currentBuild.resultIsBetterOrEqualTo('SUCCESS'), description: "${msg}", link: env.BUILD_URL, title: "Magma:${branch} #${BUILD_NUMBER}", webhookURL: "${discordWebhook}"
+            }
+            withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'discordWebhook')]) {
+              discordSend thumbnail: "https://img.hexeption.co.uk/Magma_Block.png", successful: currentBuild.resultIsBetterOrEqualTo('SUCCESS'), description: "${msg}", link: env.BUILD_URL, title: "Magma:${branch} #${BUILD_NUMBER}", webhookURL: "${discordWebhook}"
+            }
           }
         }
     }
