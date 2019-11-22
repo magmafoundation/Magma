@@ -2,7 +2,7 @@
 
 # Magma
 
-![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202846-orange.svg?style=for-the-badge) [![](https://img.shields.io/jenkins/build/https/ci.hexeption.co.uk/job/Magma?label=CI&style=for-the-badge)](https://ci.hexeption.co.uk)
+![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202847-orange.svg?style=for-the-badge) [![](https://img.shields.io/jenkins/build/https/ci.hexeption.co.uk/job/Magma?label=CI&style=for-the-badge)](https://ci.hexeption.co.uk)
 
 ### What's Magma?
 
