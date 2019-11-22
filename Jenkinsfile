@@ -1,19 +1,13 @@
 pipeline {
-  agent any
-
-  stages {
-  
-    stage('build') {
-  
-      agent {
+    agent {
         docker { image 'openjdk:8-jdk' }
-      }
-  
-      steps {
-        sh 'chmod +x gradlew && ./gradlew launch4j --console=plain'
-      }
-  
     }
-  
-  }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'chmod +x gradlew'
+                sh './gradlew launch4j --console=plain'
+            }
+        }
+    }
 }
