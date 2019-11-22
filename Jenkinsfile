@@ -31,7 +31,7 @@ pipeline {
           script {
           withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'discordWebhook')]) {
             discordSend(
-              title: "Magma: ${branch} #${BUILD_NUMBER} Finished ${currentBuild.currentResult}",
+              title: "Magma: ${BRANCH_NAME} #${BUILD_NUMBER} Finished ${currentBuild.currentResult}",
               description: '```\n' + getChanges(currentBuild) + '\n```',
               successful: currentBuild.resultIsBetterOrEqualTo("SUCCESS"),
               result: currentBuild.currentResult,
