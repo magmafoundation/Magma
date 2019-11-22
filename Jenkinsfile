@@ -1,3 +1,5 @@
+def msg
+
 pipeline {
     agent {
         docker { image 'openjdk:8-jdk' }
@@ -23,8 +25,9 @@ pipeline {
             }
           }
         }
-        stage('Discord notify'){
-          def msg = "**Status:** " + currentBuild.currentResult.toLowerCase() + "\n"
+        stage('Notify') {
+          script {
+          msg = "**Status:** " + currentBuild.currentResult.toLowerCase() + "\n"
           msg += "**Branch:** ${branch}\n"
           msg += "**Changes:** \n"
           if (!currentBuild.changeSets.isEmpty()) {
@@ -37,11 +40,9 @@ pipeline {
 
           if (msg.length() > 1024) msg.take(msg.length() - 1024)
 
-          def filename
-         
-
-          withCredentials([string(credentialsId: 'discord_webhook', variable: 'discordWebhook')]) {
-              discordSend thumbnail: "https://img.hexeption.co.uk/Magma_Block.png", successful: currentBuild.resultIsBetterOrEqualTo('SUCCESS'), description: "${msg}", link: env.BUILD_URL, title: "Magma:${branch} #${BUILD_NUMBER}", webhookURL: "${discordWebhook}"
+          }
+          withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'discordWebhook')]) {
+            discordSend thumbnail: "https://img.hexeption.co.uk/Magma_Block.png", successful: currentBuild.resultIsBetterOrEqualTo('SUCCESS'), description: "${msg}", link: env.BUILD_URL, title: "Magma:${branch} #${BUILD_NUMBER}", webhookURL: "${discordWebhook}"
           }
         }
     }
