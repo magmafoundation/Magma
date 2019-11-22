@@ -19,7 +19,7 @@ pipeline {
               title: "${DISCORD_PREFIX} Started",
               successful: true,
               result: 'ABORTED', //White border
-              thumbnail: JENKINS_HEAD,
+              thumbnail: "https://img.hexeption.co.uk/Magma_Block.png",
               webhookURL: DISCORD_WEBHOOK
           )
           sh 'git submodule update --init --recursive'
@@ -56,7 +56,7 @@ pipeline {
               description: '```\n' + getChanges(currentBuild) + '\n```',
               successful: currentBuild.resultIsBetterOrEqualTo("SUCCESS"),
               result: currentBuild.currentResult,
-              thumbnail: JENKINS_HEAD,
+              thumbnail: "https://img.hexeption.co.uk/Magma_Block.png",
               webhookURL: "${discordWebhook}"
             )
           }
