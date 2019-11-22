@@ -28,24 +28,11 @@ pipeline {
         stage('Notify') {
           steps {
             script {
-            msg = "**Status:** " + currentBuild.currentResult.toLowerCase() + "\n"
-            msg += "**Branch:** ${branch}\n"
-            msg += "**Changes:** \n"
-            if (!currentBuild.changeSets.isEmpty()) {
-                currentBuild.changeSets.first().getLogs().each {
-                    msg += "- `" + it.getCommitId().substring(0, 8) + "` *" + it.getComment().substring(0, it.getComment().length()-1) + "*\n"
-                }
-            } else {
-                msg += "no changes for this run\n"
-            }
 
-            if (msg.length() > 1024) msg.take(msg.length() - 1024)
-
-            }
             withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'discordWebhook')]) {
             
             discordSend(
-              title: "Magma Finished ${currentBuild.currentResult}",
+              title: "Magma: ${branch} #${BUILD_NUMBER} Finished ${currentBuild.currentResult}",
               description: '```\n' + getChanges(currentBuild) + '\n```',
               successful: currentBuild.resultIsBetterOrEqualTo("SUCCESS"),
               result: currentBuild.currentResult,
