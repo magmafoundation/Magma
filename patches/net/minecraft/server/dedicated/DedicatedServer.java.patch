@@ -181,22 +181,17 @@
              }
  
              if (this.convertFiles())
-@@ -217,8 +254,7 @@
+@@ -217,7 +254,7 @@
              else
              {
                  net.minecraftforge.fml.common.FMLCommonHandler.instance().onServerStarted();
 -                this.setPlayerList(new DedicatedPlayerList(this));
--                long j = System.nanoTime();
 +                this.anvilConverterForAnvilFile = new AnvilSaveConverter(server.getWorldContainer(), this.dataFixer); // CraftBukkit - moved from MinecraftServer constructor
+                 long j = System.nanoTime();
  
                  if (this.getFolderName() == null)
-                 {
-@@ -268,11 +304,11 @@
-                 if (!net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerAboutToStart(this)) return false;
-                 LOGGER.info("Preparing level \"{}\"", (Object)this.getFolderName());
-                 this.loadAllWorlds(this.getFolderName(), this.getFolderName(), k, worldtype, s2);
--                long i1 = System.nanoTime() - j;
-+                long i1 = System.nanoTime() - ServerLaunchWrapper.beginTime;
+@@ -271,8 +308,8 @@
+                 long i1 = System.nanoTime() - j;
                  String s3 = String.format("%.3fs", (double)i1 / 1.0E9D);
                  LOGGER.info("Done ({})! For help, type \"help\" or \"?\"", (Object)s3);
 -                this.currentTime = getCurrentTimeMillis();
@@ -205,7 +200,7 @@
                  if (this.settings.hasProperty("announce-player-achievements"))
                  {
                      this.worlds[0].getGameRules().setOrCreateGameRule("announceAdvancements", this.settings.getBooleanProperty("announce-player-achievements", true) ? "true" : "false");
-@@ -287,21 +323,32 @@
+@@ -287,21 +324,32 @@
                      this.rconQueryThread.startThread();
                  }
  
@@ -246,7 +241,7 @@
                  Items.AIR.getSubItems(CreativeTabs.SEARCH, NonNullList.create());
                  // <3 you Grum for this, saves us ~30 patch files! --^
                  return net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStarting(this);
-@@ -427,11 +474,19 @@
+@@ -427,11 +475,19 @@
  
      public void executePendingCommands()
      {
@@ -270,7 +265,7 @@
      }
  
      public boolean isDedicatedServer()
-@@ -684,13 +739,65 @@
+@@ -684,13 +740,65 @@
  
      public String getPlugins()
      {

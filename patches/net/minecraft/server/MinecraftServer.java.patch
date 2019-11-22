@@ -151,7 +151,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +155,273 @@
+@@ -144,178 +155,272 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -316,7 +316,6 @@
 -        this.setResourcePackFromWorld(this.getFolderName(), isavehandler);
 -        WorldInfo worldinfo = isavehandler.loadWorldInfo();
 -        WorldSettings worldsettings;
-+        this.worlds = new WorldServer[3];
  
 -        if (worldinfo == null)
 -        {
@@ -522,7 +521,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +429,51 @@
+@@ -323,45 +428,51 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -601,7 +600,7 @@
          }
      }
  
-@@ -379,73 +491,79 @@
+@@ -379,73 +490,79 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -713,7 +712,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +571,215 @@
+@@ -453,159 +570,215 @@
                      worldserver1.flush();
                  }
              }
@@ -1003,7 +1002,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +787,42 @@
+@@ -613,52 +786,42 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1066,7 +1065,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +831,15 @@
+@@ -667,16 +830,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1088,7 +1087,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,7 +847,7 @@
+@@ -684,7 +846,7 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1097,7 +1096,7 @@
          {
              this.profiler.startSection("save");
              this.playerList.saveAllPlayerData();
-@@ -697,95 +860,100 @@
+@@ -697,95 +859,100 @@
          this.profiler.endSection();
          this.profiler.startSection("snooper");
  
@@ -1246,7 +1245,7 @@
          this.profiler.endStartSection("connection");
          this.getNetworkSystem().networkTick();
          this.profiler.endStartSection("players");
-@@ -794,33 +962,30 @@
+@@ -794,33 +961,30 @@
          this.getFunctionManager().update();
          this.profiler.endStartSection("tickables");
  
@@ -1288,7 +1287,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1000,51 @@
+@@ -835,53 +999,51 @@
          return ret;
      }
  
@@ -1366,7 +1365,7 @@
                  }
              });
          }
-@@ -889,145 +1052,115 @@
+@@ -889,145 +1051,115 @@
          return report;
      }
  
@@ -1556,7 +1555,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1168,75 @@
+@@ -1035,80 +1167,75 @@
          }
      }
  
@@ -1666,7 +1665,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1245,186 @@
+@@ -1117,228 +1244,186 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -1943,7 +1942,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1433,212 @@
+@@ -1347,316 +1432,212 @@
          return null;
      }
  
