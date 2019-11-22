@@ -1,4 +1,4 @@
-def msg
+@Library('forge-shared-library')_
 
 pipeline {
     agent {
@@ -43,7 +43,16 @@ pipeline {
 
             }
             withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'discordWebhook')]) {
-              discordSend thumbnail: "https://img.hexeption.co.uk/Magma_Block.png", successful: currentBuild.resultIsBetterOrEqualTo('SUCCESS'), description: "${msg}", link: env.BUILD_URL, title: "Magma:${branch} #${BUILD_NUMBER}", webhookURL: "${discordWebhook}"
+            
+            discordSend(
+              title: "Magma Finished ${currentBuild.currentResult}",
+              description: '```\n' + getChanges(currentBuild) + '\n```',
+              successful: currentBuild.resultIsBetterOrEqualTo("SUCCESS"),
+              result: currentBuild.currentResult,
+              thumbnail: JENKINS_HEAD,
+              webhookURL: "${discordWebhook}"
+            )
+            
             }
           }
         }
