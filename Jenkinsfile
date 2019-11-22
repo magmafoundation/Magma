@@ -9,11 +9,6 @@ pipeline {
     }
     stages {
       stage('Setup') {
-         when {
-            not {
-                changeRequest()
-            }
-        }
         steps {
           withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'discordWebhook')]) {
            discordSend(
