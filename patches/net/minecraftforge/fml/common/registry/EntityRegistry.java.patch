@@ -16,18 +16,19 @@
  import net.minecraft.util.ResourceLocation;
  import net.minecraft.world.World;
  import net.minecraft.world.biome.Biome;
-@@ -84,6 +84,10 @@
+@@ -84,6 +84,11 @@
                          return String.valueOf(EntityRegistration.this.getRegistryName());
                      }
                  };
 +            // Magma NMS Custom Entity
 +            if (EntityList.REGISTRY.getNameForObject(entityClass) == null) {
++                if(id == -1) return; // Dont Register Forge Mods. // May change to generate id for mods.
 +                EntityList.REGISTRY.register(id, registryName, entityClass);
 +            }
          }
          public ResourceLocation getRegistryName()
          {
-@@ -148,6 +152,9 @@
+@@ -148,6 +153,9 @@
      private final BiMap<Class<? extends Entity>, EntityRegistration> entityClassRegistrations = HashBiMap.create();
      private final Map<Class<? extends Entity>, EntityEntry> entityClassEntries = GameData.getEntityClassMap();
  
@@ -37,7 +38,7 @@
      public static EntityRegistry instance()
      {
          return INSTANCE;
-@@ -171,6 +178,7 @@
+@@ -171,6 +179,7 @@
      public static void registerModEntity(ResourceLocation registryName, Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates)
      {
          instance().doModEntityRegistration(registryName, entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
@@ -45,7 +46,7 @@
      }
  
      /**
-@@ -191,6 +199,7 @@
+@@ -191,6 +200,7 @@
      {
          instance().doModEntityRegistration(registryName, entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
          EntityRegistry.registerEgg(registryName, eggPrimary, eggSecondary);
@@ -53,7 +54,7 @@
      }
  
      private void doModEntityRegistration(ResourceLocation registryName, Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates)
-@@ -385,4 +394,30 @@
+@@ -385,4 +395,30 @@
          this.entityClassRegistrations.put(entity, registration);
          this.entityRegistrations.put(registration.container, registration);
      }
