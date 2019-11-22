@@ -15,13 +15,15 @@ pipeline {
             }
         }
         steps {
+          withCredentials([string(credentialsId: 'DISCORD_WEBHOOK', variable: 'discordWebhook')]) {
            discordSend(
               title: "${DISCORD_PREFIX} Started",
               successful: true,
               result: 'ABORTED', //White border
               thumbnail: "https://img.hexeption.co.uk/Magma_Block.png",
-              webhookURL: DISCORD_WEBHOOK
+              webhookURL: "${discordWebhook}"
           )
+          }
           sh 'git submodule update --init --recursive'
           sh 'chmod +x gradlew'
         }
