@@ -273,7 +273,7 @@ githubRelease {
 ## Change Log
 ${changelog().call().replace('\n', '\n* ')}
 """ }
-    draft true
+    draft false
     releaseAssets = [
         fileTree("build/distributions/").filter { it.name.endsWith("jar") || it.name.endsWith("zip") },
         fileTree("/release/").filter { it.name.endsWith("zip") }
