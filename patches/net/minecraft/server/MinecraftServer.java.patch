@@ -135,7 +135,8 @@
      private final List<ITickable> tickables = Lists.<ITickable>newArrayList();
      public final ICommandManager commandManager;
      public final Profiler profiler = new Profiler();
-     private final NetworkSystem networkSystem;
+-    private final NetworkSystem networkSystem;
++    private NetworkSystem networkSystem;
      private final ServerStatusResponse statusResponse = new ServerStatusResponse();
      private final Random random = new Random();
 -    private final DataFixer dataFixer;
@@ -195,8 +196,9 @@
          this.profileRepo = profileRepoIn;
          this.profileCache = profileCacheIn;
 -        this.anvilFile = anvilFileIn;
+-        this.networkSystem = new NetworkSystem(this);
 +        // this.anvilFile = anvilFileIn;
-         this.networkSystem = new NetworkSystem(this);
++        //this.networkSystem = new NetworkSystem(this);
          this.commandManager = this.createCommandManager();
 -        this.anvilConverterForAnvilFile = new AnvilSaveConverter(anvilFileIn, dataFixerIn);
 +        // this.anvilConverterForAnvilFile = new AnvilSaveConverter(anvilFileIn, dataFixerIn); // CraftBukkit - moved to DedicatedServer.init
@@ -1665,7 +1667,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1244,186 @@
+@@ -1117,228 +1244,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -1811,14 +1813,20 @@
      }
  
 -    public NetworkSystem getNetworkSystem()
--    {
-+    public NetworkSystem getNetworkSystem() {
++    // Spigot Start
++    public NetworkSystem getServerConnection()
+     {
          return this.networkSystem;
      }
  
-     @SideOnly(Side.CLIENT)
+-    @SideOnly(Side.CLIENT)
 -    public boolean serverIsInRunLoop()
--    {
++    public NetworkSystem getNetworkSystem()
+     {
++        return this.networkSystem == null ? this.networkSystem = new NetworkSystem(this) : this.networkSystem; // Spigot
++    }
++
++    @SideOnly(Side.CLIENT)
 +    public boolean serverIsInRunLoop() {
          return this.serverIsRunning;
      }
@@ -1942,7 +1950,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1432,212 @@
+@@ -1347,316 +1439,212 @@
          return null;
      }
  

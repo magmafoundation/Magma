@@ -317,12 +317,14 @@
          this.spawnRunningParticles();
          this.handleWaterMovement();
  
-@@ -530,6 +608,26 @@
+@@ -530,6 +608,28 @@
          if (!this.isImmuneToFire)
          {
              this.attackEntityFrom(DamageSource.LAVA, 4.0F);
 +            // CraftBukkit start - Fallen in lava TODO: this event spams!
 +			if (this instanceof EntityLivingBase) {
++                if (!this.isEntityAlive())
++                    return;
 +                if (fire <= 0) {
 +                    // not on fire yet
 +                    // TODO: shouldn't be sending null for the block
@@ -344,7 +346,7 @@
              this.setFire(15);
          }
      }
-@@ -579,6 +677,26 @@
+@@ -579,6 +679,26 @@
          }
          else
          {
@@ -371,7 +373,7 @@
              if (type == MoverType.PISTON)
              {
                  long i = this.world.getTotalWorldTime();
-@@ -648,10 +766,6 @@
+@@ -648,10 +768,6 @@
                  this.motionZ = 0.0D;
              }
  
@@ -382,7 +384,7 @@
              if ((type == MoverType.SELF || type == MoverType.PLAYER) && this.onGround && this.isSneaking() && this instanceof EntityPlayer)
              {
                  for (double d5 = 0.05D; x != 0.0D && this.world.getCollisionBoxes(this, this.getEntityBoundingBox().offset(x, (double)(-this.stepHeight), 0.0D)).isEmpty(); d2 = x)
-@@ -912,6 +1026,26 @@
+@@ -912,6 +1028,26 @@
                  block.onLanded(this.world, this);
              }
  
@@ -409,7 +411,7 @@
              if (this.canTriggerWalking() && (!this.onGround || !this.isSneaking() || !(this instanceof EntityPlayer)) && !this.isRiding())
              {
                  double d15 = this.posX - d10;
-@@ -958,7 +1092,8 @@
+@@ -958,7 +1094,8 @@
                      this.nextFlap = this.playFlySound(this.distanceWalkedOnStepModified);
                  }
              }
@@ -419,7 +421,7 @@
              try
              {
                  this.doBlockCollisions();
-@@ -970,6 +1105,7 @@
+@@ -970,6 +1107,7 @@
                  this.addEntityCrashInfo(crashreportcategory);
                  throw new ReportedException(crashreport);
              }
@@ -427,7 +429,7 @@
  
              boolean flag1 = this.isWet();
  
-@@ -983,7 +1119,13 @@
+@@ -983,7 +1121,13 @@
  
                      if (this.fire == 0)
                      {
@@ -442,7 +444,7 @@
                      }
                  }
              }
-@@ -1008,7 +1150,7 @@
+@@ -1008,7 +1152,7 @@
          this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
          this.posY = axisalignedbb.minY;
          this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
@@ -451,7 +453,7 @@
      }
  
      protected SoundEvent getSwimSound()
-@@ -1041,9 +1183,14 @@
+@@ -1041,9 +1185,14 @@
  
                          try
                          {
@@ -467,7 +469,7 @@
                          catch (Throwable throwable)
                          {
                              CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Colliding entity with block");
-@@ -1154,6 +1301,14 @@
+@@ -1154,6 +1303,14 @@
          }
      }
  
@@ -482,7 +484,7 @@
      public final boolean isImmuneToFire()
      {
          return this.isImmuneToFire;
-@@ -1274,10 +1429,10 @@
+@@ -1274,10 +1431,10 @@
          IBlockState iblockstate = this.world.getBlockState(blockpos);
  
          if(!iblockstate.getBlock().addRunningEffects(iblockstate, world, blockpos, this))
@@ -497,7 +499,7 @@
      }
  
      public boolean isInsideOfMaterial(Material materialIn)
-@@ -1369,6 +1524,11 @@
+@@ -1369,6 +1526,11 @@
  
      public void setWorld(World worldIn)
      {
@@ -509,7 +511,7 @@
          this.world = worldIn;
      }
  
-@@ -1687,6 +1847,16 @@
+@@ -1687,6 +1849,16 @@
          {
              compound.setTag("Pos", this.newDoubleNBTList(this.posX, this.posY, this.posZ));
              compound.setTag("Motion", this.newDoubleNBTList(this.motionX, this.motionY, this.motionZ));
@@ -526,7 +528,7 @@
              compound.setTag("Rotation", this.newFloatNBTList(this.rotationYaw, this.rotationPitch));
              compound.setFloat("FallDistance", this.fallDistance);
              compound.setShort("Fire", (short)this.fire);
-@@ -1696,7 +1866,14 @@
+@@ -1696,7 +1868,15 @@
              compound.setBoolean("Invulnerable", this.invulnerable);
              compound.setInteger("PortalCooldown", this.timeUntilPortal);
              compound.setUniqueId("UUID", this.getUniqueID());
@@ -538,11 +540,12 @@
 +                compound.setLong("WorldUUIDMost", this.world.getSaveHandler().getUUID().getMostSignificantBits());
 +            }
 +            compound.setInteger("Bukkit.updateLevel", CURRENT_LEVEL);
++            compound.setInteger("Spigot.ticksLived", this.ticksExisted);
 +            // CraftBukkit end
              if (this.hasCustomName())
              {
                  compound.setString("CustomName", this.getCustomNameTag());
-@@ -1784,21 +1961,6 @@
+@@ -1784,21 +1964,6 @@
              this.motionY = nbttaglist2.getDoubleAt(1);
              this.motionZ = nbttaglist2.getDoubleAt(2);
  
@@ -564,7 +567,7 @@
              this.posX = nbttaglist.getDoubleAt(0);
              this.posY = nbttaglist.getDoubleAt(1);
              this.posZ = nbttaglist.getDoubleAt(2);
-@@ -1869,6 +2031,54 @@
+@@ -1869,6 +2034,54 @@
              {
                  this.setPosition(this.posX, this.posY, this.posZ);
              }
@@ -619,7 +622,7 @@
          }
          catch (Throwable throwable)
          {
-@@ -1885,7 +2095,7 @@
+@@ -1885,7 +2098,7 @@
      }
  
      @Nullable
@@ -628,7 +631,7 @@
      {
          ResourceLocation resourcelocation = EntityList.getKey(this);
          return resourcelocation == null ? null : resourcelocation.toString();
-@@ -1945,7 +2155,9 @@
+@@ -1945,7 +2158,9 @@
              if (captureDrops)
                  this.capturedDrops.add(entityitem);
              else
@@ -639,7 +642,7 @@
              return entityitem;
          }
      }
-@@ -2013,7 +2225,7 @@
+@@ -2013,7 +2228,7 @@
              this.motionY = 0.0D;
              this.motionZ = 0.0D;
              if(!updateBlocked)
@@ -648,7 +651,7 @@
  
              if (this.isRiding())
              {
-@@ -2110,6 +2322,29 @@
+@@ -2110,6 +2325,29 @@
          }
          else
          {
@@ -678,7 +681,7 @@
              if (!this.world.isRemote && passenger instanceof EntityPlayer && !(this.getControllingPassenger() instanceof EntityPlayer))
              {
                  this.riddenByEntities.add(0, passenger);
-@@ -2129,6 +2364,27 @@
+@@ -2129,6 +2367,27 @@
          }
          else
          {
@@ -706,7 +709,7 @@
              this.riddenByEntities.remove(passenger);
              passenger.rideCooldown = 60;
          }
-@@ -2325,12 +2581,12 @@
+@@ -2325,12 +2584,12 @@
          this.setFlag(5, invisible);
      }
  
@@ -721,7 +724,7 @@
      {
          byte b0 = ((Byte)this.dataManager.get(FLAGS)).byteValue();
  
-@@ -2351,17 +2607,52 @@
+@@ -2351,17 +2610,52 @@
  
      public void setAir(int air)
      {
@@ -777,7 +780,7 @@
          }
      }
  
-@@ -2502,7 +2793,7 @@
+@@ -2502,7 +2796,7 @@
  
      public String toString()
      {
@@ -786,7 +789,7 @@
      }
  
      public boolean isEntityInvulnerable(DamageSource source)
-@@ -2540,7 +2831,7 @@
+@@ -2540,7 +2834,7 @@
      public Entity changeDimension(int dimensionIn)
      {
          if (this.world.isRemote || this.isDead) return null;
@@ -795,7 +798,7 @@
      }
  
      @Nullable // Forge: Entities that require custom handling should override this method, not the other
-@@ -2551,53 +2842,73 @@
+@@ -2551,53 +2845,73 @@
              if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(this, dimensionIn)) return null;
              this.world.profiler.startSection("changeDimension");
              MinecraftServer minecraftserver = this.getServer();
@@ -908,7 +911,7 @@
              this.world.profiler.endStartSection("reloading");
              Entity entity = EntityList.newEntity(this.getClass(), worldserver1);
  
-@@ -2605,28 +2916,26 @@
+@@ -2605,28 +2919,26 @@
              {
                  entity.copyDataFromOld(this);
  
@@ -946,7 +949,7 @@
              return entity;
          }
          else
-@@ -2755,6 +3064,11 @@
+@@ -2755,6 +3067,11 @@
  
      public void setCustomNameTag(String name)
      {
@@ -958,7 +961,7 @@
          this.dataManager.set(CUSTOM_NAME, name);
      }
  
-@@ -2838,7 +3152,25 @@
+@@ -2838,7 +3155,25 @@
  
      public void setEntityBoundingBox(AxisAlignedBB bb)
      {
@@ -985,7 +988,7 @@
      }
  
      public float getEyeHeight()
-@@ -2870,6 +3202,11 @@
+@@ -2870,6 +3205,11 @@
          return true;
      }
  
@@ -997,7 +1000,7 @@
      public BlockPos getPosition()
      {
          return new BlockPos(this.posX, this.posY + 0.5D, this.posZ);
-@@ -3030,7 +3367,7 @@
+@@ -3030,7 +3370,7 @@
          {
              return ((net.minecraft.entity.item.EntityMinecart)this).getCartItem();
          }
@@ -1006,7 +1009,7 @@
          {
              return new ItemStack(((EntityBoat)this).getItemBoat());
          }
-@@ -3109,14 +3446,14 @@
+@@ -3109,14 +3449,14 @@
      }
  
      @Override
@@ -1023,7 +1026,7 @@
      {
          return capabilities == null ? null : capabilities.getCapability(capability, facing);
      }
-@@ -3319,7 +3656,7 @@
+@@ -3319,7 +3659,7 @@
          return SoundCategory.NEUTRAL;
      }
  

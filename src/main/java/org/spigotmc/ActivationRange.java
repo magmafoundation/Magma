@@ -40,19 +40,12 @@ public class ActivationRange
      * @param entity
      * @return group id
      */
-    public static byte initializeEntityActivationType(Entity entity)
-    {
-        // Cauldron start - account for entities that dont extend EntityMob, EntityAmbientCreature, EntityCreature
-        if ( entity instanceof EntityMob || entity instanceof EntitySlime || entity.isCreatureType(EnumCreatureType.MONSTER, false)) // Cauldron - account for entities that dont extend EntityMob
-        {
+    public static byte initializeEntityActivationType(Entity entity) {
+        if (entity instanceof EntityMob || entity instanceof EntitySlime) {
             return 1; // Monster
-        } else if ( entity instanceof EntityCreature || entity instanceof EntityAmbientCreature || entity.isCreatureType(EnumCreatureType.CREATURE, false)
-            || entity.isCreatureType(EnumCreatureType.WATER_CREATURE, false) || entity.isCreatureType(EnumCreatureType.AMBIENT, false))
-        {
+        } else if (entity instanceof EntityCreature || entity instanceof EntityAmbientCreature) {
             return 2; // Animal
-            // Cauldron end
-        } else
-        {
+        } else {
             return 3; // Misc
         }
     }
