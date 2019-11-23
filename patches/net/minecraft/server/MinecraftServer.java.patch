@@ -714,7 +714,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +570,215 @@
+@@ -453,159 +570,213 @@
                      worldserver1.flush();
                  }
              }
@@ -969,14 +969,12 @@
              finally
              {
 -                net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStopped();
-+                FMLCommonHandler.instance().handleServerStopped();
-                 this.serverStopped = true;
 +                try {
 +                    this.reader.getTerminal().restore();
 +                }
 +                catch (Exception ex2) {}
 +                FMLCommonHandler.instance().handleServerStopped();
-+                this.serverStopped = true;
+                 this.serverStopped = true;
                  this.systemExitNow();
              }
          }
@@ -1004,7 +1002,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +786,42 @@
+@@ -613,52 +784,42 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1067,7 +1065,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +830,15 @@
+@@ -667,16 +828,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1089,7 +1087,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,7 +846,7 @@
+@@ -684,7 +844,7 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1098,7 +1096,7 @@
          {
              this.profiler.startSection("save");
              this.playerList.saveAllPlayerData();
-@@ -697,95 +859,100 @@
+@@ -697,95 +857,100 @@
          this.profiler.endSection();
          this.profiler.startSection("snooper");
  
@@ -1247,7 +1245,7 @@
          this.profiler.endStartSection("connection");
          this.getNetworkSystem().networkTick();
          this.profiler.endStartSection("players");
-@@ -794,33 +961,30 @@
+@@ -794,33 +959,30 @@
          this.getFunctionManager().update();
          this.profiler.endStartSection("tickables");
  
@@ -1289,7 +1287,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +999,51 @@
+@@ -835,53 +997,51 @@
          return ret;
      }
  
@@ -1367,7 +1365,7 @@
                  }
              });
          }
-@@ -889,145 +1051,115 @@
+@@ -889,145 +1049,115 @@
          return report;
      }
  
@@ -1557,7 +1555,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1167,75 @@
+@@ -1035,80 +1165,75 @@
          }
      }
  
@@ -1667,7 +1665,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1244,193 @@
+@@ -1117,228 +1242,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -1950,7 +1948,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1439,212 @@
+@@ -1347,316 +1437,212 @@
          return null;
      }
  
