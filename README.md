@@ -2,7 +2,7 @@
 
 # Magma
 
-![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202847-orange.svg?style=for-the-badge) [![](https://img.shields.io/jenkins/build/https/ci.hexeption.co.uk/job/Magma?label=CI&style=for-the-badge)](https://ci.hexeption.co.uk)
+![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202847-orange.svg?style=for-the-badge) [![](https://img.shields.io/jenkins/build/https/ci.hexeption.co.uk/job/Magma-Main/job/master?label=CI&style=for-the-badge)](https://ci.hexeption.co.uk)
 
 ### What's Magma?
 
@@ -17,7 +17,7 @@ We hope to eliminate all issues with craftbukkit forge servers. In the end, we e
 ### Installation
 
 1. Download the recommended builds from the [**Releases** section](https://github.com/KettleFoundation/Kettle/releases)
-   1. Download Beta builds from the [**CI**](https://ci.hexeption.co.uk/job/Magma/)
+   1. Download Beta builds from the [**CI**](https://ci.hexeption.co.uk/job/Magma-Main/job/master/)
 2. Make a new folder for the server
 3. Move the jar to the folder
 4. Run the jar
@@ -48,4 +48,4 @@ You are welcome to visit Magma Discord server [here](https://discord.gg/6rkqngA)
 
 ## Unstable/Test builds
 
-For unstable/test builds you can check the [__CI__](https://ci.hexeption.co.uk/job/Magma)
+For unstable/test builds you can check the [__CI__](https://ci.hexeption.co.uk/job/Magma-Main/job/master/)
