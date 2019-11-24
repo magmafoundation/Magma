@@ -58,7 +58,7 @@ public class MagmaServer implements Server {
     public MagmaServer(MinecraftServer dedicatedServer, PlayerList playerList) {
         this.dedicatedServer = dedicatedServer;
         this.dedicatedPlayerList = (DedicatedPlayerList) playerList;
-        
+
         Bukkit.setServer(this);
 
         configuration = YamlConfiguration.loadConfiguration(getConfigFile());
