@@ -5,7 +5,6 @@
   "target": "@env(PREINIT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinDedicatedServer"
   ],
   "injectors": {
     "defaultRequire": 1

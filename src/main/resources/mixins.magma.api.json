@@ -6,9 +6,12 @@
   "mixins": [
   ],
   "server": [
-    "MixinMinecraftServer",
     "MixinBanEntry",
-    "MixinPlayerList"
+    "MixinDedicatedPlayerList",
+    "MixinMinecraftServer",
+    "MixinPlayerList",
+    "MixinSaveHandler",
+    "MixinUserListEntry"
   ],
   "injectors": {
     "defaultRequire": 1

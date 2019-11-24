@@ -1,8 +1,11 @@
 package org.magmafoundation.magma.api.mixin;
 
+import java.util.ArrayList;
+import java.util.List;
 import joptsimple.OptionSet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.world.server.ServerWorld;
 import org.magmafoundation.magma.api.bridge.IBridgeMinecraftServer;
 import org.magmafoundation.magma.api.core.MagmaOptions;
 import org.magmafoundation.magma.api.core.MagmaServer;
@@ -23,6 +26,8 @@ public class MixinMinecraftServer implements IBridgeMinecraftServer {
 
     private static MagmaServer magmaServer;
     private static OptionSet options;
+
+    public List<ServerWorld> serverWorldList = new ArrayList<>();
 
     @Inject(method = "main", at = @At("HEAD"))
     private static void main(String[] p_main_0_, CallbackInfo callbackInfo) {

@@ -1,6 +1,8 @@
 package org.magmafoundation.magma.api.core;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.MapMaker;
+import com.mojang.authlib.GameProfile;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +14,8 @@ import java.util.logging.Logger;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedPlayerList;
 import net.minecraft.server.management.PlayerList;
+import net.minecraft.server.management.UserListEntry;
+import org.apache.commons.lang.Validate;
 import org.bukkit.*;
 import org.bukkit.BanList.Type;
 import org.bukkit.Warning.WarningState;
@@ -39,6 +43,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.CachedServerIcon;
 import org.magmafoundation.magma.api.bridge.IBridgeMinecraftServer;
+import org.magmafoundation.magma.api.bridge.IBridgeUserListEntry;
 import org.magmafoundation.magma.core.Magma;
 
 /**
@@ -49,8 +54,16 @@ import org.magmafoundation.magma.core.Magma;
  */
 public class MagmaServer implements Server {
 
+    /**
+     * Main server & Server list
+     */
     protected final MinecraftServer dedicatedServer;
     protected final DedicatedPlayerList dedicatedPlayerList;
+
+    /**
+     * Offline players
+     */
+    private final Map<UUID, OfflinePlayer> offlinePlayerMap = new MapMaker().weakValues().makeMap();
 
     private YamlConfiguration configuration;
     private YamlConfiguration commandsConfiguration;
@@ -389,26 +402,50 @@ public class MagmaServer implements Server {
 
     @Override
     public Set<String> getIPBans() {
-        return null;
+        return new HashSet<>(Arrays.asList(dedicatedPlayerList.getBannedIPs().getKeys()));
     }
 
     @Override
     public void banIP(String address) {
+        Validate.notNull(address, "Address cannot be null.");
 
+        this.getBanList(Type.IP).addBan(address, null, null, null);
     }
 
     @Override
     public void unbanIP(String address) {
+        Validate.notNull(address, "Address cannot be null.");
 
+        this.getBanList(Type.IP).pardon(address);
     }
 
     @Override
     public Set<OfflinePlayer> getBannedPlayers() {
+        Set<OfflinePlayer> result = new HashSet<>();
+
+        for (UserListEntry profileBanEntry : dedicatedPlayerList.getBannedPlayers().getEntries()) {
+            result.add(getOfflinePlayer(
+                (GameProfile) (((IBridgeUserListEntry) profileBanEntry).getValue())));
+        }
         return null;
+    }
+
+    public OfflinePlayer getOfflinePlayer(GameProfile profile) {
+        OfflinePlayer player = new MagmaOfflinePlayer(this, profile);
+
     }
 
     @Override
     public BanList getBanList(Type type) {
+        Validate.notNull(type, "Type cannot be null.");
+
+        switch (type) {
+            case IP:
+                return new MagmaIpBanList(dedicatedPlayerList.getBannedIPs());
+            case NAME:
+            default:
+
+        }
         return null;
     }
 
@@ -656,5 +693,13 @@ public class MagmaServer implements Server {
     @Override
     public Set<String> getListeningPluginChannels() {
         return null;
+    }
+
+    public MinecraftServer getDedicatedServer() {
+        return dedicatedServer;
+    }
+
+    public DedicatedPlayerList getDedicatedPlayerList() {
+        return dedicatedPlayerList;
     }
 }

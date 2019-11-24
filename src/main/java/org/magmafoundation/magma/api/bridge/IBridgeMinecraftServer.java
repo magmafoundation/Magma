@@ -1,6 +1,8 @@
 package org.magmafoundation.magma.api.bridge;
 
+import java.util.List;
 import joptsimple.OptionSet;
+import net.minecraft.world.server.ServerWorld;
 import org.magmafoundation.magma.api.core.MagmaServer;
 
 /**
@@ -16,5 +18,7 @@ public interface IBridgeMinecraftServer {
     void setMagmaServer(MagmaServer magmaServer);
 
     OptionSet getOptions();
+
+    List<ServerWorld> getServerWorldList();
 
 }
