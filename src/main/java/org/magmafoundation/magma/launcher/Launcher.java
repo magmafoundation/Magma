@@ -1,8 +1,6 @@
 package org.magmafoundation.magma.launcher;
 
 import org.spongepowered.asm.launch.MixinBootstrap;
-import org.spongepowered.asm.mixin.MixinEnvironment;
-import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
 import org.spongepowered.asm.mixin.Mixins;
 import org.spongepowered.asm.mixin.connect.IMixinConnector;
 
@@ -17,7 +15,7 @@ public class Launcher implements IMixinConnector {
 
     @Override
     public void connect() {
-        MixinBootstrap.init();
+        Mixins.addConfiguration("mixins.magma.api.json");
         Mixins.addConfiguration("mixins.magma.core.json");
     }
 }

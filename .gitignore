@@ -18,7 +18,7 @@ fabric.properties
 
 ### Gradle template
 .gradle
-/build/
+build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -45,6 +45,6 @@ classes/
 
 run/
 
-patches/net/minecraftforge/fml/relauncher/Side.java.patch
+Notes
+*.iml
 
-patches/net/minecraftforge/common/ForgeVersion.java.patch

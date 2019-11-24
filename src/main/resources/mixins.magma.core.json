@@ -2,8 +2,12 @@
   "required": true,
   "package": "org.magmafoundation.magma.core.mixins",
   "refmap": "mixins.magma.core.refmap.json",
+  "target": "@env(PREINIT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "MixinDedicatedServer"
-  ]
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

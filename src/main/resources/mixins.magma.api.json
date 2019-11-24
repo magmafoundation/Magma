@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "package": "org.magmafoundation.magma.api.mixin",
+  "refmap": "mixins.magma.api.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "server": [
+    "MixinMinecraftServer",
+    "MixinBanEntry",
+    "MixinPlayerList"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "conformVisibility": true
+  }
+}
