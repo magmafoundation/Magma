@@ -1,16 +1,13 @@
 package org.magmafoundation.magma.core;
 
+import java.util.logging.Logger;
 import net.minecraftforge.fml.common.Mod;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("magma")
 public class Magma {
 
-    // Directly reference a log4j logger.
-    private static final Logger LOGGER = LogManager.getLogger();
-
+    private static final Logger LOGGER = Logger.getLogger("Magma");
     private static final String NAME = "Magma";
     private static final String VERSION =
         (Magma.class.getPackage().getImplementationVersion() != null) ? Magma.class.getPackage()
@@ -32,5 +29,9 @@ public class Magma {
 
     public static String getNmsPrefix() {
         return NMS_PREFIX;
+    }
+
+    public static Logger getLogger() {
+        return LOGGER;
     }
 }

@@ -58,6 +58,8 @@ public class MagmaServer implements Server {
     public MagmaServer(MinecraftServer dedicatedServer, PlayerList playerList) {
         this.dedicatedServer = dedicatedServer;
         this.dedicatedPlayerList = (DedicatedPlayerList) playerList;
+        
+        Bukkit.setServer(this);
 
         configuration = YamlConfiguration.loadConfiguration(getConfigFile());
         configuration.options().copyDefaults(true);
@@ -291,7 +293,7 @@ public class MagmaServer implements Server {
 
     @Override
     public Logger getLogger() {
-        return null;
+        return Magma.getLogger();
     }
 
     @Override
