@@ -48,7 +48,12 @@ public class MixinMinecraftServer implements IBridgeMinecraftServer {
     public OptionSet getOptions() {
         return options;
     }
-    
+
+    @Override
+    public List<ServerWorld> getServerWorldList() {
+        return serverWorldList;
+    }
+
     @Redirect(method = "main", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/dedicated/DedicatedServer;setGuiEnabled()V"))
     private static void guiEnabled(DedicatedServer dedicatedServer) {
         // Turns of gui all the time.

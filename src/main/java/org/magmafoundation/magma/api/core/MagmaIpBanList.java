@@ -38,7 +38,7 @@ public class MagmaIpBanList implements BanList {
             return null;
         }
 
-        return new MagmaBanEntry(list, target, entry);
+        return new MagmaIPBanEntry(list, target, entry);
     }
 
     @Override
@@ -58,14 +58,14 @@ public class MagmaIpBanList implements BanList {
                 .log(Level.SEVERE, "Failed to save banned-ips.json, {0}", e.getMessage());
         }
 
-        return new MagmaBanEntry(list, target, entry);
+        return new MagmaIPBanEntry(list, target, entry);
     }
 
     @Override
     public Set<BanEntry> getBanEntries() {
         Builder<BanEntry> builder = ImmutableSet.builder();
         for (String target : list.getKeys()) {
-            builder.add(new MagmaBanEntry(list, target, (IPBanEntry) list.getEntry(target)));
+            builder.add(new MagmaIPBanEntry(list, target, (IPBanEntry) list.getEntry(target)));
         }
         return builder.build();
     }

@@ -15,7 +15,7 @@ import org.magmafoundation.magma.api.bridge.IBridgeBanEntry;
  * @author Hexeption admin@hexeption.co.uk
  * @since 24/11/2019 - 04:39 am
  */
-public class MagmaBanEntry implements BanEntry {
+public class MagmaIPBanEntry implements BanEntry {
 
     private final IPBanList banList;
     private final String target;
@@ -24,7 +24,7 @@ public class MagmaBanEntry implements BanEntry {
     private Date expiration;
     private String reason;
 
-    public MagmaBanEntry(IPBanList banList, String target, IPBanEntry entry) {
+    public MagmaIPBanEntry(IPBanList banList, String target, IPBanEntry entry) {
         this.banList = banList;
         this.target = target;
         this.created = ((IBridgeBanEntry) entry).getBanStartDate() != null ? new Date(((IBridgeBanEntry) entry).getBanStartDate().getTime()) : null;

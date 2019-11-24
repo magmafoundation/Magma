@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedPlayerList;
 import net.minecraft.server.management.PlayerList;
@@ -224,6 +225,12 @@ public class MagmaServer implements Server {
 
     @Override
     public Player getPlayer(UUID id) {
+        ServerPlayerEntity player = dedicatedPlayerList.getPlayerByUUID(id);
+
+        if (player != null) {
+//            return player;
+        }
+
         return null;
     }
 
@@ -431,8 +438,8 @@ public class MagmaServer implements Server {
     }
 
     public OfflinePlayer getOfflinePlayer(GameProfile profile) {
-        OfflinePlayer player = new MagmaOfflinePlayer(this, profile);
-
+//        OfflinePlayer player = new MagmaOfflinePlayer(this, profile);
+        return null;
     }
 
     @Override
