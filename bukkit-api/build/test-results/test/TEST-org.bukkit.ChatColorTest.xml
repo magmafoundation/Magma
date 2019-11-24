@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.bukkit.ChatColorTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2019-11-24T04:08:30" hostname="pwn" time="0.031">
+  <properties/>
+  <testcase name="getByStringWithEmpty" classname="org.bukkit.ChatColorTest" time="0.007"/>
+  <testcase name="stripColor" classname="org.bukkit.ChatColorTest" time="0.006"/>
+  <testcase name="getByStringWithNull" classname="org.bukkit.ChatColorTest" time="0.001"/>
+  <testcase name="getByString" classname="org.bukkit.ChatColorTest" time="0.009"/>
+  <testcase name="translateAlternateColorCodes" classname="org.bukkit.ChatColorTest" time="0.001"/>
+  <testcase name="stripColorOnNullString" classname="org.bukkit.ChatColorTest" time="0.001"/>
+  <testcase name="getByChar" classname="org.bukkit.ChatColorTest" time="0.001"/>
+  <testcase name="getByNull" classname="org.bukkit.ChatColorTest" time="0.0"/>
+  <testcase name="getChatColors" classname="org.bukkit.ChatColorTest" time="0.001"/>
+  <testcase name="toStringWorks" classname="org.bukkit.ChatColorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

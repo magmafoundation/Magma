@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+
+group 'org.bukkit'
+version '1.14.4-R0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven {
+        name = "spigotmc-repo"
+        url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+    }
+}
+
+dependencies {
+    compile "org.bukkit:bukkit:${project.version}"
+    compileOnly 'org.jetbrains:annotations-java5:17.0.0'
+    compile 'jline:jline:2.12.1'
+    compile 'org.ow2.asm:asm:7.1'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
+    runtime 'org.xerial:sqlite-jdbc:3.28.0'
+    runtime 'mysql:mysql-connector-java:5.1.47'
+
+    testCompile 'org.jetbrains:annotations-java5:17.0.0'
+    testCompile 'org.ow2.asm:asm-tree:7.1'
+    testCompile 'org.ow2.asm:asm:7.1'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.hamcrest:hamcrest-library:1.3'
+}

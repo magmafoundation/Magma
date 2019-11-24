@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.bukkit.configuration.MemorySectionTest" tests="44" skipped="0" failures="0" errors="0" timestamp="2019-11-24T04:08:31" hostname="pwn" time="0.1">
+  <properties/>
+  <testcase name="testGetVector_String" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetValuesWithDefaults" classname="org.bukkit.configuration.MemorySectionTest" time="0.002"/>
+  <testcase name="testGetInt_String" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testIsItemStack" classname="org.bukkit.configuration.MemorySectionTest" time="0.092"/>
+  <testcase name="testGetItemStack_String" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetKeysWithDefaults" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testSet" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testIsConfigurationSection" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetCurrentPath" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetList_String_List" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testIsInt" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testIsSet" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetBoolean_String" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetVector_String_Vector" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetKeys" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetName" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetRoot" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetObject_String_Class" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGet_String" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testSectionMap" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetLong_String" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testIsDouble" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testContains" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testIsBoolean" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testIsString" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetBoolean_String_Boolean" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testIsVector" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetItemStack_String_ItemStack" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetObject_String_Class_T" classname="org.bukkit.configuration.MemorySectionTest" time="0.001"/>
+  <testcase name="testGetLong_String_Long" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetDouble_String" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetParent" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testIsList" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testIsLong" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetString_String" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetDoubleFromInt" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetValues" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetInt_String_Int" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetDouble_String_Double" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testCreateSection" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGet_String_Object" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetList_String" classname="org.bukkit.configuration.MemorySectionTest" time="0.001"/>
+  <testcase name="testGetString_String_String" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <testcase name="testGetConfigurationSection" classname="org.bukkit.configuration.MemorySectionTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

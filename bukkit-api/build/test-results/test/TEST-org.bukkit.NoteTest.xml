@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.bukkit.NoteTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2019-11-24T04:08:31" hostname="pwn" time="0.012">
+  <properties/>
+  <testcase name="createNoteFlat" classname="org.bukkit.NoteTest" time="0.001"/>
+  <testcase name="testSharpWrapping2" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="verifyUnknownToneData" classname="org.bukkit.NoteTest" time="0.009"/>
+  <testcase name="createNoteFlatNonFlattenable" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="createNoteOctaveNonSharpable" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="getToneByData" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="createNoteAboveMax" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="createNoteBelowMin" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="doo" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="testHighest" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="testFlatWrapping2" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="verifySharpedData" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="createNoteOctaveAboveMax" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="createNoteOctaveBelowMax" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="testSharpWrapping" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="testLowest" classname="org.bukkit.NoteTest" time="0.0"/>
+  <testcase name="testFlatWrapping" classname="org.bukkit.NoteTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

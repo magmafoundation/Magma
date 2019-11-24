@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.bukkit.metadata.MetadataConversionTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2019-11-24T04:08:31" hostname="pwn" time="0.0">
+  <properties/>
+  <testcase name="testFromInt" classname="org.bukkit.metadata.MetadataConversionTest" time="0.0"/>
+  <testcase name="testFromNumericString" classname="org.bukkit.metadata.MetadataConversionTest" time="0.0"/>
+  <testcase name="testFromNull" classname="org.bukkit.metadata.MetadataConversionTest" time="0.0"/>
+  <testcase name="testFromFloat" classname="org.bukkit.metadata.MetadataConversionTest" time="0.0"/>
+  <testcase name="testFromNonNumericString" classname="org.bukkit.metadata.MetadataConversionTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

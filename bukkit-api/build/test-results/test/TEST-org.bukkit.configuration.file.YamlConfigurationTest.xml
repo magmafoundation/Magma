@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.bukkit.configuration.file.YamlConfigurationTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2019-11-24T04:08:31" hostname="pwn" time="0.166">
+  <properties/>
+  <testcase name="testSaveToStringWithIndent" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.006"/>
+  <testcase name="testCopyHeader" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.024"/>
+  <testcase name="testLoad_String" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.044"/>
+  <testcase name="testParseHeader" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.004"/>
+  <testcase name="testSaveToString" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.009"/>
+  <testcase name="testSave_String" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.037"/>
+  <testcase name="testSaveToStringWithHeader" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.005"/>
+  <testcase name="testReloadEmptyConfig" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.005"/>
+  <testcase name="testSave_File" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.007"/>
+  <testcase name="testLoadFromString" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.005"/>
+  <testcase name="testLoad_File" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.006"/>
+  <testcase name="testAddDefault" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.002"/>
+  <testcase name="testAddDefaults_Configuration" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.002"/>
+  <testcase name="testAddDefaults_Map" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.002"/>
+  <testcase name="testCreateSection" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.001"/>
+  <testcase name="testSetDefaults" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.002"/>
+  <testcase name="testGetDefaults" classname="org.bukkit.configuration.file.YamlConfigurationTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

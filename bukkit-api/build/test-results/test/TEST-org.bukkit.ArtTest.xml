@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.bukkit.ArtTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2019-11-24T04:08:30" hostname="pwn" time="0.026">
+  <properties/>
+  <testcase name="dimensionSanityCheck" classname="org.bukkit.ArtTest" time="0.022"/>
+  <testcase name="getById" classname="org.bukkit.ArtTest" time="0.001"/>
+  <testcase name="getByNameWithMixedCase" classname="org.bukkit.ArtTest" time="0.002"/>
+  <testcase name="getByName" classname="org.bukkit.ArtTest" time="0.0"/>
+  <testcase name="getByNullName" classname="org.bukkit.ArtTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

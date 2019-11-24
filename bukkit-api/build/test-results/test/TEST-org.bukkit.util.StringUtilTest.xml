@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.bukkit.util.StringUtilTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2019-11-24T04:08:31" hostname="pwn" time="0.001">
+  <properties/>
+  <testcase name="copyTokenTest" classname="org.bukkit.util.StringUtilTest" time="0.0"/>
+  <testcase name="copyNullTest" classname="org.bukkit.util.StringUtilTest" time="0.0"/>
+  <testcase name="nullStringTest" classname="org.bukkit.util.StringUtilTest" time="0.0"/>
+  <testcase name="nullCollectionTest" classname="org.bukkit.util.StringUtilTest" time="0.001"/>
+  <testcase name="nullPrefixTest" classname="org.bukkit.util.StringUtilTest" time="0.0"/>
+  <testcase name="nullIterableTest" classname="org.bukkit.util.StringUtilTest" time="0.0"/>
+  <testcase name="nullTokenTest" classname="org.bukkit.util.StringUtilTest" time="0.0"/>
+  <testcase name="copyUnsupportedTest" classname="org.bukkit.util.StringUtilTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

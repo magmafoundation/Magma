@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.bukkit.event.SyntheticEventTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2019-11-24T04:08:31" hostname="pwn" time="0.047">
+  <properties/>
+  <testcase name="test" classname="org.bukkit.event.SyntheticEventTest" time="0.047"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Nov 24, 2019 4:08:31 AM org.bukkit.Bukkit setServer
+INFO: This server is running TestServer version Version_null (Implementing API version BukkitVersion_null)
+]]></system-err>
+</testsuite>

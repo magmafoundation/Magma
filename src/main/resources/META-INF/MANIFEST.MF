@@ -1,0 +1,1 @@
+MixinConnector: org.magmafoundation.magma.launcher.Launcher

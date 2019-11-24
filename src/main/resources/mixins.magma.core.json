@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "package": "org.magmafoundation.magma.core.mixins",
+  "refmap": "mixins.magma.core.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinDedicatedServer"
+  ]
+}
