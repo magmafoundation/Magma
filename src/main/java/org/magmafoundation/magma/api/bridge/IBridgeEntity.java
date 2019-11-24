@@ -12,7 +12,12 @@ public interface IBridgeEntity {
 
     float getBukkitYaw();
 
-
     MagmaEntity getBukkitEntity();
+
+    int getFireImmuneTicks();
+
+    int getFire();
+
+    boolean getValid();
 
 }

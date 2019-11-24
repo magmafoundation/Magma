@@ -1,7 +1,6 @@
 package org.magmafoundation.magma.api.mixin;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
 import org.bukkit.Bukkit;
 import org.magmafoundation.magma.api.bridge.IBridgeEntity;
 import org.magmafoundation.magma.api.core.MagmaServer;
@@ -21,13 +20,16 @@ public class MixinEntity implements IBridgeEntity {
     @Shadow
     public float rotationYaw;
 
+    @Shadow
+    private int fire;
+
     protected MagmaEntity magmaEntity;
+    public boolean valid;
 
     @Override
     public float getBukkitYaw() {
         return rotationYaw;
     }
-
 
     @Override
     public MagmaEntity getBukkitEntity() {
@@ -36,5 +38,20 @@ public class MixinEntity implements IBridgeEntity {
                 .getEntity((MagmaServer) Bukkit.getServer(), (Entity) (Object) this);
         }
         return magmaEntity;
+    }
+
+    @Override
+    public int getFireImmuneTicks() {
+        return -1;
+    }
+
+    @Override
+    public int getFire() {
+        return fire;
+    }
+
+    @Override
+    public boolean getValid() {
+        return valid;
     }
 }

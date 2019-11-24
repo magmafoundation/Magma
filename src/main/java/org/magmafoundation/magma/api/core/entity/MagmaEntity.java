@@ -1,11 +1,13 @@
 package org.magmafoundation.magma.api.core.entity;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.util.math.AxisAlignedBB;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -23,6 +25,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.magmafoundation.magma.api.bridge.IBridgeEntity;
 import org.magmafoundation.magma.api.core.MagmaServer;
@@ -90,7 +93,8 @@ public class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public BoundingBox getBoundingBox() {
-        return null;
+        AxisAlignedBB bb = getEntity().getBoundingBox();
+        return new BoundingBox(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ);
     }
 
     @Override
@@ -108,18 +112,22 @@ public class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public void setRotation(float yaw, float pitch) {
+        NumberConversions.checkFinite(pitch, "pitch not finite");
+        NumberConversions.checkFinite(yaw, "yaw not finite");
+
+        yaw = Location.normalizeYaw(yaw);
+        pitch = Location.normalizePitch(pitch);
+
+        entity.rotationYaw = yaw;
+        entity.rotationPitch = pitch;
+        entity.prevRotationYaw = yaw;
+        entity.prevRotationPitch = pitch;
+        entity.setHeadRotation(yaw, 0);
     }
 
     @Override
     public boolean teleport(Location location) {
-        Preconditions.checkArgument(location != null, "location");
-        location.checkFinite();
-
-        if (entity.isBeingRidden()) {
-
-        }
-
-        return false;
+        return teleport(location, TeleportCause.PLUGIN);
     }
 
     @Override
@@ -139,42 +147,49 @@ public class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public List<org.bukkit.entity.Entity> getNearbyEntities(double x, double y, double z) {
-        return null;
+        List<Entity> notchEntityList = entity.world
+            .getEntitiesInAABBexcluding(entity, entity.getBoundingBox().grow(x, y, z), null);
+        List<org.bukkit.entity.Entity> bukkitEntityList = new ArrayList<>(notchEntityList.size());
+
+        notchEntityList
+            .forEach(entity -> bukkitEntityList.add(((IBridgeEntity) entity).getBukkitEntity()));
+
+        return bukkitEntityList;
     }
 
     @Override
     public int getEntityId() {
-        return 0;
+        return entity.getEntityId();
     }
 
     @Override
     public int getFireTicks() {
-        return 0;
+        return ((IBridgeEntity) entity).getFire();
     }
 
     @Override
     public int getMaxFireTicks() {
-        return 0;
+        return ((IBridgeEntity) entity).getFireImmuneTicks();
     }
 
     @Override
     public void setFireTicks(int ticks) {
-
+        entity.setFire(ticks);
     }
 
     @Override
     public void remove() {
-
+        entity.remove();
     }
 
     @Override
     public boolean isDead() {
-        return false;
+        return !entity.isAlive();
     }
 
     @Override
     public boolean isValid() {
-        return false;
+        return entity.isAlive() && ((IBridgeEntity) entity).getValid();
     }
 
     @Override
@@ -189,12 +204,12 @@ public class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public Server getServer() {
-        return null;
+        return server;
     }
 
     @Override
     public String getName() {
-        return null;
+        return getServer().getName();
     }
 
     @Override
