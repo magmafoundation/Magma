@@ -1,8 +1,6 @@
 package org.magmafoundation.magma.api.bridge;
 
-import net.minecraft.entity.Entity;
 import org.magmafoundation.magma.api.core.entity.MagmaEntity;
-import org.spongepowered.asm.mixin.Mixin;
 
 /**
  * IBridgeEntity
@@ -21,5 +19,9 @@ public interface IBridgeEntity {
     int getFire();
 
     boolean getValid();
+
+    int getMaxAirTicks();
+
+    void setMaxAirTicks(int ticks);
 
 }

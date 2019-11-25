@@ -1,16 +1,12 @@
 package org.magmafoundation.magma.api.mixin;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.world.World;
 import org.bukkit.Bukkit;
 import org.magmafoundation.magma.api.bridge.IBridgeEntity;
 import org.magmafoundation.magma.api.core.MagmaServer;
 import org.magmafoundation.magma.api.core.entity.MagmaEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * MixinEntity
@@ -29,6 +25,8 @@ public class MixinEntity implements IBridgeEntity {
 
     protected MagmaEntity magmaEntity;
     public boolean valid;
+
+    public int maxAirTicks = 300;
 
     @Override
     public float getBukkitYaw() {
@@ -58,4 +56,15 @@ public class MixinEntity implements IBridgeEntity {
     public boolean getValid() {
         return valid;
     }
+
+    @Override
+    public int getMaxAirTicks() {
+        return maxAirTicks;
+    }
+
+    @Override
+    public void setMaxAirTicks(int ticks) {
+        maxAirTicks = ticks;
+    }
+
 }
