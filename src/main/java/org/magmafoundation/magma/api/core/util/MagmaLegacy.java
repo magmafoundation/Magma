@@ -2,25 +2,15 @@ package org.magmafoundation.magma.api.core.util;
 
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.Dynamic;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.state.IProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.datafix.DataFixesManager;
-import net.minecraft.util.datafix.TypeReferences;
 import net.minecraft.util.datafix.fixes.BlockStateFlatteningMap;
 import net.minecraft.util.datafix.fixes.ItemIntIDToString;
 import net.minecraft.util.registry.Bootstrap;
@@ -28,7 +18,6 @@ import net.minecraft.util.registry.Registry;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.material.MaterialData;
-import org.magmafoundation.magma.api.mixin.MixinAdvancement;
 
 /**
  * This class may seem unnecessarily slow and complicated/repetitive however it is able to handle a
@@ -61,29 +50,7 @@ public class MagmaLegacy {
     }
 
     public static MaterialData toLegacyData(Material material) {
-        Preconditions.checkArgument(!material.isLegacy(), "toLegacy on legacy Material");
-        MaterialData mappedData;
-
-        if (material.isBlock()) {
-            Block block = CraftMagicNumbers.getBlock(material);
-            BlockState blockData = block.getDefaultState();
-
-            // Try exact match first
-            mappedData = dataToMaterial.get(blockData);
-            // Fallback to any block
-            if (mappedData == null) {
-                mappedData = blockToMaterial.get(block);
-                // Fallback to matching item
-                if (mappedData == null) {
-                    mappedData = itemToMaterial.get(block.getItem());
-                }
-            }
-        } else {
-            Item item = CraftMagicNumbers.getItem(material);
-            mappedData = itemToMaterial.get(item);
-        }
-
-        return (mappedData == null) ? new MaterialData(Material.LEGACY_AIR) : mappedData;
+        return null;
     }
 
     public static BlockState fromLegacyData(Material material, Block block, byte data) {
@@ -172,46 +139,7 @@ public class MagmaLegacy {
     }
 
     public static Material fromLegacy(MaterialData materialData, boolean itemPriority) {
-        Material material = materialData.getItemType();
-        if (material == null || !material.isLegacy()) {
-            return material;
-        }
-
-        Material mappedData = null;
-
-        // Try item first
-        if (itemPriority) {
-            Item item = materialToItem.get(materialData);
-            if (item != null) {
-                mappedData = CraftMagicNumbers.getMaterial(item);
-            }
-        }
-
-        if (mappedData == null && material.isBlock()) {
-            // Try exact match first
-            BlockState iblock = materialToData.get(materialData);
-            if (iblock != null) {
-                mappedData = CraftMagicNumbers.getMaterial(iblock.getBlock());
-            }
-
-            // Fallback to any block
-            if (mappedData == null) {
-                Block block = materialToBlock.get(materialData);
-                if (block != null) {
-                    mappedData = CraftMagicNumbers.getMaterial(block);
-                }
-            }
-        }
-
-        // Fallback to matching item
-        if (!itemPriority && mappedData == null) {
-            Item item = materialToItem.get(materialData);
-            if (item != null) {
-                mappedData = CraftMagicNumbers.getMaterial(item);
-            }
-        }
-
-        return (mappedData == null) ? Material.AIR : mappedData;
+        return null;
     }
 
     public static Material[] values() {
@@ -416,43 +344,8 @@ public class MagmaLegacy {
                 stack.putInt("id", material.getId());
                 stack.putShort("Damage", data);
 
-                Dynamic<CompoundNBT> converted = DataFixesManager
-                    .getDataFixer().update(
-                        TypeReferences.ITEM_STACK, new Dynamic<INBT>(NBTDynamicOps.INSTANCE, stack),
-                        -1, CraftMagicNumbers.INSTANCE.getDataVersion());
-
-                String newId = converted.get("id").asString("");
-                // Recover spawn eggs with invalid data
-                if (newId.equals("minecraft:spawn_egg")) {
-                    newId = "minecraft:pig_spawn_egg";
-                }
-
-                // Preconditions.checkState(newId.contains("minecraft:"), "Unknown new material for " + matData);
-                Item newMaterial = Registry.ITEM.getOrDefault(new ResourceLocation(newId));
-
-                if (newMaterial == Items.AIR) {
-                    continue;
-                }
-
-                materialToItem.put(matData, newMaterial);
-                if (!itemToMaterial.containsKey(newMaterial)) {
-                    itemToMaterial.put(newMaterial, matData);
-                }
-            }
-
-            for (Map.Entry<Byte, Material> entry : SPAWN_EGGS.entrySet()) {
-                MaterialData matData = new MaterialData(Material.LEGACY_MONSTER_EGG,
-                    entry.getKey());
-
-                Item newMaterial = CraftMagicNumbers.getItem(entry.getValue());
-
-                materialToItem.put(matData, newMaterial);
-                itemToMaterial.put(newMaterial, matData);
             }
         }
     }
 
-    public static void main(String[] args) {
-        System.err.println("");
-    }
 }

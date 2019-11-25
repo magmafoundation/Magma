@@ -37,7 +37,7 @@ public class MagmaMagicNumbers implements UnsafeValues {
 
     @Override
     public BlockData fromLegacy(Material material, byte data) {
-        return
+        return null;
     }
 
     @Override
