@@ -11,7 +11,8 @@
     "MixinMinecraftServer",
     "MixinPlayerList",
     "MixinSaveHandler",
-    "MixinUserListEntry"
+    "MixinUserListEntry",
+    "MixinAdvancement"
   ],
   "injectors": {
     "defaultRequire": 1
