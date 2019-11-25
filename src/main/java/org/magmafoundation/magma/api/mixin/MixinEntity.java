@@ -1,12 +1,16 @@
 package org.magmafoundation.magma.api.mixin;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.world.World;
 import org.bukkit.Bukkit;
 import org.magmafoundation.magma.api.bridge.IBridgeEntity;
 import org.magmafoundation.magma.api.core.MagmaServer;
 import org.magmafoundation.magma.api.core.entity.MagmaEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * MixinEntity

@@ -1,20 +1,23 @@
 package org.magmafoundation.magma.api.core.entity;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.text.ITextComponent;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.PistonMoveReaction;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pose;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -27,6 +30,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
+import org.magmafoundation.magma.api.accessor.IAccessorEntity;
 import org.magmafoundation.magma.api.bridge.IBridgeEntity;
 import org.magmafoundation.magma.api.core.MagmaServer;
 
@@ -36,7 +40,7 @@ import org.magmafoundation.magma.api.core.MagmaServer;
  * @author Hexeption admin@hexeption.co.uk
  * @since 24/11/2019 - 08:12 pm
  */
-public class MagmaEntity implements org.bukkit.entity.Entity {
+public abstract class MagmaEntity implements org.bukkit.entity.Entity {
 
     protected final MagmaServer server;
     protected Entity entity;
@@ -224,202 +228,239 @@ public class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public org.bukkit.entity.Entity getPassenger() {
-        return null;
+        return isEmpty() ? null
+            : ((IBridgeEntity) getEntity().getPassengers().get(0)).getBukkitEntity();
     }
 
     @Override
     public boolean setPassenger(org.bukkit.entity.Entity passenger) {
-        return false;
+        Preconditions.checkArgument(!this.equals(passenger), "Entity cannot ride itself.");
+        if (passenger instanceof MagmaEntity) {
+            eject();
+            return ((MagmaEntity) passenger).getEntity().startRiding(getEntity());
+        } else {
+            return false;
+        }
     }
 
     @Override
     public List<org.bukkit.entity.Entity> getPassengers() {
-        return null;
+        return Lists.newArrayList(getEntity().getPassengers().stream()
+            .map(entity -> ((IBridgeEntity) entity).getBukkitEntity())
+            .collect(Collectors.toList()));
     }
 
     @Override
     public boolean addPassenger(org.bukkit.entity.Entity passenger) {
-        return false;
+        Preconditions.checkArgument(passenger != null, "passanger == null");
+        return ((MagmaEntity) passenger).getEntity().startRiding(getEntity(), true);
     }
 
     @Override
     public boolean removePassenger(org.bukkit.entity.Entity passenger) {
-        return false;
+        Preconditions.checkArgument(passenger != null, "passenger == null");
+        ((MagmaEntity) passenger).getEntity().stopRiding();
+        return true;
     }
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return !getEntity().isBeingRidden();
     }
 
     @Override
     public boolean eject() {
-        return false;
+        if (isEmpty()) {
+            return false;
+        }
+
+        getEntity().removePassengers();
+        return true;
     }
 
     @Override
     public float getFallDistance() {
-        return 0;
+        return getEntity().fallDistance;
     }
 
     @Override
     public void setFallDistance(float distance) {
-
+        getEntity().fallDistance = distance;
     }
 
     @Override
     public void setLastDamageCause(EntityDamageEvent event) {
-
+        setLastDamageCause(event);
     }
 
     @Override
     public EntityDamageEvent getLastDamageCause() {
-        return null;
+        return getLastDamageCause();
     }
 
     @Override
     public UUID getUniqueId() {
-        return null;
+        return getEntity().getUniqueID();
     }
 
     @Override
     public int getTicksLived() {
-        return 0;
+        return getEntity().ticksExisted;
     }
 
     @Override
     public void setTicksLived(int value) {
-
+        if (value <= 0) {
+            throw new IllegalArgumentException("Age must be at least 1 tick");
+        }
+        getEntity().ticksExisted = value;
     }
 
     @Override
     public void playEffect(EntityEffect type) {
+        Preconditions.checkArgument(type != null, "type");
 
-    }
-
-    @Override
-    public EntityType getType() {
-        return null;
+        if (type.getApplicable().isInstance(this)) {
+            this.getEntity().world.setEntityState(getEntity(), type.getData());
+        }
     }
 
     @Override
     public boolean isInsideVehicle() {
-        return false;
+        return getEntity().getRidingEntity() != null;
     }
 
     @Override
     public boolean leaveVehicle() {
-        return false;
+        if (!isInsideVehicle()) {
+            return false;
+        }
+        getEntity().stopRiding();
+        return true;
     }
 
     @Override
     public org.bukkit.entity.Entity getVehicle() {
-        return null;
-    }
+        if (!isInsideVehicle()) {
+            return null;
+        }
 
-    @Override
-    public void setCustomNameVisible(boolean flag) {
-
-    }
-
-    @Override
-    public boolean isCustomNameVisible() {
-        return false;
-    }
-
-    @Override
-    public void setGlowing(boolean flag) {
-
-    }
-
-    @Override
-    public boolean isGlowing() {
-        return false;
-    }
-
-    @Override
-    public void setInvulnerable(boolean flag) {
-
-    }
-
-    @Override
-    public boolean isInvulnerable() {
-        return false;
-    }
-
-    @Override
-    public boolean isSilent() {
-        return false;
-    }
-
-    @Override
-    public void setSilent(boolean flag) {
-
-    }
-
-    @Override
-    public boolean hasGravity() {
-        return false;
-    }
-
-    @Override
-    public void setGravity(boolean gravity) {
-
-    }
-
-    @Override
-    public int getPortalCooldown() {
-        return 0;
-    }
-
-    @Override
-    public void setPortalCooldown(int cooldown) {
-
-    }
-
-    @Override
-    public Set<String> getScoreboardTags() {
-        return null;
-    }
-
-    @Override
-    public boolean addScoreboardTag(String tag) {
-        return false;
-    }
-
-    @Override
-    public boolean removeScoreboardTag(String tag) {
-        return false;
-    }
-
-    @Override
-    public PistonMoveReaction getPistonMoveReaction() {
-        return null;
-    }
-
-    @Override
-    public BlockFace getFacing() {
-        return null;
-    }
-
-    @Override
-    public Pose getPose() {
-        return null;
+        return ((IBridgeEntity) getEntity().getRidingEntity()).getBukkitEntity();
     }
 
     @Override
     public String getCustomName() {
+        ITextComponent name = getEntity().getCustomName();
+
+        if (name == null) {
+            return null;
+        }
+
+        // TODO: 25/11/2019 MagmaChatMessage
         return null;
     }
 
     @Override
     public void setCustomName(String name) {
+    }
 
+    @Override
+    public void setCustomNameVisible(boolean flag) {
+        getEntity().setCustomNameVisible(false);
+    }
+
+    @Override
+    public boolean isCustomNameVisible() {
+        return getEntity().getAlwaysRenderNameTagForRender();
+    }
+
+    @Override
+    public void setGlowing(boolean flag) {
+        getEntity().setGlowing(flag);
+        Entity e = getEntity();
+        if (((IAccessorEntity) e).getFlag(6) != flag) {
+            ((IAccessorEntity) e).setFlag(6, flag);
+        }
+    }
+
+    @Override
+    public boolean isGlowing() {
+        return getEntity().isGlowing();
+    }
+
+    @Override
+    public void setInvulnerable(boolean flag) {
+        getEntity().setInvulnerable(flag);
+    }
+
+    @Override
+    public boolean isInvulnerable() {
+        return getEntity().isInvulnerableTo(DamageSource.GENERIC);
+    }
+
+    @Override
+    public boolean isSilent() {
+        return getEntity().isSilent();
+    }
+
+    @Override
+    public void setSilent(boolean flag) {
+        getEntity().setSilent(flag);
+    }
+
+    @Override
+    public boolean hasGravity() {
+        return !getEntity().hasNoGravity();
+    }
+
+    @Override
+    public void setGravity(boolean gravity) {
+        getEntity().setNoGravity(!gravity);
+    }
+
+    @Override
+    public int getPortalCooldown() {
+        return getEntity().timeUntilPortal;
+    }
+
+    @Override
+    public void setPortalCooldown(int cooldown) {
+        getEntity().timeUntilPortal = cooldown;
+    }
+
+    @Override
+    public Set<String> getScoreboardTags() {
+        return getEntity().getTags();
+    }
+
+    @Override
+    public boolean addScoreboardTag(String tag) {
+        return getEntity().addTag(tag);
+    }
+
+    @Override
+    public boolean removeScoreboardTag(String tag) {
+        return getEntity().removeTag(tag);
+    }
+
+    @Override
+    public PistonMoveReaction getPistonMoveReaction() {
+        return PistonMoveReaction.getById(getEntity().getPushReaction().ordinal());
+    }
+
+    @Override
+    public BlockFace getFacing() {
+        // TODO: 25/11/2019 @Jasper Magmablock.notchface
+        return null;
+    }
+
+    @Override
+    public Pose getPose() {
+        return Pose.values()[getEntity().getPose().ordinal()];
     }
 
     @Override
     public void setMetadata(String metadataKey, MetadataValue newMetadataValue) {
-
     }
 
     @Override
@@ -438,62 +479,6 @@ public class MagmaEntity implements org.bukkit.entity.Entity {
     }
 
     @Override
-    public boolean isPermissionSet(String name) {
-        return false;
-    }
-
-    @Override
-    public boolean isPermissionSet(Permission perm) {
-        return false;
-    }
-
-    @Override
-    public boolean hasPermission(String name) {
-        return false;
-    }
-
-    @Override
-    public boolean hasPermission(Permission perm) {
-        return false;
-    }
-
-    @Override
-    public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value) {
-        return null;
-    }
-
-    @Override
-    public PermissionAttachment addAttachment(Plugin plugin) {
-        return null;
-    }
-
-    @Override
-    public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value,
-        int ticks) {
-        return null;
-    }
-
-    @Override
-    public PermissionAttachment addAttachment(Plugin plugin, int ticks) {
-        return null;
-    }
-
-    @Override
-    public void removeAttachment(PermissionAttachment attachment) {
-
-    }
-
-    @Override
-    public void recalculatePermissions() {
-
-    }
-
-    @Override
-    public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-        return null;
-    }
-
-    @Override
     public boolean isOp() {
         return false;
     }
@@ -503,12 +488,9 @@ public class MagmaEntity implements org.bukkit.entity.Entity {
 
     }
 
-    @Override
-    public PersistentDataContainer getPersistentDataContainer() {
-        return null;
-    }
-
     public Entity getEntity() {
         return entity;
     }
+
+    // TODO: 25/11/2019 Add permissions
 }

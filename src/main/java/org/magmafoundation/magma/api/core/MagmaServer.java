@@ -709,4 +709,7 @@ public class MagmaServer implements Server {
     public DedicatedPlayerList getDedicatedPlayerList() {
         return dedicatedPlayerList;
     }
+
+
+
 }
