@@ -1,8 +1,8 @@
-package org.magmafoundation.magma.api.mixin;
+package org.magmafoundation.magma.api.mixin.entity;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import org.magmafoundation.magma.api.bridge.IBridgeLivingEntity;
+import org.magmafoundation.magma.api.bridge.entity.IBridgeLivingEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;

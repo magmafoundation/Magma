@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.api.mixin;
+package org.magmafoundation.magma.api.mixin.world.storage;
 
 import com.mojang.datafixers.DataFixer;
 import java.io.File;
@@ -9,7 +9,7 @@ import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.datafix.DefaultTypeReferences;
 import net.minecraft.world.storage.SaveHandler;
 import org.apache.logging.log4j.Logger;
-import org.magmafoundation.magma.api.bridge.IBridgeSaveHandler;
+import org.magmafoundation.magma.api.bridge.server.management.IBridgeSaveHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

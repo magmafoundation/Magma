@@ -7,7 +7,7 @@ import net.minecraft.server.management.IPBanEntry;
 import net.minecraft.server.management.IPBanList;
 import org.bukkit.BanEntry;
 import org.bukkit.Bukkit;
-import org.magmafoundation.magma.api.bridge.IBridgeBanEntry;
+import org.magmafoundation.magma.api.bridge.server.management.IBridgeBanEntry;
 
 /**
  * MagmaBanEntry

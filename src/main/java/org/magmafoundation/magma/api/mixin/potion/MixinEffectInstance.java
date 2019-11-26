@@ -1,7 +1,7 @@
-package org.magmafoundation.magma.api.mixin;
+package org.magmafoundation.magma.api.mixin.potion;
 
 import net.minecraft.potion.EffectInstance;
-import org.magmafoundation.magma.api.bridge.IBridgeEffectInstance;
+import org.magmafoundation.magma.api.bridge.potion.IBridgeEffectInstance;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 

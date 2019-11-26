@@ -1,13 +1,12 @@
-package org.magmafoundation.magma.api.mixin;
+package org.magmafoundation.magma.api.mixin.advancements;
 
 import java.util.Map;
-import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.util.ResourceLocation;
-import org.magmafoundation.magma.api.bridge.IMixinAdvancement;
+import org.magmafoundation.magma.api.bridge.advancements.IMixinAdvancement;
 import org.magmafoundation.magma.api.core.advancement.MagmaAdvancement;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

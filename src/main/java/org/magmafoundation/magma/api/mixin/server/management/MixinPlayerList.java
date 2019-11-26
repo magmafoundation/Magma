@@ -1,11 +1,11 @@
-package org.magmafoundation.magma.api.mixin;
+package org.magmafoundation.magma.api.mixin.server.management;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.server.management.WhiteList;
 import net.minecraft.server.management.WhitelistEntry;
-import org.magmafoundation.magma.api.bridge.IBridgeMinecraftServer;
+import org.magmafoundation.magma.api.bridge.server.IBridgeMinecraftServer;
 import org.magmafoundation.magma.api.core.MagmaServer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

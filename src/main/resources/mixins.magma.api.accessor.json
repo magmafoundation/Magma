@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "org.magmafoundation.magma.api.accessor",
+  "refmap": "mixins.magma.api.accessor.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "server": [
+    "entity.IAccessorEntity"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "conformVisibility": true
+  }
+}

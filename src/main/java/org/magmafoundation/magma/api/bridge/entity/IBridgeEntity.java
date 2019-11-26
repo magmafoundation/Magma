@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.api.bridge;
+package org.magmafoundation.magma.api.bridge.entity;
 
 import org.magmafoundation.magma.api.core.entity.MagmaEntity;
 

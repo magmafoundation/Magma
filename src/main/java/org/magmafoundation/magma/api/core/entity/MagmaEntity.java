@@ -26,8 +26,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
-import org.magmafoundation.magma.api.accessor.IAccessorEntity;
-import org.magmafoundation.magma.api.bridge.IBridgeEntity;
+import org.magmafoundation.magma.api.accessor.entity.IAccessorEntity;
+import org.magmafoundation.magma.api.bridge.entity.IBridgeEntity;
 import org.magmafoundation.magma.api.core.MagmaServer;
 
 /**

@@ -43,8 +43,8 @@ import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.CachedServerIcon;
-import org.magmafoundation.magma.api.bridge.IBridgeMinecraftServer;
-import org.magmafoundation.magma.api.bridge.IBridgeUserListEntry;
+import org.magmafoundation.magma.api.bridge.server.IBridgeMinecraftServer;
+import org.magmafoundation.magma.api.bridge.server.management.IBridgeUserListEntry;
 import org.magmafoundation.magma.core.Magma;
 
 /**

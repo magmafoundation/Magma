@@ -6,13 +6,16 @@
   "mixins": [
   ],
   "server": [
-    "MixinBanEntry",
-    "MixinDedicatedPlayerList",
-    "MixinMinecraftServer",
-    "MixinPlayerList",
-    "MixinSaveHandler",
-    "MixinUserListEntry",
-    "MixinAdvancement"
+    "advancements.MixinAdvancement",
+    "entity.MixinEntity",
+    "entity.MixinLivingEntity",
+    "potion.MixinEffectInstance",
+    "server.MixinMinecraftServer",
+    "server.dedicated.MixinDedicatedPlayerList",
+    "server.management.MixinBanEntry",
+    "server.management.MixinPlayerList",
+    "server.management.MixinUserListEntry",
+    "world.storage.MixinSaveHandler"
   ],
   "injectors": {
     "defaultRequire": 1

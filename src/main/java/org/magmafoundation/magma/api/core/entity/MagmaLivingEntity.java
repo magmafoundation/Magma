@@ -32,10 +32,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-import org.magmafoundation.magma.api.accessor.IAccessorEntity;
-import org.magmafoundation.magma.api.bridge.IBridgeEffectInstance;
-import org.magmafoundation.magma.api.bridge.IBridgeEntity;
-import org.magmafoundation.magma.api.bridge.IBridgeLivingEntity;
+import org.magmafoundation.magma.api.accessor.entity.IAccessorEntity;
+import org.magmafoundation.magma.api.bridge.potion.IBridgeEffectInstance;
+import org.magmafoundation.magma.api.bridge.entity.IBridgeEntity;
+import org.magmafoundation.magma.api.bridge.entity.IBridgeLivingEntity;
 import org.magmafoundation.magma.api.core.MagmaServer;
 
 /**

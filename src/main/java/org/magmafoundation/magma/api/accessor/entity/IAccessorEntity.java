@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.api.accessor;
+package org.magmafoundation.magma.api.accessor.entity;
 
 import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;

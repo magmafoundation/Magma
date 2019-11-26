@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.api.bridge;
+package org.magmafoundation.magma.api.bridge.server.dedicated;
 
 import com.mojang.authlib.GameProfile;
 

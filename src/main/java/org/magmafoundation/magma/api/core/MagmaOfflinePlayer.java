@@ -12,9 +12,9 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
-import org.magmafoundation.magma.api.bridge.IBridgeDedicatedPlayerList;
-import org.magmafoundation.magma.api.bridge.IBridgeMinecraftServer;
-import org.magmafoundation.magma.api.bridge.IBridgeSaveHandler;
+import org.magmafoundation.magma.api.bridge.server.dedicated.IBridgeDedicatedPlayerList;
+import org.magmafoundation.magma.api.bridge.server.IBridgeMinecraftServer;
+import org.magmafoundation.magma.api.bridge.server.management.IBridgeSaveHandler;
 
 /**
  * MagmaOfflinePlayer
