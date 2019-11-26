@@ -1,6 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/world/WorldProvider.java
 +++ ../src-work/minecraft/net/minecraft/world/WorldProvider.java
-@@ -9,13 +9,9 @@
+@@ -1,5 +1,7 @@
+ package net.minecraft.world;
+ 
++import com.google.common.base.Charsets;
++import java.util.UUID;
+ import javax.annotation.Nullable;
+ import net.minecraft.entity.player.EntityPlayerMP;
+ import net.minecraft.init.Biomes;
+@@ -9,13 +11,9 @@
  import net.minecraft.util.math.Vec3d;
  import net.minecraft.world.biome.Biome;
  import net.minecraft.world.biome.BiomeProvider;
@@ -15,7 +23,19 @@
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
  
-@@ -412,7 +408,7 @@
+@@ -363,6 +361,11 @@
+      */
+     public boolean shouldMapSpin(String entity, double x, double z, double rotation)
+     {
++        return shouldMapSpin(UUID.nameUUIDFromBytes((entity).getBytes(Charsets.US_ASCII)), x, z, rotation);
++    }
++
++    public boolean shouldMapSpin(UUID entity, double x, double z, double rotation)
++    {
+         return dimensionId < 0;
+     }
+ 
+@@ -412,7 +415,7 @@
       */
      public WorldSleepResult canSleepAt(net.minecraft.entity.player.EntityPlayer player, BlockPos pos)
      {
@@ -24,7 +44,7 @@
      }
  
      public static enum WorldSleepResult
-@@ -565,10 +561,20 @@
+@@ -565,10 +568,20 @@
  
      public void resetRainAndThunder()
      {
@@ -47,7 +67,7 @@
      }
  
      public boolean canDoLightning(net.minecraft.world.chunk.Chunk chunk)
-@@ -603,4 +609,10 @@
+@@ -603,4 +616,10 @@
      {
          return true;
      }

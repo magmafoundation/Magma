@@ -1,0 +1,25 @@
+--- ../src-base/minecraft/net/minecraft/world/WorldType.java
++++ ../src-work/minecraft/net/minecraft/world/WorldType.java
+@@ -1,5 +1,8 @@
+ package net.minecraft.world;
+ 
++import java.util.Map;
++import net.minecraftforge.common.util.EnumHelper;
++import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
+ 
+@@ -33,6 +36,13 @@
+         this.canBeCreated = true;
+         this.id = id;
+         WORLD_TYPES[id] = this;
++        if (org.bukkit.WorldType.getByName(name) == null) {
++            org.bukkit.WorldType worldType = EnumHelper
++                .addEnum(org.bukkit.WorldType.class, name, new Class [] { String.class }, new Object[] { name });
++            Map<String, org.bukkit.WorldType> BY_NAME = ObfuscationReflectionHelper.getPrivateValue(
++                org.bukkit.WorldType.class, null, "BY_NAME");
++            BY_NAME.put(name.toUpperCase(), worldType);
++        }
+     }
+ 
+     public String getName()

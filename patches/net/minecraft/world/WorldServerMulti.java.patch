@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/world/WorldServerMulti.java
 +++ ../src-work/minecraft/net/minecraft/world/WorldServerMulti.java
-@@ -7,12 +7,54 @@
+@@ -7,16 +7,19 @@
  import net.minecraft.world.border.WorldBorder;
  import net.minecraft.world.storage.DerivedWorldInfo;
  import net.minecraft.world.storage.ISaveHandler;
@@ -11,12 +11,30 @@
      private final WorldServer delegate;
      private IBorderListener borderListener;
  
+-    public WorldServerMulti(MinecraftServer server, ISaveHandler saveHandlerIn, int dimensionId, WorldServer delegate, Profiler profilerIn)
 +    // CraftBukkit start - Add WorldInfo, Environment and ChunkGenerator arguments
 +    public WorldServerMulti(MinecraftServer server, ISaveHandler saveHandlerIn, int dimensionId, WorldServer delegate, Profiler profilerIn, WorldInfo worldData, org.bukkit.World.Environment env, org.bukkit.generator.ChunkGenerator gen)
-+    {
+     {
+-        super(server, saveHandlerIn, new DerivedWorldInfo(delegate.getWorldInfo()), dimensionId, profilerIn);
 +        super(server, saveHandlerIn, worldData, dimensionId, profilerIn, env, gen);
-+        this.delegate = delegate;
+         this.delegate = delegate;
 +        /* CraftBukkit start
+         this.borderListener = new IBorderListener()
+         {
+             public void onSizeChanged(WorldBorder border, double newSize)
+@@ -49,11 +52,45 @@
+             }
+         };
+         this.delegate.getWorldBorder().addListener(this.borderListener);
++        // CraftBukkit end */
+     }
+ 
+-    protected void saveLevel() throws MinecraftException
++    public WorldServerMulti(MinecraftServer server, ISaveHandler saveHandlerIn, int dimensionId, WorldServer delegate, Profiler profilerIn)
+     {
+-        this.perWorldStorage.saveAllData();
++        super(server, saveHandlerIn, new DerivedWorldInfo(delegate.getWorldInfo()), dimensionId, profilerIn);
++        this.delegate = delegate;
 +        this.borderListener = new IBorderListener()
 +        {
 +            public void onSizeChanged(WorldBorder border, double newSize)
@@ -49,13 +67,10 @@
 +            }
 +        };
 +        this.delegate.getWorldBorder().addListener(this.borderListener);
-+        // CraftBukkit end */
-+    }
-+
-     public WorldServerMulti(MinecraftServer server, ISaveHandler saveHandlerIn, int dimensionId, WorldServer delegate, Profiler profilerIn)
-     {
-         super(server, saveHandlerIn, new DerivedWorldInfo(delegate.getWorldInfo()), dimensionId, profilerIn);
-@@ -77,7 +119,8 @@
+     }
+ 
+     public World init()
+@@ -77,7 +114,8 @@
          }
  
          this.initCapabilities();
