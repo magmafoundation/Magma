@@ -1,7 +1,9 @@
 package org.magmafoundation.magma.api.bridge.server;
 
+import java.io.File;
 import java.util.List;
 import joptsimple.OptionSet;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.server.ServerWorld;
 import org.magmafoundation.magma.api.core.MagmaServer;
 
@@ -20,5 +22,9 @@ public interface IBridgeMinecraftServer {
     OptionSet getOptions();
 
     List<ServerWorld> getServerWorldList();
+
+    MinecraftServer getInstance();
+
+    File getBukkitDataPackFolder();
 
 }
