@@ -2,10 +2,13 @@ package org.magmafoundation.magma.api.core;
 
 import com.google.common.base.Preconditions;
 import net.minecraft.block.ChorusFlowerBlock;
+import net.minecraft.network.play.server.SUpdateTimePacket;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.gen.feature.*;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.SessionLockException;
+import org.apache.commons.lang.Validate;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -22,11 +25,15 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.magmafoundation.magma.api.bridge.entity.IBridgeEntity;
+import org.magmafoundation.magma.api.core.block.MagmaBlock;
+import org.magmafoundation.magma.api.core.entity.MagmaPlayer;
 
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * MagmaWorld
@@ -42,7 +49,7 @@ public class MagmaWorld implements World {
 
     private final MagmaServer server = (MagmaServer) Bukkit.getServer();
     private final ChunkGenerator chunkGenerator;
-    private final List<BlockPopulator> populators = new ArrayList<BlockPopulator>();
+    private final List<BlockPopulator> populators = new ArrayList<>();
 
     // TODO: private final BlockMetadataStore blockMetadata = new BlockMetadataStore(this);
 
@@ -67,12 +74,12 @@ public class MagmaWorld implements World {
 
     @Override
     public Block getBlockAt(int x, int y, int z) {
-        return null;
+        return MagmaBlock.at(world, new BlockPos(x, y, z));
     }
 
     @Override
     public Block getBlockAt(Location location) {
-        return null;
+        return getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
     @Override
@@ -352,27 +359,86 @@ public class MagmaWorld implements World {
 
     @Override
     public List<Entity> getEntities() {
-        return null;
+        List<Entity> list = new ArrayList<>();
+
+        for (net.minecraft.entity.Entity entity : world.getEntities().collect(Collectors.toList())) {
+            Entity bukkitEntity = ((IBridgeEntity) entity).getBukkitEntity();
+
+            // Assuming that bukkitEntity isn't null
+            if (bukkitEntity != null && bukkitEntity.isValid()) {
+                list.add(bukkitEntity);
+            }
+        }
+
+        return list;
     }
 
     @Override
     public List<LivingEntity> getLivingEntities() {
-        return null;
+        List<LivingEntity> list = new ArrayList<>();
+
+        for (net.minecraft.entity.Entity entity : world.getEntities().collect(Collectors.toList())) {
+            Entity bukkitEntity = ((IBridgeEntity) entity).getBukkitEntity();
+
+            // Assuming that bukkitEntity isn't null
+            if (bukkitEntity instanceof LivingEntity && bukkitEntity.isValid()) {
+                list.add((LivingEntity) bukkitEntity);
+            }
+        }
+
+        return list;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    @Deprecated
     public <T extends Entity> Collection<T> getEntitiesByClass(Class<T>... classes) {
-        return null;
+        return (Collection<T>) getEntitiesByClasses(classes);
     }
 
     @Override
-    public <T extends Entity> Collection<T> getEntitiesByClass(Class<T> cls) {
-        return null;
+    public <T extends Entity> Collection<T> getEntitiesByClass(Class<T> clazz) {
+        Collection<T> list = new ArrayList<T>();
+
+        for (net.minecraft.entity.Entity entity : world.getEntities().collect(Collectors.toList())) {
+            Entity bukkitEntity = ((IBridgeEntity) entity).getBukkitEntity();
+
+            if (bukkitEntity == null) {
+                continue;
+            }
+
+            Class<?> bukkitClass = bukkitEntity.getClass();
+            if (clazz.isAssignableFrom(bukkitClass) && bukkitEntity.isValid()) {
+                list.add(clazz.cast(bukkitEntity));
+            }
+        }
+
+        return list;
     }
 
     @Override
     public Collection<Entity> getEntitiesByClasses(Class<?>... classes) {
-        return null;
+        Collection<Entity> list = new ArrayList<Entity>();
+
+        for (net.minecraft.entity.Entity entity : world.getEntities().collect(Collectors.toList())) {
+            Entity bukkitEntity = ((IBridgeEntity) entity).getBukkitEntity();
+
+            if (bukkitEntity == null) {
+                continue;
+            }
+
+            Class<?> bukkitClass = bukkitEntity.getClass();
+            for (Class<?> clazz : classes) {
+                if (clazz.isAssignableFrom(bukkitClass)) {
+                    if (bukkitEntity.isValid()) {
+                        list.add(bukkitEntity);
+                    }
+                    break;
+                }
+            }
+        }
+
+        return list;
     }
 
     @Override
@@ -382,22 +448,38 @@ public class MagmaWorld implements World {
 
     @Override
     public Collection<Entity> getNearbyEntities(Location location, double x, double y, double z) {
-        return null;
+        return getNearbyEntities(location, x, y, z, null);
     }
 
     @Override
     public Collection<Entity> getNearbyEntities(Location location, double x, double y, double z, Predicate<Entity> filter) {
-        return null;
+        Validate.notNull(location, "Location is null!");
+        Validate.isTrue(equals(location.getWorld()), "Location is from different world!");
+
+        BoundingBox aabb = BoundingBox.of(location, x, y, z);
+        return getNearbyEntities(aabb, filter);
     }
 
     @Override
     public Collection<Entity> getNearbyEntities(BoundingBox boundingBox) {
-        return null;
+        return getNearbyEntities(boundingBox, null);
     }
 
     @Override
     public Collection<Entity> getNearbyEntities(BoundingBox boundingBox, Predicate<Entity> filter) {
-        return null;
+        Validate.notNull(boundingBox, "Bounding box is null!");
+
+        List<net.minecraft.entity.Entity> entityList = world.getEntities().collect(Collectors.toList());
+        List<Entity> bukkitEntityList = new ArrayList<>(entityList.size());
+
+        for (net.minecraft.entity.Entity entity : entityList) {
+            Entity bukkitEntity = ((IBridgeEntity) entity).getBukkitEntity();
+            if (filter == null || filter.test(bukkitEntity)) {
+                bukkitEntityList.add(bukkitEntity);
+            }
+        }
+
+        return bukkitEntityList;
     }
 
     @Override
@@ -504,13 +586,12 @@ public class MagmaWorld implements World {
 
         // Forces the client to update to the new time immediately
         for (Player player : getPlayers()) {
-            /*
             MagmaPlayer magmaPlayer = (MagmaPlayer) player;
             if (magmaPlayer.getHandle().connection == null)
                 continue;
 
             magmaPlayer.getHandle().connection.sendPacket(new SUpdateTimePacket(getTime(), player.getPlayerTime(), world.getGameRules().get(GameRules.DO_DAYLIGHT_CYCLE).get()));
-            */
+
         }
     }
 
