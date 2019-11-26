@@ -23,10 +23,13 @@ public class MixinEntity implements IBridgeEntity {
     @Shadow
     private int fire;
 
+    @Shadow public boolean collided;
     protected MagmaEntity magmaEntity;
     public boolean valid;
 
     public int maxAirTicks = 300;
+
+    public boolean persist = true;
 
     @Override
     public float getBukkitYaw() {
@@ -37,7 +40,7 @@ public class MixinEntity implements IBridgeEntity {
     public MagmaEntity getBukkitEntity() {
         if (magmaEntity == null) {
             magmaEntity = MagmaEntity
-                .getEntity((MagmaServer) Bukkit.getServer(), (Entity) (Object) this);
+                .getHandle((MagmaServer) Bukkit.getServer(), (Entity) (Object) this);
         }
         return magmaEntity;
     }
@@ -65,6 +68,16 @@ public class MixinEntity implements IBridgeEntity {
     @Override
     public void setMaxAirTicks(int ticks) {
         maxAirTicks = ticks;
+    }
+
+    @Override
+    public boolean getPersistenceRequired() {
+        return persist;
+    }
+
+    @Override
+    public void setPersistenceRequired(boolean persistenceRequired) {
+        persist = persistenceRequired;
     }
 
 }

@@ -7,6 +7,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
  * MixinLivingEntity
@@ -15,7 +17,7 @@ import org.spongepowered.asm.mixin.Shadow;
  * @since 25/11/2019 - 04:57 pm
  */
 @Mixin(LivingEntity.class)
-public class MixinLivingEntity extends MixinEntity implements IBridgeLivingEntity {
+public abstract class MixinLivingEntity extends MixinEntity implements IBridgeLivingEntity {
 
     @Mutable
     @Shadow
@@ -26,6 +28,18 @@ public class MixinLivingEntity extends MixinEntity implements IBridgeLivingEntit
     protected float lastDamage;
 
     @Shadow protected PlayerEntity attackingPlayer;
+
+    @Shadow
+    protected boolean dead;
+
+    @Shadow
+    public abstract boolean isAlive();
+
+    @Shadow
+    public abstract boolean isOnLadder();
+
+    public boolean canPickUpLoot;
+    public boolean collides = true;
 
     @Override
     public int getMaxHurtResistantTime() {
@@ -50,5 +64,35 @@ public class MixinLivingEntity extends MixinEntity implements IBridgeLivingEntit
     @Override
     public PlayerEntity getAttackingPlayer() {
         return attackingPlayer;
+    }
+
+    @Override
+    public boolean getCanPickUpLoot() {
+        return canPickUpLoot;
+    }
+
+    @Override
+    public void setCanPickUpLoot(boolean loot) {
+        canPickUpLoot = loot;
+    }
+
+    @Redirect(method = "canBeCollidedWith", at = @At("HEAD"))
+    public boolean canBeCollidedWith() {
+        return !dead && collides;
+    }
+
+    @Redirect(method = "canBePushed", at = @At("HEAD"))
+    public boolean canBePushed() {
+        return isAlive() && isOnLadder() && collides;
+    }
+
+    @Override
+    public boolean getCollides() {
+        return collides;
+    }
+
+    @Override
+    public void setCollides(boolean collidable) {
+        collides = collidable;
     }
 }

@@ -1,10 +1,18 @@
 package org.magmafoundation.magma.api.core.entity;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.boss.WitherEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.util.DamageSource;
+import org.apache.commons.lang.Validate;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +32,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.magmafoundation.magma.api.accessor.IAccessorEntity;
 import org.magmafoundation.magma.api.bridge.IBridgeEffectInstance;
 import org.magmafoundation.magma.api.bridge.IBridgeEntity;
 import org.magmafoundation.magma.api.bridge.IBridgeLivingEntity;
@@ -45,7 +54,7 @@ public class MagmaLivingEntity extends MagmaEntity implements LivingEntity {
 
     @Override
     public double getEyeHeight() {
-        return getEntity().getEyeHeight();
+        return getHandle().getEyeHeight();
     }
 
     @Override
@@ -126,58 +135,58 @@ public class MagmaLivingEntity extends MagmaEntity implements LivingEntity {
 
     @Override
     public int getRemainingAir() {
-        return getEntity().getAir();
+        return getHandle().getAir();
     }
 
     @Override
     public void setRemainingAir(int ticks) {
-        getEntity().setAir(ticks);
+        getHandle().setAir(ticks);
     }
 
     @Override
     public int getMaximumAir() {
-        return ((IBridgeEntity) getEntity()).getMaxAirTicks();
+        return ((IBridgeEntity) getHandle()).getMaxAirTicks();
     }
 
     @Override
     public void setMaximumAir(int ticks) {
-        ((IBridgeEntity) getEntity()).setMaxAirTicks(ticks);
+        ((IBridgeEntity) getHandle()).setMaxAirTicks(ticks);
     }
 
     @Override
     public int getMaximumNoDamageTicks() {
-        return ((IBridgeLivingEntity) getEntity()).getMaxHurtResistantTime();
+        return ((IBridgeLivingEntity) getHandle()).getMaxHurtResistantTime();
     }
 
     @Override
     public void setMaximumNoDamageTicks(int ticks) {
-        ((IBridgeLivingEntity) getEntity()).setMaxHurtResistantTime(ticks);
+        ((IBridgeLivingEntity) getHandle()).setMaxHurtResistantTime(ticks);
     }
 
     @Override
     public double getLastDamage() {
-        return ((IBridgeLivingEntity) getEntity()).getLastDamage();
+        return ((IBridgeLivingEntity) getHandle()).getLastDamage();
     }
 
     @Override
     public void setLastDamage(double damage) {
-        ((IBridgeLivingEntity) getEntity()).setLastDamage(damage);
+        ((IBridgeLivingEntity) getHandle()).setLastDamage(damage);
     }
 
     @Override
     public int getNoDamageTicks() {
-        return getEntity().hurtResistantTime;
+        return getHandle().hurtResistantTime;
     }
 
     @Override
     public void setNoDamageTicks(int ticks) {
-        getEntity().hurtResistantTime = ticks;
+        getHandle().hurtResistantTime = ticks;
     }
 
     @Override
     public Player getKiller() {
-        return ((IBridgeLivingEntity) getEntity()).getAttackingPlayer() == null ? null
-            : (Player) ((IBridgeEntity) getEntity()).getBukkitEntity();
+        return ((IBridgeLivingEntity) getHandle()).getAttackingPlayer() == null ? null
+            : (Player) ((IBridgeEntity) getHandle()).getBukkitEntity();
     }
 
     @Override
@@ -193,7 +202,7 @@ public class MagmaLivingEntity extends MagmaEntity implements LivingEntity {
             }
             removePotionEffect(effect.getType());
         }
-        getEntity().addPotionEffect(
+        getHandle().addPotionEffect(
             new EffectInstance(Effect.get(effect.getType().getId()), effect.getDuration(),
                 effect.getAmplifier(), effect.isAmbient(), effect.hasParticles()));
         return false;
@@ -208,12 +217,12 @@ public class MagmaLivingEntity extends MagmaEntity implements LivingEntity {
 
     @Override
     public boolean hasPotionEffect(PotionEffectType type) {
-        return getEntity().isPotionActive(Effect.get(type.getId()));
+        return getHandle().isPotionActive(Effect.get(type.getId()));
     }
 
     @Override
     public PotionEffect getPotionEffect(PotionEffectType type) {
-        EffectInstance effect = getEntity().getActivePotionEffect(Effect.get(type.getId()));
+        EffectInstance effect = getHandle().getActivePotionEffect(Effect.get(type.getId()));
         return (effect == null ? null
             : new PotionEffect(PotionEffectType.getById(Effect.getId(effect.getPotion())),
                 effect.getDuration(), effect.getAmplifier(),
@@ -222,12 +231,12 @@ public class MagmaLivingEntity extends MagmaEntity implements LivingEntity {
 
     @Override
     public void removePotionEffect(PotionEffectType type) {
-        getEntity().removePotionEffect(Effect.get(type.getId()));
+        getHandle().removePotionEffect(Effect.get(type.getId()));
     }
 
     @Override
     public Collection<PotionEffect> getActivePotionEffects() {
-        return getEntity().getActivePotionMap().values().stream().filter(
+        return getHandle().getActivePotionMap().values().stream().filter(
             potionEffect -> PotionEffectType.getById(Effect.getId(potionEffect.getPotion()))
                 != null).map(potionEffect -> new PotionEffect(
             PotionEffectType.getById(Effect.getId(potionEffect.getPotion())),
@@ -238,97 +247,132 @@ public class MagmaLivingEntity extends MagmaEntity implements LivingEntity {
 
     @Override
     public boolean hasLineOfSight(Entity other) {
-        return false;
+        return getHandle().canEntityBeSeen(((MagmaEntity) other).getHandle());
     }
 
     @Override
     public boolean getRemoveWhenFarAway() {
-        return false;
+        return getHandle() instanceof MobEntity && !((IBridgeEntity) ((MobEntity) getHandle()))
+            .getPersistenceRequired();
     }
 
     @Override
     public void setRemoveWhenFarAway(boolean remove) {
-
+        if (getHandle() instanceof MobEntity) {
+            ((IBridgeEntity) ((net.minecraft.entity.LivingEntity) getHandle()))
+                .setPersistenceRequired(!remove);
+        }
     }
 
     @Override
     public EntityEquipment getEquipment() {
+        // TODO: 26/11/2019 Implement MagmaEquipment
         return null;
     }
 
     @Override
     public void setCanPickupItems(boolean pickup) {
-
+        ((IBridgeLivingEntity) getHandle()).setCanPickUpLoot(pickup);
     }
 
     @Override
     public boolean getCanPickupItems() {
-        return false;
+        return ((IBridgeLivingEntity) getHandle()).getCanPickUpLoot();
     }
 
     @Override
     public boolean isLeashed() {
-        return false;
+        if (!(getHandle() instanceof MobEntity)) {
+            return false;
+        }
+        return ((MobEntity) getHandle()).getLeashHolder() != null;
     }
 
     @Override
     public Entity getLeashHolder() throws IllegalStateException {
-        return null;
+        if (!isLeashed()) {
+            throw new IllegalStateException("Entity not leashed");
+        }
+        return ((IBridgeEntity) ((MobEntity) getHandle()).getLeashHolder()).getBukkitEntity();
+    }
+
+    private boolean unleash() {
+        if (!isLeashed()) {
+            return false;
+        }
+        ((MobEntity) getHandle()).clearLeashed(true, false);
+        return true;
     }
 
     @Override
     public boolean setLeashHolder(Entity holder) {
-        return false;
+        if ((getHandle() instanceof WitherEntity) || !(getHandle() instanceof MobEntity)) {
+            return false;
+        }
+
+        if (holder == null) {
+            return unleash();
+        }
+
+        if (holder.isDead()) {
+            return false;
+        }
+
+        unleash();
+        ((MobEntity) getHandle()).setLeashHolder(((MagmaEntity) holder).getHandle(), true);
+        return true;
     }
 
     @Override
     public boolean isGliding() {
-        return false;
+        return ((IAccessorEntity) getHandle()).getFlag(7);
     }
 
     @Override
     public void setGliding(boolean gliding) {
-
+        ((IAccessorEntity) getHandle()).setFlag(7, gliding);
     }
 
     @Override
     public boolean isSwimming() {
-        return false;
+        return getHandle().isSwimming();
     }
 
     @Override
     public void setSwimming(boolean swimming) {
-
+        getHandle().setSwimming(swimming);
     }
 
     @Override
     public boolean isRiptiding() {
-        return false;
+        return getHandle().isSpinAttacking();
     }
 
     @Override
     public boolean isSleeping() {
-        return false;
+        return getHandle().isSleeping();
     }
 
     @Override
     public void setAI(boolean ai) {
-
+        if (getHandle() instanceof MobEntity) {
+            ((MobEntity) getHandle()).setNoAI(!ai);
+        }
     }
 
     @Override
     public boolean hasAI() {
-        return false;
+        return (getHandle() instanceof MobEntity) && ((MobEntity) getHandle()).isAIDisabled();
     }
 
     @Override
     public void setCollidable(boolean collidable) {
-
+        ((IBridgeLivingEntity) getHandle()).setCollides(collidable);
     }
 
     @Override
     public boolean isCollidable() {
-        return false;
+        return ((IBridgeLivingEntity) getHandle()).getCollides();
     }
 
     @Override
@@ -348,53 +392,86 @@ public class MagmaLivingEntity extends MagmaEntity implements LivingEntity {
 
     @Override
     public void damage(double amount) {
-
+        damage(amount, null);
     }
 
     @Override
-    public void damage(double amount, Entity source) {
+    public void damage(double amount, @Nullable Entity source) {
+        DamageSource damageSource = DamageSource.GENERIC;
 
+        if (source instanceof HumanEntity) {
+            damageSource = DamageSource.causePlayerDamage(((MagmaHumanEntity) source).getHandle());
+        } else if (source instanceof LivingEntity) {
+            damageSource = DamageSource.causeMobDamage(((MagmaLivingEntity) source).getHandle());
+        }
+
+        entity.attackEntityFrom(damageSource, (float) amount);
     }
 
     @Override
     public double getHealth() {
-        return 0;
+        return Math.min(Math.max(0, getHandle().getHealth()), getMaxHealth());
     }
 
     @Override
     public void setHealth(double health) {
+        health = (float) health;
+        if ((health < 0) || (health > getMaxHealth())) {
+            throw new IllegalArgumentException(
+                "Health must be between 0 and " + getMaxHealth() + ", but was " + health
+                    + ". (attribute base balue: " + getHandle().getAttribute(
+                    SharedMonsterAttributes.MAX_HEALTH).getBaseValue() + (
+                    this instanceof MagmaPlayer ? ", player:" + getName() + ')' : ')'));
+        }
 
+        // setHealth must be set before onDeath to respect events  that may prevent death.
+        getHandle().setHealth((float) health);
+
+        if (entity instanceof ServerPlayerEntity && health == 0) {
+            ((ServerPlayerEntity) entity).onDeath(DamageSource.GENERIC);
+        }
     }
 
     @Override
     public double getAbsorptionAmount() {
-        return 0;
+        return getHandle().getAbsorptionAmount();
     }
 
     @Override
     public void setAbsorptionAmount(double amount) {
-
+        Preconditions
+            .checkArgument(amount >= 0 && Double.isFinite(amount), "amount < 0 or non-finite");
+        getHandle().setAbsorptionAmount((float) amount);
     }
 
     @Override
     public double getMaxHealth() {
-        return 0;
+        return getHandle().getMaxHealth();
     }
 
     @Override
     public void setMaxHealth(double health) {
+        Validate.isTrue(health > 0, "Max health must be greater than 0");
 
+        getHandle().getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(health);
+
+        if (getHealth() > health) {
+            setHealth(health);
+        }
     }
 
     @Override
     public void resetMaxHealth() {
-
+        setHealth(getHandle().getAttribute(SharedMonsterAttributes.MAX_HEALTH).getAttribute()
+            .getDefaultValue());
     }
 
     @Override
     public EntityType getType() {
-        return null;
+        return EntityType.UNKNOWN;
     }
+
+//--------------------------------REMOVE---------------------------=======================//
 
     @Override
     public boolean isPermissionSet(String name) {
@@ -452,6 +529,8 @@ public class MagmaLivingEntity extends MagmaEntity implements LivingEntity {
         return null;
     }
 
+//----------------------------------------------------------------------=======================//
+
     @Override
     public PersistentDataContainer getPersistentDataContainer() {
         return null;
@@ -459,17 +538,18 @@ public class MagmaLivingEntity extends MagmaEntity implements LivingEntity {
 
     @Override
     public <T extends Projectile> T launchProjectile(Class<? extends T> projectile) {
-        return null;
+        return launchProjectile(projectile, null);
     }
 
     @Override
     public <T extends Projectile> T launchProjectile(Class<? extends T> projectile,
         Vector velocity) {
+        // TODO: 26/11/2019 Add Once MagmaWorld is done.
         return null;
     }
 
     @Override
-    public net.minecraft.entity.LivingEntity getEntity() {
+    public net.minecraft.entity.LivingEntity getHandle() {
         return (net.minecraft.entity.LivingEntity) entity;
     }
 }

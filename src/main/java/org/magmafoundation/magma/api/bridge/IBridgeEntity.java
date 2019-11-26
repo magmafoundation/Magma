@@ -24,4 +24,9 @@ public interface IBridgeEntity {
 
     void setMaxAirTicks(int ticks);
 
+    boolean getPersistenceRequired();
+
+    void setPersistenceRequired(boolean persistenceRequired);
+
+
 }

@@ -22,10 +22,6 @@ import org.bukkit.entity.Pose;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.NumberConversions;
@@ -50,7 +46,7 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
         this.entity = entity;
     }
 
-    public static MagmaEntity getEntity(MagmaServer server, Entity entity) {
+    public static MagmaEntity getHandle(MagmaServer server, Entity entity) {
         return null;
     }
 
@@ -87,17 +83,17 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public double getHeight() {
-        return getEntity().getHeight();
+        return getHandle().getHeight();
     }
 
     @Override
     public double getWidth() {
-        return getEntity().getWidth();
+        return getHandle().getWidth();
     }
 
     @Override
     public BoundingBox getBoundingBox() {
-        AxisAlignedBB bb = getEntity().getBoundingBox();
+        AxisAlignedBB bb = getHandle().getBoundingBox();
         return new BoundingBox(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ);
     }
 
@@ -229,7 +225,7 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
     @Override
     public org.bukkit.entity.Entity getPassenger() {
         return isEmpty() ? null
-            : ((IBridgeEntity) getEntity().getPassengers().get(0)).getBukkitEntity();
+            : ((IBridgeEntity) getHandle().getPassengers().get(0)).getBukkitEntity();
     }
 
     @Override
@@ -237,7 +233,7 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
         Preconditions.checkArgument(!this.equals(passenger), "Entity cannot ride itself.");
         if (passenger instanceof MagmaEntity) {
             eject();
-            return ((MagmaEntity) passenger).getEntity().startRiding(getEntity());
+            return ((MagmaEntity) passenger).getHandle().startRiding(getHandle());
         } else {
             return false;
         }
@@ -245,7 +241,7 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public List<org.bukkit.entity.Entity> getPassengers() {
-        return Lists.newArrayList(getEntity().getPassengers().stream()
+        return Lists.newArrayList(getHandle().getPassengers().stream()
             .map(entity -> ((IBridgeEntity) entity).getBukkitEntity())
             .collect(Collectors.toList()));
     }
@@ -253,19 +249,19 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
     @Override
     public boolean addPassenger(org.bukkit.entity.Entity passenger) {
         Preconditions.checkArgument(passenger != null, "passanger == null");
-        return ((MagmaEntity) passenger).getEntity().startRiding(getEntity(), true);
+        return ((MagmaEntity) passenger).getHandle().startRiding(getHandle(), true);
     }
 
     @Override
     public boolean removePassenger(org.bukkit.entity.Entity passenger) {
         Preconditions.checkArgument(passenger != null, "passenger == null");
-        ((MagmaEntity) passenger).getEntity().stopRiding();
+        ((MagmaEntity) passenger).getHandle().stopRiding();
         return true;
     }
 
     @Override
     public boolean isEmpty() {
-        return !getEntity().isBeingRidden();
+        return !getHandle().isBeingRidden();
     }
 
     @Override
@@ -274,18 +270,18 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
             return false;
         }
 
-        getEntity().removePassengers();
+        getHandle().removePassengers();
         return true;
     }
 
     @Override
     public float getFallDistance() {
-        return getEntity().fallDistance;
+        return getHandle().fallDistance;
     }
 
     @Override
     public void setFallDistance(float distance) {
-        getEntity().fallDistance = distance;
+        getHandle().fallDistance = distance;
     }
 
     @Override
@@ -300,12 +296,12 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public UUID getUniqueId() {
-        return getEntity().getUniqueID();
+        return getHandle().getUniqueID();
     }
 
     @Override
     public int getTicksLived() {
-        return getEntity().ticksExisted;
+        return getHandle().ticksExisted;
     }
 
     @Override
@@ -313,7 +309,7 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
         if (value <= 0) {
             throw new IllegalArgumentException("Age must be at least 1 tick");
         }
-        getEntity().ticksExisted = value;
+        getHandle().ticksExisted = value;
     }
 
     @Override
@@ -321,13 +317,13 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
         Preconditions.checkArgument(type != null, "type");
 
         if (type.getApplicable().isInstance(this)) {
-            this.getEntity().world.setEntityState(getEntity(), type.getData());
+            this.getHandle().world.setEntityState(getHandle(), type.getData());
         }
     }
 
     @Override
     public boolean isInsideVehicle() {
-        return getEntity().getRidingEntity() != null;
+        return getHandle().getRidingEntity() != null;
     }
 
     @Override
@@ -335,7 +331,7 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
         if (!isInsideVehicle()) {
             return false;
         }
-        getEntity().stopRiding();
+        getHandle().stopRiding();
         return true;
     }
 
@@ -345,12 +341,12 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
             return null;
         }
 
-        return ((IBridgeEntity) getEntity().getRidingEntity()).getBukkitEntity();
+        return ((IBridgeEntity) getHandle().getRidingEntity()).getBukkitEntity();
     }
 
     @Override
     public String getCustomName() {
-        ITextComponent name = getEntity().getCustomName();
+        ITextComponent name = getHandle().getCustomName();
 
         if (name == null) {
             return null;
@@ -366,18 +362,18 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public void setCustomNameVisible(boolean flag) {
-        getEntity().setCustomNameVisible(false);
+        getHandle().setCustomNameVisible(false);
     }
 
     @Override
     public boolean isCustomNameVisible() {
-        return getEntity().getAlwaysRenderNameTagForRender();
+        return getHandle().getAlwaysRenderNameTagForRender();
     }
 
     @Override
     public void setGlowing(boolean flag) {
-        getEntity().setGlowing(flag);
-        Entity e = getEntity();
+        getHandle().setGlowing(flag);
+        Entity e = getHandle();
         if (((IAccessorEntity) e).getFlag(6) != flag) {
             ((IAccessorEntity) e).setFlag(6, flag);
         }
@@ -385,67 +381,67 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public boolean isGlowing() {
-        return getEntity().isGlowing();
+        return getHandle().isGlowing();
     }
 
     @Override
     public void setInvulnerable(boolean flag) {
-        getEntity().setInvulnerable(flag);
+        getHandle().setInvulnerable(flag);
     }
 
     @Override
     public boolean isInvulnerable() {
-        return getEntity().isInvulnerableTo(DamageSource.GENERIC);
+        return getHandle().isInvulnerableTo(DamageSource.GENERIC);
     }
 
     @Override
     public boolean isSilent() {
-        return getEntity().isSilent();
+        return getHandle().isSilent();
     }
 
     @Override
     public void setSilent(boolean flag) {
-        getEntity().setSilent(flag);
+        getHandle().setSilent(flag);
     }
 
     @Override
     public boolean hasGravity() {
-        return !getEntity().hasNoGravity();
+        return !getHandle().hasNoGravity();
     }
 
     @Override
     public void setGravity(boolean gravity) {
-        getEntity().setNoGravity(!gravity);
+        getHandle().setNoGravity(!gravity);
     }
 
     @Override
     public int getPortalCooldown() {
-        return getEntity().timeUntilPortal;
+        return getHandle().timeUntilPortal;
     }
 
     @Override
     public void setPortalCooldown(int cooldown) {
-        getEntity().timeUntilPortal = cooldown;
+        getHandle().timeUntilPortal = cooldown;
     }
 
     @Override
     public Set<String> getScoreboardTags() {
-        return getEntity().getTags();
+        return getHandle().getTags();
     }
 
     @Override
     public boolean addScoreboardTag(String tag) {
-        return getEntity().addTag(tag);
+        return getHandle().addTag(tag);
     }
 
     @Override
     public boolean removeScoreboardTag(String tag) {
-        return getEntity().removeTag(tag);
+        return getHandle().removeTag(tag);
     }
 
     @Override
     public PistonMoveReaction getPistonMoveReaction() {
-        return PistonMoveReaction.getById(getEntity().getPushReaction().ordinal());
+        return PistonMoveReaction.getById(getHandle().getPushReaction().ordinal());
     }
 
     @Override
@@ -456,7 +452,7 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
 
     @Override
     public Pose getPose() {
-        return Pose.values()[getEntity().getPose().ordinal()];
+        return Pose.values()[getHandle().getPose().ordinal()];
     }
 
     @Override
@@ -488,7 +484,7 @@ public abstract class MagmaEntity implements org.bukkit.entity.Entity {
 
     }
 
-    public Entity getEntity() {
+    public Entity getHandle() {
         return entity;
     }
 

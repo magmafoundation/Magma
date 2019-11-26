@@ -20,4 +20,12 @@ public interface IBridgeLivingEntity {
 
     PlayerEntity getAttackingPlayer();
 
+    boolean getCanPickUpLoot();
+
+    void setCanPickUpLoot(boolean loot);
+
+    boolean getCollides();
+
+    void setCollides(boolean collidable);
+
 }
