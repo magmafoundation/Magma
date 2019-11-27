@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.api.core.inventory;
+package org.magmafoundation.magma.api.accessor.inventory;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
