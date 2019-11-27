@@ -21,6 +21,7 @@ import org.magmafoundation.magma.api.core.MagmaServer;
  */
 public class MagmaHumanEntity extends MagmaLivingEntity implements HumanEntity {
 
+
     public MagmaHumanEntity(MagmaServer server,
         net.minecraft.entity.Entity entity) {
         super(server, entity);

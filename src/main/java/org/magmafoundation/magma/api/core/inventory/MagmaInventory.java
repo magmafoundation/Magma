@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import net.minecraft.inventory.IInventory;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,7 +15,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.magmafoundation.magma.api.accessor.inventory.IMagmaInventory;
+import org.magmafoundation.magma.api.bridge.inventory.IBridgeIInventory;
 import org.magmafoundation.magma.api.core.util.MagmaLegacy;
 
 /**
@@ -25,13 +26,13 @@ import org.magmafoundation.magma.api.core.util.MagmaLegacy;
  */
 public class MagmaInventory implements Inventory {
 
-    protected final IMagmaInventory inventory;
+    protected final IInventory inventory;
 
-    public MagmaInventory(IMagmaInventory inventory) {
+    public MagmaInventory(IInventory inventory) {
         this.inventory = inventory;
     }
 
-    public IMagmaInventory getInventory() {
+    public IInventory getInventory() {
         return inventory;
     }
 
@@ -47,7 +48,7 @@ public class MagmaInventory implements Inventory {
 
     @Override
     public void setMaxStackSize(int size) {
-        getInventory().setMaxStackSize(size);
+        ((IBridgeIInventory) getInventory()).setMaxStackSize(size);
     }
 
     @Override
@@ -212,7 +213,7 @@ public class MagmaInventory implements Inventory {
 
     @Override
     public ItemStack[] getContents() {
-        return asCraftMirror(getInventory().getContents());
+        return asCraftMirror(((IBridgeIInventory) getInventory()).getContents());
     }
 
     @Override
@@ -413,7 +414,7 @@ public class MagmaInventory implements Inventory {
 
     @Override
     public List<HumanEntity> getViewers() {
-        return this.inventory.getViewers();
+        return ((IBridgeIInventory) this.inventory).getViewers();
     }
 
     @Override
@@ -423,7 +424,7 @@ public class MagmaInventory implements Inventory {
 
     @Override
     public InventoryHolder getHolder() {
-        return inventory.getOwner();
+        return ((IBridgeIInventory) inventory).getOwner();
     }
 
     @Override
@@ -441,7 +442,7 @@ public class MagmaInventory implements Inventory {
 
     @Override
     public Location getLocation() {
-        return inventory.getLocation();
+        return ((IBridgeIInventory) inventory).getLocation();
     }
 
     @Override

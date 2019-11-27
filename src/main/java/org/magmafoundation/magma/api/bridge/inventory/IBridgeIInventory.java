@@ -1,29 +1,31 @@
-package org.magmafoundation.magma.api.accessor.inventory;
+package org.magmafoundation.magma.api.bridge.inventory;
 
-import net.minecraft.inventory.IInventory;
+import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.inventory.InventoryHolder;
 import org.magmafoundation.magma.api.core.entity.MagmaHumanEntity;
 
 /**
- * IMagmaInventory
+ * IBridgeIInventory
  *
  * @author Hexeption admin@hexeption.co.uk
- * @since 26/11/2019 - 07:23 am
+ * @since 27/11/2019 - 06:18 am
  */
-public interface IMagmaInventory extends IInventory {
+public interface IBridgeIInventory {
 
     int MAX_STACK = 64;
 
-    java.util.List<ItemStack> getContents();
+    List<ItemStack> getContents();
 
     void onOpen(MagmaHumanEntity who);
 
     void onClose(MagmaHumanEntity who);
 
-    java.util.List<org.bukkit.entity.HumanEntity> getViewers();
+    List<HumanEntity> getViewers();
 
-    org.bukkit.inventory.InventoryHolder getOwner();
+    InventoryHolder getOwner();
 
     void setMaxStackSize(int size);
 
@@ -34,10 +36,5 @@ public interface IMagmaInventory extends IInventory {
     }
 
     default void setCurrentRecipe(IRecipe recipe) {
-    }
-
-    @Override
-    default int getInventoryStackLimit() {
-        return 0;
     }
 }
