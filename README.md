@@ -16,7 +16,7 @@ We hope to eliminate all issues with craftbukkit forge servers. In the end, we e
 
 ### Installation
 
-1. Download the recommended builds from the [**Releases** section](https://github.com/KettleFoundation/Kettle/releases)
+1. Download the recommended builds from the [**Releases** section](https://github.com/magmafoundation/Magma/releases)
    1. Download Beta builds from the [**CI**](https://ci.hexeption.co.uk/job/Magma-Main/job/master/)
 2. Make a new folder for the server
 3. Move the jar to the folder
