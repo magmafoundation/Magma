@@ -7,19 +7,37 @@ buildscript {
             name = 'SpongePowered'
             url = 'https://dist.creeper.host/Sponge/maven/'
         }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
         classpath "com.github.jengelman.gradle.plugins:shadow:5.1.0"
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath "org.ajoberstar.grgit:grgit-gradle:4.0.0"
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: "org.ajoberstar.grgit"
 
-version = modVersion
+
+version = gitVersion()
+
+def gitVersion() {
+    def raw = grgit.describe(longDescr: true, tags: true)
+    def desc = (raw == null ? 'unknown-offset-hash' : raw).split('-') as List
+    def hash = desc.remove(desc.size() - 1)
+    def offset = desc.remove(desc.size() - 1)
+    def tag = desc.join('-')
+    def branch = grgit.branch.current().name
+    project.ext.SPEC_VERSION = tag
+    return "${tag}.${offset}${t -> if (branch != 'master') t << '-' + branch}"
+}
+
 group = modGroup
 archivesBaseName = modBaseName
 
