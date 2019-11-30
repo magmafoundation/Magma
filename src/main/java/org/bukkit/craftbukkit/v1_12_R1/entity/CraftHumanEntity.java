@@ -205,7 +205,7 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
     }
 
     public InventoryView getOpenInventory() {
-        return getHandle().inventoryContainer.getBukkitView();
+        return getHandle().openContainer.getBukkitView(); // Magma - Fixes #29
     }
 
     public InventoryView openInventory(Inventory inventory) {

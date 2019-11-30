@@ -85,7 +85,29 @@
              this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockType(), false);
  
              if (this.getChestType() == BlockChest.Type.TRAP)
-@@ -356,7 +394,7 @@
+@@ -340,14 +378,21 @@
+     {
+         if (!player.isSpectator() && this.getBlockType() instanceof BlockChest)
+         {
++            int oldPower = Math.max(0, Math.min(15, this.numPlayersUsing)); // CraftBukkit - Get power before new viewer is added
+             --this.numPlayersUsing;
+             this.world.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing);
+             this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockType(), false);
+ 
++            // CraftBukkit start - Call redstone event
+             if (this.getChestType() == BlockChest.Type.TRAP)
+             {
++                int newPower = Math.max(0, Math.min(15, this.numPlayersUsing));
++                if (oldPower != newPower) {
++                    org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory.callRedstoneChange(world, pos.getX(), pos.getY(), pos.getZ(), oldPower, newPower);
++                }
+                 this.world.notifyNeighborsOfStateChange(this.pos.down(), this.getBlockType(), false);
+             }
++            // CraftBukkit end
+         }
+     }
+ 
+@@ -356,7 +401,7 @@
      @SuppressWarnings("unchecked")
      @Override
      @Nullable
