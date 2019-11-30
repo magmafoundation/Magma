@@ -3,6 +3,7 @@ package org.magmafoundation.magma.api.core.entity;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Set;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
@@ -27,8 +28,7 @@ import org.magmafoundation.magma.api.core.MagmaServer;
  */
 public class MagmaPlayer extends MagmaHumanEntity implements Player {
 
-    public MagmaPlayer(MagmaServer server,
-        net.minecraft.entity.Entity entity) {
+    public MagmaPlayer(MagmaServer server, PlayerEntity entity) {
         super(server, entity);
     }
 

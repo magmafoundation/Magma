@@ -2,6 +2,7 @@ package org.magmafoundation.magma.api.core.entity;
 
 import java.util.Collection;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.HandSide;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,6 +13,8 @@ import org.bukkit.entity.Villager;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.InventoryView.Property;
 import org.magmafoundation.magma.api.core.MagmaServer;
+import org.magmafoundation.magma.api.core.inventory.MagmaInventory;
+import org.magmafoundation.magma.api.core.inventory.MagmaPlayerInventory;
 
 /**
  * MagmaHumanEntity
@@ -21,25 +24,34 @@ import org.magmafoundation.magma.api.core.MagmaServer;
  */
 public class MagmaHumanEntity extends MagmaLivingEntity implements HumanEntity {
 
+    private MagmaPlayerInventory inventory;
+    private final MagmaInventory enderChest;
+    private GameMode gameMode;
+
+    // TODO: 27/11/2019 Add Permissions & Op
+
 
     public MagmaHumanEntity(MagmaServer server,
-        net.minecraft.entity.Entity entity) {
+        PlayerEntity entity) {
         super(server, entity);
+        gameMode = server.getDefaultGameMode();
+        this.inventory = new MagmaPlayerInventory(entity.inventory);
+        enderChest = new MagmaInventory(entity.getInventoryEnderChest());
     }
 
     @Override
     public PlayerInventory getInventory() {
-        return null;
+        return inventory;
     }
 
     @Override
     public Inventory getEnderChest() {
-        return null;
+        return enderChest;
     }
 
     @Override
     public MainHand getMainHand() {
-        return null;
+        return getHandle().getPrimaryHand() == HandSide.LEFT ? MainHand.LEFT : MainHand.RIGHT;
     }
 
     @Override
