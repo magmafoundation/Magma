@@ -8,6 +8,7 @@ import net.minecraft.inventory.container.PlayerContainer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.InventoryView;
 import org.magmafoundation.magma.api.bridge.entity.IBridgeEntity;
+import org.magmafoundation.magma.api.bridge.entity.IBridgePlayerEntity;
 import org.magmafoundation.magma.api.bridge.inventory.IBridgeCraftingInventorty;
 import org.magmafoundation.magma.api.bridge.inventory.container.IBridgePlayerContainer;
 import org.magmafoundation.magma.api.core.inventory.MagmaInventoryCrafting;
@@ -66,9 +67,9 @@ public class MixinPlayerContainer extends MixinContainer implements IBridgePlaye
         MagmaInventoryCrafting inventoryCrafting = new MagmaInventoryCrafting(this.field_75181_e,
             this.field_75179_f);
         bukkitEntity = new MagmaInventoryView((PlayerContainer) (Object) this,
-            (HumanEntity) ((IBridgeEntity) this.playerInventory.player).getBukkitEntity(),
+             ((IBridgePlayerEntity) this.playerInventory.player).getBukkitEntity(),
             inventoryCrafting
-        ); // TODO: 30/11/2019 Add IBridgeHumanEntity
+        );
 
         return bukkitEntity;
     }

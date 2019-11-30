@@ -1,6 +1,7 @@
 package org.magmafoundation.magma.api.mixin.entity;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
 import org.bukkit.Bukkit;
 import org.magmafoundation.magma.api.bridge.entity.IBridgeEntity;
 import org.magmafoundation.magma.api.core.MagmaServer;
@@ -23,6 +24,7 @@ public class MixinEntity implements IBridgeEntity {
     @Shadow
     private int fire;
 
+    @Shadow public World world;
     protected MagmaEntity magmaEntity;
     public boolean valid;
 

@@ -8,7 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
  * @author Hexeption admin@hexeption.co.uk
  * @since 25/11/2019 - 05:03 pm
  */
-public interface IBridgeLivingEntity {
+public interface IBridgeLivingEntity extends IBridgeEntity {
 
     int getMaxHurtResistantTime();
 
