@@ -145,7 +145,7 @@ public class CraftPlayerProfile implements PlayerProfile {
         if (profile.isComplete()) {
             return true;
         }
-        MinecraftServer server = MinecraftServer.getServerCB();
+        MinecraftServer server = MinecraftServer.getServerInstance();
         String name = profile.getName();
         PlayerProfileCache userCache = server.getPlayerProfileCache();
         if (profile.getId() == null) {
@@ -174,7 +174,7 @@ public class CraftPlayerProfile implements PlayerProfile {
 
     @Override
     public boolean complete(boolean textures) {
-        MinecraftServer server = MinecraftServer.getServerCB();
+        MinecraftServer server = MinecraftServer.getServerInstance();
 
         boolean isOnlineMode = server.isServerInOnlineMode() || (SpigotConfig.bungee);
         boolean isCompleteFromCache = this.completeFromCache(true);
