@@ -1,10 +1,15 @@
 --- ../src-base/minecraft/net/minecraftforge/registries/GameData.java
 +++ ../src-work/minecraft/net/minecraftforge/registries/GameData.java
-@@ -495,6 +495,7 @@
+@@ -495,6 +495,12 @@
      {
          RegistryNamespaced<ResourceLocation, EntityEntry> reg = getWrapper(EntityEntry.class);
          reg.register(id, key, new EntityEntry(clazz, oldName));
 +        EntityList.REGISTRY.register(id, key, clazz);
++        // Magma SilkSpawners Compatibility
++        while (EntityList.OLD_NAMES.size() <= id){
++            EntityList.OLD_NAMES.add(null);
++        }
++        EntityList.OLD_NAMES.set(id, oldName);
      }
  
      private static class EntityCallbacks implements IForgeRegistry.AddCallback<EntityEntry>, IForgeRegistry.ClearCallback<EntityEntry>, IForgeRegistry.CreateCallback<EntityEntry>
