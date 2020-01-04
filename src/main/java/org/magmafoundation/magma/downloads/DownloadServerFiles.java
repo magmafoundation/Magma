@@ -2,10 +2,13 @@ package org.magmafoundation.magma.downloads;
 
 import java.io.*;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.magmafoundation.magma.Magma;
+import org.magmafoundation.magma.configuration.MagmaConfig;
 
 /**
  * DownloadServerFiles
@@ -44,7 +47,8 @@ public class DownloadServerFiles {
     String downloadLink = "https://raw.githubusercontent.com/MagmaFoundation/Magma/master/release/libraries.zip";
 
     File minecraftlibraries = new File(fileName);
-    if (!minecraftlibraries.exists() && !minecraftlibraries.isDirectory()) {
+    if (!minecraftlibraries.exists() && !minecraftlibraries.isDirectory()
+        || getLibrariesVersion()) {
       System.out.println("Downloading Server Libraries ...");
       try {
         URL website = new URL(downloadLink);
@@ -58,6 +62,33 @@ public class DownloadServerFiles {
       }
     }
   }
+
+
+  /**
+   * Checks if the current libraries are up to date with the project if they are not they will
+   * re-download latest versions.
+   *
+   * @return True/False depending on whether the version are the same
+   */
+  public static boolean getLibrariesVersion() {
+    String s = Magma.getLibraryVersion();
+    String path = DownloadServerFiles.class.getProtectionDomain().getCodeSource().getLocation()
+        .getFile();
+    try {
+      path = URLDecoder.decode(path, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    File jarDir = new File(path);
+    File lib = new File(jarDir.getParent() + "/libraries.version");
+    if (!lib.exists()) {
+      return true;
+    }
+
+    String i = MagmaConfig.getString(lib, "version:", Magma.getLibraryVersion());
+    return !i.equals(s);
+  }
+
 
   /**
    * Extract files and folders in a zip file.

@@ -1,7 +1,12 @@
 package org.magmafoundation.magma.configuration;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.logging.Level;
 import net.minecraft.server.MinecraftServer;
-import org.bukkit.Bukkit;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.magmafoundation.magma.Metrics;
 import org.magmafoundation.magma.commands.MagmaCommand;
@@ -9,11 +14,6 @@ import org.magmafoundation.magma.commands.VersionCommand;
 import org.magmafoundation.magma.configuration.value.Value;
 import org.magmafoundation.magma.configuration.value.values.BooleanValue;
 import org.magmafoundation.magma.configuration.value.values.IntValue;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.logging.Level;
 
 /**
  * MagmaConfig
@@ -94,8 +94,35 @@ public class MagmaConfig extends ConfigBase {
 
             this.save();
         } catch (Exception ex) {
-            MinecraftServer.getServerInstance().server.getLogger().log(Level.SEVERE, "Could not load " + this.configFile);
+            MinecraftServer.getServerInstance().server.getLogger()
+                .log(Level.SEVERE, "Could not load " + this.configFile);
             ex.printStackTrace();
         }
+    }
+
+
+    public static String getString(String s, String key, String defaultreturn) {
+        if (s.contains(key)) {
+            String string = s.substring(s.indexOf(key));
+            String s1 = (string.substring(string.indexOf(": ") + 2));
+            String[] ss = s1.split("\n");
+            return ss[0].trim().replace("'", "").replace("\"", "");
+        }
+        return defaultreturn;
+    }
+
+    public static String getString(File f, String key, String defaultreturn) {
+        try {
+            String s = FileUtils.readFileToString(f, "UTF-8");
+            if (s.contains(key)) {
+                String string = s.substring(s.indexOf(key));
+                String s1 = (string.substring(string.indexOf(": ") + 2));
+                String[] ss = s1.split("\n");
+                return ss[0].trim().replace("'", "").replace("\"", "");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return defaultreturn;
     }
 }
