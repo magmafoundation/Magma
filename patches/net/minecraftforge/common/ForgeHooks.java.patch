@@ -1,7 +1,41 @@
 --- ../src-base/minecraft/net/minecraftforge/common/ForgeHooks.java
 +++ ../src-work/minecraft/net/minecraftforge/common/ForgeHooks.java
-@@ -44,9 +44,7 @@
+@@ -19,34 +19,26 @@
  
+ package net.minecraftforge.common;
+ 
++import com.google.common.collect.Lists;
++import com.google.common.collect.Queues;
++import com.google.common.collect.Sets;
++import com.google.gson.Gson;
++import com.google.gson.JsonObject;
++import com.google.gson.JsonParseException;
+ import java.io.BufferedReader;
+ import java.io.IOException;
+ import java.net.URI;
+ import java.net.URISyntaxException;
+ import java.nio.file.Files;
+-import java.util.ArrayList;
+-import java.util.Deque;
+-import java.util.HashSet;
+-import java.util.List;
+-import java.util.Map;
+-import java.util.Random;
+-import java.util.Set;
++import java.util.*;
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
+ import java.util.stream.Collectors;
+-
+-import com.google.common.collect.Lists;
+-import com.google.common.collect.Queues;
+-import com.google.common.collect.Sets;
+-import com.google.gson.Gson;
+-import com.google.gson.JsonObject;
+-import com.google.gson.JsonParseException;
+-
++import javax.annotation.Nonnull;
++import javax.annotation.Nullable;
  import net.minecraft.advancements.Advancement;
  import net.minecraft.advancements.AdvancementManager;
 -import net.minecraft.block.Block;
@@ -11,7 +45,7 @@
  import net.minecraft.block.material.Material;
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.client.Minecraft;
-@@ -66,16 +64,7 @@
+@@ -66,16 +58,7 @@
  import net.minecraft.inventory.ContainerRepair;
  import net.minecraft.inventory.IInventory;
  import net.minecraft.inventory.InventoryCrafting;
@@ -29,15 +63,41 @@
  import net.minecraft.item.crafting.IRecipe;
  import net.minecraft.nbt.NBTTagCompound;
  import net.minecraft.nbt.NBTTagList;
-@@ -90,6 +79,7 @@
+@@ -90,28 +73,17 @@
  import net.minecraft.stats.StatList;
  import net.minecraft.tileentity.TileEntity;
  import net.minecraft.tileentity.TileEntityNote;
+-import net.minecraft.util.DamageSource;
+-import net.minecraft.util.EnumActionResult;
+-import net.minecraft.util.EnumFacing;
+-import net.minecraft.util.EnumHand;
+-import net.minecraft.util.IntIdentityHashBiMap;
+-import net.minecraft.util.JsonUtils;
+-import net.minecraft.util.NonNullList;
+-import net.minecraft.util.ResourceLocation;
+-import net.minecraft.util.WeightedRandom;
+-import net.minecraft.util.math.AxisAlignedBB;
+-import net.minecraft.util.math.BlockPos;
+-import net.minecraft.util.math.MathHelper;
+-import net.minecraft.util.math.RayTraceResult;
+-import net.minecraft.util.math.Vec3d;
 +import net.minecraft.tileentity.TileEntitySkull;
- import net.minecraft.util.DamageSource;
- import net.minecraft.util.EnumActionResult;
- import net.minecraft.util.EnumFacing;
-@@ -119,6 +109,7 @@
++import net.minecraft.util.*;
++import net.minecraft.util.math.*;
+ import net.minecraft.util.text.ITextComponent;
+ import net.minecraft.util.text.TextComponentString;
+ import net.minecraft.util.text.TextFormatting;
+ import net.minecraft.util.text.event.ClickEvent;
+-import net.minecraft.world.IBlockAccess;
+-import net.minecraft.world.World;
+ import net.minecraft.world.EnumDifficulty;
+ import net.minecraft.world.GameType;
++import net.minecraft.world.IBlockAccess;
++import net.minecraft.world.World;
+ import net.minecraft.world.storage.loot.LootEntry;
+ import net.minecraft.world.storage.loot.LootTable;
+ import net.minecraft.world.storage.loot.LootTableManager;
+@@ -119,52 +91,34 @@
  import net.minecraftforge.common.crafting.CraftingHelper;
  import net.minecraftforge.common.crafting.JsonContext;
  import net.minecraftforge.common.util.BlockSnapshot;
@@ -45,15 +105,63 @@
  import net.minecraftforge.event.AnvilUpdateEvent;
  import net.minecraftforge.event.DifficultyChangeEvent;
  import net.minecraftforge.event.ForgeEventFactory;
-@@ -165,6 +156,7 @@
- 
+ import net.minecraftforge.event.ServerChatEvent;
+ import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+ import net.minecraftforge.event.entity.item.ItemTossEvent;
+-import net.minecraftforge.event.entity.living.LivingAttackEvent;
+-import net.minecraftforge.event.entity.living.LivingDamageEvent;
+-import net.minecraftforge.event.entity.living.LivingDeathEvent;
+-import net.minecraftforge.event.entity.living.LivingDropsEvent;
++import net.minecraftforge.event.entity.living.*;
+ import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
+ import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+-import net.minecraftforge.event.entity.living.LivingFallEvent;
+-import net.minecraftforge.event.entity.living.LivingHurtEvent;
+-import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
+-import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
+-import net.minecraftforge.event.entity.living.LootingLevelEvent;
+-import net.minecraftforge.event.entity.player.AnvilRepairEvent;
+-import net.minecraftforge.event.entity.player.AttackEntityEvent;
+-import net.minecraftforge.event.entity.player.CriticalHitEvent;
+-import net.minecraftforge.event.entity.player.PlayerEvent;
+-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+-import net.minecraftforge.event.entity.player.AdvancementEvent;
++import net.minecraftforge.event.entity.player.*;
+ import net.minecraftforge.event.world.BlockEvent;
+ import net.minecraftforge.event.world.NoteBlockEvent;
+ import net.minecraftforge.fluids.IFluidBlock;
+-import net.minecraftforge.fml.common.FMLLog;
+-import net.minecraftforge.fml.common.Loader;
+-import net.minecraftforge.fml.common.LoaderState;
+-import net.minecraftforge.fml.common.ModContainer;
+-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
++import net.minecraftforge.fml.common.*;
+ import net.minecraftforge.fml.common.eventhandler.Event;
+ import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
+ import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher.ConnectionType;
+ import net.minecraftforge.fml.common.registry.ForgeRegistries;
+-import net.minecraftforge.registries.DataSerializerEntry;
+-import net.minecraftforge.registries.ForgeRegistry;
+-import net.minecraftforge.registries.GameData;
+-import net.minecraftforge.registries.IForgeRegistry;
+-import net.minecraftforge.registries.RegistryManager;
+-
+-import javax.annotation.Nonnull;
+-import javax.annotation.Nullable;
+-
++import net.minecraftforge.registries.*;
  import org.apache.commons.io.FilenameUtils;
  import org.apache.commons.io.IOUtils;
-+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
++import org.bukkit.Location;
++import org.bukkit.TreeType;
++import org.bukkit.block.BlockState;
++import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlockState;
++import org.bukkit.entity.Player;
++import org.bukkit.event.world.StructureGrowEvent;
  
  public class ForgeHooks
  {
-@@ -451,7 +443,7 @@
+@@ -451,7 +405,7 @@
                  }
                  else
                  {
@@ -62,7 +170,7 @@
  
                      if (resourcelocation == null || !EntityList.ENTITY_EGGS.containsKey(resourcelocation))
                      {
-@@ -473,7 +465,7 @@
+@@ -473,7 +427,7 @@
                  }
                  else if (this.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY)
                  {
@@ -71,7 +179,7 @@
                  }
  
                  LOGGER.warn("Picking on: [{}] {} gave null item", new Object[] {this.objectMouseOver.typeOfHit, s});
-@@ -817,27 +809,8 @@
+@@ -817,27 +771,8 @@
  
      public static int onBlockBreakEvent(World world, GameType gameType, EntityPlayerMP entityPlayer, BlockPos pos)
      {
@@ -100,7 +208,7 @@
          {
              SPacketBlockChange packet = new SPacketBlockChange(world, pos);
              packet.blockState = Blocks.AIR.getDefaultState();
-@@ -847,11 +820,11 @@
+@@ -847,11 +782,11 @@
          // Post the block break event
          IBlockState state = world.getBlockState(pos);
          BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, entityPlayer);
@@ -114,7 +222,7 @@
          {
              // Let the client know the block still exists
              entityPlayer.connection.sendPacket(new SPacketBlockChange(world, pos));
-@@ -866,6 +839,11 @@
+@@ -866,6 +801,11 @@
                      entityPlayer.connection.sendPacket(pkt);
                  }
              }
@@ -126,17 +234,142 @@
          }
          return event.isCanceled() ? -1 : event.getExpToDrop();
      }
-@@ -930,6 +908,7 @@
+@@ -875,74 +815,101 @@
+         // handle all placement events here
+         int meta = itemstack.getItemDamage();
+         int size = itemstack.getCount();
++        int data = itemstack.getMetadata();
+         NBTTagCompound nbt = null;
+-        if (itemstack.getTagCompound() != null)
+-        {
++        if (itemstack.getTagCompound() != null) {
+             nbt = itemstack.getTagCompound().copy();
+         }
+ 
+         if (!(itemstack.getItem() instanceof ItemBucket)) // if not bucket
+         {
+             world.captureBlockSnapshots = true;
++            // Magma start
++            if (itemstack.getItem() instanceof ItemDye && itemstack.getMetadata() == 15) {
++                Block block = world.getBlockState(pos).getBlock();
++                if (block == Blocks.SAPLING || block instanceof BlockMushroom) {
++                    world.captureTreeGeneration = true;
++                }
++            }
++            // Magma end
+         }
+ 
+         EnumActionResult ret = itemstack.getItem().onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ);
+         world.captureBlockSnapshots = false;
++        List<BlockState> blocks = ((List<BlockSnapshot>) world.capturedBlockSnapshots.clone()).stream().map(CraftBlockState::new).collect(Collectors.toList());
+ 
+-        if (ret == EnumActionResult.SUCCESS)
+-        {
++        int newCount = itemstack.getCount();
++        if (ret == EnumActionResult.SUCCESS && world.captureTreeGeneration && world.capturedBlockSnapshots.size() > 0) {
++            world.captureTreeGeneration = false;
++            Location location = new Location(world.getWorld(), pos.getX(), pos.getY(), pos.getZ());
++            TreeType treeType = BlockSapling.treeType;
++            BlockSapling.treeType = null;
++            world.capturedBlockSnapshots.clear();
++            StructureGrowEvent event = null;
++            if (treeType != null) {
++                boolean isBonemeal = itemstack.getItem() == Items.DYE && data == 15;
++                event = new StructureGrowEvent(location, treeType, isBonemeal, (Player) player.getBukkitEntity(), blocks);
++                org.bukkit.Bukkit.getPluginManager().callEvent(event);
++            }
++            if (event == null || !event.isCancelled()) {
++                if (itemstack.getCount() == size && itemstack.getMetadata() == data) {
++                    itemstack.setCount(newCount);
++                }
++                blocks.forEach(blockstate -> blockstate.update(true));
++            }
++            return ret;
++        }
++        world.captureTreeGeneration = false;
++
++        if (ret == EnumActionResult.SUCCESS) {
+             // save new item data
+             int newMeta = itemstack.getItemDamage();
+             int newSize = itemstack.getCount();
+             NBTTagCompound newNBT = null;
+-            if (itemstack.getTagCompound() != null)
+-            {
++            if (itemstack.getTagCompound() != null) {
+                 newNBT = itemstack.getTagCompound().copy();
+             }
++            org.bukkit.event.block.BlockPlaceEvent blockPlaceEvent = null;
+             BlockEvent.PlaceEvent placeEvent = null;
+             @SuppressWarnings("unchecked")
+-            List<BlockSnapshot> blockSnapshots = (List<BlockSnapshot>)world.capturedBlockSnapshots.clone();
++            List<BlockSnapshot> blockSnapshots = (List<BlockSnapshot>) world.capturedBlockSnapshots.clone();
+             world.capturedBlockSnapshots.clear();
+ 
+             // make sure to set pre-placement item data for event
+             itemstack.setItemDamage(meta);
+             itemstack.setCount(size);
+-            if (nbt != null)
+-            {
++            if (nbt != null) {
+                 itemstack.setTagCompound(nbt);
+             }
+-            if (blockSnapshots.size() > 1)
+-            {
++            if (blockSnapshots.size() > 1) {
++                blockPlaceEvent = org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory
++                    .callBlockMultiPlaceEvent(world, player, hand, toBlockStates(world, blockSnapshots), pos.getX(), pos.getY(), pos.getZ());
+                 placeEvent = ForgeEventFactory.onPlayerMultiBlockPlace(player, blockSnapshots, side, hand);
+-            }
+-            else if (blockSnapshots.size() == 1)
+-            {
++            } else if (blockSnapshots.size() == 1) {
++                // Call both Bukkit's BlockPlaceEvent and Forge's
++                blockPlaceEvent = org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory
++                    .callBlockPlaceEvent(world, player, hand, toBlockState(world, blockSnapshots.get(0)), pos.getX(), pos.getY(), pos.getZ());
+                 placeEvent = ForgeEventFactory.onPlayerBlockPlace(player, blockSnapshots.get(0), side, hand);
+             }
+ 
+-            if (placeEvent != null && placeEvent.isCanceled())
+-            {
++            if (placeEvent != null && placeEvent.isCanceled() || (blockPlaceEvent != null && (blockPlaceEvent.isCancelled() || !blockPlaceEvent.canBuild()))) {
+                 ret = EnumActionResult.FAIL; // cancel placement
++                blockPlaceEvent.getPlayer().updateInventory();
+                 // revert back all captured blocks
+-                for (BlockSnapshot blocksnapshot : Lists.reverse(blockSnapshots))
+-                {
++                Lists.reverse(blockSnapshots).forEach(blocksnapshot -> {
+                     world.restoringBlockSnapshots = true;
                      blocksnapshot.restore(true, false);
                      world.restoringBlockSnapshots = false;
+-                }
+-            }
+-            else
+-            {
++                });
++            } else {
+                 // Change the stack to its new content
+                 itemstack.setItemDamage(newMeta);
+                 itemstack.setCount(newSize);
+-                if (nbt != null)
+-                {
++                if (nbt != null) {
+                     itemstack.setTagCompound(newNBT);
                  }
-+				((CraftPlayer) player.getBukkitEntity()).updateInventory();
-             }
-             else
-             {
-@@ -954,6 +933,29 @@
+ 
+-                for (BlockSnapshot snap : blockSnapshots)
+-                {
++                blockSnapshots.forEach(snap -> {
+                     int updateFlag = snap.getFlag();
+                     IBlockState oldBlock = snap.getReplacedBlock();
+                     IBlockState newBlock = world.getBlockState(snap.getPos());
+@@ -950,10 +917,32 @@
+                     {
+                         newBlock.getBlock().onBlockAdded(world, snap.getPos(), newBlock);
+                     }
+-
                      world.markAndNotifyBlock(snap.getPos(), null, oldBlock, newBlock, updateFlag);
-                 }
+-                }
++                });
                  player.addStat(StatList.getObjectUseStats(itemstack.getItem()));
 +                if (itemstack.item instanceof ItemRecord) {
 +                    ((BlockJukebox) Blocks.JUKEBOX).insertRecord(world, pos, world.getBlockState(pos), itemstack);
@@ -164,7 +397,24 @@
              }
          }
          world.capturedBlockSnapshots.clear();
-@@ -993,7 +995,7 @@
+@@ -961,6 +950,16 @@
+         return ret;
+     }
+ 
++    private static BlockState toBlockState(World world, BlockSnapshot blockSnapshot) {
++        return new CraftBlockState(world.getWorld().getBlockAt(blockSnapshot.getPos().getX(), blockSnapshot.getPos().getY(), blockSnapshot.getPos().getZ()), blockSnapshot.getFlag());
++    }
++
++    public static List<BlockState> toBlockStates(World world, List<BlockSnapshot> blockSnapshots) {
++        return blockSnapshots.stream().map(
++            blockSnapshot -> new CraftBlockState(world.getWorld().getBlockAt(blockSnapshot.getPos().getX(), blockSnapshot.getPos().getY(), blockSnapshot.getPos().getZ()), blockSnapshot.getFlag()))
++            .collect(Collectors.toCollection(() -> new ArrayList<>(blockSnapshots.size())));
++    }
++
+     public static boolean onAnvilChange(ContainerRepair container, @Nonnull ItemStack left, @Nonnull ItemStack right, IInventory outputSlot, String name, int baseCost)
+     {
+         AnvilUpdateEvent e = new AnvilUpdateEvent(left, right, name, baseCost);
+@@ -993,7 +992,7 @@
      }
  
      /**
