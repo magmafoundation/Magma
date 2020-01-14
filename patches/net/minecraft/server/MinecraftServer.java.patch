@@ -1948,7 +1948,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1437,212 @@
+@@ -1347,316 +1437,219 @@
          return null;
      }
  
@@ -1971,6 +1971,13 @@
 +    public static MinecraftServer getServerInstance() {
 +         return instance;
 +    }
++
++    // Magma NMS
++    @Deprecated
++    public static MinecraftServer getServerInst() {
++        return instance;
++    }
++
 +
 +    @Nullable
 +    @Deprecated
