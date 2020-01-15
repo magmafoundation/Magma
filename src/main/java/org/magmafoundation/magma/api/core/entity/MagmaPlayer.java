@@ -1,14 +1,17 @@
 package org.magmafoundation.magma.api.core.entity;
 
-import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.Set;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.play.server.SSpawnPositionPacket;
+import net.minecraft.server.management.WhitelistEntry;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.entity.Entity;
@@ -18,7 +21,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.Scoreboard;
+import org.magmafoundation.magma.api.bridge.entity.player.IBridgeServerPlayerEntity;
+import org.magmafoundation.magma.api.core.MagmaOfflinePlayer;
 import org.magmafoundation.magma.api.core.MagmaServer;
+
+import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * MagmaPlayer
@@ -26,69 +35,83 @@ import org.magmafoundation.magma.api.core.MagmaServer;
  * @author Hexeption admin@hexeption.co.uk
  * @since 24/11/2019 - 08:11 pm
  */
+@DelegateDeserialization(MagmaOfflinePlayer.class)
 public class MagmaPlayer extends MagmaHumanEntity implements Player {
 
-    public MagmaPlayer(MagmaServer server, PlayerEntity entity) {
+    private ITextComponent tabListHeader;
+    private ITextComponent tabListFooter;
+
+    private Location compassTarget;
+
+    public MagmaPlayer(MagmaServer server, ServerPlayerEntity entity) {
         super(server, entity);
     }
 
     @Override
     public String getDisplayName() {
-        return null;
+        return ((IBridgeServerPlayerEntity) getHandle()).getDisplayName().getFormattedText();
     }
 
     @Override
     public void setDisplayName(String name) {
-
+        ((IBridgeServerPlayerEntity) getHandle()).setDisplayName(new StringTextComponent((name)));
     }
 
     @Override
     public String getPlayerListName() {
-        return null;
+        return ((IBridgeServerPlayerEntity) getHandle()).getTabListDisplayName().getFormattedText();
     }
 
     @Override
     public void setPlayerListName(String name) {
-
+        ((IBridgeServerPlayerEntity) getHandle()).setTabListDisplayName(new StringTextComponent(name));
     }
 
     @Override
     public String getPlayerListHeader() {
-        return null;
+        return tabListHeader == null ? null : tabListHeader.getFormattedText();
     }
 
     @Override
     public String getPlayerListFooter() {
-        return null;
+        return tabListFooter == null ? null : tabListFooter.getFormattedText();
     }
 
     @Override
     public void setPlayerListHeader(String header) {
-
+        this.tabListHeader = new StringTextComponent(header);
     }
 
     @Override
     public void setPlayerListFooter(String footer) {
-
+        this.tabListFooter = new StringTextComponent(footer);
     }
 
     @Override
     public void setPlayerListHeaderFooter(String header, String footer) {
-
+        this.tabListHeader = new StringTextComponent(header);
+        this.tabListFooter = new StringTextComponent(footer);
     }
 
     @Override
-    public void setCompassTarget(Location loc) {
+    public void setCompassTarget(Location compassTarget) {
+        this.compassTarget = compassTarget;
 
+        getHandle().connection.sendPacket(new SSpawnPositionPacket(new BlockPos(compassTarget.getBlockX(), compassTarget.getBlockY(), compassTarget.getBlockZ())));
     }
 
     @Override
     public Location getCompassTarget() {
-        return null;
+        return compassTarget == null ? getWorld().getSpawnLocation() : compassTarget;
     }
 
     @Override
     public InetSocketAddress getAddress() {
+        if (getHandle().connection == null)
+            return null;
+
+        if (getHandle().connection.netManager.getRemoteAddress() instanceof InetSocketAddress)
+            return (InetSocketAddress) getHandle().connection.netManager.getRemoteAddress();
         return null;
     }
 
@@ -139,22 +162,22 @@ public class MagmaPlayer extends MagmaHumanEntity implements Player {
 
     @Override
     public boolean isSneaking() {
-        return false;
+        return getHandle().isSneaking();
     }
 
     @Override
     public void setSneaking(boolean sneak) {
-
+        getHandle().setSneaking(sneak);
     }
 
     @Override
     public boolean isSprinting() {
-        return false;
+        return getHandle().isSprinting();
     }
 
     @Override
     public void setSprinting(boolean sprinting) {
-
+        getHandle().setSprinting(sprinting);
     }
 
     @Override
@@ -739,22 +762,22 @@ public class MagmaPlayer extends MagmaHumanEntity implements Player {
 
     @Override
     public boolean isBanned() {
-        return false;
+        return this.server.getBanList(BanList.Type.NAME).isBanned(getName());
     }
 
     @Override
     public boolean isWhitelisted() {
-        return false;
+        return this.server.getDedicatedPlayerList().getWhitelistedPlayers().isWhitelisted(getHandle().getGameProfile());
     }
 
     @Override
     public void setWhitelisted(boolean value) {
-
+        this.server.getDedicatedPlayerList().getWhitelistedPlayers().addEntry(new WhitelistEntry(getHandle().getGameProfile()));
     }
 
     @Override
     public Player getPlayer() {
-        return null;
+        return this;
     }
 
     @Override

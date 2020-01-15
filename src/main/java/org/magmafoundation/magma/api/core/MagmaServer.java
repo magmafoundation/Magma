@@ -11,6 +11,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedPlayerList;
@@ -43,8 +45,10 @@ import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.CachedServerIcon;
+import org.magmafoundation.magma.api.bridge.entity.player.IBridgeServerPlayerEntity;
 import org.magmafoundation.magma.api.bridge.server.IBridgeMinecraftServer;
 import org.magmafoundation.magma.api.bridge.server.management.IBridgeUserListEntry;
+import org.magmafoundation.magma.api.core.entity.MagmaPlayer;
 import org.magmafoundation.magma.core.Magma;
 
 /**
@@ -66,6 +70,8 @@ public class MagmaServer implements Server {
      */
     private final Map<UUID, OfflinePlayer> offlinePlayerMap = new MapMaker().weakValues().makeMap();
 
+    private final List<MagmaPlayer> magmaPlayers;
+
     private YamlConfiguration configuration;
     private YamlConfiguration commandsConfiguration;
 
@@ -84,6 +90,8 @@ public class MagmaServer implements Server {
             getClass().getClassLoader().getResourceAsStream("configurations/bukkit.yml"),
             Charsets.UTF_8)));
         saveConfig();
+
+        this.magmaPlayers = Collections.unmodifiableList(playerList.getPlayers().stream().map(player -> ((IBridgeServerPlayerEntity) player).getBukkitEntity()).collect(Collectors.toList()));
         minimumAPI = configuration.getString("settings.minimum-api");
     }
 
@@ -118,17 +126,17 @@ public class MagmaServer implements Server {
 
     @Override
     public Collection<? extends Player> getOnlinePlayers() {
-        return null;
+        return magmaPlayers;
     }
 
     @Override
     public int getMaxPlayers() {
-        return 0;
+        return dedicatedServer.getMaxPlayers();
     }
 
     @Override
     public int getPort() {
-        return 0;
+        return dedicatedServer.getServerPort();
     }
 
     @Override
@@ -377,17 +385,17 @@ public class MagmaServer implements Server {
 
     @Override
     public boolean getOnlineMode() {
-        return false;
+        return dedicatedServer.isServerInOnlineMode();
     }
 
     @Override
     public boolean getAllowFlight() {
-        return false;
+        return dedicatedServer.isFlightAllowed();
     }
 
     @Override
     public boolean isHardcore() {
-        return false;
+        return dedicatedServer.isHardcore();
     }
 
     @Override
@@ -712,7 +720,4 @@ public class MagmaServer implements Server {
     public DedicatedPlayerList getDedicatedPlayerList() {
         return dedicatedPlayerList;
     }
-
-
-
 }

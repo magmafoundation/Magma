@@ -1,7 +1,9 @@
 package org.magmafoundation.magma.api.mixin.entity;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.world.World;
+
 import org.bukkit.Bukkit;
 import org.magmafoundation.magma.api.bridge.entity.IBridgeEntity;
 import org.magmafoundation.magma.api.core.MagmaServer;
@@ -16,7 +18,7 @@ import org.spongepowered.asm.mixin.Shadow;
  * @since 24/11/2019 - 08:19 pm
  */
 @Mixin(Entity.class)
-public class MixinEntity implements IBridgeEntity {
+public abstract class MixinEntity implements IBridgeEntity {
 
     @Shadow
     public float rotationYaw;
@@ -81,4 +83,6 @@ public class MixinEntity implements IBridgeEntity {
         persist = persistenceRequired;
     }
 
+    @Shadow
+    public abstract Team getTeam();
 }

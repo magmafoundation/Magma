@@ -2,6 +2,8 @@ package org.magmafoundation.magma.api.bridge.entity;
 
 import net.minecraft.entity.player.PlayerEntity;
 
+import org.magmafoundation.magma.api.core.entity.MagmaLivingEntity;
+
 /**
  * IBridgeLivingEntity
  *
@@ -28,4 +30,6 @@ public interface IBridgeLivingEntity extends IBridgeEntity {
 
     void setCollides(boolean collidable);
 
+    @Override
+    MagmaLivingEntity getBukkitEntity();
 }

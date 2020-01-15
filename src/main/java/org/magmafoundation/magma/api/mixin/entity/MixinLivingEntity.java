@@ -2,7 +2,9 @@ package org.magmafoundation.magma.api.mixin.entity;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+
 import org.magmafoundation.magma.api.bridge.entity.IBridgeLivingEntity;
+import org.magmafoundation.magma.api.core.entity.MagmaLivingEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -94,5 +96,10 @@ public abstract class MixinLivingEntity extends MixinEntity implements IBridgeLi
     @Override
     public void setCollides(boolean collidable) {
         collides = collidable;
+    }
+
+    @Override
+    public MagmaLivingEntity getBukkitEntity() {
+        return (MagmaLivingEntity) super.getBukkitEntity();
     }
 }
