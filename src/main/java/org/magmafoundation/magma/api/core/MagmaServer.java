@@ -75,6 +75,9 @@ public class MagmaServer implements Server {
     private YamlConfiguration configuration;
     private YamlConfiguration commandsConfiguration;
 
+    public String minimumAPI;
+
+
     public MagmaServer(MinecraftServer dedicatedServer, PlayerList playerList) {
         this.dedicatedServer = dedicatedServer;
         this.dedicatedPlayerList = (DedicatedPlayerList) playerList;
@@ -89,6 +92,7 @@ public class MagmaServer implements Server {
         saveConfig();
 
         this.magmaPlayers = Collections.unmodifiableList(playerList.getPlayers().stream().map(player -> ((IBridgeServerPlayerEntity) player).getBukkitEntity()).collect(Collectors.toList()));
+        minimumAPI = configuration.getString("settings.minimum-api");
     }
 
     private void saveConfig() {

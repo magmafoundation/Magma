@@ -34,7 +34,7 @@ public interface UnsafeValues {
 
     ItemStack modifyItemStack(ItemStack stack, String arguments);
 
-    void checkSupported(PluginDescriptionFile pdf) throws InvalidPluginException;
+    void checkSupported(PluginDescriptionFile pdf, Server server) throws InvalidPluginException;
 
     byte[] processClass(PluginDescriptionFile pdf, String path, byte[] clazz);
 
@@ -55,11 +55,11 @@ public interface UnsafeValues {
      * @param advancement representation of the advancement
      * @return the loaded advancement or null if an error occurred
      */
-    Advancement loadAdvancement(NamespacedKey key, String advancement);
+    Advancement loadAdvancement(NamespacedKey key, String advancement, Server server);
 
     /**
      * Delete an advancement which was loaded and saved by
-     * {@link #loadAdvancement(org.bukkit.NamespacedKey, java.lang.String)}.
+     * {@link #loadAdvancement(org.bukkit.NamespacedKey, java.lang.String, Server server)}.
      * <br>
      * This method will only remove advancement from persistent storage. It
      * should be accompanied by a call to {@link Server#reloadData()} in order
@@ -68,5 +68,5 @@ public interface UnsafeValues {
      * @param key the unique advancement key
      * @return true if a file matching this key was found and deleted
      */
-    boolean removeAdvancement(NamespacedKey key);
+    boolean removeAdvancement(NamespacedKey key, Server server);
 }

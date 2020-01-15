@@ -3,7 +3,7 @@
 
 # Magma 1.14
 
-![](https://img.shields.io/badge/Minecraft%20Forge-1.14.4%20--%2028.1.93-orange.svg?style=for-the-badge)
+![](https://img.shields.io/badge/Minecraft%20Forge-1.14.4%20--%2028.1.93-orange.svg?style=for-the-badge) [![](https://img.shields.io/jenkins/build/https/ci.hexeption.co.uk/job/Magma-Main/job/1.14?label=CI&style=for-the-badge)](https://ci.hexeption.co.uk)
 
 ### What's Magma?
 
