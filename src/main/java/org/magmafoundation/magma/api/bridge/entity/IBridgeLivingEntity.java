@@ -2,13 +2,15 @@ package org.magmafoundation.magma.api.bridge.entity;
 
 import net.minecraft.entity.player.PlayerEntity;
 
+import org.magmafoundation.magma.api.core.entity.MagmaLivingEntity;
+
 /**
  * IBridgeLivingEntity
  *
  * @author Hexeption admin@hexeption.co.uk
  * @since 25/11/2019 - 05:03 pm
  */
-public interface IBridgeLivingEntity {
+public interface IBridgeLivingEntity extends IBridgeEntity {
 
     int getMaxHurtResistantTime();
 
@@ -28,4 +30,6 @@ public interface IBridgeLivingEntity {
 
     void setCollides(boolean collidable);
 
+    @Override
+    MagmaLivingEntity getBukkitEntity();
 }
