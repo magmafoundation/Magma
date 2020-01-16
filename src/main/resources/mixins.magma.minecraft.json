@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8-SNAPSHOT",
+  "package": "org.magmafoundation.magma.mixin.minecraft",
+  "refmap": "mixins.magma.minecraft.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "entity.MixinEntity",
+    "entity.MixinLivingEntity",
+    "entity.player.MixinPlayerEntity",
+    "entity.player.MixinServerPlayerEntity",
+    "world.MixinWorld"
+  ],
+  "server": [
+    "server.MixinMinecraftServer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "conformVisibility": true
+  }
+}

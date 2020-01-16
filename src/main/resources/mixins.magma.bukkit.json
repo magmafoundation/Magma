@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8-SNAPSHOT",
+  "package": "org.magmafoundation.magma.mixin.bukkit",
+  "refmap": "mixins.magma.bukkit.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "server": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "conformVisibility": true
+  }
+}
