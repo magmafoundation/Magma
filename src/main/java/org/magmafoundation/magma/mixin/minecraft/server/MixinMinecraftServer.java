@@ -32,10 +32,7 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.CachedServerIcon;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.MagmaOptions;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -53,6 +50,7 @@ import java.util.logging.Logger;
  * @since 24/11/2019 - 05:57 am
  */
 @Mixin(MinecraftServer.class)
+@Implements(@Interface(iface = Server.class, prefix = "server$"))
 public abstract class MixinMinecraftServer implements Server {
 
     @Shadow @Final protected Thread serverThread;
@@ -61,6 +59,7 @@ public abstract class MixinMinecraftServer implements Server {
     @Shadow private boolean onlineMode;
     @Shadow private boolean allowFlight;
     @Shadow private String motd;
+    @Shadow public abstract int shadow$getMaxPlayers();
 
     private static OptionSet options;
 
@@ -93,6 +92,11 @@ public abstract class MixinMinecraftServer implements Server {
     @Override
     public Collection<? extends Player> getOnlinePlayers() {
         return Lists.newArrayList((Collection<? extends Player>) (Object) playerList.getPlayers());
+    }
+
+    @Intrinsic
+    public int server$getMaxPlayers() {
+        return shadow$getMaxPlayers();
     }
 
     @Override

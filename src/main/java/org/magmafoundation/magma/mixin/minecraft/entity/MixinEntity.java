@@ -3,6 +3,8 @@ package org.magmafoundation.magma.mixin.minecraft.entity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
@@ -24,8 +26,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.*;
 
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,7 @@ import java.util.UUID;
  * @since 24/11/2019 - 08:19 pm
  */
 @Mixin(net.minecraft.entity.Entity.class)
+@Implements(@Interface(iface = Entity.class, prefix = "entity$"))
 public abstract class MixinEntity implements Entity {
 
     @Shadow public boolean onGround;;
@@ -49,6 +51,7 @@ public abstract class MixinEntity implements Entity {
     @Shadow public double posY;
     @Shadow public double posZ;
     @Shadow public net.minecraft.world.World world;
+    @Shadow protected UUID entityUniqueID;
 
     @Shadow public abstract Vec3d getMotion();
     @Shadow public abstract BlockPos getPosition();
@@ -56,6 +59,15 @@ public abstract class MixinEntity implements Entity {
     @Shadow public abstract void setMotion(Vec3d p_213317_1_);
     @Shadow public abstract AxisAlignedBB shadow$getBoundingBox();
     @Shadow public abstract void setRotationYawHead(float rotation);
+    @Shadow public abstract double shadow$getHeight();
+    @Shadow public abstract double shadow$getWidth();
+    @Shadow public abstract int shadow$getEntityId();
+    @Shadow public abstract List<net.minecraft.entity.Entity> shadow$getPassengers();
+    @Shadow public abstract net.minecraft.entity.Entity getControllingPassenger();
+    @Shadow public abstract ITextComponent shadow$getCustomName();
+    @Shadow public abstract void shadow$setCustomName(ITextComponent name);
+    @Shadow public abstract boolean shadow$isCustomNameVisible();
+    @Shadow public abstract boolean shadow$setCustomNameVisible(boolean alwaysRenderNameTag);
 
     private boolean velocityChanged;
 
@@ -86,6 +98,16 @@ public abstract class MixinEntity implements Entity {
     @Override
     public Vector getVelocity() {
         return new Vector(getMotion().getX(), getMotion().getY(), getMotion().getZ());
+    }
+
+    @Intrinsic
+    public double entity$getHeight() {
+        return shadow$getHeight();
+    }
+
+    @Intrinsic
+    public double entity$getWidth() {
+        return shadow$getWidth();
     }
 
     @Override
@@ -143,9 +165,9 @@ public abstract class MixinEntity implements Entity {
         return null;
     }
 
-    @Override
-    public int getEntityId() {
-        return 0;
+    @Intrinsic
+    public int entity$getEntityId() {
+        return shadow$getEntityId();
     }
 
     @Override
@@ -210,7 +232,7 @@ public abstract class MixinEntity implements Entity {
 
     @Override
     public Entity getPassenger() {
-        return null;
+        return (Entity) getControllingPassenger();
     }
 
     @Override
@@ -218,9 +240,10 @@ public abstract class MixinEntity implements Entity {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<Entity> getPassengers() {
-        return null;
+        return (List<Entity>) (Object) shadow$getPassengers();
     }
 
     @Override
@@ -265,7 +288,7 @@ public abstract class MixinEntity implements Entity {
 
     @Override
     public UUID getUniqueId() {
-        return null;
+        return entityUniqueID;
     }
 
     @Override
@@ -303,14 +326,14 @@ public abstract class MixinEntity implements Entity {
         return null;
     }
 
-    @Override
-    public void setCustomNameVisible(boolean flag) {
-
+    @Intrinsic
+    public void entity$setCustomNameVisible(boolean flag) {
+        shadow$setCustomNameVisible(flag);
     }
 
-    @Override
-    public boolean isCustomNameVisible() {
-        return false;
+    @Intrinsic
+    public boolean entity$isCustomNameVisible() {
+        return shadow$isCustomNameVisible();
     }
 
     @Override
@@ -395,12 +418,12 @@ public abstract class MixinEntity implements Entity {
 
     @Override
     public String getCustomName() {
-        return null;
+        return shadow$getCustomName().getFormattedText();
     }
 
     @Override
     public void setCustomName(String name) {
-
+        shadow$setCustomName(new StringTextComponent(name));
     }
 
     @Override
