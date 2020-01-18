@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.mixin.minecraft.server;
+package org.magmafoundation.magma.mixin.core.minecraft.server;
 
 import com.google.common.collect.Lists;
 import joptsimple.OptionSet;

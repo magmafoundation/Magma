@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.mixin.minecraft.entity.player;
+package org.magmafoundation.magma.mixin.core.minecraft.entity.player;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 

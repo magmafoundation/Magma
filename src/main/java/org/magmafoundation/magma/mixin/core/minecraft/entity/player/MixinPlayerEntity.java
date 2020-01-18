@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.mixin.minecraft.entity.player;
+package org.magmafoundation.magma.mixin.core.minecraft.entity.player;
 
 import net.minecraft.entity.player.PlayerEntity;
 
@@ -10,7 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.*;
-import org.magmafoundation.magma.mixin.minecraft.entity.MixinLivingEntity;
+import org.magmafoundation.magma.mixin.core.minecraft.entity.MixinLivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.Collection;

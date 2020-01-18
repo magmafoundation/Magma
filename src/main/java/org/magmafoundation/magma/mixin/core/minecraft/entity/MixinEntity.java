@@ -1,7 +1,8 @@
-package org.magmafoundation.magma.mixin.minecraft.entity;
+package org.magmafoundation.magma.mixin.core.minecraft.entity;
 
+import net.minecraft.block.material.PushReaction;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -18,15 +19,16 @@ import org.bukkit.entity.Pose;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.permissions.*;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.Set;
@@ -42,7 +44,21 @@ import java.util.UUID;
 @Implements(@Interface(iface = Entity.class, prefix = "entity$"))
 public abstract class MixinEntity implements Entity {
 
-    @Shadow public boolean onGround;;
+    protected static PermissibleBase permissibleBase = new PermissibleBase(new ServerOperator() {
+
+        @Override
+        public boolean isOp() {
+            return false;
+        }
+
+        @Override
+        public void setOp(boolean value) {
+
+        }
+    });
+
+    @Shadow public boolean onGround;
+
     @Shadow public float rotationYaw;
     @Shadow public float rotationPitch;
     @Shadow public float prevRotationYaw;
@@ -52,9 +68,13 @@ public abstract class MixinEntity implements Entity {
     @Shadow public double posZ;
     @Shadow public net.minecraft.world.World world;
     @Shadow protected UUID entityUniqueID;
+    @Shadow private net.minecraft.entity.Entity ridingEntity;
+    @Shadow public boolean removed;
+    @Shadow public float fallDistance;
+    @Shadow public int ticksExisted;
+    @Shadow public int timeUntilPortal;
 
     @Shadow public abstract Vec3d getMotion();
-    @Shadow public abstract BlockPos getPosition();
     @Shadow public abstract Vec3d getPositionVector();
     @Shadow public abstract void setMotion(Vec3d p_213317_1_);
     @Shadow public abstract AxisAlignedBB shadow$getBoundingBox();
@@ -68,8 +88,30 @@ public abstract class MixinEntity implements Entity {
     @Shadow public abstract void shadow$setCustomName(ITextComponent name);
     @Shadow public abstract boolean shadow$isCustomNameVisible();
     @Shadow public abstract boolean shadow$setCustomNameVisible(boolean alwaysRenderNameTag);
+    @Shadow public abstract ITextComponent shadow$getName();
+    @Shadow public abstract net.minecraft.entity.EntityType<?> shadow$getType();
+    @Shadow public abstract void stopRiding();
+    @Shadow public abstract boolean shadow$isGlowing();
+    @Shadow public abstract void shadow$setGlowing(boolean glowingIn);
+    @Shadow public abstract void shadow$sendMessage(ITextComponent component);
+    @Shadow public abstract void shadow$remove();
+    @Shadow public abstract boolean shadow$isInvulnerable();
+    @Shadow public abstract void shadow$setInvulnerable(boolean isInvulnerable);
+    @Shadow public abstract boolean shadow$isSilent();
+    @Shadow public abstract void shadow$setSilent(boolean isSilent);
+    @Shadow public abstract boolean hasNoGravity();
+    @Shadow public abstract boolean setNoGravity(boolean noGravity);
+    @Shadow public abstract Set<String> getTags();
+    @Shadow public abstract boolean addTag(String tag);
+    @Shadow public abstract boolean removeTag(String tag);
+    @Shadow public abstract PushReaction getPushReaction();
+    @Shadow public abstract net.minecraft.entity.Pose shadow$getPose();
+    @Shadow protected abstract boolean getFlag(int flag);
+    @Shadow protected abstract void setFlag(int flag, boolean set);
 
     private boolean velocityChanged;
+    private boolean persistent = true;
+    private EntityDamageEvent lastDamageCause;
 
     @Override
     public Location getLocation() {
@@ -93,6 +135,7 @@ public abstract class MixinEntity implements Entity {
     public void setVelocity(Vector velocity) {
         velocity.checkFinite();
         setMotion(new Vec3d(velocity.getX(), velocity.getY(), velocity.getZ()));
+        velocityChanged = true;
     }
 
     @Override
@@ -185,49 +228,50 @@ public abstract class MixinEntity implements Entity {
 
     }
 
-    @Override
-    public void remove() {
-
+    @Intrinsic
+    public void entity$remove() {
+        shadow$remove();
     }
 
     @Override
     public boolean isDead() {
-        return false;
+        return removed;
     }
 
     @Override
     public boolean isValid() {
-        return false;
+        return !isDead() && getWorld().isChunkLoaded(getLocation().getBlockX() >> 4, getLocation().getBlockZ() >> 4);
     }
 
     @Override
     public void sendMessage(String message) {
-
+        shadow$sendMessage(new StringTextComponent(message));
     }
 
     @Override
     public void sendMessage(String[] messages) {
-
+        for (String message : messages)
+            sendMessage(message);
     }
 
     @Override
     public Server getServer() {
-        return null;
+        return (Server) world.getServer();
     }
 
     @Override
     public String getName() {
-        return null;
+        return shadow$getName().getFormattedText();
     }
 
     @Override
     public boolean isPersistent() {
-        return false;
+        return persistent;
     }
 
     @Override
     public void setPersistent(boolean persistent) {
-
+        this.persistent = persistent;
     }
 
     @Override
@@ -237,7 +281,7 @@ public abstract class MixinEntity implements Entity {
 
     @Override
     public boolean setPassenger(Entity passenger) {
-        return false;
+        return addPassenger(passenger);
     }
 
     @SuppressWarnings("unchecked")
@@ -248,42 +292,49 @@ public abstract class MixinEntity implements Entity {
 
     @Override
     public boolean addPassenger(Entity passenger) {
-        return false;
+        return ((net.minecraft.entity.Entity) passenger).startRiding((net.minecraft.entity.Entity) (Entity) this, true);
     }
 
     @Override
     public boolean removePassenger(Entity passenger) {
-        return false;
+        if (!getPassengers().contains(passenger))
+            return false;
+
+        return passenger.leaveVehicle();
     }
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return shadow$getPassengers().isEmpty();
     }
 
     @Override
     public boolean eject() {
+        if (isEmpty())
+            return false;
+
+        ((net.minecraft.entity.Entity) (Entity) this).removePassengers();
         return false;
     }
 
     @Override
     public float getFallDistance() {
-        return 0;
+        return fallDistance;
     }
 
     @Override
     public void setFallDistance(float distance) {
-
+        this.setFallDistance(distance);
     }
 
     @Override
     public void setLastDamageCause(EntityDamageEvent event) {
-
+        this.lastDamageCause = event;
     }
 
     @Override
     public EntityDamageEvent getLastDamageCause() {
-        return null;
+        return lastDamageCause;
     }
 
     @Override
@@ -293,37 +344,41 @@ public abstract class MixinEntity implements Entity {
 
     @Override
     public int getTicksLived() {
-        return 0;
+        return ticksExisted;
     }
 
     @Override
     public void setTicksLived(int value) {
-
+        this.ticksExisted = value;
     }
 
     @Override
     public void playEffect(EntityEffect type) {
-
+        world.setEntityState(((net.minecraft.entity.Entity) (Entity) this), type.getData());
     }
 
     @Override
     public EntityType getType() {
-        return null;
+        return EntityType.valueOf(net.minecraft.entity.EntityType.getKey(shadow$getType()).getPath().toUpperCase());
     }
 
     @Override
     public boolean isInsideVehicle() {
-        return false;
+        return ridingEntity != null;
     }
 
     @Override
     public boolean leaveVehicle() {
-        return false;
+        if (isInsideVehicle())
+            return false;
+
+        stopRiding();
+        return true;
     }
 
     @Override
     public Entity getVehicle() {
-        return null;
+        return (Entity) ridingEntity;
     }
 
     @Intrinsic
@@ -336,74 +391,74 @@ public abstract class MixinEntity implements Entity {
         return shadow$isCustomNameVisible();
     }
 
-    @Override
-    public void setGlowing(boolean flag) {
-
+    @Intrinsic
+    public void entity$setGlowing(boolean flag) {
+        shadow$setGlowing(flag);
     }
 
-    @Override
-    public boolean isGlowing() {
-        return false;
+    @Intrinsic
+    public boolean entity$isGlowing() {
+        return shadow$isGlowing();
     }
 
-    @Override
-    public void setInvulnerable(boolean flag) {
-
+    @Intrinsic
+    public void entity$setInvulnerable(boolean flag) {
+        shadow$setInvulnerable(flag);
     }
 
-    @Override
-    public boolean isInvulnerable() {
-        return false;
+    @Intrinsic
+    public boolean entity$isInvulnerable() {
+        return shadow$isInvulnerable();
     }
 
-    @Override
-    public boolean isSilent() {
-        return false;
+    @Intrinsic
+    public boolean entity$isSilent() {
+        return shadow$isSilent();
     }
 
-    @Override
+    @Intrinsic
     public void setSilent(boolean flag) {
-
+        shadow$setSilent(flag);
     }
 
     @Override
     public boolean hasGravity() {
-        return false;
+        return !hasNoGravity();
     }
 
     @Override
     public void setGravity(boolean gravity) {
-
+        setNoGravity(!gravity);
     }
 
     @Override
     public int getPortalCooldown() {
-        return 0;
+        return timeUntilPortal;
     }
 
     @Override
     public void setPortalCooldown(int cooldown) {
-
+        this.timeUntilPortal = cooldown;
     }
 
     @Override
     public Set<String> getScoreboardTags() {
-        return null;
+        return getTags();
     }
 
     @Override
     public boolean addScoreboardTag(String tag) {
-        return false;
+        return addTag(tag);
     }
 
     @Override
     public boolean removeScoreboardTag(String tag) {
-        return false;
+        return removeTag(tag);
     }
 
     @Override
     public PistonMoveReaction getPistonMoveReaction() {
-        return null;
+        return PistonMoveReaction.getById(getPushReaction().ordinal());
     }
 
     @Override
@@ -413,7 +468,7 @@ public abstract class MixinEntity implements Entity {
 
     @Override
     public Pose getPose() {
-        return null;
+        return Pose.values()[shadow$getPose().ordinal()];
     }
 
     @Override
@@ -428,91 +483,97 @@ public abstract class MixinEntity implements Entity {
 
     @Override
     public void setMetadata(String metadataKey, MetadataValue newMetadataValue) {
-
+        // TODO
     }
 
     @Override
     public List<MetadataValue> getMetadata(String metadataKey) {
-        return null;
+        return null; // TODO
     }
 
     @Override
     public boolean hasMetadata(String metadataKey) {
-        return false;
+        return false; // TODO
     }
 
     @Override
     public void removeMetadata(String metadataKey, Plugin owningPlugin) {
-
+        // TODO
     }
 
     @Override
     public boolean isPermissionSet(String name) {
-        return false;
+        return permissibleBase.isPermissionSet(name);
     }
 
     @Override
     public boolean isPermissionSet(Permission perm) {
-        return false;
+        return permissibleBase.isPermissionSet(perm);
     }
 
     @Override
     public boolean hasPermission(String name) {
-        return false;
+        return permissibleBase.hasPermission(name);
     }
 
     @Override
     public boolean hasPermission(Permission perm) {
-        return false;
+        return permissibleBase.hasPermission(perm);
     }
 
     @Override
     public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value) {
-        return null;
+        return permissibleBase.addAttachment(plugin, name, value);
     }
 
     @Override
     public PermissionAttachment addAttachment(Plugin plugin) {
-        return null;
+        return permissibleBase.addAttachment(plugin);
     }
 
     @Override
     public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value, int ticks) {
-        return null;
+        return permissibleBase.addAttachment(plugin, name, value, ticks);
     }
 
     @Override
     public PermissionAttachment addAttachment(Plugin plugin, int ticks) {
-        return null;
+        return permissibleBase.addAttachment(plugin, ticks);
     }
 
     @Override
     public void removeAttachment(PermissionAttachment attachment) {
-
+        permissibleBase.removeAttachment(attachment);
     }
 
     @Override
     public void recalculatePermissions() {
-
+        permissibleBase.recalculatePermissions();
     }
 
     @Override
     public Set<PermissionAttachmentInfo> getEffectivePermissions() {
-        return null;
+        return permissibleBase.getEffectivePermissions();
     }
 
     @Override
     public boolean isOp() {
-        return false;
+        return permissibleBase.isOp();
     }
 
     @Override
     public void setOp(boolean value) {
-
+        permissibleBase.setOp(value);
     }
 
     @Override
     public PersistentDataContainer getPersistentDataContainer() {
-        return null;
+        return null; // TODO
+    }
+
+    @Inject(method = "writeUnlessRemoved", at = @At("HEAD"), cancellable = true)
+    public void onWriteUnlessRemoved(CompoundNBT compound, CallbackInfoReturnable<Boolean> cir) {
+        if (!persistent)
+            cir.setReturnValue(false);
     }
 }

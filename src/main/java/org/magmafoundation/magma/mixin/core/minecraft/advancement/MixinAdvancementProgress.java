@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.mixin.minecraft.advancement;
+package org.magmafoundation.magma.mixin.core.minecraft.advancement;
 
 import net.minecraft.advancements.CriterionProgress;
 

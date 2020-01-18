@@ -121,8 +121,8 @@ dependencies {
 }
 
 mixin {
-    add sourceSets.main, "mixins.magma.bukkit.refmap.json"
-    add sourceSets.main, "mixins.magma.minecraft.refmap.json"
+    add sourceSets.main, "mixins.magma.bridge.refmap.json"
+    add sourceSets.main, "mixins.magma.core.refmap.json"
 }
 
 

@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.mixin.minecraft.world;
+package org.magmafoundation.magma.mixin.core.minecraft.world;
 
 import com.google.common.collect.Lists;
 

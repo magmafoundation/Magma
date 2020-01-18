@@ -1,4 +1,4 @@
-package org.magmafoundation.magma.mixin.minecraft.entity.ai.attributes;
+package org.magmafoundation.magma.mixin.core.minecraft.entity.ai.attributes;
 
 import net.minecraft.entity.ai.attributes.IAttribute;
 
