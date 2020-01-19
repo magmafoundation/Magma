@@ -1,8 +1,14 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven {
+            url = 'https://files.minecraftforge.net/maven'
+        }
         jcenter()
         mavenCentral()
+        maven {
+            name = 'PaperMC'
+            url = 'https://papermc.io/repo/repository/maven-public/'
+        }
         maven {
             name = 'SpongePowered'
             url = 'https://dist.creeper.host/Sponge/maven/'
@@ -13,7 +19,8 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-        classpath "com.github.jengelman.gradle.plugins:shadow:5.1.0"
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"
+        classpath 'com.destroystokyo.paper:paper-api:1.14.4-R0.1-SNAPSHOT'
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
         classpath "org.ajoberstar.grgit:grgit-gradle:4.0.0"
     }
@@ -23,7 +30,6 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: "org.ajoberstar.grgit"
-
 
 version = gitVersion()
 
@@ -114,24 +120,19 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.14.4-28.1.93'
-    compile("org.spongepowered:mixin:0.8-SNAPSHOT")
-    compile project(":bukkit-api")
+    minecraft("net.minecraftforge:forge:1.14.4-28.1.93")
+    shadow("org.spongepowered:mixin:0.8-SNAPSHOT")
+    shadow("com.destroystokyo.paper:paper-api:1.14.4-R0.1-SNAPSHOT")
 }
 
 mixin {
+    add sourceSets.main, "mixins.magma.bridge.refmap.json"
     add sourceSets.main, "mixins.magma.core.refmap.json"
 }
 
-
 shadowJar {
-    dependencies {
-        include(dependency("org.spongepowered:mixin"))
-    }
-
-    exclude 'dummyThing'
-    exclude 'LICENSE.txt'
-    classifier = 'full'
+    setArchivesBaseName("Magma")
+    configurations = [project.configurations.shadow]
 }
 
 reobf {
