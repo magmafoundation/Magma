@@ -11,6 +11,10 @@ repositories {
         url = "https://jitpack.io"
     }
     maven {
+        name = 'PaperMC'
+        url = 'https://papermc.io/repo/repository/maven-public/'
+    }
+    maven {
         name = "CurseForge"
         url = "https://minecraft.curseforge.com/api/maven/"
     }
@@ -35,8 +39,16 @@ dependencies {
         exclude module: 'guava'
     }
 
+    compile 'org.ow2.asm:asm:7.1'
     compile 'org.ow2.asm:asm-commons:7.2'
     compile 'org.ow2.asm:asm-util:6.2'
 
+    compileOnly 'org.jetbrains:annotations-java5:17.0.0'
+    compile 'jline:jline:2.12.1'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
+    runtime 'org.xerial:sqlite-jdbc:3.28.0'
+    runtime 'mysql:mysql-connector-java:5.1.47'
+
     compile("org.spongepowered:mixin:0.8-SNAPSHOT")
+    compile("com.destroystokyo.paper:paper-api:1.14.4-R0.1-SNAPSHOT")
 }

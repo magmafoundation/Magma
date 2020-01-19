@@ -1,8 +1,14 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven {
+            url = 'https://files.minecraftforge.net/maven'
+        }
         jcenter()
         mavenCentral()
+        maven {
+            name = 'PaperMC'
+            url = 'https://papermc.io/repo/repository/maven-public/'
+        }
         maven {
             name = 'SpongePowered'
             url = 'https://dist.creeper.host/Sponge/maven/'
@@ -14,6 +20,7 @@ buildscript {
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
         classpath "com.github.jengelman.gradle.plugins:shadow:4.0.4"
+        classpath 'com.destroystokyo.paper:paper-api:1.14.4-R0.1-SNAPSHOT'
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
         classpath "org.ajoberstar.grgit:grgit-gradle:4.0.0"
     }
@@ -23,7 +30,6 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: "org.ajoberstar.grgit"
-
 
 version = gitVersion()
 
@@ -116,7 +122,7 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft("net.minecraftforge:forge:1.14.4-28.1.93")
     shadow("org.spongepowered:mixin:0.8-SNAPSHOT")
-    shadow project(":bukkit-api")
+    shadow("com.destroystokyo.paper:paper-api:1.14.4-R0.1-SNAPSHOT")
 }
 
 mixin {
