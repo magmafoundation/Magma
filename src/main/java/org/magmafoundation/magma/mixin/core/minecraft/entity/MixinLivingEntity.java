@@ -45,21 +45,15 @@ public abstract class MixinLivingEntity extends MixinEntity implements LivingEnt
 
     @Shadow @Final private Map<Effect, EffectInstance> activePotionsMap;
     @Shadow @Final public int maxHurtResistantTime;
-    @Shadow public int hurtResistantTime;
     @Shadow protected float lastDamage;
     @Shadow protected PlayerEntity attackingPlayer;
 
-    @Shadow @Final public abstract float shadow$getEyeHeight();
     @Shadow @Final public abstract float shadow$getMaxHealth();
-    @Shadow public abstract int getAir();
-    @Shadow public abstract void setAir(int air);
     @Shadow public abstract boolean attackEntityFrom(DamageSource source, float amount);
     @Shadow public abstract boolean addPotionEffect(EffectInstance p_195064_1_);
     @Shadow protected abstract void onFinishedPotionEffect(EffectInstance effect);
     @Shadow public abstract boolean canEntityBeSeen(net.minecraft.entity.Entity entityIn);
     @Shadow public abstract boolean isElytraFlying();
-    @Shadow public abstract boolean shadow$isSwimming();
-    @Shadow public abstract void shadow$setSwimming(boolean p_204711_1_);
     @Shadow public abstract boolean isSpinAttacking();
     @Shadow public abstract boolean shadow$isSleeping();
     @Shadow public abstract AbstractAttributeMap getAttributes();
@@ -68,7 +62,6 @@ public abstract class MixinLivingEntity extends MixinEntity implements LivingEnt
     @Shadow public abstract float shadow$getAbsorptionAmount();
     @Shadow public abstract void shadow$setAbsorptionAmount(float amount);
 
-    private int maxAir = 300;
     private boolean canPickUpItems;
     private boolean collidable;
 
@@ -485,11 +478,6 @@ public abstract class MixinLivingEntity extends MixinEntity implements LivingEnt
         }
         ((MobEntity) (Entity) this).clearLeashed(true, false);
         return true;
-    }
-
-    @Inject(method = "getMaxAir", at = @At("RETURN"))
-    private void onGetMaxAir(CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(maxAir);
     }
 
     @Inject(method = "canBeCollidedWith", at = @At("RETURN"))

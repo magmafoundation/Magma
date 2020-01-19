@@ -1,13 +1,16 @@
 {
   "required": true,
-  "minVersion": "0.8-SNAPSHOT",
+  "minVersion": "0.8",
   "package": "org.magmafoundation.magma.mixin.core",
-  "refmap": "mixins.magma.minecraft.refmap.json",
+  "refmap": "mixins.magma.core.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "minecraft.advancement.MixinAdvancement",
+    "minecraft.advancement.MixinAdvancementProgress",
     "minecraft.entity.MixinEntity",
     "minecraft.entity.MixinLivingEntity",
+    "minecraft.entity.ai.attributes.MixinAttributeInstance",
     "minecraft.entity.player.MixinPlayerEntity",
     "minecraft.entity.player.MixinServerPlayerEntity",
     "minecraft.world.MixinWorld"

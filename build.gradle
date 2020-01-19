@@ -114,10 +114,9 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.14.4-28.1.93'
-    compile("org.spongepowered:mixin:0.8-SNAPSHOT")
-    compile project(":bukkit-api")
-    annotationProcessor('org.spongepowered:mixin:0.8-SNAPSHOT')
+    minecraft("net.minecraftforge:forge:1.14.4-28.1.93")
+    shadow("org.spongepowered:mixin:0.8-SNAPSHOT")
+    shadow project(":bukkit-api")
 }
 
 mixin {
@@ -125,15 +124,9 @@ mixin {
     add sourceSets.main, "mixins.magma.core.refmap.json"
 }
 
-
 shadowJar {
-    dependencies {
-        include(dependency("org.spongepowered:mixin"))
-    }
-
-    exclude 'dummyThing'
-    exclude 'LICENSE.txt'
-    classifier = 'full'
+    setArchivesBaseName("Magma")
+    configurations = [project.configurations.shadow]
 }
 
 reobf {

@@ -43,7 +43,7 @@ import java.util.function.Predicate;
  * @author Redned
  * @since 15/01/2020 - 08:15 pm
  */
-@Mixin(ServerWorld.class)
+@Mixin(net.minecraft.world.World.class)
 public abstract class MixinWorld implements World {
 
     @Shadow @Final protected WorldInfo worldInfo;

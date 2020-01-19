@@ -73,21 +73,23 @@ public abstract class MixinEntity implements Entity {
     @Shadow public float fallDistance;
     @Shadow public int ticksExisted;
     @Shadow public int timeUntilPortal;
+    @Shadow public int hurtResistantTime;
 
+    @Shadow @Final public abstract float shadow$getEyeHeight();
     @Shadow public abstract Vec3d getMotion();
     @Shadow public abstract Vec3d getPositionVector();
     @Shadow public abstract void setMotion(Vec3d p_213317_1_);
     @Shadow public abstract AxisAlignedBB shadow$getBoundingBox();
     @Shadow public abstract void setRotationYawHead(float rotation);
-    @Shadow public abstract double shadow$getHeight();
-    @Shadow public abstract double shadow$getWidth();
+    @Shadow public abstract float shadow$getHeight();
+    @Shadow public abstract float shadow$getWidth();
     @Shadow public abstract int shadow$getEntityId();
     @Shadow public abstract List<net.minecraft.entity.Entity> shadow$getPassengers();
     @Shadow public abstract net.minecraft.entity.Entity getControllingPassenger();
     @Shadow public abstract ITextComponent shadow$getCustomName();
     @Shadow public abstract void shadow$setCustomName(ITextComponent name);
     @Shadow public abstract boolean shadow$isCustomNameVisible();
-    @Shadow public abstract boolean shadow$setCustomNameVisible(boolean alwaysRenderNameTag);
+    @Shadow public abstract void shadow$setCustomNameVisible(boolean alwaysRenderNameTag);
     @Shadow public abstract ITextComponent shadow$getName();
     @Shadow public abstract net.minecraft.entity.EntityType<?> shadow$getType();
     @Shadow public abstract void stopRiding();
@@ -100,7 +102,7 @@ public abstract class MixinEntity implements Entity {
     @Shadow public abstract boolean shadow$isSilent();
     @Shadow public abstract void shadow$setSilent(boolean isSilent);
     @Shadow public abstract boolean hasNoGravity();
-    @Shadow public abstract boolean setNoGravity(boolean noGravity);
+    @Shadow public abstract void setNoGravity(boolean noGravity);
     @Shadow public abstract Set<String> getTags();
     @Shadow public abstract boolean addTag(String tag);
     @Shadow public abstract boolean removeTag(String tag);
@@ -108,7 +110,12 @@ public abstract class MixinEntity implements Entity {
     @Shadow public abstract net.minecraft.entity.Pose shadow$getPose();
     @Shadow protected abstract boolean getFlag(int flag);
     @Shadow protected abstract void setFlag(int flag, boolean set);
+    @Shadow public abstract int getAir();
+    @Shadow public abstract void setAir(int air);
+    @Shadow public abstract boolean shadow$isSwimming();
+    @Shadow public abstract void shadow$setSwimming(boolean p_204711_1_);
 
+    protected int maxAir = 300;
     private boolean velocityChanged;
     private boolean persistent = true;
     private EntityDamageEvent lastDamageCause;
@@ -143,13 +150,13 @@ public abstract class MixinEntity implements Entity {
         return new Vector(getMotion().getX(), getMotion().getY(), getMotion().getZ());
     }
 
-    @Intrinsic
-    public double entity$getHeight() {
+    @Override
+    public double getHeight() {
         return shadow$getHeight();
     }
 
-    @Intrinsic
-    public double entity$getWidth() {
+    @Override
+    public double getWidth() {
         return shadow$getWidth();
     }
 
@@ -569,6 +576,11 @@ public abstract class MixinEntity implements Entity {
     @Override
     public PersistentDataContainer getPersistentDataContainer() {
         return null; // TODO
+    }
+
+    @Inject(method = "getMaxAir", at = @At("RETURN"))
+    private void onGetMaxAir(CallbackInfoReturnable<Integer> cir) {
+        cir.setReturnValue(maxAir);
     }
 
     @Inject(method = "writeUnlessRemoved", at = @At("HEAD"), cancellable = true)

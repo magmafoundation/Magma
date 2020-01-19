@@ -1,12 +1,12 @@
 {
   "required": true,
-  "minVersion": "0.8-SNAPSHOT",
+  "minVersion": "0.8",
   "package": "org.magmafoundation.magma.mixin.bridge",
-  "refmap": "mixins.magma.bukkit.refmap.json",
+  "refmap": "mixins.magma.bridge.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "minecraft.entity.BridgeMobEntity"
+    "minecraft.entity.MixinMobEntity"
   ],
   "server": [
   ],
