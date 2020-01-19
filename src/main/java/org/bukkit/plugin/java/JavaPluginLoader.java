@@ -43,6 +43,7 @@ public class JavaPluginLoader implements PluginLoader {
     private Pattern[] fileFilters = new Pattern[] { Pattern.compile("\\.jar$"), };
     private Map<String, Class<?>> classes = new java.util.concurrent.ConcurrentHashMap<String, Class<?>>(); // Spigot
     private List<PluginClassLoader> loaders = new CopyOnWriteArrayList<PluginClassLoader>();
+    public static final CustomTimingsHandler pluginParentTimer = new CustomTimingsHandler("** Plugins"); // Spigot
 
     /**
      * This class was not meant to be constructed explicitly
@@ -300,12 +301,13 @@ public class JavaPluginLoader implements PluginLoader {
                 }
             }
 
+            final CustomTimingsHandler timings = new CustomTimingsHandler("Plugin: " + plugin.getDescription().getFullName() + " Event: " + listener.getClass().getName() + "::" + method.getName()+"("+eventClass.getSimpleName()+")", pluginParentTimer); // Spigot
             EventExecutor executor;
                     try {
                 executor = EventExecutor.create(method, eventClass);
                         }
             catch (Exception e2) {
-                executor = new EventExecutor1(method, eventClass);
+                executor = new EventExecutor1(method, eventClass, timings);
                     }
             // Spigot // Paper - Use factory method `EventExecutor.create()`
                 eventSet.add(new RegisteredListener(listener, executor, eh.priority(), plugin, eh.ignoreCancelled()));
