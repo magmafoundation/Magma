@@ -377,8 +377,10 @@ public class Potion {
      * @param other The new PotionBrewer
      */
     public static void setPotionBrewer(PotionBrewer other) {
-        if (brewer != null)
-            throw new IllegalArgumentException("brewer can only be set internally");
+        if (brewer != null){
+            brewer = other; // Magma - FastWorkBench
+        }
+
         brewer = other;
     }
 
