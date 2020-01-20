@@ -1,6 +1,7 @@
 package org.magmafoundation.magma.mixin.core.minecraft.entity.ai.attributes;
 
 import net.minecraft.entity.ai.attributes.IAttribute;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -16,7 +17,7 @@ import java.util.Collection;
  * @author Redned
  * @since 16/01/2019 - 07:31 am
  */
-@Mixin(net.minecraft.entity.ai.attributes.IAttributeInstance.class)
+@Mixin(ModifiableAttributeInstance.class)
 @Implements(@Interface(iface = AttributeInstance.class, prefix = "instance$"))
 public abstract class MixinAttributeInstance implements AttributeInstance {
 

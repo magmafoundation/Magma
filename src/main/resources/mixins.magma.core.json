@@ -13,11 +13,10 @@
     "minecraft.entity.ai.attributes.MixinAttributeInstance",
     "minecraft.entity.player.MixinPlayerEntity",
     "minecraft.entity.player.MixinServerPlayerEntity",
+    "minecraft.server.MixinMinecraftServer",
     "minecraft.world.MixinWorld"
   ],
-  "server": [
-    "minecraft.server.MixinMinecraftServer"
-  ],
+  "server": [],
   "injectors": {
     "defaultRequire": 1
   },

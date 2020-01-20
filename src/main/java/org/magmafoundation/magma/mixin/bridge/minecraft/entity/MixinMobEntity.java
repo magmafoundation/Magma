@@ -1,6 +1,7 @@
 package org.magmafoundation.magma.mixin.bridge.minecraft.entity;
 
 import net.minecraft.entity.MobEntity;
+
 import org.magmafoundation.magma.bridge.minecraft.entity.BridgeMobEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
