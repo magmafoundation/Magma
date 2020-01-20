@@ -1,8 +1,8 @@
 package org.magmafoundation.magma.mixin.core.minecraft.server;
 
 import com.google.common.collect.Lists;
-import joptsimple.OptionSet;
 
+import joptsimple.OptionSet;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
@@ -59,13 +59,13 @@ public abstract class MixinMinecraftServer implements Server {
     @Shadow private boolean onlineMode;
     @Shadow private boolean allowFlight;
     @Shadow private String motd;
-    @Shadow public abstract int shadow$getMaxPlayers();
 
     private static OptionSet options;
 
-    @Inject(method = "<init>*", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstructed(CallbackInfo ci) {
         Bukkit.setServer(this);
+        System.out.println("Starting " + Magma.getName() + " version " + Magma.getVersion() + ", implementing API version " + Magma.getBukkitVersion());
     }
 
     @Inject(method = "main", at = @At("HEAD"))
@@ -96,7 +96,7 @@ public abstract class MixinMinecraftServer implements Server {
 
     @Intrinsic
     public int server$getMaxPlayers() {
-        return shadow$getMaxPlayers();
+        return playerList.getMaxPlayers();
     }
 
     @Override
@@ -637,10 +637,5 @@ public abstract class MixinMinecraftServer implements Server {
     @Override
     public Set<String> getListeningPluginChannels() {
         return null;
-    }
-
-    @Overwrite
-    public String getServerModName() {
-        return "Magma";
     }
 }

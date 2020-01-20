@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+}
+
+group = "org.magmafoundation"
+archivesBaseName = "mixin-launcher"
+version = "1.0.0"
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+    maven {
+        name = "minecraftforge"
+        url = "https://files.minecraftforge.net/maven"
+    }
+    maven {
+        name = "spongepowered"
+        url = "https://repo.spongepowered.org/maven"
+    }
+}
+
+configurations {
+    provided {
+        compile.extendsFrom(provided)
+    }
+}
+
+dependencies {
+    provided("com.google.code.findbugs:jsr305:3.0.2")
+    provided("com.google.code.gson:gson:2.8.5")
+    provided("com.google.guava:guava:26.0-jre")
+    provided("cpw.mods:modlauncher:4.2.0") {
+        exclude(module: "asm-analysis")
+    }
+    provided("net.sf.jopt-simple:jopt-simple:5.0.4")
+    provided("org.apache.logging.log4j:log4j-api:2.11.2")
+    provided("org.ow2.asm:asm-analysis:6.2") {
+        transitive = false
+    }
+    compile('org.ow2.asm:asm-commons:7.2')
+    compile("org.ow2.asm:asm-util:6.2") {
+        transitive = false
+    }
+    compile("org.spongepowered:mixin:0.8-SNAPSHOT") {
+        transitive = false
+    }
+}
+
+jar {
+    from ((configurations.compile - configurations.provided).findAll({
+        it.isDirectory() || it.name.endsWith(".jar")
+    }).collect({
+        it.isDirectory() ? it : zipTree(it)
+    })) {
+
+        exclude("META-INF/services/cpw.mods.modlauncher.*")
+        exclude("META-INF/*.RSA")
+        exclude("META-INF/*.SF")
+    }
+
+    exclude("module-info.class")
+}
+

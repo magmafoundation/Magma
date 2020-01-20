@@ -1,6 +1,7 @@
 package org.magmafoundation.magma.mixin.core.minecraft.entity;
 
 import com.google.common.collect.Sets;
+
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AbstractAttributeMap;

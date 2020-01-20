@@ -10,7 +10,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.chunk.AbstractChunkProvider;
 import net.minecraft.world.dimension.Dimension;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldInfo;
 
 import org.bukkit.*;
