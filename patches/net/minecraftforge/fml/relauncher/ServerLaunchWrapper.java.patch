@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraftforge/fml/relauncher/ServerLaunchWrapper.java
 +++ ../src-work/minecraft/net/minecraftforge/fml/relauncher/ServerLaunchWrapper.java
-@@ -20,20 +20,53 @@
+@@ -20,20 +20,54 @@
  package net.minecraftforge.fml.relauncher;
  
  import java.lang.reflect.Method;
@@ -37,6 +37,7 @@
 +          DownloadServerFiles.downloadServerLibraries();
 +      }
 +
++
 +      new ServerLaunchWrapper().run(args);
      }
  
@@ -58,7 +59,7 @@
      private ServerLaunchWrapper()
      {
  
-@@ -56,9 +89,9 @@
+@@ -56,9 +90,9 @@
          {
              System.err.printf("We appear to be missing one or more essential library files.\n" +
              		"You will need to add them to your server before FML and Forge will run successfully.");

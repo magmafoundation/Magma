@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1;
 
+import com.google.common.cache.CacheBuilder;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -193,7 +194,7 @@ public final class CraftServer implements Server {
     private final SimplePluginManager pluginManager = new SimplePluginManager(this, commandMap);
     private final Map<String, World> worlds = new LinkedHashMap<String, World>();
     private final Yaml yaml = new Yaml(new SafeConstructor());
-    private final Map<UUID, OfflinePlayer> offlinePlayers = new MapMaker().weakValues().makeMap();
+    private final Map<UUID, OfflinePlayer> offlinePlayers = CacheBuilder.newBuilder().softValues().<UUID, OfflinePlayer>build().asMap();
     private final EntityMetadataStore entityMetadata = new EntityMetadataStore();
     private final PlayerMetadataStore playerMetadata = new PlayerMetadataStore();
     private final WorldMetadataStore worldMetadata = new WorldMetadataStore();
@@ -261,7 +262,7 @@ public final class CraftServer implements Server {
     public CraftServer(MinecraftServer console, PlayerList playerList) {
         this.console = console;
         this.playerList = (DedicatedPlayerList) playerList;
-        this.playerView = Collections.unmodifiableList(Lists.transform(playerList.getPlayers(), player -> player.getBukkitEntity()));
+        this.playerView = Collections.unmodifiableList(Lists.transform(playerList.getPlayers(), EntityPlayerMP::getBukkitEntity));
         this.serverVersion = CraftServer.class.getPackage().getImplementationVersion();
         online.value = console.getPropertyManager().getBooleanProperty("online-mode", true);
 
@@ -1274,7 +1275,7 @@ public final class CraftServer implements Server {
             }
         GameProfile profile;
         // Only fetch an online UUID in online mode
-        if (MinecraftServer.getServerCB().isServerInOnlineMode() || (org.spigotmc.SpigotConfig.bungee)) {
+        if (MinecraftServer.getServerInst().isServerInOnlineMode() || (org.spigotmc.SpigotConfig.bungee)) {
             profile = console.getPlayerProfileCache().getGameProfileForUsername( name );
         } else {
             // Make an OfflinePlayer using an offline mode UUID since the name has no profile

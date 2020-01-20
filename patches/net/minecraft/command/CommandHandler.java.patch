@@ -88,7 +88,7 @@
 +        this.commandMap.put(command.getName(), command);
 +        this.commandSet.add(command);
 +        // register vanilla commands with Bukkit to support permissions.
-+        CraftSimpleCommandMap commandMap = MinecraftServer.getServerCB().server.getCraftCommandMap();
++        CraftSimpleCommandMap commandMap = MinecraftServer.getServerInst().server.getCraftCommandMap();
 +        ModCustomCommand customCommand = new ModCustomCommand(command.getName());
 +        customCommand.setPermission(permissionNode);
 +        if (list != null) customCommand.setAliases(list);
