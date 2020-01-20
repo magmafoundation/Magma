@@ -20,6 +20,15 @@
              }
          }
  
+@@ -323,7 +324,7 @@
+ 
+     public PacketBuffer writeItemStack(ItemStack stack)
+     {
+-        if (stack.isEmpty())
++        if (stack.isEmpty() || stack.getItem() == null) // CraftBukkit - NPE fix itemstack.getItem()
+         {
+             this.writeShort(-1);
+         }
 @@ -359,6 +360,8 @@
              int k = this.readShort();
              ItemStack itemstack = new ItemStack(Item.getItemById(i), j, k);
