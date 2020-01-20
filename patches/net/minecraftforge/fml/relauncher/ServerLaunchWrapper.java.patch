@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraftforge/fml/relauncher/ServerLaunchWrapper.java
 +++ ../src-work/minecraft/net/minecraftforge/fml/relauncher/ServerLaunchWrapper.java
-@@ -20,18 +20,25 @@
+@@ -20,20 +20,53 @@
  package net.minecraftforge.fml.relauncher;
  
  import java.lang.reflect.Method;
@@ -20,6 +20,17 @@
      {
 -        new ServerLaunchWrapper().run(args);
 +      System.out.println("Starting Magma");
++
++        if(getJavaVersion() > 8){
++            try {
++                throw new JavaToNewException();
++            } catch (JavaToNewException e) {
++                e.printStackTrace();
++                System.out.println("Magma Only Support's Java 8");
++                return;
++            }
++        }
++
 +      DownloadServerFiles.downloadMinecraftServer();
 +
 +      if(DownloadServerFiles.getLibrariesVersion()){
@@ -29,8 +40,25 @@
 +      new ServerLaunchWrapper().run(args);
      }
  
++    private static class JavaToNewException extends RuntimeException {
++
++    }
++
++    public static int getJavaVersion() {
++        String version = System.getProperty("java.version");
++        if (version.startsWith("1.")) {
++            version = version.substring(2);
++        }
++
++        int dotPos = version.indexOf('.');
++        int dashPos = version.indexOf('-');
++        return Integer.parseInt(version.substring(0, dotPos > -1 ? dotPos : dashPos > -1 ? dashPos : 1));
++    }
++
      private ServerLaunchWrapper()
-@@ -56,9 +63,9 @@
+     {
+ 
+@@ -56,9 +89,9 @@
          {
              System.err.printf("We appear to be missing one or more essential library files.\n" +
              		"You will need to add them to your server before FML and Forge will run successfully.");
