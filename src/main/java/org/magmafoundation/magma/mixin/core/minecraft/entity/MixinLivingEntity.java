@@ -45,7 +45,6 @@ import java.util.*;
 public abstract class MixinLivingEntity extends MixinEntity implements LivingEntity {
 
     @Shadow @Final private Map<Effect, EffectInstance> activePotionsMap;
-    @Shadow @Final public int maxHurtResistantTime;
     @Shadow protected float lastDamage;
     @Shadow protected PlayerEntity attackingPlayer;
 
@@ -63,6 +62,7 @@ public abstract class MixinLivingEntity extends MixinEntity implements LivingEnt
     @Shadow public abstract float shadow$getAbsorptionAmount();
     @Shadow public abstract void shadow$setAbsorptionAmount(float amount);
 
+    private int maxNoDamageTicks = 20;
     private boolean canPickUpItems;
     private boolean collidable;
 
@@ -142,12 +142,12 @@ public abstract class MixinLivingEntity extends MixinEntity implements LivingEnt
 
     @Override
     public int getMaximumNoDamageTicks() {
-        return maxHurtResistantTime;
+        return maxNoDamageTicks;
     }
 
     @Override
     public void setMaximumNoDamageTicks(int ticks) {
-        this.maxHurtResistantTime = ticks;
+        this.maxNoDamageTicks = ticks;
     }
 
     @Override

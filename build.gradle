@@ -121,6 +121,7 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft("net.minecraftforge:forge:1.14.4-28.1.93")
     compile("org.spongepowered:mixin:0.8-SNAPSHOT")
+    shadow('org.fusesource.jansi:jansi:1.18')
     shadow("com.destroystokyo.paper:paper-api:1.14.4-R0.1-SNAPSHOT") {
         exclude(module: "asm")
         exclude(module: "asm-util")
@@ -129,14 +130,22 @@ dependencies {
 }
 
 mixin {
+    add sourceSets.main, "mixins.magma.bridge.refmap.json"
     add sourceSets.main, "mixins.magma.core.refmap.json"
+
+    defaultObfuscationEnv "notch"
 }
 
 shadowJar {
     setArchivesBaseName("Magma")
     configurations = [project.configurations.shadow]
     manifest {
-        attributes("MixinConnector": "org.magmafoundation.magma.launcher.Launcher")
+        attributes(
+                "MixinConnector": "org.magmafoundation.magma.launcher.Launcher",
+                "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+                "TweakOrder": "0",
+                "MixinConfigs": "mixins.magma.bridge.json,mixins.magma.core.json"
+        )
     }
 }
 

@@ -32,6 +32,7 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.CachedServerIcon;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.MagmaOptions;
+import org.magmafoundation.magma.plugin.MagmaPluginManager;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -53,6 +54,8 @@ import java.util.logging.Logger;
 @Implements(@Interface(iface = Server.class, prefix = "server$"))
 public abstract class MixinMinecraftServer implements Server {
 
+    @Shadow @Final private static org.apache.logging.log4j.Logger LOGGER;
+
     @Shadow @Final protected Thread serverThread;
     @Shadow private int serverPort;
     @Shadow private PlayerList playerList;
@@ -62,16 +65,7 @@ public abstract class MixinMinecraftServer implements Server {
 
     private static OptionSet options;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void onConstructed(CallbackInfo ci) {
-        Bukkit.setServer(this);
-        System.out.println("Starting " + Magma.getName() + " version " + Magma.getVersion() + ", implementing API version " + Magma.getBukkitVersion());
-    }
-
-    @Inject(method = "main", at = @At("HEAD"))
-    private static void main(String[] p_main_0_, CallbackInfo callbackInfo) {
-        options = MagmaOptions.main(p_main_0_);
-    }
+    private MagmaPluginManager pluginManager = new MagmaPluginManager();
 
     @Override
     public String getName() {
@@ -206,7 +200,7 @@ public abstract class MixinMinecraftServer implements Server {
 
     @Override
     public PluginManager getPluginManager() {
-        return null;
+        return pluginManager;
     }
 
     @Override
@@ -281,7 +275,7 @@ public abstract class MixinMinecraftServer implements Server {
 
     @Override
     public Logger getLogger() {
-        return null;
+        return Magma.getLogger();
     }
 
     @Override
@@ -638,4 +632,15 @@ public abstract class MixinMinecraftServer implements Server {
     public Set<String> getListeningPluginChannels() {
         return null;
     }
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onConstructed(CallbackInfo ci) {
+        Bukkit.setServer(this);
+    }
+
+    @Inject(method = "main", at = @At("HEAD"))
+    private static void main(String[] p_main_0_, CallbackInfo callbackInfo) {
+        options = MagmaOptions.main(p_main_0_);
+    }
+
 }
