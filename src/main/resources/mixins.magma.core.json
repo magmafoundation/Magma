@@ -14,6 +14,8 @@
     "minecraft.entity.MixinLivingEntity",
     "minecraft.entity.MixinEntity",
     "minecraft.server.MixinMinecraftServer",
+    "minecraft.world.chunk.MixinChunk",
+    "minecraft.block.MixinBlock",
     "minecraft.world.MixinServerWorld",
     "minecraft.world.MixinWorld"
   ],
