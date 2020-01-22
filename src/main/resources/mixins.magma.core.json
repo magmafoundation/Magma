@@ -8,19 +8,14 @@
   "mixins": [
     "minecraft.advancement.MixinAdvancement",
     "minecraft.advancement.MixinAdvancementProgress",
-    "minecraft.entity.MixinEntity",
-    "minecraft.entity.MixinLivingEntity",
     "minecraft.entity.ai.attributes.MixinAttributeInstance",
-    "minecraft.entity.player.MixinPlayerEntity",
     "minecraft.entity.player.MixinServerPlayerEntity",
+    "minecraft.entity.player.MixinPlayerEntity",
+    "minecraft.entity.MixinLivingEntity",
+    "minecraft.entity.MixinEntity",
     "minecraft.server.MixinMinecraftServer",
+    "minecraft.world.MixinServerWorld",
     "minecraft.world.MixinWorld"
   ],
-  "server": [],
-  "injectors": {
-    "defaultRequire": 1
-  },
-  "overwrites": {
-    "conformVisibility": true
-  }
+  "server": []
 }

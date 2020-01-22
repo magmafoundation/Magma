@@ -218,9 +218,4 @@ public abstract class MixinPlayerEntity extends MixinLivingEntity implements Hum
     public void setShoulderEntityRight(Entity entity) {
 
     }
-
-    @Override
-    public float shadow$getEyeHeight() {
-        return 0;
-    }
 }

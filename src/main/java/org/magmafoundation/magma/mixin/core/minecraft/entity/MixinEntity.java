@@ -44,7 +44,7 @@ import java.util.UUID;
 @Implements(@Interface(iface = Entity.class, prefix = "entity$"))
 public abstract class MixinEntity implements Entity {
 
-    protected static PermissibleBase permissibleBase = new PermissibleBase(new ServerOperator() {
+    private static PermissibleBase permissibleBase = new PermissibleBase(new ServerOperator() {
 
         @Override
         public boolean isOp() {

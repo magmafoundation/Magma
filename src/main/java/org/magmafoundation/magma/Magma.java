@@ -13,7 +13,7 @@ public class Magma {
     private static final String VERSION =
         (Magma.class.getPackage().getImplementationVersion() != null) ? Magma.class.getPackage()
             .getImplementationVersion() : "dev-env";
-    private static final String BUKKIT_VERSION = "v1_14_4_R1";
+    private static final String BUKKIT_VERSION = "v1_14_R1";
     private static final String NMS_PREFIX = "net/minecraft/server/";
 
     public static String getName() {
