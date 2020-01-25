@@ -39,6 +39,7 @@ import org.bukkit.util.CachedServerIcon;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.MagmaOptions;
 import org.magmafoundation.magma.mixin.core.minecraft.server.MixinMinecraftServer;
+import org.magmafoundation.magma.util.MagmaUnsafeValues;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -662,7 +663,7 @@ public abstract class MixinDedicatedServer extends MixinMinecraftServer implemen
 
     @Override
     public UnsafeValues getUnsafe() {
-        return null;
+        return MagmaUnsafeValues.getInstance();
     }
 
     @Override
@@ -690,7 +691,7 @@ public abstract class MixinDedicatedServer extends MixinMinecraftServer implemen
                     plugin.getLogger().info(message);
                     plugin.onLoad();
                 } catch (Throwable e) {
-                    Logger.getLogger(MixinDedicatedServer.class.getName()).log(Level.SEVERE, e.getMessage() + " initializing " + plugin.getDescription().getFullName() + " (Is it up to date?)", e);
+                    Logger.getLogger(DedicatedServer.class.getName()).log(Level.SEVERE, e.getMessage() + " initializing " + plugin.getDescription().getFullName() + " (Is it up to date?)", e);
                 }
             }
         } else {
