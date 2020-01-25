@@ -1,15 +1,13 @@
 package org.magmafoundation.magma.mixin.core.minecraft.entity.ai.attributes;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.spongepowered.asm.mixin.*;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * MixinAttributeInstance
@@ -46,11 +44,7 @@ public abstract class MixinAttributeInstance implements AttributeInstance {
 
     @Override
     public Collection<AttributeModifier> getModifiers() {
-       Collection<AttributeModifier> modifiers = new ArrayList<>();
-       for (net.minecraft.entity.ai.attributes.AttributeModifier modifier : shadow$getModifiers()) {
-           modifiers.add(getBukkitAttribute(modifier));
-       }
-       return modifiers;
+        return shadow$getModifiers().stream().map(this::getBukkitAttribute).collect(Collectors.toList());
     }
 
     @Override

@@ -21,6 +21,7 @@
     "minecraft.server.management.MixinBanEntry",
     "minecraft.server.management.MixinUserList",
     "minecraft.server.management.MixinUserListEntry",
+    "minecraft.world.raid.MixinRaid",
     "minecraft.world.MixinServerWorld",
     "minecraft.world.MixinWorld",
     "minecraft.world.chunk.MixinChunk"
