@@ -16,6 +16,8 @@ public class Magma {
     private static final String BUKKIT_VERSION = "v1_14_R1";
     private static final String NMS_PREFIX = "net/minecraft/server/";
 
+    private static final String MIN_API_VERSION = "1.14";
+
     public static String getName() {
         return NAME;
     }
@@ -30,6 +32,10 @@ public class Magma {
 
     public static String getNmsPrefix() {
         return NMS_PREFIX;
+    }
+
+    public static String getMinimumAPIVersion() {
+        return MIN_API_VERSION;
     }
 
     public static Logger getLogger() {

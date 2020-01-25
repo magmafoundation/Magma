@@ -1,10 +1,10 @@
 package org.magmafoundation.magma;
 
+import static java.util.Arrays.asList;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +25,8 @@ public class MagmaOptions {
 
     public static boolean useJline = true;
     public static boolean useConsole = true;
+
+    private static OptionSet options;
 
     public static OptionSet main(String[] args) {
         // Todo: Installation script
@@ -222,13 +224,17 @@ public class MagmaOptions {
             } catch (Throwable t) {
                 t.printStackTrace();
             }
-            return options;
+            return MagmaOptions.options = options;
         }
         return null;
     }
 
-    private static List<String> asList(String... params) {
-        return Arrays.asList(params);
+    /**
+     * Returns the Magma option set
+     *
+     * @return the Magma option set
+     */
+    public static OptionSet getOptions() {
+        return options;
     }
-
 }

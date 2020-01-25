@@ -30,17 +30,18 @@ import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
+import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.CachedServerIcon;
 import org.magmafoundation.magma.Magma;
+import org.magmafoundation.magma.MagmaOptions;
 import org.magmafoundation.magma.mixin.core.minecraft.server.MixinMinecraftServer;
-import org.magmafoundation.magma.plugin.MagmaPluginManager;
+import org.magmafoundation.magma.util.MagmaUnsafeValues;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -63,7 +64,7 @@ public abstract class MixinDedicatedServer extends MixinMinecraftServer implemen
     @Final
     private static org.apache.logging.log4j.Logger LOGGER;
     private SimpleCommandMap commandMap = new SimpleCommandMap(this);
-    private MagmaPluginManager pluginManager = new MagmaPluginManager(this, commandMap);
+    private SimplePluginManager pluginManager = new SimplePluginManager(this, commandMap);
 
     @Override
     public String getName() {
@@ -158,12 +159,12 @@ public abstract class MixinDedicatedServer extends MixinMinecraftServer implemen
 
     @Override
     public String getUpdateFolder() {
-        return null;
+        return "update";
     }
 
     @Override
     public File getUpdateFolderFile() {
-        return null;
+        return new File((File) MagmaOptions.getOptions().valueOf("plugins"), this.getUpdateFolder());
     }
 
     @Override
@@ -662,7 +663,7 @@ public abstract class MixinDedicatedServer extends MixinMinecraftServer implemen
 
     @Override
     public UnsafeValues getUnsafe() {
-        return null;
+        return MagmaUnsafeValues.getInstance();
     }
 
     @Override
@@ -675,18 +676,9 @@ public abstract class MixinDedicatedServer extends MixinMinecraftServer implemen
         return null;
     }
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void onConstructed(CallbackInfo ci) {
-        Bukkit.setServer(this);
-    }
-
-    /**
-     * Somehow this doesn't run? TODO: Fix this
-     */
-    @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/dedicated/DedicatedServer;loadAllWorlds(Ljava/lang/String;Ljava/lang/String;JLnet/minecraft/world/WorldType;Lcom/google/gson/JsonElement;)V", shift = Shift.BEFORE))
-    public void loadPlugins(CallbackInfoReturnable<Boolean> cir) {
+    public void loadPlugins() {
+        LOGGER.info("Starting plugin load process...");
         getPluginManager().registerInterface(JavaPluginLoader.class);
-        LOGGER.info("Starting to load Plugins");
 
         File pluginFolder = new File("plugins");
 
@@ -699,7 +691,7 @@ public abstract class MixinDedicatedServer extends MixinMinecraftServer implemen
                     plugin.getLogger().info(message);
                     plugin.onLoad();
                 } catch (Throwable e) {
-                    Logger.getLogger(MixinDedicatedServer.class.getName()).log(Level.SEVERE, e.getMessage() + " initializing " + plugin.getDescription().getFullName() + " (Is it up to date?)", e);
+                    Logger.getLogger(DedicatedServer.class.getName()).log(Level.SEVERE, e.getMessage() + " initializing " + plugin.getDescription().getFullName() + " (Is it up to date?)", e);
                 }
             }
         } else {
@@ -707,4 +699,13 @@ public abstract class MixinDedicatedServer extends MixinMinecraftServer implemen
         }
     }
 
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void onConstructed(CallbackInfo ci) {
+        Bukkit.setServer(this);
+    }
+
+    @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/dedicated/DedicatedServer;convertFiles()Z"))
+    private void onInit(CallbackInfoReturnable<Boolean> cir) {
+        loadPlugins();
+    }
 }

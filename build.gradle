@@ -137,7 +137,7 @@ mixin {
     add sourceSets.main, "mixins.magma.bridge.refmap.json"
     add sourceSets.main, "mixins.magma.core.refmap.json"
 
-    defaultObfuscationEnv "notch"
+    defaultObfuscationEnv "searge"
 }
 
 shadowJar {
@@ -151,6 +151,7 @@ shadowJar {
                 "MixinConfigs": "mixins.magma.bridge.json,mixins.magma.core.json"
         )
     }
+    relocate("org.apache.commons.lang", "org.magmafoundation.magma.shaded.commons.lang")
 }
 
 reobf {
