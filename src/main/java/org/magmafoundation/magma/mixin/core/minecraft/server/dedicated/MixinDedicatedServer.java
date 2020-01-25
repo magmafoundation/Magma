@@ -1,14 +1,17 @@
 package org.magmafoundation.magma.mixin.core.minecraft.server.dedicated;
 
 import com.google.common.collect.Lists;
-
 import com.google.common.collect.Sets;
-
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.minecraft.server.ServerPropertiesProvider;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.GameType;
 import net.minecraft.world.server.ServerWorld;
-
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.block.data.BlockData;
@@ -27,6 +30,7 @@ import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.ScoreboardManager;
@@ -36,14 +40,10 @@ import org.magmafoundation.magma.mixin.core.minecraft.server.MixinMinecraftServe
 import org.magmafoundation.magma.plugin.MagmaPluginManager;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.logging.Logger;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * MixinDedicatedServer
@@ -55,9 +55,15 @@ import java.util.logging.Logger;
 @Implements(@Interface(iface = Server.class, prefix = "server$"))
 public abstract class MixinDedicatedServer extends MixinMinecraftServer implements Server {
 
-    @Shadow @Final private ServerPropertiesProvider settings;
+    @Shadow
+    @Final
+    private ServerPropertiesProvider settings;
 
-    private MagmaPluginManager pluginManager = new MagmaPluginManager();
+    @Shadow
+    @Final
+    private static org.apache.logging.log4j.Logger LOGGER;
+    private SimpleCommandMap commandMap = new SimpleCommandMap(this);
+    private MagmaPluginManager pluginManager = new MagmaPluginManager(this, commandMap);
 
     @Override
     public String getName() {
@@ -673,4 +679,32 @@ public abstract class MixinDedicatedServer extends MixinMinecraftServer implemen
     private void onConstructed(CallbackInfo ci) {
         Bukkit.setServer(this);
     }
+
+    /**
+     * Somehow this doesn't run? TODO: Fix this
+     */
+    @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/dedicated/DedicatedServer;loadAllWorlds(Ljava/lang/String;Ljava/lang/String;JLnet/minecraft/world/WorldType;Lcom/google/gson/JsonElement;)V", shift = Shift.BEFORE))
+    public void loadPlugins(CallbackInfoReturnable<Boolean> cir) {
+        getPluginManager().registerInterface(JavaPluginLoader.class);
+        LOGGER.info("Starting to load Plugins");
+
+        File pluginFolder = new File("plugins");
+
+        if (pluginFolder.exists()) {
+            Plugin[] plugins = getPluginManager().loadPlugins(pluginFolder);
+            for (Plugin plugin : plugins) {
+                try {
+                    String message = String.format("Loading %s", plugin.getDescription().getFullName());
+                    LOGGER.info(message);
+                    plugin.getLogger().info(message);
+                    plugin.onLoad();
+                } catch (Throwable e) {
+                    Logger.getLogger(MixinDedicatedServer.class.getName()).log(Level.SEVERE, e.getMessage() + " initializing " + plugin.getDescription().getFullName() + " (Is it up to date?)", e);
+                }
+            }
+        } else {
+            pluginFolder.mkdir();
+        }
+    }
+
 }
