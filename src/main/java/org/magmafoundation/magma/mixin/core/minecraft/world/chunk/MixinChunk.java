@@ -1,10 +1,10 @@
 package org.magmafoundation.magma.mixin.core.minecraft.world.chunk;
 
-import java.util.Collection;
-import java.util.Random;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
@@ -15,6 +15,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.*;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * MixinChunk
@@ -28,9 +32,11 @@ public abstract class MixinChunk implements Chunk {
 
     //@formatter:off
     @Shadow @Final private ChunkPos pos;
+    @Shadow @Final private Map<BlockPos, TileEntity> tileEntities;
     @Shadow @Final private net.minecraft.world.World world;
-    @Shadow private long inhabitedTime;
     @Shadow public abstract ClassInheritanceMultiMap<net.minecraft.entity.Entity>[] getEntityLists();
+    @Shadow public abstract long shadow$getInhabitedTime();
+    @Shadow public abstract void shadow$setInhabitedTime(long newInhabitedTime);
     //@formatter:on
 
     @Override
@@ -64,7 +70,7 @@ public abstract class MixinChunk implements Chunk {
     @NotNull
     @Override
     public ChunkSnapshot getChunkSnapshot(boolean includeMaxblocky, boolean includeBiome, boolean includeBiomeTempRain) {
-        return null;
+        return null; // TODO
     }
 
     @NotNull
@@ -76,20 +82,13 @@ public abstract class MixinChunk implements Chunk {
     @NotNull
     @Override
     public BlockState[] getTileEntities(boolean useSnapshot) {
-        int index = 0;
-        net.minecraft.world.chunk.Chunk chunk = (net.minecraft.world.chunk.Chunk) (Object) this;
-
-        BlockState[] entities = new BlockState[chunk.getTileEntityMap().size()];
-
-        for (Object obj : chunk.getTileEntityMap().keySet().toArray()) {
-            if (!(obj instanceof BlockPos)) {
-                continue;
-            }
-
-            BlockPos position = (BlockPos) obj;
-            entities[index++] = getWorld().getBlockAt(position.getX(), position.getY(), position.getZ()).getState();
+        BlockState[] blockStates = new BlockState[tileEntities.size()];
+        TileEntity[] tileEntities = this.tileEntities.values().toArray(new TileEntity[0]);
+        for (int i = 0; i < tileEntities.length; i++) {
+            TileEntity tileEntity = tileEntities[i];
+            blockStates[i] = ((Block) tileEntity.getBlockState().getBlock()).getState();
         }
-        return entities;
+        return blockStates;
     }
 
     @Override
@@ -130,38 +129,38 @@ public abstract class MixinChunk implements Chunk {
 
     @Override
     public boolean isForceLoaded() {
-        return false;
+        return getWorld().isChunkForceLoaded(getX(), getZ());
     }
 
     @Override
     public void setForceLoaded(boolean forced) {
-
+        getWorld().setChunkForceLoaded(getX(), getZ(), forced);
     }
 
     @Override
     public boolean addPluginChunkTicket(@NotNull Plugin plugin) {
-        return false;
+        return getWorld().addPluginChunkTicket(getX(), getZ(), plugin);
     }
 
     @Override
     public boolean removePluginChunkTicket(@NotNull Plugin plugin) {
-        return false;
+        return getWorld().removePluginChunkTicket(getX(), getZ(), plugin);
     }
 
     @NotNull
     @Override
     public Collection<Plugin> getPluginChunkTickets() {
-        return null;
+        return getWorld().getPluginChunkTickets(getX(), getZ());
     }
 
-    @Override
-    public long getInhabitedTime() {
-        return 0;
+    @Intrinsic
+    public long chunk$getInhabitedTime() {
+        return shadow$getInhabitedTime();
     }
 
-    @Override
-    public void setInhabitedTime(long ticks) {
-
+    @Intrinsic
+    public void chunk$setInhabitedTime(long ticks) {
+        shadow$setInhabitedTime(ticks);
     }
 
     @Override

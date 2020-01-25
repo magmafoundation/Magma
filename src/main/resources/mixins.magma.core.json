@@ -8,16 +8,25 @@
   "mixins": [
     "minecraft.advancement.MixinAdvancement",
     "minecraft.advancement.MixinAdvancementProgress",
+    "minecraft.block.MixinBlock",
     "minecraft.entity.ai.attributes.MixinAttributeInstance",
     "minecraft.entity.player.MixinServerPlayerEntity",
     "minecraft.entity.player.MixinPlayerEntity",
     "minecraft.entity.MixinLivingEntity",
     "minecraft.entity.MixinEntity",
-    "minecraft.server.MixinMinecraftServer",
-    "minecraft.world.chunk.MixinChunk",
-    "minecraft.block.MixinBlock",
+    "minecraft.server.management.MixinBanList",
+    "minecraft.server.management.MixinProfileBanEntry",
+    "minecraft.server.management.MixinIPBanList",
+    "minecraft.server.management.MixinIPBanEntry",
+    "minecraft.server.management.MixinBanEntry",
+    "minecraft.server.management.MixinUserList",
+    "minecraft.server.management.MixinUserListEntry",
     "minecraft.world.MixinServerWorld",
-    "minecraft.world.MixinWorld"
+    "minecraft.world.MixinWorld",
+    "minecraft.world.chunk.MixinChunk"
   ],
-  "server": []
+  "server": [
+    "minecraft.server.dedicated.MixinDedicatedServer",
+    "minecraft.server.MixinMinecraftServer"
+  ]
 }
