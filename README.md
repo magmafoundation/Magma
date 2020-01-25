@@ -1,4 +1,4 @@
-![Magma](https://img.hexeption.co.uk/magma-new.png)
+![Magma](https://img.hexeption.co.uk/magma.png)
 
 # Magma
 
