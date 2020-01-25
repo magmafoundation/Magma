@@ -21,13 +21,11 @@
     "minecraft.server.management.MixinBanEntry",
     "minecraft.server.management.MixinUserList",
     "minecraft.server.management.MixinUserListEntry",
+    "minecraft.server.dedicated.MixinDedicatedServer",
+    "minecraft.server.MixinMinecraftServer",
     "minecraft.world.raid.MixinRaid",
     "minecraft.world.MixinServerWorld",
     "minecraft.world.MixinWorld",
     "minecraft.world.chunk.MixinChunk"
-  ],
-  "server": [
-    "minecraft.server.dedicated.MixinDedicatedServer",
-    "minecraft.server.MixinMinecraftServer"
   ]
 }
