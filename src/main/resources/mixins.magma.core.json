@@ -8,7 +8,9 @@
   "mixins": [
     "minecraft.advancement.MixinAdvancement",
     "minecraft.advancement.MixinAdvancementProgress",
-    "minecraft.block.MixinBlock",
+    "minecraft.block.MixinBlockState",
+    "minecraft.block.MixinSoundType",
+    "minecraft.block.state.MixinStateHolder",
     "minecraft.entity.ai.attributes.MixinAttributeInstance",
     "minecraft.entity.player.MixinServerPlayerEntity",
     "minecraft.entity.player.MixinPlayerEntity",
@@ -23,8 +25,11 @@
     "minecraft.server.management.MixinUserListEntry",
     "minecraft.server.dedicated.MixinDedicatedServer",
     "minecraft.server.MixinMinecraftServer",
+    "minecraft.world.raid.AccessorRaidManager",
     "minecraft.world.raid.MixinRaid",
-    "minecraft.world.MixinServerWorld",
+    "minecraft.world.server.AccessorChunkManager",
+    "minecraft.world.server.AccessorServerChunkProvider",
+    "minecraft.world.server.MixinServerWorld",
     "minecraft.world.MixinWorld",
     "minecraft.world.chunk.MixinChunk"
   ]

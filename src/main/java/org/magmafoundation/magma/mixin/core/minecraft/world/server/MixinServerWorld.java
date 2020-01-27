@@ -1,13 +1,22 @@
-package org.magmafoundation.magma.mixin.core.minecraft.world;
+package org.magmafoundation.magma.mixin.core.minecraft.world.server;
 
 import com.google.common.collect.Lists;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.server.SUpdateTimePacket;
+import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.chunk.ChunkPrimerWrapper;
+import net.minecraft.world.chunk.ChunkStatus;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.raid.RaidManager;
+import net.minecraft.world.server.ChunkHolder;
+import net.minecraft.world.server.ServerChunkProvider;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.server.TicketType;
 
 import org.bukkit.*;
 import org.bukkit.block.Biome;
@@ -25,11 +34,15 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
+import org.magmafoundation.magma.block.MagmaBlock;
+import org.magmafoundation.magma.mixin.core.minecraft.world.MixinWorld;
+import org.magmafoundation.magma.mixin.core.minecraft.world.raid.AccessorRaidManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -42,67 +55,77 @@ import java.util.function.Predicate;
 @Mixin(ServerWorld.class)
 public abstract class MixinServerWorld extends MixinWorld implements World {
 
+    private static final TicketType<Unit> PLUGIN = TicketType.create("plugin", (key, val) -> 0);
+    private static final TicketType<Unit> PLUGIN_TICKET = TicketType.create("plugin_ticket", Comparator.comparing(key -> key.getClass().getName()));
+
+    @Shadow @Final protected RaidManager raids;
     @Shadow @Final private Map<UUID, net.minecraft.entity.Entity> entitiesByUuid;
     @Shadow @Final private List<ServerPlayerEntity> players;
 
+    @Shadow public abstract ServerChunkProvider getChunkProvider();
+
     @Override
     public Block getBlockAt(int x, int y, int z) {
-        return null;
+        return new MagmaBlock(getBlockState(new BlockPos(x, y, z)).getBlock(), new Location(this, x, y ,z));
     }
 
     @Override
     public Block getBlockAt(Location location) {
-        return null;
+        return getBlockAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
     @Override
     public int getHighestBlockYAt(int x, int z) {
-        return 0;
+        if (!isChunkLoaded(x >> 4, z >> 4))
+            loadChunk(x >> 4, z >> 4);
+
+        return getHeight(Heightmap.Type.MOTION_BLOCKING, x, z);
     }
 
     @Override
     public int getHighestBlockYAt(Location location) {
-        return 0;
+        return getHighestBlockYAt(location.getBlockX(), location.getBlockZ());
     }
 
     @Override
     public Block getHighestBlockAt(int x, int z) {
-        return null;
+        return getBlockAt(x, getHighestBlockYAt(x, z), z);
     }
 
     @Override
     public Block getHighestBlockAt(Location location) {
-        return null;
+        return getHighestBlockAt(location.getBlockX(), location.getBlockZ());
     }
 
     @Override
     public Chunk getChunkAt(int x, int z) {
-        return null;
+        return (Chunk) chunkProvider.getChunk(x, z, true);
     }
 
     @Override
     public Chunk getChunkAt(Location location) {
-        return null;
+        return getChunkAt(location.getBlockX() >> 4, location.getBlockZ() >> 4);
     }
 
     @Override
     public Chunk getChunkAt(Block block) {
-        return null;
+        return getChunkAt(block.getLocation());
     }
 
     @Override
     public boolean isChunkLoaded(Chunk chunk) {
-        return false;
+        return isChunkLoaded(chunk.getX(), chunk.getZ());
     }
 
     @Override
     public Chunk[] getLoadedChunks() {
-        return new Chunk[0];
+        AccessorChunkManager chunkManagerAccessor = (AccessorChunkManager) getChunkProvider().chunkManager;
+        return (Chunk[]) chunkManagerAccessor.accessor$getVisibleChunks().values().stream().map(ChunkHolder::func_219298_c).toArray(net.minecraft.world.chunk.Chunk[]::new);
     }
 
     @Override
     public void loadChunk(Chunk chunk) {
-
+        loadChunk(chunk.getX(), chunk.getZ());
     }
 
     @Override
@@ -112,37 +135,50 @@ public abstract class MixinServerWorld extends MixinWorld implements World {
 
     @Override
     public boolean isChunkGenerated(int x, int z) {
-        return false;
+        try {
+            return isChunkLoaded(x, z) || getChunkProvider().chunkManager.readChunk(new ChunkPos(x, z)) != null;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
     public boolean isChunkInUse(int x, int z) {
-        return false;
+        return isChunkLoaded(x, z);
     }
 
     @Override
     public void loadChunk(int x, int z) {
-
+        loadChunk(x, z, true);
     }
 
     @Override
     public boolean loadChunk(int x, int z, boolean generate) {
+        IChunk chunk = chunkProvider.getChunk(x, z, generate ? ChunkStatus.FULL : ChunkStatus.EMPTY, true);
+        if (chunk instanceof ChunkPrimerWrapper) {
+            chunk = chunkProvider.getChunk(x, z, ChunkStatus.FULL, true);
+        }
+
+        if (chunk instanceof net.minecraft.world.chunk.Chunk) {
+            getChunkProvider().func_217228_a(PLUGIN, new ChunkPos(x, z), 1, Unit.INSTANCE);
+            return true;
+        }
         return false;
     }
 
     @Override
     public boolean unloadChunk(Chunk chunk) {
-        return false;
+        return unloadChunk(chunk.getX(), chunk.getZ());
     }
 
     @Override
     public boolean unloadChunk(int x, int z) {
-        return false;
+        return unloadChunk(x, z, true);
     }
 
     @Override
     public boolean unloadChunk(int x, int z, boolean save) {
-        return false;
+        return false; // TODO
     }
 
     @Override
@@ -232,7 +268,7 @@ public abstract class MixinServerWorld extends MixinWorld implements World {
 
     @Override
     public Entity spawnEntity(Location loc, EntityType type) {
-        return null;
+        return spawn(loc, type.getEntityClass());
     }
 
     @Override
@@ -497,7 +533,7 @@ public abstract class MixinServerWorld extends MixinWorld implements World {
 
     @Override
     public long getSeed() {
-        return 0;
+        return worldInfo.getSeed();
     }
 
     @Override
@@ -582,12 +618,12 @@ public abstract class MixinServerWorld extends MixinWorld implements World {
 
     @Override
     public boolean getAllowAnimals() {
-        return false;
+        return ((AccessorServerChunkProvider) getChunkProvider()).accessor$getSpawnPassives();
     }
 
     @Override
     public boolean getAllowMonsters() {
-        return false;
+        return ((AccessorServerChunkProvider) getChunkProvider()).accessor$getSpawnHostiles();
     }
 
     @Override
@@ -852,17 +888,18 @@ public abstract class MixinServerWorld extends MixinWorld implements World {
 
     @Override
     public Location locateNearestStructure(Location origin, StructureType structureType, int radius, boolean findUnexplored) {
-        return null;
+        BlockPos pos = getChunkProvider().generator.findNearestStructure((net.minecraft.world.World) (Object) this, structureType.getName(), new BlockPos(origin.getBlockX(), origin.getBlockY(), origin.getBlockZ()), radius, findUnexplored);
+        return pos == null ? null : new Location(this, pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Override
     public Raid locateNearestRaid(Location location, int radius) {
-        return null;
+        return (Raid) raids.findRaid(new BlockPos(location.getBlockX(), location.getBlockY(), location.getBlockZ()), radius * radius);
     }
 
     @Override
     public List<Raid> getRaids() {
-        return null;
+        return new ArrayList<>((Collection<Raid>) (Object) ((AccessorRaidManager) raids).accessor$getActiveRaids().values());
     }
 
     @Override

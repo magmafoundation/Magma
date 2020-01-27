@@ -7,6 +7,7 @@ import net.minecraft.util.math.ChunkPos;
 
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -14,6 +15,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.magmafoundation.magma.block.MagmaBlock;
 import org.spongepowered.asm.mixin.*;
 
 import java.util.Collection;
@@ -58,7 +60,7 @@ public abstract class MixinChunk implements Chunk {
     @NotNull
     @Override
     public Block getBlock(int x, int y, int z) {
-        return (Block) world.getBlockState(new BlockPos(x, y, z)).getBlock();
+        return new MagmaBlock(world.getBlockState(new BlockPos(x, y, z)).getBlock(), new Location(getWorld(), x, y, z));
     }
 
     @NotNull
