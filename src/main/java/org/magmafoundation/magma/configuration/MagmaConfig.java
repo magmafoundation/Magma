@@ -9,6 +9,8 @@ import net.minecraft.server.MinecraftServer;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.magmafoundation.magma.Metrics;
+import org.magmafoundation.magma.Metrics.SimplePie;
+import org.magmafoundation.magma.api.ServerAPI;
 import org.magmafoundation.magma.commands.MagmaCommand;
 import org.magmafoundation.magma.commands.VersionCommand;
 import org.magmafoundation.magma.configuration.value.Value;
@@ -62,6 +64,7 @@ public class MagmaConfig extends ConfigBase {
         }
         if(metrics == null){
             metrics = new Metrics();
+            metrics.addCustomChart(new SimplePie("number_of_mods", () -> String.valueOf(ServerAPI.getModSize()))); // Report how many mods are running
         }
         load();
     }
