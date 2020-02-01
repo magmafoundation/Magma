@@ -770,6 +770,15 @@
              }
          }
  
+@@ -2418,7 +2750,7 @@
+         {
+             TileEntity tileentity2 = this.addedTileEntityList.get(j2);
+ 
+-            if (!tileentity2.isInvalid() && tileentity2.getPos().equals(pos))
++            if (tileentity2 != null && !tileentity2.isInvalid() && tileentity2.getPos().equals(pos))
+             {
+                 return tileentity2;
+             }
 @@ -2454,6 +2786,7 @@
                      }
  
