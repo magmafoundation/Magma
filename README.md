@@ -53,4 +53,5 @@ For unstable/test builds you can check the [__CI__](https://ci.hexeption.co.uk/j
 
 ## Partners
 <a href="https://aternos.org/en/"><img src="https://design.aternos.org/dl/logotype-horizontal-blue.png" width="200"></a>
+<a href="https://songoda.com/"><img src="https://cdn2.songoda.com/branding/logo.svg" width="200"></a>
 
