@@ -15,12 +15,6 @@ import org.objectweb.asm.tree.ClassNode;
  */
 public class MagmaClassRepo extends CachingRepo {
 
-    private static final MagmaClassRepo INSTANCE = new MagmaClassRepo();
-
-    public static MagmaClassRepo getInstance() {
-        return INSTANCE;
-    }
-
     @Override
     protected ClassNode findClass0(String internalName) {
         InputStream in = getClassLoder().getResourceAsStream(internalName + ".class");

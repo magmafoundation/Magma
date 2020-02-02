@@ -10,7 +10,7 @@
  import com.google.common.util.concurrent.Futures;
  import com.google.common.util.concurrent.ListenableFuture;
  import com.google.common.util.concurrent.ListenableFutureTask;
-@@ -17,91 +18,105 @@
+@@ -17,91 +18,107 @@
  import java.awt.image.BufferedImage;
  import java.io.File;
  import java.io.IOException;
@@ -117,7 +117,9 @@
 +import org.bukkit.craftbukkit.v1_12_R1.util.ServerShutdownThread;
 +import org.bukkit.entity.EntityType;
 +import org.bukkit.potion.PotionEffectType;
++import org.magmafoundation.magma.Magma;
 +import org.magmafoundation.magma.configuration.MagmaConfig;
++import org.magmafoundation.magma.configuration.value.values.BooleanValue;
 +import org.spigotmc.CustomTimingsHandler;
 +import org.spigotmc.SlackActivityAccountant;
 +import org.spigotmc.SpigotTimings;
@@ -147,7 +149,7 @@
      @SideOnly(Side.SERVER)
      private String hostname;
      private int serverPort = -1;
-@@ -128,7 +143,6 @@
+@@ -128,7 +145,6 @@
      private KeyPair serverKeyPair;
      private String serverOwner;
      private String folderName;
@@ -155,7 +157,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +158,272 @@
+@@ -144,178 +160,273 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -184,7 +186,7 @@
 -    public MinecraftServer(File anvilFileIn, Proxy proxyIn, DataFixer dataFixerIn, YggdrasilAuthenticationService authServiceIn, MinecraftSessionService sessionServiceIn, GameProfileRepository profileRepoIn, PlayerProfileCache profileCacheIn)
 -    {
 +    // Magma start
-+    public static MagmaConfig magmaConfig;
++    public static Magma magma;
 +    // Magma end
 +
 +    private static MinecraftServer instance;
@@ -209,7 +211,7 @@
 +        this.options = options;
 +
 +
-+        magmaConfig = new MagmaConfig();
++        this.magma = new Magma();
 +
 +        // Try to see if we're actually running in a terminal, disable jline if not
 +        if (System.console() == null && System.getProperty("jline.terminal") == null) {
@@ -403,13 +405,14 @@
 +                ISaveHandler idatamanager = new AnvilSaveHandler(server.getWorldContainer(), worldNameIn, true, this.dataFixer);
 +                WorldInfo worlddata = idatamanager.loadWorldInfo();
 +                // Magma start
++                BooleanValue booleanValue = magma.getMagmaConfig().getDebugPrintBukkitMatterials();
 +                for (Map.Entry<ResourceLocation, Item> entry : ForgeRegistries.ITEMS.getEntries()) {
 +                    ResourceLocation key = entry.getKey();
 +                    Item item = entry.getValue();
 +                    if(!key.getResourceDomain().equals("minecraft")) {
 +                        String materialName = key.toString().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
 +                        Material material = Material.addMaterial(Item.getIdFromItem(item), item.getItemStackLimit(), materialName);
-+                        if(MagmaConfig.instance.debugPrintBukkitMatterials.getValues()){
++                        if(booleanValue.getValues()){
 +                            if (material != null) {
 +                                MinecraftServer.LOGGER.info(String.format("Injected new Forge item material %s with ID %d.", material.name(), material.getId()));
 +                            } else {
@@ -428,7 +431,7 @@
 +                    if(!key.getResourceDomain().equals("minecraft")) {
 +                        String materialName = key.toString().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
 +                        Material material = Material.addMaterial(Block.getIdFromBlock(block), materialName);
-+                        if(MagmaConfig.instance.debugPrintBukkitMatterials.getValues()) {
++                        if(booleanValue.getValues()) {
 +                            if (material != null) {
 +                                MinecraftServer.LOGGER.info(String.format("Injected new Forge block material %s with ID %d.", material.name(), material.getId()));
 +                            } else {
@@ -526,7 +529,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +431,51 @@
+@@ -323,45 +434,51 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -605,7 +608,7 @@
          }
      }
  
-@@ -379,73 +493,79 @@
+@@ -379,73 +496,79 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -717,7 +720,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +573,213 @@
+@@ -453,159 +576,213 @@
                      worldserver1.flush();
                  }
              }
@@ -1005,7 +1008,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +787,44 @@
+@@ -613,52 +790,44 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1070,7 +1073,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +833,15 @@
+@@ -667,16 +836,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1092,7 +1095,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,143 +849,175 @@
+@@ -684,143 +852,175 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1327,7 +1330,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1032,51 @@
+@@ -835,53 +1035,51 @@
          return ret;
      }
  
@@ -1405,7 +1408,7 @@
                  }
              });
          }
-@@ -889,145 +1084,115 @@
+@@ -889,145 +1087,115 @@
          return report;
      }
  
@@ -1595,7 +1598,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1200,75 @@
+@@ -1035,80 +1203,75 @@
          }
      }
  
@@ -1705,7 +1708,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1277,193 @@
+@@ -1117,228 +1280,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -1988,7 +1991,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1472,219 @@
+@@ -1347,316 +1475,219 @@
          return null;
      }
  

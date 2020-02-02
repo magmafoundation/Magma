@@ -1,10 +1,5 @@
 package org.magmafoundation.magma.configuration;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.logging.Level;
 import net.minecraft.server.MinecraftServer;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,6 +10,12 @@ import org.magmafoundation.magma.configuration.value.Value;
 import org.magmafoundation.magma.configuration.value.values.BooleanValue;
 import org.magmafoundation.magma.configuration.value.values.IntValue;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.logging.Level;
+
 /**
  * MagmaConfig
  *
@@ -23,49 +24,39 @@ import org.magmafoundation.magma.configuration.value.values.IntValue;
  */
 public class MagmaConfig extends ConfigBase {
 
-    private final String HEADER = "This is the main configuration file for Magma.\n" +
-            "\n" +
-            "Site: https://magmafoundation.org\n" +
-            "Discord: https://discord.gg/6rkqngA\n";
+    private final String HEADER = "This is the main configuration file for Magma.\n"
+            + "\n"
+            + "Site: https://magmafoundation.org\n"
+            + "Discord: https://discord.gg/6rkqngA\n";
 
-    public static MagmaConfig instance;
-
-    public final BooleanValue debugPrintBukkitMatterials = new BooleanValue(this, "debug.debugPrintBukkitMatterials", false, "Prints the Forge Bukkit Materials");
+    private final BooleanValue debugPrintBukkitMatterials = new BooleanValue(this, "debug.debugPrintBukkitMatterials", false, "Prints the Forge Bukkit Materials");
 
     //=============================WORLD SETTINGS=============================
-    public final IntValue expMergeMaxValue = new IntValue(this, "experience-merge-max-value", -1, "Instructs the server put a maximum value on experience orbs, preventing them all from merging down into 1 single orb.");
+    private final IntValue expMergeMaxValue = new IntValue(this, "experience-merge-max-value", -1, "Instructs the server put a maximum value on experience orbs, preventing them all from merging down into 1 single orb.");
     //=============================WORLD SETTINGS=============================
 
-    private static Metrics metrics;
+    private Metrics metrics;
 
     public MagmaConfig() {
         super("magma.yml", "magma");
-        init();
-        instance = this;
-    }
-
-    public void init() {
         for (Field f : this.getClass().getFields()) {
-            if (Modifier.isFinal(f.getModifiers()) && Modifier.isPublic(f.getModifiers()) && !Modifier.isStatic(f.getModifiers())) {
-                try {
-                    Value value = (Value) f.get(this);
-                    if (value == null) {
-                        continue;
-                    }
-                    values.put(value.path, value);
-                } catch (ClassCastException e) {
-                } catch (Throwable t) {
-                    System.out.println("[Magma] Failed to initialize a MagmaConfig values.");
-                    t.printStackTrace();
-                }
+            if (!Modifier.isFinal(f.getModifiers())
+                    || !Modifier.isPublic(f.getModifiers())
+                    || Modifier.isStatic(f.getModifiers()))
+                continue;
+            try {
+                Value value = (Value) f.get(this);
+                if (value == null) continue;
+                values.put(value.path, value);
+            } catch (Throwable t) {
+                System.err.println("[Magma] Failed to initialize a MagmaConfig values.");
+                t.printStackTrace();
             }
         }
-        if(metrics == null){
-            metrics = new Metrics();
-        }
+        if (metrics == null) this.metrics = new Metrics();
+
         load();
     }
-
 
     @Override
     protected void addCommands() {
@@ -77,16 +68,16 @@ public class MagmaConfig extends ConfigBase {
     protected void load() {
         try {
             config = YamlConfiguration.loadConfiguration(configFile);
-            String header = HEADER + "\n";
+            StringBuilder header = new StringBuilder(HEADER + "\n");
             for (Value toggle : values.values()) {
-                if (!toggle.description.equals("")) {
-                    header += "Value: " + toggle.path + " Default: " + toggle.key + "   # " + toggle.description + "\n";
-                }
+                if (!toggle.description.equals(""))
+                    header.append("Value: ").append(toggle.path).append(" Default: ")
+                            .append(toggle.key).append("   # ").append(toggle.description).append("\n");
 
                 config.addDefault(toggle.path, toggle.key);
                 values.get(toggle.path).setValues(config.getString(toggle.path));
             }
-            config.options().header(header);
+            config.options().header(header.toString());
             config.options().copyDefaults(true);
 
             version = getInt("config-version", 1);
@@ -95,13 +86,13 @@ public class MagmaConfig extends ConfigBase {
             this.save();
         } catch (Exception ex) {
             MinecraftServer.getServerInstance().server.getLogger()
-                .log(Level.SEVERE, "Could not load " + this.configFile);
+                    .log(Level.SEVERE, "Could not load " + this.configFile);
             ex.printStackTrace();
         }
     }
 
 
-    public static String getString(String s, String key, String defaultreturn) {
+    public String getString(String s, String key, String defaultreturn) {
         if (s.contains(key)) {
             String string = s.substring(s.indexOf(key));
             String s1 = (string.substring(string.indexOf(": ") + 2));
@@ -111,7 +102,7 @@ public class MagmaConfig extends ConfigBase {
         return defaultreturn;
     }
 
-    public static String getString(File f, String key, String defaultreturn) {
+    public String getString(File f, String key, String defaultreturn) {
         try {
             String s = FileUtils.readFileToString(f, "UTF-8");
             if (s.contains(key)) {
@@ -124,5 +115,13 @@ public class MagmaConfig extends ConfigBase {
             e.printStackTrace();
         }
         return defaultreturn;
+    }
+
+    public BooleanValue getDebugPrintBukkitMatterials() {
+        return debugPrintBukkitMatterials;
+    }
+
+    public IntValue getExpMergeMaxValue() {
+        return expMergeMaxValue;
     }
 }
