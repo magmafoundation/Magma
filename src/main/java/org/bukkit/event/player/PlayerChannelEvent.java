@@ -16,16 +16,16 @@ public abstract class PlayerChannelEvent extends PlayerEvent {
         this.channel = channel;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public final String getChannel() {
         return channel;
     }
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

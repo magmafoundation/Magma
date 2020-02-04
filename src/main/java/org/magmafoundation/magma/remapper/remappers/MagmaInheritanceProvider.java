@@ -1,11 +1,12 @@
 package org.magmafoundation.magma.remapper.remappers;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 import net.md_5.specialsource.provider.InheritanceProvider;
 import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 import org.objectweb.asm.tree.ClassNode;
+
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * MagmaInheritanceProvider

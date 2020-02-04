@@ -12,14 +12,18 @@ import org.bukkit.event.HandlerList;
  */
 public class SignChangeEvent extends BlockEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancel = false;
     private final Player player;
     private final String[] lines;
+    private boolean cancel = false;
 
     public SignChangeEvent(final Block theBlock, final Player thePlayer, final String[] theLines) {
         super(theBlock);
         this.player = thePlayer;
         this.lines = theLines;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -45,9 +49,9 @@ public class SignChangeEvent extends BlockEvent implements Cancellable {
      *
      * @param index index of the line to get
      * @return the String containing the line of text associated with the
-     *     provided index
+     * provided index
      * @throws IndexOutOfBoundsException thrown when the provided index is {@literal > 3
-     *     or < 0}
+     *                                   or < 0}
      */
     public String getLine(int index) throws IndexOutOfBoundsException {
         return lines[index];
@@ -57,9 +61,9 @@ public class SignChangeEvent extends BlockEvent implements Cancellable {
      * Sets a single line for the sign involved in this event
      *
      * @param index index of the line to set
-     * @param line text to set
+     * @param line  text to set
      * @throws IndexOutOfBoundsException thrown when the provided index is {@literal > 3
-     *     or < 0}
+     *                                   or < 0}
      */
     public void setLine(int index, String line) throws IndexOutOfBoundsException {
         lines[index] = line;
@@ -75,10 +79,6 @@ public class SignChangeEvent extends BlockEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

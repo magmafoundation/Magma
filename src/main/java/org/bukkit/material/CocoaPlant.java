@@ -8,18 +8,12 @@ import org.bukkit.block.BlockFace;
  */
 public class CocoaPlant extends MaterialData implements Directional, Attachable {
 
-    public enum CocoaPlantSize {
-        SMALL,
-        MEDIUM,
-        LARGE
-    }
-
     public CocoaPlant() {
         super(Material.COCOA);
     }
 
     /**
-     * @param type the raw type id     
+     * @param type the raw type id
      * @deprecated Magic value
      */
     @Deprecated
@@ -129,5 +123,11 @@ public class CocoaPlant extends MaterialData implements Directional, Attachable 
     @Override
     public String toString() {
         return super.toString() + " facing " + getFacing() + " " + getSize();
+    }
+
+    public enum CocoaPlantSize {
+        SMALL,
+        MEDIUM,
+        LARGE
     }
 }

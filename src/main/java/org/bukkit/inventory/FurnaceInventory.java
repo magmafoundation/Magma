@@ -15,18 +15,18 @@ public interface FurnaceInventory extends Inventory {
     ItemStack getResult();
 
     /**
+     * Set the current item in the result slot.
+     *
+     * @param stack The item
+     */
+    void setResult(ItemStack stack);
+
+    /**
      * Get the current fuel.
      *
      * @return The item
      */
     ItemStack getFuel();
-
-    /**
-     * Get the item currently smelting.
-     *
-     * @return The item
-     */
-    ItemStack getSmelting();
 
     /**
      * Set the current fuel.
@@ -36,11 +36,11 @@ public interface FurnaceInventory extends Inventory {
     void setFuel(ItemStack stack);
 
     /**
-     * Set the current item in the result slot.
+     * Get the item currently smelting.
      *
-     * @param stack The item
+     * @return The item
      */
-    void setResult(ItemStack stack);
+    ItemStack getSmelting();
 
     /**
      * Set the item currently smelting.

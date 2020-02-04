@@ -9,18 +9,18 @@ import org.bukkit.util.Vector;
 public interface Minecart extends Vehicle {
 
     /**
-     * Sets a minecart's damage.
-     *
-     * @param damage over 40 to "kill" a minecart
-     */
-    public void setDamage(double damage);
-
-    /**
      * Gets a minecart's damage.
      *
      * @return The damage
      */
     public double getDamage();
+
+    /**
+     * Sets a minecart's damage.
+     *
+     * @param damage over 40 to "kill" a minecart
+     */
+    public void setDamage(double damage);
 
     /**
      * Gets the maximum speed of a minecart. The speed is unrelated to the
@@ -92,14 +92,6 @@ public interface Minecart extends Vehicle {
     public void setDerailedVelocityMod(Vector derailed);
 
     /**
-     * Sets the display block for this minecart.
-     * Passing a null value will set the minecart to have no display block.
-     *
-     * @param material the material to set as display block.
-     */
-    public void setDisplayBlock(MaterialData material);
-
-    /**
      * Gets the display block for this minecart.
      * This function will return the type AIR if none is set.
      *
@@ -108,16 +100,24 @@ public interface Minecart extends Vehicle {
     public MaterialData getDisplayBlock();
 
     /**
+     * Sets the display block for this minecart.
+     * Passing a null value will set the minecart to have no display block.
+     *
+     * @param material the material to set as display block.
+     */
+    public void setDisplayBlock(MaterialData material);
+
+    /**
+     * Gets the offset of the display block.
+     *
+     * @return the current block offset for this minecart.
+     */
+    public int getDisplayBlockOffset();
+
+    /**
      * Sets the offset of the display block.
      *
      * @param offset the block offset to set for this minecart.
      */
     public void setDisplayBlockOffset(int offset);
-
-    /**
-     * Gets the offset of the display block.
-     * 
-     * @return the current block offset for this minecart.
-     */
-    public int getDisplayBlockOffset();
 }

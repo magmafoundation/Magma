@@ -1,12 +1,7 @@
 package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
@@ -17,6 +12,10 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.InventoryHolder;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class CraftInventoryCustom extends CraftInventory {
     public CraftInventoryCustom(InventoryHolder owner, InventoryType type) {
@@ -41,11 +40,11 @@ public class CraftInventoryCustom extends CraftInventory {
 
     static class MinecraftInventory implements IInventory {
         private final NonNullList<ItemStack> items;
-        private int maxStack = MAX_STACK;
         private final List<HumanEntity> viewers;
         private final String title;
-        private InventoryType type;
         private final InventoryHolder owner;
+        private int maxStack = MAX_STACK;
+        private InventoryType type;
 
         public MinecraftInventory(InventoryHolder owner, InventoryType type) {
             this(owner, type.getDefaultSize(), type.getDefaultTitle());
@@ -137,7 +136,8 @@ public class CraftInventoryCustom extends CraftInventory {
         }
 
         @Override
-        public void markDirty() {}
+        public void markDirty() {
+        }
 
         @Override
         public boolean isUsableByPlayer(EntityPlayer entityhuman) {

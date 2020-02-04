@@ -1,9 +1,10 @@
 package org.bukkit.event.server;
 
-import java.util.Set;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+
+import java.util.Set;
 
 /**
  * Event triggered for server broadcast messages such as from
@@ -12,13 +13,17 @@ import org.bukkit.event.HandlerList;
 public class BroadcastMessageEvent extends ServerEvent implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
-    private String message;
     private final Set<CommandSender> recipients;
+    private String message;
     private boolean cancelled = false;
 
     public BroadcastMessageEvent(String message, Set<CommandSender> recipients) {
         this.message = message;
         this.recipients = recipients;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -68,10 +73,6 @@ public class BroadcastMessageEvent extends ServerEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

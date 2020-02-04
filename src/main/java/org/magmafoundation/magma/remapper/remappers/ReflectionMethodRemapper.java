@@ -1,14 +1,5 @@
 package org.magmafoundation.magma.remapper.remappers;
 
-import java.io.InputStream;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLStreamHandlerFactory;
-import java.util.HashMap;
-import java.util.Map;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.magmafoundation.magma.remapper.mappingsModel.MethodRedirectRule;
 import org.magmafoundation.magma.remapper.proxy.*;
@@ -18,6 +9,16 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.MethodRemapper;
 import org.objectweb.asm.commons.Remapper;
+
+import java.io.InputStream;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLStreamHandlerFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * ReflectionMethodRemapper

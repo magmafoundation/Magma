@@ -12,33 +12,20 @@ public enum PermissionDefault {
     OP("op", "isop", "operator", "isoperator", "admin", "isadmin"),
     NOT_OP("!op", "notop", "!operator", "notoperator", "!admin", "notadmin");
 
-    private final String[] names;
     private final static Map<String, PermissionDefault> lookup = new HashMap<String, PermissionDefault>();
+
+    static {
+        for (PermissionDefault value : values()) {
+            for (String name : value.names) {
+                lookup.put(name, value);
+            }
+        }
+    }
+
+    private final String[] names;
 
     private PermissionDefault(String... names) {
         this.names = names;
-    }
-
-    /**
-     * Calculates the value of this PermissionDefault for the given operator
-     * value
-     *
-     * @param op If the target is op
-     * @return True if the default should be true, or false
-     */
-    public boolean getValue(boolean op) {
-        switch (this) {
-        case TRUE:
-            return true;
-        case FALSE:
-            return false;
-        case OP:
-            return op;
-        case NOT_OP:
-            return !op;
-        default:
-            return false;
-        }
     }
 
     /**
@@ -51,16 +38,30 @@ public enum PermissionDefault {
         return lookup.get(name.toLowerCase(java.util.Locale.ENGLISH).replaceAll("[^a-z!]", ""));
     }
 
+    /**
+     * Calculates the value of this PermissionDefault for the given operator
+     * value
+     *
+     * @param op If the target is op
+     * @return True if the default should be true, or false
+     */
+    public boolean getValue(boolean op) {
+        switch (this) {
+            case TRUE:
+                return true;
+            case FALSE:
+                return false;
+            case OP:
+                return op;
+            case NOT_OP:
+                return !op;
+            default:
+                return false;
+        }
+    }
+
     @Override
     public String toString() {
         return names[0];
-    }
-
-    static {
-        for (PermissionDefault value : values()) {
-            for (String name : value.names) {
-                lookup.put(name, value);
-            }
-        }
     }
 }

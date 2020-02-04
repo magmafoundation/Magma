@@ -1,32 +1,32 @@
 package org.bukkit.event.player;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Warning;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Holds information for player chat and commands
  *
  * @deprecated This event will fire from the main thread and allows the use of
- *     all of the Bukkit API, unlike the {@link AsyncPlayerChatEvent}.
- *     <p>
- *     Listening to this event forces chat to wait for the main thread which
- *     causes delays for chat. {@link AsyncPlayerChatEvent} is the encouraged
- *     alternative for thread safe implementations.
+ * all of the Bukkit API, unlike the {@link AsyncPlayerChatEvent}.
+ * <p>
+ * Listening to this event forces chat to wait for the main thread which
+ * causes delays for chat. {@link AsyncPlayerChatEvent} is the encouraged
+ * alternative for thread safe implementations.
  */
 @Deprecated
-@Warning(reason="Listening to this event forces chat to wait for the main thread, delaying chat messages.")
+@Warning(reason = "Listening to this event forces chat to wait for the main thread, delaying chat messages.")
 public class PlayerChatEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
+    private final Set<Player> recipients;
     private boolean cancel = false;
     private String message;
     private String format;
-    private final Set<Player> recipients;
 
     public PlayerChatEvent(final Player player, final String message) {
         super(player);
@@ -40,6 +40,10 @@ public class PlayerChatEvent extends PlayerEvent implements Cancellable {
         this.message = message;
         this.format = format;
         this.recipients = recipients;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public boolean isCancelled() {
@@ -116,10 +120,6 @@ public class PlayerChatEvent extends PlayerEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

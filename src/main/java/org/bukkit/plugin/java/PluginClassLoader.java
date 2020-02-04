@@ -1,6 +1,14 @@
 package org.bukkit.plugin.java;
 
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
+import org.bukkit.plugin.InvalidPluginException;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.magmafoundation.magma.Magma;
+import org.magmafoundation.magma.remapper.ClassLoaderContext;
+import org.magmafoundation.magma.remapper.utils.RemappingUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,18 +21,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.Validate;
-import org.bukkit.plugin.InvalidPluginException;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.magmafoundation.magma.Magma;
-import org.magmafoundation.magma.remapper.ClassLoaderContext;
-import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 
 /**
  * A ClassLoader for plugins, to allow shared classes across multiple plugins
  */
 public final class PluginClassLoader extends URLClassLoader {
+
+    static {
+        try {
+            Class.forName("org.bukkit.FINDME");
+            Class.forName("org.bukkit.craftbukkit.FINDME");
+            Class.forName("org.spigotmc.FINDME");
+            Class.forName("com.destroystokyo.paper.FINDME");
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     final JavaPlugin plugin;
     private final JavaPluginLoader loader;
@@ -38,20 +51,8 @@ public final class PluginClassLoader extends URLClassLoader {
     private JavaPlugin pluginInit;
     private IllegalStateException pluginState;
 
-    static {
-        try {
-            Class.forName("org.bukkit.FINDME");
-            Class.forName("org.bukkit.craftbukkit.FINDME");
-            Class.forName("org.spigotmc.FINDME");
-            Class.forName("com.destroystokyo.paper.FINDME");
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            }
-        }
-
     PluginClassLoader(final JavaPluginLoader loader, final ClassLoader parent, final PluginDescriptionFile description, final File dataFolder, final File file) throws IOException, InvalidPluginException {
-        super(new URL[] {file.toURI().toURL()}, parent);
+        super(new URL[]{file.toURI().toURL()}, parent);
         Validate.notNull(loader, "Loader cannot be null");
 
         this.loader = loader;

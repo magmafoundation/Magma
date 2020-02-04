@@ -12,16 +12,15 @@ import org.bukkit.event.HandlerList;
 public class EntityChangeBlockEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final Block block;
-    private boolean cancel;
     private final Material to;
     private final byte data;
+    private boolean cancel;
 
     /**
-     *
-     * @param what the Entity causing the change
+     * @param what  the Entity causing the change
      * @param block the block (before the change)
-     * @param to the future material being changed to
-     * @param data the future block data
+     * @param to    the future material being changed to
+     * @param data  the future block data
      * @deprecated Magic value
      */
     @Deprecated
@@ -31,6 +30,10 @@ public class EntityChangeBlockEvent extends EntityEvent implements Cancellable {
         this.cancel = false;
         this.to = to;
         this.data = data;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -72,10 +75,6 @@ public class EntityChangeBlockEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

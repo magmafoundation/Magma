@@ -36,6 +36,10 @@ public class PlayerEditBookEvent extends PlayerEvent implements Cancellable {
         this.cancel = false;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets the book meta currently on the book.
      * <p>
@@ -62,18 +66,6 @@ public class PlayerEditBookEvent extends PlayerEvent implements Cancellable {
     }
 
     /**
-     * Gets the inventory slot number for the book item that triggered this
-     * event.
-     * <p>
-     * This is a slot number on the player's hotbar in the range 0-8.
-     *
-     * @return the inventory slot number that the book item occupies
-     */
-    public int getSlot() {
-        return slot;
-    }
-
-    /**
      * Sets the book meta that will actually be added to the book.
      *
      * @param newBookMeta new book meta
@@ -83,6 +75,18 @@ public class PlayerEditBookEvent extends PlayerEvent implements Cancellable {
         Validate.notNull(newBookMeta, "New book meta must not be null");
         Bukkit.getItemFactory().equals(newBookMeta, null);
         this.newBookMeta = newBookMeta.clone();
+    }
+
+    /**
+     * Gets the inventory slot number for the book item that triggered this
+     * event.
+     * <p>
+     * This is a slot number on the player's hotbar in the range 0-8.
+     *
+     * @return the inventory slot number that the book item occupies
+     */
+    public int getSlot() {
+        return slot;
     }
 
     /**
@@ -107,10 +111,6 @@ public class PlayerEditBookEvent extends PlayerEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 

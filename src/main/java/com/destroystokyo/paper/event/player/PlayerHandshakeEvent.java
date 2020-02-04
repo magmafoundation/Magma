@@ -31,11 +31,15 @@ public class PlayerHandshakeEvent extends Event implements Cancellable {
      * Creates a new {@link PlayerHandshakeEvent}.
      *
      * @param originalHandshake the original handshake string
-     * @param cancelled if this event is enabled
+     * @param cancelled         if this event is enabled
      */
     public PlayerHandshakeEvent(String originalHandshake, boolean cancelled) {
         this.originalHandshake = originalHandshake;
         this.cancelled = cancelled;
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 
     /**
@@ -147,6 +151,17 @@ public class PlayerHandshakeEvent extends Event implements Cancellable {
     }
 
     /**
+     * Sets the profile properties.
+     *
+     * <p>This should be a valid JSON string.</p>
+     *
+     * @param propertiesJson the profile properties, as JSON
+     */
+    public void setPropertiesJson(String propertiesJson) {
+        this.propertiesJson = propertiesJson;
+    }
+
+    /**
      * Determines if authentication failed.
      *
      * <p>When {@code true}, the client connecting will be disconnected
@@ -171,17 +186,6 @@ public class PlayerHandshakeEvent extends Event implements Cancellable {
     }
 
     /**
-     * Sets the profile properties.
-     *
-     * <p>This should be a valid JSON string.</p>
-     *
-     * @param propertiesJson the profile properties, as JSON
-     */
-    public void setPropertiesJson(String propertiesJson) {
-        this.propertiesJson = propertiesJson;
-    }
-
-    /**
      * Gets the message to display to the client when authentication fails.
      *
      * @return the message to display to the client
@@ -202,10 +206,6 @@ public class PlayerHandshakeEvent extends Event implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

@@ -11,8 +11,8 @@ import java.util.List;
  */
 public class BlockExplodeEvent extends BlockEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancel;
     private final List<Block> blocks;
+    private boolean cancel;
     private float yield;
 
     public BlockExplodeEvent(final Block what, final List<Block> blocks, final float yield) {
@@ -20,6 +20,10 @@ public class BlockExplodeEvent extends BlockEvent implements Cancellable {
         this.blocks = blocks;
         this.yield = yield;
         this.cancel = false;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public boolean isCancelled() {
@@ -60,10 +64,6 @@ public class BlockExplodeEvent extends BlockEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

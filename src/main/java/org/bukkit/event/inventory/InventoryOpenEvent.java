@@ -1,9 +1,9 @@
 package org.bukkit.event.inventory;
 
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.InventoryView;
 
 /**
  * Represents a player related inventory event
@@ -15,6 +15,10 @@ public class InventoryOpenEvent extends InventoryEvent implements Cancellable {
     public InventoryOpenEvent(InventoryView transaction) {
         super(transaction);
         this.cancelled = false;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -54,10 +58,6 @@ public class InventoryOpenEvent extends InventoryEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

@@ -37,6 +37,10 @@ public class EntityBreedEvent extends EntityEvent implements Cancellable {
         setExperience(experience);
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     @Override
     public LivingEntity getEntity() {
         return (LivingEntity) entity;
@@ -110,10 +114,6 @@ public class EntityBreedEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

@@ -16,6 +16,10 @@ public class ProjectileLaunchEvent extends EntityEvent implements Cancellable {
         super(what);
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public boolean isCancelled() {
         return cancelled;
     }
@@ -31,10 +35,6 @@ public class ProjectileLaunchEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

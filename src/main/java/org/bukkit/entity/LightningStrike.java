@@ -12,22 +12,20 @@ public interface LightningStrike extends Weather {
      */
     public boolean isEffect();
 
+    @Override
+    Spigot spigot();
+
     // Spigot start
-    public class Spigot extends Entity.Spigot
-    {
+    public class Spigot extends Entity.Spigot {
 
         /*
          * Returns whether the strike is silent.
          *
          * @return whether the strike is silent.
          */
-        public boolean isSilent()
-        {
-            throw new UnsupportedOperationException( "Not supported yet." );
+        public boolean isSilent() {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
     }
-
-    @Override
-    Spigot spigot();
     // Spigot end
 }

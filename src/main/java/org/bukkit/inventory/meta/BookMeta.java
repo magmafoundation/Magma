@@ -1,37 +1,15 @@
 package org.bukkit.inventory.meta;
 
-import java.util.List;
 import net.md_5.bungee.api.chat.BaseComponent;
-
 import org.bukkit.Material;
+
+import java.util.List;
 
 /**
  * Represents a book ({@link Material#BOOK_AND_QUILL} or {@link
  * Material#WRITTEN_BOOK}) that can have a title, an author, and pages.
  */
 public interface BookMeta extends ItemMeta {
-
-    /**
-     * Represents the generation (or level of copying) of a written book
-     */
-    enum Generation {
-        /**
-         * Book written into a book-and-quill. Can be copied. (Default value)
-         */
-        ORIGINAL,
-        /**
-         * Book that was copied from an original. Can be copied.
-         */
-        COPY_OF_ORIGINAL,
-        /**
-         * Book that was copied from a copy of an original. Can't be copied.
-         */
-        COPY_OF_COPY,
-        /**
-         * Unused; unobtainable by players. Can't be copied.
-         */
-        TATTERED;
-    }
 
     /**
      * Checks for the existence of a title in the book.
@@ -175,6 +153,31 @@ public interface BookMeta extends ItemMeta {
 
     BookMeta clone();
 
+    @Override
+    Spigot spigot();
+
+    /**
+     * Represents the generation (or level of copying) of a written book
+     */
+    enum Generation {
+        /**
+         * Book written into a book-and-quill. Can be copied. (Default value)
+         */
+        ORIGINAL,
+        /**
+         * Book that was copied from an original. Can be copied.
+         */
+        COPY_OF_ORIGINAL,
+        /**
+         * Book that was copied from a copy of an original. Can't be copied.
+         */
+        COPY_OF_COPY,
+        /**
+         * Unused; unobtainable by players. Can't be copied.
+         */
+        TATTERED;
+    }
+
     // Spigot start
     public class Spigot extends ItemMeta.Spigot {
 
@@ -241,8 +244,5 @@ public interface BookMeta extends ItemMeta {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     }
-
-    @Override
-    Spigot spigot();
     // Spigot end
 }

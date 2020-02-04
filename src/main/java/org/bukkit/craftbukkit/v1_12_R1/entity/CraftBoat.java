@@ -12,6 +12,42 @@ public class CraftBoat extends CraftVehicle implements Boat {
         super(server, entity);
     }
 
+    public static TreeSpecies getTreeSpecies(EntityBoat.Type boatType) {
+        switch (boatType) {
+            case SPRUCE:
+                return TreeSpecies.REDWOOD;
+            case BIRCH:
+                return TreeSpecies.BIRCH;
+            case JUNGLE:
+                return TreeSpecies.JUNGLE;
+            case ACACIA:
+                return TreeSpecies.ACACIA;
+            case DARK_OAK:
+                return TreeSpecies.DARK_OAK;
+            case OAK:
+            default:
+                return TreeSpecies.GENERIC;
+        }
+    }
+
+    public static EntityBoat.Type getBoatType(TreeSpecies species) {
+        switch (species) {
+            case REDWOOD:
+                return EntityBoat.Type.SPRUCE;
+            case BIRCH:
+                return EntityBoat.Type.BIRCH;
+            case JUNGLE:
+                return EntityBoat.Type.JUNGLE;
+            case ACACIA:
+                return EntityBoat.Type.ACACIA;
+            case DARK_OAK:
+                return EntityBoat.Type.DARK_OAK;
+            case GENERIC:
+            default:
+                return EntityBoat.Type.OAK;
+        }
+    }
+
     @Override
     public TreeSpecies getWoodType() {
         return getTreeSpecies(getHandle().getBoatType());
@@ -70,41 +106,5 @@ public class CraftBoat extends CraftVehicle implements Boat {
 
     public EntityType getType() {
         return EntityType.BOAT;
-    }
-
-    public static TreeSpecies getTreeSpecies(EntityBoat.Type boatType) {
-        switch (boatType) {
-            case SPRUCE:
-                return TreeSpecies.REDWOOD;
-            case BIRCH:
-                return TreeSpecies.BIRCH;
-            case JUNGLE:
-                return TreeSpecies.JUNGLE;
-            case ACACIA:
-                return TreeSpecies.ACACIA;
-            case DARK_OAK:
-                return TreeSpecies.DARK_OAK;
-            case OAK:
-            default:
-                return TreeSpecies.GENERIC;
-        }
-    }
-
-    public static EntityBoat.Type getBoatType(TreeSpecies species) {
-        switch (species) {
-            case REDWOOD:
-                return EntityBoat.Type.SPRUCE;
-            case BIRCH:
-                return EntityBoat.Type.BIRCH;
-            case JUNGLE:
-                return EntityBoat.Type.JUNGLE;
-            case ACACIA:
-                return EntityBoat.Type.ACACIA;
-            case DARK_OAK:
-                return EntityBoat.Type.DARK_OAK;
-            case GENERIC:
-            default:
-                return EntityBoat.Type.OAK;
-        }
     }
 }

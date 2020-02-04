@@ -1,7 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
-import java.util.Map;
-
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagString;
@@ -10,7 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.bukkit.inventory.meta.MapMeta;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 
 @DelegateDeserialization(CraftMetaItem.SerializableMeta.class)
 class CraftMetaMap extends CraftMetaItem implements MapMeta {

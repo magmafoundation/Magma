@@ -22,8 +22,6 @@ import java.util.function.Function;
  * Interface which defines the class for event call backs to plugins
  */
 public interface EventExecutor {
-    public void execute(Listener listener, Event event) throws EventException;
-
     // Paper start
     ConcurrentMap<Method, Class<? extends EventExecutor>> eventExecutorMap = new ConcurrentHashMap<Method, Class<? extends EventExecutor>>() {
         @Override
@@ -75,5 +73,7 @@ public interface EventExecutor {
             return new MethodHandleEventExecutor(eventClass, m);
         }
     }
+
+    public void execute(Listener listener, Event event) throws EventException;
     // Paper end
 }

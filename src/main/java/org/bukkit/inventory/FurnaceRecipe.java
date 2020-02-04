@@ -34,8 +34,8 @@ public class FurnaceRecipe implements Recipe {
     /**
      * Create a furnace recipe to craft the specified ItemStack.
      *
-     * @param result The item you want the recipe to create.
-     * @param source The input material.
+     * @param result     The item you want the recipe to create.
+     * @param source     The input material.
      * @param experience The experience given by this recipe
      */
     public FurnaceRecipe(ItemStack result, MaterialData source, float experience) {
@@ -47,8 +47,8 @@ public class FurnaceRecipe implements Recipe {
      *
      * @param result The item you want the recipe to create.
      * @param source The input material.
-     * @param data The data value. (Note: This is currently ignored by the
-     *     CraftBukkit server.)
+     * @param data   The data value. (Note: This is currently ignored by the
+     *               CraftBukkit server.)
      * @deprecated Magic value
      */
     @Deprecated
@@ -59,10 +59,10 @@ public class FurnaceRecipe implements Recipe {
     /**
      * Create a furnace recipe to craft the specified ItemStack.
      *
-     * @param result The item you want the recipe to create.
-     * @param source The input material.
-     * @param data The data value. (Note: This is currently ignored by the
-     *     CraftBukkit server.)
+     * @param result     The item you want the recipe to create.
+     * @param source     The input material.
+     * @param data       The data value. (Note: This is currently ignored by the
+     *                   CraftBukkit server.)
      * @param experience The experience given by this recipe
      * @deprecated Magic value
      */
@@ -71,6 +71,30 @@ public class FurnaceRecipe implements Recipe {
         this.output = new ItemStack(result);
         this.ingredient = new ItemStack(source, 1, (short) data);
         this.experience = experience;
+    }
+
+    /**
+     * Sets the input of this furnace recipe.
+     *
+     * @param input The input material.
+     * @param data  The data value. (Note: This is currently ignored by the
+     *              CraftBukkit server.)
+     * @return The changed recipe, so you can chain calls.
+     * @deprecated Magic value
+     */
+    @Deprecated
+    public FurnaceRecipe setInput(Material input, int data) {
+        this.ingredient = new ItemStack(input, 1, (short) data);
+        return this;
+    }
+
+    /**
+     * Get the input material.
+     *
+     * @return The input material.
+     */
+    public ItemStack getInput() {
+        return this.ingredient.clone();
     }
 
     /**
@@ -94,30 +118,6 @@ public class FurnaceRecipe implements Recipe {
     }
 
     /**
-     * Sets the input of this furnace recipe.
-     *
-     * @param input The input material.
-     * @param data The data value. (Note: This is currently ignored by the
-     *     CraftBukkit server.)
-     * @return The changed recipe, so you can chain calls.
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public FurnaceRecipe setInput(Material input, int data) {
-        this.ingredient = new ItemStack(input, 1, (short) data);
-        return this;
-    }
-
-    /**
-     * Get the input material.
-     *
-     * @return The input material.
-     */
-    public ItemStack getInput() {
-        return this.ingredient.clone();
-    }
-
-    /**
      * Get the result of this recipe.
      *
      * @return The resulting stack.
@@ -127,20 +127,20 @@ public class FurnaceRecipe implements Recipe {
     }
 
     /**
-     * Sets the experience given by this recipe.
-     *
-     * @param experience the experience level
-     */
-    public void setExperience(float experience) {
-        this.experience = experience;
-    }
-
-    /**
      * Get the experience given by this recipe.
      *
      * @return experience level
      */
     public float getExperience() {
         return experience;
+    }
+
+    /**
+     * Sets the experience given by this recipe.
+     *
+     * @param experience the experience level
+     */
+    public void setExperience(float experience) {
+        this.experience = experience;
     }
 }

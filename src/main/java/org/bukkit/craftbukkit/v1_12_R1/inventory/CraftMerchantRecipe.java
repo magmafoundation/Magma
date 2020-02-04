@@ -1,9 +1,10 @@
 package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
 import com.google.common.base.Preconditions;
-import java.util.List;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
+
+import java.util.List;
 
 public class CraftMerchantRecipe extends MerchantRecipe {
 
@@ -26,6 +27,17 @@ public class CraftMerchantRecipe extends MerchantRecipe {
                 maxUses,
                 this
         );
+    }
+
+    public static CraftMerchantRecipe fromBukkit(MerchantRecipe recipe) {
+        if (recipe instanceof CraftMerchantRecipe) {
+            return (CraftMerchantRecipe) recipe;
+        } else {
+            CraftMerchantRecipe craft = new CraftMerchantRecipe(recipe.getResult(), recipe.getUses(), recipe.getMaxUses(), recipe.hasExperienceReward());
+            craft.setIngredients(recipe.getIngredients());
+
+            return craft;
+        }
     }
 
     @Override
@@ -66,16 +78,5 @@ public class CraftMerchantRecipe extends MerchantRecipe {
             handle.secondItemToBuy = CraftItemStack.asNMSCopy(ingredients.get(1));
         }
         return handle;
-    }
-
-    public static CraftMerchantRecipe fromBukkit(MerchantRecipe recipe) {
-        if (recipe instanceof CraftMerchantRecipe) {
-            return (CraftMerchantRecipe) recipe;
-        } else {
-            CraftMerchantRecipe craft = new CraftMerchantRecipe(recipe.getResult(), recipe.getUses(), recipe.getMaxUses(), recipe.hasExperienceReward());
-            craft.setIngredients(recipe.getIngredients());
-
-            return craft;
-        }
     }
 }

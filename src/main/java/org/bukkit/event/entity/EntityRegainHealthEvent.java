@@ -9,14 +9,18 @@ import org.bukkit.event.HandlerList;
  */
 public class EntityRegainHealthEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
+    private final RegainReason regainReason;
     private boolean cancelled;
     private double amount;
-    private final RegainReason regainReason;
 
     public EntityRegainHealthEvent(final Entity entity, final double amount, final RegainReason regainReason) {
         super(entity);
         this.amount = amount;
         this.regainReason = regainReason;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -51,7 +55,7 @@ public class EntityRegainHealthEvent extends EntityEvent implements Cancellable 
      * Gets the reason for why the entity is regaining health
      *
      * @return A RegainReason detailing the reason for the entity regaining
-     *     health
+     * health
      */
     public RegainReason getRegainReason() {
         return regainReason;
@@ -59,10 +63,6 @@ public class EntityRegainHealthEvent extends EntityEvent implements Cancellable 
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 

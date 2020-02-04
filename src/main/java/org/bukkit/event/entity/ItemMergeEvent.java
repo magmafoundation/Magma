@@ -7,12 +7,16 @@ import org.bukkit.event.HandlerList;
 public class ItemMergeEvent extends EntityEvent implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
     private final Item target;
+    private boolean cancelled;
 
     public ItemMergeEvent(Item item, Item target) {
         super(item);
         this.target = target;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
@@ -41,10 +45,6 @@ public class ItemMergeEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

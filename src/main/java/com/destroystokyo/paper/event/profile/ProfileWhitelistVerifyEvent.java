@@ -30,17 +30,16 @@ import org.bukkit.event.HandlerList;
 
 /**
  * Fires when the server needs to verify if a player is whitelisted.
- *
+ * <p>
  * Plugins may override/control the servers whitelist with this event,
  * and dynamically change the kick message.
- *
  */
 public class ProfileWhitelistVerifyEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
     private final PlayerProfile profile;
     private final boolean whitelistEnabled;
-    private boolean whitelisted;
     private final boolean isOp;
+    private boolean whitelisted;
     private String kickMessage;
 
     public ProfileWhitelistVerifyEvent(final PlayerProfile profile, boolean whitelistEnabled, boolean whitelisted, boolean isOp, String kickMessage) {
@@ -49,6 +48,10 @@ public class ProfileWhitelistVerifyEvent extends Event {
         this.whitelisted = whitelisted;
         this.isOp = isOp;
         this.kickMessage = kickMessage;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -90,6 +93,7 @@ public class ProfileWhitelistVerifyEvent extends Event {
 
     /**
      * Changes the players whitelisted state. false will deny the login
+     *
      * @param whitelisted The new whitelisted state
      */
     public void setWhitelisted(boolean whitelisted) {
@@ -112,10 +116,6 @@ public class ProfileWhitelistVerifyEvent extends Event {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

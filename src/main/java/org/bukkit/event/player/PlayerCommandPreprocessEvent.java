@@ -1,12 +1,12 @@
 package org.bukkit.event.player;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This event is called whenever a player runs a command (by placing a slash
@@ -47,9 +47,9 @@ import org.bukkit.event.HandlerList;
  */
 public class PlayerCommandPreprocessEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
+    private final Set<Player> recipients;
     private boolean cancel = false;
     private String message;
-    private final Set<Player> recipients;
 
     public PlayerCommandPreprocessEvent(final Player player, final String message) {
         super(player);
@@ -61,6 +61,10 @@ public class PlayerCommandPreprocessEvent extends PlayerEvent implements Cancell
         super(player);
         this.recipients = recipients;
         this.message = message;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public boolean isCancelled() {
@@ -119,9 +123,9 @@ public class PlayerCommandPreprocessEvent extends PlayerEvent implements Cancell
      * UnsupportedOperationException} if the event caller provides an
      * unmodifiable set.
      *
-     * @deprecated This method is provided for backward compatibility with no
-     *     guarantee to the effect of viewing or modifying the set.
      * @return All Players who will see this chat message
+     * @deprecated This method is provided for backward compatibility with no
+     * guarantee to the effect of viewing or modifying the set.
      */
     @Deprecated
     public Set<Player> getRecipients() {
@@ -130,10 +134,6 @@ public class PlayerCommandPreprocessEvent extends PlayerEvent implements Cancell
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

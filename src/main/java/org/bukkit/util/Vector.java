@@ -1,12 +1,13 @@
 package org.bukkit.util;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Random;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Represents a mutable vector. Because the components of Vectors are mutable,
@@ -17,14 +18,11 @@ import org.bukkit.configuration.serialization.SerializableAs;
 @SerializableAs("Vector")
 public class Vector implements Cloneable, ConfigurationSerializable {
     private static final long serialVersionUID = -2657651106777219169L;
-
-    private static Random random = new Random();
-
     /**
      * Threshold for fuzzy equals().
      */
     private static final double epsilon = 0.000001;
-
+    private static Random random = new Random();
     protected double x;
     protected double y;
     protected double z;
@@ -75,6 +73,65 @@ public class Vector implements Cloneable, ConfigurationSerializable {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    /**
+     * Get the threshold used for equals().
+     *
+     * @return The epsilon.
+     */
+    public static double getEpsilon() {
+        return epsilon;
+    }
+
+    /**
+     * Gets the minimum components of two vectors.
+     *
+     * @param v1 The first vector.
+     * @param v2 The second vector.
+     * @return minimum
+     */
+    public static Vector getMinimum(Vector v1, Vector v2) {
+        return new Vector(Math.min(v1.x, v2.x), Math.min(v1.y, v2.y), Math.min(v1.z, v2.z));
+    }
+
+    /**
+     * Gets the maximum components of two vectors.
+     *
+     * @param v1 The first vector.
+     * @param v2 The second vector.
+     * @return maximum
+     */
+    public static Vector getMaximum(Vector v1, Vector v2) {
+        return new Vector(Math.max(v1.x, v2.x), Math.max(v1.y, v2.y), Math.max(v1.z, v2.z));
+    }
+
+    /**
+     * Gets a random vector with components having a random value between 0
+     * and 1.
+     *
+     * @return A random vector.
+     */
+    public static Vector getRandom() {
+        return new Vector(random.nextDouble(), random.nextDouble(), random.nextDouble());
+    }
+
+    public static Vector deserialize(Map<String, Object> args) {
+        double x = 0;
+        double y = 0;
+        double z = 0;
+
+        if (args.containsKey("x")) {
+            x = (Double) args.get("x");
+        }
+        if (args.containsKey("y")) {
+            y = (Double) args.get("y");
+        }
+        if (args.containsKey("z")) {
+            z = (Double) args.get("z");
+        }
+
+        return new Vector(x, y, z);
     }
 
     /**
@@ -383,54 +440,6 @@ public class Vector implements Cloneable, ConfigurationSerializable {
     }
 
     /**
-     * Gets the floored value of the X component, indicating the block that
-     * this vector is contained with.
-     *
-     * @return block X
-     */
-    public int getBlockX() {
-        return NumberConversions.floor(x);
-    }
-
-    /**
-     * Gets the Y component.
-     *
-     * @return The Y component.
-     */
-    public double getY() {
-        return y;
-    }
-
-    /**
-     * Gets the floored value of the Y component, indicating the block that
-     * this vector is contained with.
-     *
-     * @return block y
-     */
-    public int getBlockY() {
-        return NumberConversions.floor(y);
-    }
-
-    /**
-     * Gets the Z component.
-     *
-     * @return The Z component.
-     */
-    public double getZ() {
-        return z;
-    }
-
-    /**
-     * Gets the floored value of the Z component, indicating the block that
-     * this vector is contained with.
-     *
-     * @return block z
-     */
-    public int getBlockZ() {
-        return NumberConversions.floor(z);
-    }
-
-    /**
      * Set the X component.
      *
      * @param x The new X component.
@@ -461,6 +470,25 @@ public class Vector implements Cloneable, ConfigurationSerializable {
     public Vector setX(float x) {
         this.x = x;
         return this;
+    }
+
+    /**
+     * Gets the floored value of the X component, indicating the block that
+     * this vector is contained with.
+     *
+     * @return block X
+     */
+    public int getBlockX() {
+        return NumberConversions.floor(x);
+    }
+
+    /**
+     * Gets the Y component.
+     *
+     * @return The Y component.
+     */
+    public double getY() {
+        return y;
     }
 
     /**
@@ -497,6 +525,25 @@ public class Vector implements Cloneable, ConfigurationSerializable {
     }
 
     /**
+     * Gets the floored value of the Y component, indicating the block that
+     * this vector is contained with.
+     *
+     * @return block y
+     */
+    public int getBlockY() {
+        return NumberConversions.floor(y);
+    }
+
+    /**
+     * Gets the Z component.
+     *
+     * @return The Z component.
+     */
+    public double getZ() {
+        return z;
+    }
+
+    /**
      * Set the Z component.
      *
      * @param z The new Z component.
@@ -527,6 +574,16 @@ public class Vector implements Cloneable, ConfigurationSerializable {
     public Vector setZ(float z) {
         this.z = z;
         return this;
+    }
+
+    /**
+     * Gets the floored value of the Z component, indicating the block that
+     * this vector is contained with.
+     *
+     * @return block z
+     */
+    public int getBlockZ() {
+        return NumberConversions.floor(z);
     }
 
     /**
@@ -598,7 +655,7 @@ public class Vector implements Cloneable, ConfigurationSerializable {
      * Gets a Location version of this vector.
      *
      * @param world The world to link the location to.
-     * @param yaw The desired yaw.
+     * @param yaw   The desired yaw.
      * @param pitch The desired pitch.
      * @return the location
      */
@@ -626,47 +683,6 @@ public class Vector implements Cloneable, ConfigurationSerializable {
         NumberConversions.checkFinite(z, "z not finite");
     }
 
-    /**
-     * Get the threshold used for equals().
-     *
-     * @return The epsilon.
-     */
-    public static double getEpsilon() {
-        return epsilon;
-    }
-
-    /**
-     * Gets the minimum components of two vectors.
-     *
-     * @param v1 The first vector.
-     * @param v2 The second vector.
-     * @return minimum
-     */
-    public static Vector getMinimum(Vector v1, Vector v2) {
-        return new Vector(Math.min(v1.x, v2.x), Math.min(v1.y, v2.y), Math.min(v1.z, v2.z));
-    }
-
-    /**
-     * Gets the maximum components of two vectors.
-     *
-     * @param v1 The first vector.
-     * @param v2 The second vector.
-     * @return maximum
-     */
-    public static Vector getMaximum(Vector v1, Vector v2) {
-        return new Vector(Math.max(v1.x, v2.x), Math.max(v1.y, v2.y), Math.max(v1.z, v2.z));
-    }
-
-    /**
-     * Gets a random vector with components having a random value between 0
-     * and 1.
-     *
-     * @return A random vector.
-     */
-    public static Vector getRandom() {
-        return new Vector(random.nextDouble(), random.nextDouble(), random.nextDouble());
-    }
-
     public Map<String, Object> serialize() {
         Map<String, Object> result = new LinkedHashMap<String, Object>();
 
@@ -675,23 +691,5 @@ public class Vector implements Cloneable, ConfigurationSerializable {
         result.put("z", getZ());
 
         return result;
-    }
-
-    public static Vector deserialize(Map<String, Object> args) {
-        double x = 0;
-        double y = 0;
-        double z = 0;
-
-        if (args.containsKey("x")) {
-            x = (Double) args.get("x");
-        }
-        if (args.containsKey("y")) {
-            y = (Double) args.get("y");
-        }
-        if (args.containsKey("z")) {
-            z = (Double) args.get("z");
-        }
-
-        return new Vector(x, y, z);
     }
 }

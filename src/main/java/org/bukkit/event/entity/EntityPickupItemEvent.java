@@ -11,13 +11,17 @@ import org.bukkit.event.HandlerList;
 public class EntityPickupItemEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final Item item;
-    private boolean cancel = false;
     private final int remaining;
+    private boolean cancel = false;
 
     public EntityPickupItemEvent(final LivingEntity entity, final Item item, final int remaining) {
         super(entity);
         this.item = item;
         this.remaining = remaining;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
@@ -53,10 +57,6 @@ public class EntityPickupItemEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

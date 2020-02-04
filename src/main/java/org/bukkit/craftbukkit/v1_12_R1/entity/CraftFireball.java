@@ -18,16 +18,16 @@ public class CraftFireball extends AbstractProjectile implements Fireball {
         return getHandle().bukkitYield;
     }
 
+    public void setYield(float yield) {
+        getHandle().bukkitYield = yield;
+    }
+
     public boolean isIncendiary() {
         return getHandle().isIncendiary;
     }
 
     public void setIsIncendiary(boolean isIncendiary) {
         getHandle().isIncendiary = isIncendiary;
-    }
-
-    public void setYield(float yield) {
-        getHandle().bukkitYield = yield;
     }
 
     public ProjectileSource getShooter() {

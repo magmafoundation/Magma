@@ -1,9 +1,10 @@
 package org.bukkit.event.entity;
 
-import java.util.List;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.HandlerList;
+
+import java.util.List;
 
 /**
  * Called when a lingering potion applies it's effects. Happens
@@ -16,6 +17,10 @@ public class AreaEffectCloudApplyEvent extends EntityEvent {
     public AreaEffectCloudApplyEvent(final AreaEffectCloud entity, final List<LivingEntity> affectedEntities) {
         super(entity);
         this.affectedEntities = affectedEntities;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
@@ -39,10 +44,6 @@ public class AreaEffectCloudApplyEvent extends EntityEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

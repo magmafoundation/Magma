@@ -17,6 +17,10 @@ public class LeavesDecayEvent extends BlockEvent implements Cancellable {
         super(block);
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public boolean isCancelled() {
         return cancel;
     }
@@ -27,10 +31,6 @@ public class LeavesDecayEvent extends BlockEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

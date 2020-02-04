@@ -2,8 +2,8 @@ package org.bukkit.craftbukkit.v1_12_R1.entity;
 
 import net.minecraft.entity.item.EntityFallingBlock;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 

@@ -1,11 +1,11 @@
 package org.bukkit.util.io;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 /**
  * This class is designed to be used in conjunction with the {@link
@@ -41,6 +41,12 @@ public class BukkitObjectInputStream extends ObjectInputStream {
         super.enableResolveObject(true);
     }
 
+    private static IOException newIOException(String string, Throwable cause) {
+        IOException exception = new IOException(string);
+        exception.initCause(cause);
+        return exception;
+    }
+
     @Override
     protected Object resolveObject(Object obj) throws IOException {
         if (obj instanceof Wrapper) {
@@ -52,11 +58,5 @@ public class BukkitObjectInputStream extends ObjectInputStream {
         }
 
         return super.resolveObject(obj);
-    }
-
-    private static IOException newIOException(String string, Throwable cause) {
-        IOException exception = new IOException(string);
-        exception.initCause(cause);
-        return exception;
     }
 }

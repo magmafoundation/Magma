@@ -1,5 +1,11 @@
 package org.magmafoundation.magma.remapper.utils;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -12,11 +18,6 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.*;
 
 /**
  * ASMUtils

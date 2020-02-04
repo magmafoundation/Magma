@@ -20,6 +20,10 @@ public class EntityCombustEvent extends EntityEvent implements Cancellable {
         this.cancel = false;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public boolean isCancelled() {
         return cancel;
     }
@@ -30,7 +34,7 @@ public class EntityCombustEvent extends EntityEvent implements Cancellable {
 
     /**
      * @return the amount of time (in seconds) the combustee should be alight
-     *     for
+     * for
      */
     public int getDuration() {
         return duration;
@@ -50,10 +54,6 @@ public class EntityCombustEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

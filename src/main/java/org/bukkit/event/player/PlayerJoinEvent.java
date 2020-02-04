@@ -15,6 +15,10 @@ public class PlayerJoinEvent extends PlayerEvent {
         this.joinMessage = joinMessage;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets the join message to send to all online players
      *
@@ -35,10 +39,6 @@ public class PlayerJoinEvent extends PlayerEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

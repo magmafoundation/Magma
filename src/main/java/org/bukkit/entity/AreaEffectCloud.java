@@ -1,12 +1,13 @@
 package org.bukkit.entity;
 
-import java.util.List;
 import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
+
+import java.util.List;
 
 /**
  * Represents an area effect cloud which will imbue a potion effect onto
@@ -133,18 +134,18 @@ public interface AreaEffectCloud extends Entity {
     void setParticle(Particle particle);
 
     /**
-     * Sets the underlying potion data
-     *
-     * @param data PotionData to set the base potion state to
-     */
-    void setBasePotionData(PotionData data);
-
-    /**
      * Returns the potion data about the base potion
      *
      * @return a PotionData object
      */
     PotionData getBasePotionData();
+
+    /**
+     * Sets the underlying potion data
+     *
+     * @param data PotionData to set the base potion state to
+     */
+    void setBasePotionData(PotionData data);
 
     /**
      * Checks for the presence of custom potion effects.
@@ -167,9 +168,9 @@ public interface AreaEffectCloud extends Entity {
     /**
      * Adds a custom potion effect to this cloud.
      *
-     * @param effect the potion effect to add
+     * @param effect    the potion effect to add
      * @param overwrite true if any existing effect of the same type should be
-     * overwritten
+     *                  overwritten
      * @return true if the effect was added as a result of this call
      */
     boolean addCustomEffect(PotionEffect effect, boolean overwrite);
@@ -211,7 +212,7 @@ public interface AreaEffectCloud extends Entity {
 
     /**
      * Retrieve the original source of this cloud.
-     * 
+     *
      * @return the {@link ProjectileSource} that threw the LingeringPotion
      */
     public ProjectileSource getSource();

@@ -1,6 +1,5 @@
 package org.bukkit.event.world;
 
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.TreeType;
 import org.bukkit.block.BlockState;
@@ -8,18 +7,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
+import java.util.List;
+
 /**
  * Event that is called when an organic structure attempts to grow (Sapling {@literal ->}
  * Tree), (Mushroom {@literal ->} Huge Mushroom), naturally or using bonemeal.
  */
 public class StructureGrowEvent extends WorldEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled = false;
     private final Location location;
     private final TreeType species;
     private final boolean bonemeal;
     private final Player player;
     private final List<BlockState> blocks;
+    private boolean cancelled = false;
 
     public StructureGrowEvent(final Location location, final TreeType species, final boolean bonemeal, final Player player, final List<BlockState> blocks) {
         super(location.getWorld());
@@ -28,6 +29,10 @@ public class StructureGrowEvent extends WorldEvent implements Cancellable {
         this.bonemeal = bonemeal;
         this.player = player;
         this.blocks = blocks;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -62,7 +67,7 @@ public class StructureGrowEvent extends WorldEvent implements Cancellable {
      * Gets the player that created the structure.
      *
      * @return Player that created the structure, null if was not created
-     *     manually
+     * manually
      */
     public Player getPlayer() {
         return player;
@@ -87,10 +92,6 @@ public class StructureGrowEvent extends WorldEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

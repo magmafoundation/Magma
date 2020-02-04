@@ -22,6 +22,10 @@ public class FurnaceSmeltEvent extends BlockEvent implements Cancellable {
         this.cancelled = false;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets the smelted ItemStack for this event
      *
@@ -59,10 +63,6 @@ public class FurnaceSmeltEvent extends BlockEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

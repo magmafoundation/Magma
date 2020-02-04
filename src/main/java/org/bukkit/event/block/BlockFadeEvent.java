@@ -20,8 +20,8 @@ import org.bukkit.event.HandlerList;
  */
 public class BlockFadeEvent extends BlockEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
     private final BlockState newState;
+    private boolean cancelled;
 
     public BlockFadeEvent(final Block block, final BlockState newState) {
         super(block);
@@ -29,12 +29,16 @@ public class BlockFadeEvent extends BlockEvent implements Cancellable {
         this.cancelled = false;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets the state of the block that will be fading, melting or
      * disappearing.
      *
      * @return The block state of the block that will be fading, melting or
-     *     disappearing
+     * disappearing
      */
     public BlockState getNewState() {
         return newState;
@@ -50,10 +54,6 @@ public class BlockFadeEvent extends BlockEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

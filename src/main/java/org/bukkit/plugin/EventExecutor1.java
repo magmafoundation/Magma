@@ -1,17 +1,18 @@
 package org.bukkit.plugin;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.Listener;
 import org.spigotmc.CustomTimingsHandler;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 public class EventExecutor1 implements EventExecutor {
 
+    private final CustomTimingsHandler timings;
     private Method method;
     private Class<? extends Event> eventClass;
-    private final CustomTimingsHandler timings;
 
 
     public EventExecutor1(Method method, Class<? extends Event> eventClass, CustomTimingsHandler timings) {
@@ -36,11 +37,9 @@ public class EventExecutor1 implements EventExecutor {
                 timings.stopTiming();
             }
             // Spigot end
-        }
-        catch (InvocationTargetException ex) {
+        } catch (InvocationTargetException ex) {
             throw new EventException(ex.getCause());
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             throw new EventException(t);
         }
     }

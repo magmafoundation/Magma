@@ -12,16 +12,20 @@ import org.bukkit.event.HandlerList;
  */
 public class HangingPlaceEvent extends HangingEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
     private final Player player;
     private final Block block;
     private final BlockFace blockFace;
+    private boolean cancelled;
 
     public HangingPlaceEvent(final Hanging hanging, final Player player, final Block block, final BlockFace blockFace) {
         super(hanging);
         this.player = player;
         this.block = block;
         this.blockFace = blockFace;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -61,10 +65,6 @@ public class HangingPlaceEvent extends HangingEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

@@ -34,11 +34,25 @@ public interface BlockState extends Metadatable {
     MaterialData getData();
 
     /**
+     * Sets the metadata for this block state.
+     *
+     * @param data New block specific metadata
+     */
+    void setData(MaterialData data);
+
+    /**
      * Gets the type of this block state.
      *
      * @return block type
      */
     Material getType();
+
+    /**
+     * Sets the type of this block state.
+     *
+     * @param type Material to change this block state to
+     */
+    void setType(Material type);
 
     /**
      * Gets the type-id of this block state.
@@ -117,20 +131,6 @@ public interface BlockState extends Metadatable {
     Chunk getChunk();
 
     /**
-     * Sets the metadata for this block state.
-     *
-     * @param data New block specific metadata
-     */
-    void setData(MaterialData data);
-
-    /**
-     * Sets the type of this block state.
-     *
-     * @param type Material to change this block state to
-     */
-    void setType(Material type);
-
-    /**
      * Sets the type-id of this block state.
      *
      * @param type Type-Id to change this block state to
@@ -182,9 +182,9 @@ public interface BlockState extends Metadatable {
      * If applyPhysics is true, it will trigger a physics update on
      * surrounding blocks which could cause them to update or disappear.
      *
-     * @param force true to forcefully set the state
+     * @param force        true to forcefully set the state
      * @param applyPhysics false to cancel updating physics on surrounding
-     *     blocks
+     *                     blocks
      * @return true if the update was successful, otherwise false
      */
     boolean update(boolean force, boolean applyPhysics);
@@ -210,7 +210,7 @@ public interface BlockState extends Metadatable {
      * placed in the world.
      *
      * @return whether the state is placed in the world
-     *         or 'virtual' (e.g. on an itemstack)
+     * or 'virtual' (e.g. on an itemstack)
      */
     boolean isPlaced();
 }

@@ -33,14 +33,19 @@ import org.bukkit.event.entity.EntityEvent;
  * Fired when an Enderman determines if it should attack a player or not.
  * Starts off cancelled if the player is wearing a pumpkin head or is not looking
  * at the Enderman, according to Vanilla rules.
- *
  */
 public class EndermanAttackPlayerEvent extends EntityEvent implements Cancellable {
+    private static final HandlerList handlers = new HandlerList();
     private final Player player;
+    private boolean cancelled = false;
 
     public EndermanAttackPlayerEvent(Enderman entity, Player player) {
         super(entity);
         this.player = player;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -62,21 +67,12 @@ public class EndermanAttackPlayerEvent extends EntityEvent implements Cancellabl
         return player;
     }
 
-    private static final HandlerList handlers = new HandlerList();
-
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
-    private boolean cancelled = false;
-
     /**
-     *
      * @return If cancelled, the enderman will not attack
      */
     @Override
@@ -86,6 +82,7 @@ public class EndermanAttackPlayerEvent extends EntityEvent implements Cancellabl
 
     /**
      * Cancels if the Enderman will attack this player
+     *
      * @param cancel true if you wish to cancel this event
      */
     @Override

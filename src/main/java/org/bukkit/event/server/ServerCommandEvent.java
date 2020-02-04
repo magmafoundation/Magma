@@ -40,13 +40,17 @@ import org.bukkit.event.HandlerList;
  */
 public class ServerCommandEvent extends ServerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private String command;
     private final CommandSender sender;
+    private String command;
     private boolean cancel = false;
 
     public ServerCommandEvent(final CommandSender sender, final String command) {
         this.command = command;
         this.sender = sender;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -79,10 +83,6 @@ public class ServerCommandEvent extends ServerEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 

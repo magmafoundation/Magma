@@ -23,12 +23,16 @@ public class PlayerItemConsumeEvent extends PlayerEvent implements Cancellable {
 
     /**
      * @param player the player consuming
-     * @param item the ItemStack being consumed
+     * @param item   the ItemStack being consumed
      */
     public PlayerItemConsumeEvent(final Player player, final ItemStack item) {
         super(player);
 
         this.item = item;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -65,10 +69,6 @@ public class PlayerItemConsumeEvent extends PlayerEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

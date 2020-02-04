@@ -10,11 +10,17 @@ import org.bukkit.inventory.ItemStack;
  * Fired when a witch consumes the potion in their hand to buff themselves.
  */
 public class WitchConsumePotionEvent extends EntityEvent implements Cancellable {
+    private static final HandlerList handlers = new HandlerList();
     private ItemStack potion;
+    private boolean cancelled = false;
 
     public WitchConsumePotionEvent(Witch witch, ItemStack potion) {
         super(witch);
         this.potion = potion;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
@@ -31,24 +37,17 @@ public class WitchConsumePotionEvent extends EntityEvent implements Cancellable 
 
     /**
      * Sets the potion to be consumed and applied to the witch.
+     *
      * @param potion The potion
      */
     public void setPotion(ItemStack potion) {
         this.potion = potion != null ? potion.clone() : null;
     }
 
-    private static final HandlerList handlers = new HandlerList();
-
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
-    private boolean cancelled = false;
 
     /**
      * @return Event was cancelled or potion was null

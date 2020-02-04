@@ -1,13 +1,6 @@
 package org.bukkit.command.defaults;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -22,7 +15,7 @@ import org.bukkit.help.HelpTopicComparator;
 import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.util.ChatPaginator;
 
-import com.google.common.collect.ImmutableList;
+import java.util.*;
 
 public class HelpCommand extends BukkitCommand {
     public HelpCommand() {
@@ -31,6 +24,69 @@ public class HelpCommand extends BukkitCommand {
         this.usageMessage = "/help <pageNumber>\n/help <topic>\n/help <topic> <pageNumber>";
         this.setPermission("bukkit.command.help");
         this.setAliases(Arrays.asList("?"));
+    }
+
+    /**
+     * Computes the Dameraur-Levenshtein Distance between two strings. Adapted
+     * from the algorithm at <a href="http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance">Wikipedia: Damerau–Levenshtein distance</a>
+     *
+     * @param s1 The first string being compared.
+     * @param s2 The second string being compared.
+     * @return The number of substitutions, deletions, insertions, and
+     * transpositions required to get from s1 to s2.
+     */
+    protected static int damerauLevenshteinDistance(String s1, String s2) {
+        if (s1 == null && s2 == null) {
+            return 0;
+        }
+        if (s1 != null && s2 == null) {
+            return s1.length();
+        }
+        if (s1 == null && s2 != null) {
+            return s2.length();
+        }
+
+        int s1Len = s1.length();
+        int s2Len = s2.length();
+        int[][] H = new int[s1Len + 2][s2Len + 2];
+
+        int INF = s1Len + s2Len;
+        H[0][0] = INF;
+        for (int i = 0; i <= s1Len; i++) {
+            H[i + 1][1] = i;
+            H[i + 1][0] = INF;
+        }
+        for (int j = 0; j <= s2Len; j++) {
+            H[1][j + 1] = j;
+            H[0][j + 1] = INF;
+        }
+
+        Map<Character, Integer> sd = new HashMap<Character, Integer>();
+        for (char Letter : (s1 + s2).toCharArray()) {
+            if (!sd.containsKey(Letter)) {
+                sd.put(Letter, 0);
+            }
+        }
+
+        for (int i = 1; i <= s1Len; i++) {
+            int DB = 0;
+            for (int j = 1; j <= s2Len; j++) {
+                int i1 = sd.get(s2.charAt(j - 1));
+                int j1 = DB;
+
+                if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
+                    H[i + 1][j + 1] = H[i][j];
+                    DB = j;
+                } else {
+                    H[i + 1][j + 1] = Math.min(H[i][j], Math.min(H[i + 1][j], H[i][j + 1])) + 1;
+                }
+
+                H[i + 1][j + 1] = Math.min(H[i + 1][j + 1], H[i1][j1] + (i - i1 - 1) + 1 + (j - j1 - 1));
+            }
+            sd.put(s1.charAt(i - 1), i);
+        }
+
+        return H[s1Len + 1][s2Len + 1];
     }
 
     @Override
@@ -161,68 +217,5 @@ public class HelpCommand extends BukkitCommand {
         } else {
             return null;
         }
-    }
-
-    /**
-     * Computes the Dameraur-Levenshtein Distance between two strings. Adapted
-     * from the algorithm at <a href="http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance">Wikipedia: Damerau–Levenshtein distance</a>
-     *
-     * @param s1 The first string being compared.
-     * @param s2 The second string being compared.
-     * @return The number of substitutions, deletions, insertions, and
-     * transpositions required to get from s1 to s2.
-     */
-    protected static int damerauLevenshteinDistance(String s1, String s2) {
-        if (s1 == null && s2 == null) {
-            return 0;
-        }
-        if (s1 != null && s2 == null) {
-            return s1.length();
-        }
-        if (s1 == null && s2 != null) {
-            return s2.length();
-        }
-
-        int s1Len = s1.length();
-        int s2Len = s2.length();
-        int[][] H = new int[s1Len + 2][s2Len + 2];
-
-        int INF = s1Len + s2Len;
-        H[0][0] = INF;
-        for (int i = 0; i <= s1Len; i++) {
-            H[i + 1][1] = i;
-            H[i + 1][0] = INF;
-        }
-        for (int j = 0; j <= s2Len; j++) {
-            H[1][j + 1] = j;
-            H[0][j + 1] = INF;
-        }
-
-        Map<Character, Integer> sd = new HashMap<Character, Integer>();
-        for (char Letter : (s1 + s2).toCharArray()) {
-            if (!sd.containsKey(Letter)) {
-                sd.put(Letter, 0);
-            }
-        }
-
-        for (int i = 1; i <= s1Len; i++) {
-            int DB = 0;
-            for (int j = 1; j <= s2Len; j++) {
-                int i1 = sd.get(s2.charAt(j - 1));
-                int j1 = DB;
-
-                if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
-                    H[i + 1][j + 1] = H[i][j];
-                    DB = j;
-                } else {
-                    H[i + 1][j + 1] = Math.min(H[i][j], Math.min(H[i + 1][j], H[i][j + 1])) + 1;
-                }
-
-                H[i + 1][j + 1] = Math.min(H[i + 1][j + 1], H[i1][j1] + (i - i1 - 1) + 1 + (j - j1 - 1));
-            }
-            sd.put(s1.charAt(i - 1), i);
-        }
-
-        return H[s1Len + 1][s2Len + 1];
     }
 }

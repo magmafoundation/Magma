@@ -1,7 +1,8 @@
 package org.magmafoundation.magma.remapper.proxy;
 
-import java.io.IOException;
 import org.magmafoundation.magma.remapper.utils.RemappingUtils;
+
+import java.io.IOException;
 
 /**
  * ProxyClassWriter

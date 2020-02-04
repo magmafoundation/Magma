@@ -1,12 +1,13 @@
 package org.bukkit.inventory;
 
 import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Represents a merchant's trade.
- *
+ * <p>
  * Trades can take one or two ingredients, and provide one result. The
  * ingredients' Itemstack amounts are respected in the trade.
  * <br>
@@ -51,19 +52,19 @@ public class MerchantRecipe implements Recipe {
         ingredients.remove(index);
     }
 
-    public void setIngredients(List<ItemStack> ingredients) {
-        this.ingredients = new ArrayList<ItemStack>();
-        for (ItemStack item : ingredients) {
-            this.ingredients.add(item.clone());
-        }
-    }
-
     public List<ItemStack> getIngredients() {
         List<ItemStack> copy = new ArrayList<ItemStack>();
         for (ItemStack item : ingredients) {
             copy.add(item.clone());
         }
         return copy;
+    }
+
+    public void setIngredients(List<ItemStack> ingredients) {
+        this.ingredients = new ArrayList<ItemStack>();
+        for (ItemStack item : ingredients) {
+            this.ingredients.add(item.clone());
+        }
     }
 
     /**

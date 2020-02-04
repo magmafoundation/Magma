@@ -1,9 +1,10 @@
 package org.bukkit.event.entity;
 
-import java.util.List;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 /**
  * Thrown whenever a LivingEntity dies
@@ -30,6 +31,10 @@ public class EntityDeathEvent extends EntityEvent implements org.bukkit.event.Ca
         super(what);
         this.drops = drops;
         this.dropExp = droppedExp;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
@@ -75,10 +80,6 @@ public class EntityDeathEvent extends EntityEvent implements org.bukkit.event.Ca
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
     // Paper start - make cancellable
     @Override
     public boolean isCancelled() {
@@ -113,7 +114,7 @@ public class EntityDeathEvent extends EntityEvent implements org.bukkit.event.Ca
             throw new IllegalArgumentException("Health must be between 0 (exclusive) and " + maxHealth + " (inclusive), but was " + reviveHealth);
         }
         this.reviveHealth = reviveHealth;
-}
+    }
 
 
     /**

@@ -15,6 +15,10 @@ public class VehicleCreateEvent extends VehicleEvent implements Cancellable {
         super(vehicle);
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     @Override
     public boolean isCancelled() {
         return cancelled;
@@ -27,10 +31,6 @@ public class VehicleCreateEvent extends VehicleEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

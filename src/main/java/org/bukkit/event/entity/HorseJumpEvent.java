@@ -1,8 +1,8 @@
 package org.bukkit.event.entity;
 
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
-import org.bukkit.entity.AbstractHorse;
 
 /**
  * Called when a horse jumps.
@@ -15,6 +15,10 @@ public class HorseJumpEvent extends EntityEvent implements Cancellable {
     public HorseJumpEvent(final AbstractHorse horse, final float power) {
         super(horse);
         this.power = power;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public boolean isCancelled() {
@@ -75,10 +79,6 @@ public class HorseJumpEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

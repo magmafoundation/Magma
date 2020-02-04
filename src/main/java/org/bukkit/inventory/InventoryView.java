@@ -13,110 +13,7 @@ import org.bukkit.event.inventory.InventoryType;
  */
 public abstract class InventoryView {
     public final static int OUTSIDE = -999;
-    /**
-     * Represents various extra properties of certain inventory windows.
-     */
-    public enum Property {
-        /**
-         * The progress of the down-pointing arrow in a brewing inventory.
-         */
-        BREW_TIME(0, InventoryType.BREWING),
-        /**
-         * The progress of the flame in a furnace inventory.
-         */
-        BURN_TIME(0, InventoryType.FURNACE),
-        /**
-         * How many total ticks the current fuel should last.
-         */
-        TICKS_FOR_CURRENT_FUEL(1, InventoryType.FURNACE),
-        /**
-         * The progress of the right-pointing arrow in a furnace inventory.
-         */
-        COOK_TIME(2, InventoryType.FURNACE),
-        /**
-         * How many total ticks the current smelting should last.
-         */
-        TICKS_FOR_CURRENT_SMELTING(3, InventoryType.FURNACE),
-        /**
-         * In an enchanting inventory, the top button's experience level
-         * value.
-         */
-        ENCHANT_BUTTON1(0, InventoryType.ENCHANTING),
-        /**
-         * In an enchanting inventory, the middle button's experience level
-         * value.
-         */
-        ENCHANT_BUTTON2(1, InventoryType.ENCHANTING),
-        /**
-         * In an enchanting inventory, the bottom button's experience level
-         * value.
-         */
-        ENCHANT_BUTTON3(2, InventoryType.ENCHANTING),
-        /**
-         * In an enchanting inventory, the first four bits of the player's xpSeed.
-         */
-        ENCHANT_XP_SEED(3, InventoryType.ENCHANTING),
-        /**
-         * In an enchanting inventory, the top button's enchantment's id
-         */
-        ENCHANT_ID1(4, InventoryType.ENCHANTING),
-        /**
-         * In an enchanting inventory, the middle button's enchantment's id
-         */
-        ENCHANT_ID2(5, InventoryType.ENCHANTING),
-        /**
-         * In an enchanting inventory, the bottom button's enchantment's id
-         */
-        ENCHANT_ID3(6, InventoryType.ENCHANTING),
-        /**
-         * In an enchanting inventory, the top button's level value.
-         */
-        ENCHANT_LEVEL1(7, InventoryType.ENCHANTING),
-        /**
-         * In an enchanting inventory, the middle button's level value.
-         */
-        ENCHANT_LEVEL2(8, InventoryType.ENCHANTING),
-        /**
-         * In an enchanting inventory, the bottom button's level value.
-         */
-        ENCHANT_LEVEL3(9, InventoryType.ENCHANTING),
-        /**
-         * In an beacon inventory, the levels of the beacon
-         */
-        LEVELS(0, InventoryType.BEACON),
-        /**
-         * In an beacon inventory, the primary potion effect
-         */
-        PRIMARY_EFFECT(1, InventoryType.BEACON),
-        /**
-         * In an beacon inventory, the secondary potion effect
-         */
-        SECONDARY_EFFECT(2, InventoryType.BEACON),
-        /**
-         * The repair's cost in xp levels
-         */
-        REPAIR_COST(0, InventoryType.ANVIL);
-        int id;
-        InventoryType style;
-        private Property(int id, InventoryType appliesTo) {
-            this.id = id;
-            style = appliesTo;
-        }
 
-        public InventoryType getType() {
-            return style;
-        }
-
-        /**
-         *
-         * @return the id of this view
-         * @deprecated Magic value
-         */
-        @Deprecated
-        public int getId() {
-            return id;
-        }
-    }
     /**
      * Get the upper inventory involved in this transaction.
      *
@@ -186,23 +83,23 @@ public abstract class InventoryView {
     }
 
     /**
-     * Sets the item on the cursor of one of the viewing players.
-     *
-     * @param item The item to put on the cursor, or null to remove the item
-     *     on their cursor.
-     */
-    public final void setCursor(ItemStack item) {
-        getPlayer().setItemOnCursor(item);
-    }
-
-    /**
      * Get the item on the cursor of one of the viewing players.
      *
      * @return The item on the player's cursor, or null if they aren't holding
-     *     one.
+     * one.
      */
     public final ItemStack getCursor() {
         return getPlayer().getItemOnCursor();
+    }
+
+    /**
+     * Sets the item on the cursor of one of the viewing players.
+     *
+     * @param item The item to put on the cursor, or null to remove the item
+     *             on their cursor.
+     */
+    public final void setCursor(ItemStack item) {
+        getPlayer().setItemOnCursor(item);
     }
 
     /**
@@ -305,10 +202,10 @@ public abstract class InventoryView {
      * Sets an extra property of this inventory if supported by that
      * inventory, for example the state of a progress bar.
      *
-     * @param prop the window property to update
+     * @param prop  the window property to update
      * @param value the new value for the window property
      * @return true if the property was updated successfully, false if the
-     *     property is not supported by that inventory
+     * property is not supported by that inventory
      */
     public final boolean setProperty(Property prop, int value) {
         return getPlayer().setWindowProperty(prop, value);
@@ -321,5 +218,110 @@ public abstract class InventoryView {
      */
     public final String getTitle() {
         return getTopInventory().getTitle();
+    }
+
+    /**
+     * Represents various extra properties of certain inventory windows.
+     */
+    public enum Property {
+        /**
+         * The progress of the down-pointing arrow in a brewing inventory.
+         */
+        BREW_TIME(0, InventoryType.BREWING),
+        /**
+         * The progress of the flame in a furnace inventory.
+         */
+        BURN_TIME(0, InventoryType.FURNACE),
+        /**
+         * How many total ticks the current fuel should last.
+         */
+        TICKS_FOR_CURRENT_FUEL(1, InventoryType.FURNACE),
+        /**
+         * The progress of the right-pointing arrow in a furnace inventory.
+         */
+        COOK_TIME(2, InventoryType.FURNACE),
+        /**
+         * How many total ticks the current smelting should last.
+         */
+        TICKS_FOR_CURRENT_SMELTING(3, InventoryType.FURNACE),
+        /**
+         * In an enchanting inventory, the top button's experience level
+         * value.
+         */
+        ENCHANT_BUTTON1(0, InventoryType.ENCHANTING),
+        /**
+         * In an enchanting inventory, the middle button's experience level
+         * value.
+         */
+        ENCHANT_BUTTON2(1, InventoryType.ENCHANTING),
+        /**
+         * In an enchanting inventory, the bottom button's experience level
+         * value.
+         */
+        ENCHANT_BUTTON3(2, InventoryType.ENCHANTING),
+        /**
+         * In an enchanting inventory, the first four bits of the player's xpSeed.
+         */
+        ENCHANT_XP_SEED(3, InventoryType.ENCHANTING),
+        /**
+         * In an enchanting inventory, the top button's enchantment's id
+         */
+        ENCHANT_ID1(4, InventoryType.ENCHANTING),
+        /**
+         * In an enchanting inventory, the middle button's enchantment's id
+         */
+        ENCHANT_ID2(5, InventoryType.ENCHANTING),
+        /**
+         * In an enchanting inventory, the bottom button's enchantment's id
+         */
+        ENCHANT_ID3(6, InventoryType.ENCHANTING),
+        /**
+         * In an enchanting inventory, the top button's level value.
+         */
+        ENCHANT_LEVEL1(7, InventoryType.ENCHANTING),
+        /**
+         * In an enchanting inventory, the middle button's level value.
+         */
+        ENCHANT_LEVEL2(8, InventoryType.ENCHANTING),
+        /**
+         * In an enchanting inventory, the bottom button's level value.
+         */
+        ENCHANT_LEVEL3(9, InventoryType.ENCHANTING),
+        /**
+         * In an beacon inventory, the levels of the beacon
+         */
+        LEVELS(0, InventoryType.BEACON),
+        /**
+         * In an beacon inventory, the primary potion effect
+         */
+        PRIMARY_EFFECT(1, InventoryType.BEACON),
+        /**
+         * In an beacon inventory, the secondary potion effect
+         */
+        SECONDARY_EFFECT(2, InventoryType.BEACON),
+        /**
+         * The repair's cost in xp levels
+         */
+        REPAIR_COST(0, InventoryType.ANVIL);
+        int id;
+        InventoryType style;
+
+        private Property(int id, InventoryType appliesTo) {
+            this.id = id;
+            style = appliesTo;
+        }
+
+        public InventoryType getType() {
+            return style;
+        }
+
+        /**
+         * @return the id of this view
+         * @deprecated Magic value
+         */
+        @Deprecated
+        public int getId() {
+            return id;
+        }
     }
 }

@@ -25,6 +25,10 @@ public class VillagerReplenishTradeEvent extends EntityEvent implements Cancella
         this.bonus = bonus;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Get the recipe to replenish.
      *
@@ -56,8 +60,8 @@ public class VillagerReplenishTradeEvent extends EntityEvent implements Cancella
     /**
      * Set the bonus uses added.
      *
-     * @see VillagerReplenishTradeEvent#getBonus()
      * @param bonus the extra uses added
+     * @see VillagerReplenishTradeEvent#getBonus()
      */
     public void setBonus(int bonus) {
         this.bonus = bonus;
@@ -80,10 +84,6 @@ public class VillagerReplenishTradeEvent extends EntityEvent implements Cancella
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

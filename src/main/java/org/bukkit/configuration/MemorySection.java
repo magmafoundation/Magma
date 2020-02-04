@@ -1,20 +1,15 @@
 package org.bukkit.configuration;
 
-import static org.bukkit.util.NumberConversions.*;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+
+import java.util.*;
+
+import static org.bukkit.util.NumberConversions.*;
 
 /**
  * A type of {@link ConfigurationSection} that is stored in memory.
@@ -34,7 +29,7 @@ public class MemorySection implements ConfigurationSection {
      * will throw an exception!
      *
      * @throws IllegalStateException Thrown if this is not a {@link
-     *     Configuration} root.
+     *                               Configuration} root.
      */
     protected MemorySection() {
         if (!(this instanceof Configuration)) {
@@ -51,10 +46,10 @@ public class MemorySection implements ConfigurationSection {
      * Creates an empty MemorySection with the specified parent and path.
      *
      * @param parent Parent section that contains this own section.
-     * @param path Path that you may access this section from via the root
-     *     {@link Configuration}.
+     * @param path   Path that you may access this section from via the root
+     *               {@link Configuration}.
      * @throws IllegalArgumentException Thrown is parent or path is null, or
-     *     if parent contains no root Configuration.
+     *                                  if parent contains no root Configuration.
      */
     protected MemorySection(ConfigurationSection parent, String path) {
         Validate.notNull(parent, "Parent cannot be null");
@@ -67,6 +62,63 @@ public class MemorySection implements ConfigurationSection {
         Validate.notNull(root, "Path cannot be orphaned");
 
         this.fullPath = createPath(parent, path);
+    }
+
+    /**
+     * Creates a full path to the given {@link ConfigurationSection} from its
+     * root {@link Configuration}.
+     * <p>
+     * You may use this method for any given {@link ConfigurationSection}, not
+     * only {@link MemorySection}.
+     *
+     * @param section Section to create a path for.
+     * @param key     Name of the specified section.
+     * @return Full path of the section from its root.
+     */
+    public static String createPath(ConfigurationSection section, String key) {
+        return createPath(section, key, (section == null) ? null : section.getRoot());
+    }
+
+    /**
+     * Creates a relative path to the given {@link ConfigurationSection} from
+     * the given relative section.
+     * <p>
+     * You may use this method for any given {@link ConfigurationSection}, not
+     * only {@link MemorySection}.
+     *
+     * @param section    Section to create a path for.
+     * @param key        Name of the specified section.
+     * @param relativeTo Section to create the path relative to.
+     * @return Full path of the section from its root.
+     */
+    public static String createPath(ConfigurationSection section, String key, ConfigurationSection relativeTo) {
+        Validate.notNull(section, "Cannot create path without a section");
+        Configuration root = section.getRoot();
+        if (root == null) {
+            throw new IllegalStateException("Cannot create path without a root");
+        }
+        char separator = root.options().pathSeparator();
+
+        StringBuilder builder = new StringBuilder();
+        if (section != null) {
+            for (ConfigurationSection parent = section; (parent != null) && (parent != relativeTo); parent = parent.getParent()) {
+                if (builder.length() > 0) {
+                    builder.insert(0, separator);
+                }
+
+                builder.insert(0, parent.getName());
+            }
+        }
+
+        if ((key != null) && (key.length() > 0)) {
+            if (builder.length() > 0) {
+                builder.append(separator);
+            }
+
+            builder.append(key);
+        }
+
+        return builder.toString();
     }
 
     public Set<String> getKeys(boolean deep) {
@@ -759,73 +811,16 @@ public class MemorySection implements ConfigurationSection {
         }
     }
 
-    /**
-     * Creates a full path to the given {@link ConfigurationSection} from its
-     * root {@link Configuration}.
-     * <p>
-     * You may use this method for any given {@link ConfigurationSection}, not
-     * only {@link MemorySection}.
-     *
-     * @param section Section to create a path for.
-     * @param key Name of the specified section.
-     * @return Full path of the section from its root.
-     */
-    public static String createPath(ConfigurationSection section, String key) {
-        return createPath(section, key, (section == null) ? null : section.getRoot());
-    }
-
-    /**
-     * Creates a relative path to the given {@link ConfigurationSection} from
-     * the given relative section.
-     * <p>
-     * You may use this method for any given {@link ConfigurationSection}, not
-     * only {@link MemorySection}.
-     *
-     * @param section Section to create a path for.
-     * @param key Name of the specified section.
-     * @param relativeTo Section to create the path relative to.
-     * @return Full path of the section from its root.
-     */
-    public static String createPath(ConfigurationSection section, String key, ConfigurationSection relativeTo) {
-        Validate.notNull(section, "Cannot create path without a section");
-        Configuration root = section.getRoot();
-        if (root == null) {
-            throw new IllegalStateException("Cannot create path without a root");
-        }
-        char separator = root.options().pathSeparator();
-
-        StringBuilder builder = new StringBuilder();
-        if (section != null) {
-            for (ConfigurationSection parent = section; (parent != null) && (parent != relativeTo); parent = parent.getParent()) {
-                if (builder.length() > 0) {
-                    builder.insert(0, separator);
-                }
-
-                builder.insert(0, parent.getName());
-            }
-        }
-
-        if ((key != null) && (key.length() > 0)) {
-            if (builder.length() > 0) {
-                builder.append(separator);
-            }
-
-            builder.append(key);
-        }
-
-        return builder.toString();
-    }
-
     @Override
     public String toString() {
         Configuration root = getRoot();
         return new StringBuilder()
-            .append(getClass().getSimpleName())
-            .append("[path='")
-            .append(getCurrentPath())
-            .append("', root='")
-            .append(root == null ? null : root.getClass().getSimpleName())
-            .append("']")
-            .toString();
+                .append(getClass().getSimpleName())
+                .append("[path='")
+                .append(getCurrentPath())
+                .append("', root='")
+                .append(root == null ? null : root.getClass().getSimpleName())
+                .append("']")
+                .toString();
     }
 }

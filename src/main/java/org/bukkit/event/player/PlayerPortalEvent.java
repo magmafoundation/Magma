@@ -26,6 +26,10 @@ public class PlayerPortalEvent extends PlayerTeleportEvent {
         this.travelAgent = pta;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Sets whether or not the Travel Agent will be used.
      * <p>
@@ -78,10 +82,6 @@ public class PlayerPortalEvent extends PlayerTeleportEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

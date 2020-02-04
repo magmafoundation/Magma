@@ -1,4 +1,3 @@
-
 package org.bukkit.entity;
 
 /**
@@ -30,7 +29,6 @@ public interface Ocelot extends Animals, Tameable, Sittable {
         SIAMESE_CAT(3);
 
         private static final Type[] types = new Type[Type.values().length];
-        private final int id;
 
         static {
             for (Type type : values()) {
@@ -38,19 +36,10 @@ public interface Ocelot extends Animals, Tameable, Sittable {
             }
         }
 
+        private final int id;
+
         private Type(int id) {
             this.id = id;
-        }
-
-        /**
-         * Gets the ID of this cat type.
-         *
-         * @return Type ID.
-         * @deprecated Magic value
-         */
-        @Deprecated
-        public int getId() {
-            return id;
         }
 
         /**
@@ -63,6 +52,17 @@ public interface Ocelot extends Animals, Tameable, Sittable {
         @Deprecated
         public static Type getType(int id) {
             return (id >= types.length) ? null : types[id];
+        }
+
+        /**
+         * Gets the ID of this cat type.
+         *
+         * @return Type ID.
+         * @deprecated Magic value
+         */
+        @Deprecated
+        public int getId() {
+            return id;
         }
     }
 }

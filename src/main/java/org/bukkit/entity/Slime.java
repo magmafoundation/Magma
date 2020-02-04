@@ -16,17 +16,17 @@ public interface Slime extends LivingEntity {
     public void setSize(int sz);
 
     /**
+     * Get the {@link LivingEntity} this slime is currently targeting.
+     *
+     * @return the current target, or null if no target exists.
+     */
+    public LivingEntity getTarget();
+
+    /**
      * Set the {@link LivingEntity} target for this slime. Set to null to clear
      * the target.
      *
      * @param target the entity to target
      */
     public void setTarget(LivingEntity target);
-
-    /**
-     * Get the {@link LivingEntity} this slime is currently targeting.
-     *
-     * @return the current target, or null if no target exists.
-     */
-    public LivingEntity getTarget();
 }

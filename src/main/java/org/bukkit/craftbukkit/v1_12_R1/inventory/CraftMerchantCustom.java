@@ -36,13 +36,13 @@ public class CraftMerchantCustom extends CraftMerchant {
         }
 
         @Override
-        public void setCustomer(EntityPlayer entityhuman) {
-            this.tradingPlayer = entityhuman;
+        public EntityPlayer getCustomer() {
+            return this.tradingPlayer;
         }
 
         @Override
-        public EntityPlayer getCustomer() {
-            return this.tradingPlayer;
+        public void setCustomer(EntityPlayer entityhuman) {
+            this.tradingPlayer = entityhuman;
         }
 
         @Override

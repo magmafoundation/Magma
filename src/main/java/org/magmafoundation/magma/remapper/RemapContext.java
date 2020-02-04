@@ -1,8 +1,9 @@
 package org.magmafoundation.magma.remapper;
 
-import java.util.LinkedList;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.objectweb.asm.tree.ClassNode;
+
+import java.util.LinkedList;
 
 /**
  * RemapContext
@@ -21,6 +22,18 @@ public class RemapContext {
         return remapStack;
     }
 
+    public static void push(RemapContext context) {
+        remapStack.push(context);
+    }
+
+    public static RemapContext peek() {
+        return remapStack.peek();
+    }
+
+    public static RemapContext pop() {
+        return remapStack.pop();
+    }
+
     public PluginDescriptionFile getDescription() {
         return description;
     }
@@ -37,17 +50,5 @@ public class RemapContext {
     public RemapContext setClassNode(ClassNode classNode) {
         this.classNode = classNode;
         return this;
-    }
-
-    public static void push(RemapContext context) {
-        remapStack.push(context);
-    }
-
-    public static RemapContext peek() {
-        return remapStack.peek();
-    }
-
-    public static RemapContext pop() {
-        return remapStack.pop();
     }
 }

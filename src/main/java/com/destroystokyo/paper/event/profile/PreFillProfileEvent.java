@@ -33,15 +33,20 @@ import java.util.Collection;
 
 /**
  * Fired when the server is requesting to fill in properties of an incomplete profile, such as textures.
- *
+ * <p>
  * Allows plugins to pre populate cached properties and avoid a call to the Mojang API
  */
 public class PreFillProfileEvent extends Event {
+    private static final HandlerList handlers = new HandlerList();
     private final PlayerProfile profile;
 
     public PreFillProfileEvent(PlayerProfile profile) {
         super(!org.bukkit.Bukkit.isPrimaryThread());
         this.profile = profile;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -54,22 +59,16 @@ public class PreFillProfileEvent extends Event {
     /**
      * Sets the properties on the profile, avoiding the call to the Mojang API
      * Same as .getPlayerProfile().setProperties(properties);
-     * 
-     * @see PlayerProfile#setProperties(Collection)
+     *
      * @param properties The properties to set/append
+     * @see PlayerProfile#setProperties(Collection)
      */
     public void setProperties(@Nonnull Collection<ProfileProperty> properties) {
         profile.setProperties(properties);
     }
 
-    private static final HandlerList handlers = new HandlerList();
-
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

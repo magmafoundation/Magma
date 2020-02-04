@@ -1,11 +1,12 @@
 package org.magmafoundation.magma.remapper.remappers;
 
-import java.util.Iterator;
-import java.util.Map;
 import net.md_5.specialsource.CustomRemapper;
 import net.md_5.specialsource.NodeType;
 import org.magmafoundation.magma.remapper.mappingsModel.ClassMappings;
 import org.magmafoundation.magma.remapper.utils.ASMUtils;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * MagmaJarRemapper
@@ -18,22 +19,8 @@ public class MagmaJarRemapper extends CustomRemapper {
 
     public final MagmaJarMapping jarMapping;
 
-    @Override
-    public String mapSignature(String signature, boolean typeSignature) {
-        if (ASMUtils.isValidSingnature(signature)) {
-            return super.mapSignature(signature, typeSignature);
-        } else {
-            return signature;
-        }
-    }
-
     public MagmaJarRemapper(MagmaJarMapping jarMapping) {
         this.jarMapping = jarMapping;
-    }
-
-    @Override
-    public String map(String typeName) {
-        return mapTypeName(typeName, jarMapping.packages, jarMapping.byNMSSrcName, typeName);
     }
 
     public static String mapTypeName(String typeName, Map<String, String> packageMap, Map<String, ClassMappings> classMap, String defaultIfUnmapped) {
@@ -101,6 +88,20 @@ public class MagmaJarRemapper extends CustomRemapper {
         }
 
         return className.substring(oldPackage.length());
+    }
+
+    @Override
+    public String mapSignature(String signature, boolean typeSignature) {
+        if (ASMUtils.isValidSingnature(signature)) {
+            return super.mapSignature(signature, typeSignature);
+        } else {
+            return signature;
+        }
+    }
+
+    @Override
+    public String map(String typeName) {
+        return mapTypeName(typeName, jarMapping.packages, jarMapping.byNMSSrcName, typeName);
     }
 
     @Override

@@ -8,6 +8,65 @@ import org.bukkit.inventory.HorseInventory;
 public interface Horse extends AbstractHorse {
 
     /**
+     * Gets the horse's color.
+     * <p>
+     * Colors only apply to horses, not to donkeys, mules, skeleton horses
+     * or undead horses.
+     *
+     * @return a {@link Color} representing the horse's group
+     */
+    public Color getColor();
+
+    /**
+     * Sets the horse's color.
+     * <p>
+     * Attempting to set a color for any donkey, mule, skeleton horse or
+     * undead horse will not result in a change.
+     *
+     * @param color a {@link Color} for this horse
+     */
+    public void setColor(Color color);
+
+    /**
+     * Gets the horse's style.
+     * Styles determine what kind of markings or patterns a horse has.
+     * <p>
+     * Styles only apply to horses, not to donkeys, mules, skeleton horses
+     * or undead horses.
+     *
+     * @return a {@link Style} representing the horse's style
+     */
+    public Style getStyle();
+
+    /**
+     * Sets the style of this horse.
+     * Styles determine what kind of markings or patterns a horse has.
+     * <p>
+     * Attempting to set a style for any donkey, mule, skeleton horse or
+     * undead horse will not result in a change.
+     *
+     * @param style a {@link Style} for this horse
+     */
+    public void setStyle(Style style);
+
+    /**
+     * @return carrying chest status
+     * @deprecated see {@link ChestedHorse}
+     */
+    @Deprecated
+    public boolean isCarryingChest();
+
+    /**
+     * @param chest
+     * @deprecated see {@link ChestedHorse}
+     */
+    @Deprecated
+    public void setCarryingChest(boolean chest);
+
+    @Override
+    public HorseInventory getInventory();
+
+    /**
      * @deprecated different variants are differing classes
      */
     @Deprecated
@@ -35,8 +94,7 @@ public interface Horse extends AbstractHorse {
         /**
          * Not really a horse :)
          */
-        LLAMA
-        ;
+        LLAMA;
     }
 
     /**
@@ -100,63 +158,4 @@ public interface Horse extends AbstractHorse {
         BLACK_DOTS,
         ;
     }
-
-    /**
-     * Gets the horse's color.
-     * <p>
-     * Colors only apply to horses, not to donkeys, mules, skeleton horses
-     * or undead horses.
-     *
-     * @return a {@link Color} representing the horse's group
-     */
-    public Color getColor();
-
-    /**
-     * Sets the horse's color.
-     * <p>
-     * Attempting to set a color for any donkey, mule, skeleton horse or
-     * undead horse will not result in a change.
-     *
-     * @param color a {@link Color} for this horse
-     */
-    public void setColor(Color color);
-
-    /**
-     * Gets the horse's style.
-     * Styles determine what kind of markings or patterns a horse has.
-     * <p>
-     * Styles only apply to horses, not to donkeys, mules, skeleton horses
-     * or undead horses.
-     *
-     * @return a {@link Style} representing the horse's style
-     */
-    public Style getStyle();
-
-    /**
-     * Sets the style of this horse.
-     * Styles determine what kind of markings or patterns a horse has.
-     * <p>
-     * Attempting to set a style for any donkey, mule, skeleton horse or
-     * undead horse will not result in a change.
-     *
-     * @param style a {@link Style} for this horse
-     */
-    public void setStyle(Style style);
-
-    /**
-     * @return carrying chest status
-     * @deprecated see {@link ChestedHorse}
-     */
-    @Deprecated
-    public boolean isCarryingChest();
-
-    /**
-     * @param chest
-     * @deprecated see {@link ChestedHorse}
-     */
-    @Deprecated
-    public void setCarryingChest(boolean chest);
-
-    @Override
-    public HorseInventory getInventory();
 }

@@ -18,6 +18,10 @@ public class PlayerVelocityEvent extends PlayerEvent implements Cancellable {
         this.velocity = velocity;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public boolean isCancelled() {
         return cancel;
     }
@@ -46,10 +50,6 @@ public class PlayerVelocityEvent extends PlayerEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

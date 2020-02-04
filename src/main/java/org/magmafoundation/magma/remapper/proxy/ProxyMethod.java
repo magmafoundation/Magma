@@ -1,7 +1,8 @@
 package org.magmafoundation.magma.remapper.proxy;
 
-import java.lang.reflect.Method;
 import org.magmafoundation.magma.remapper.utils.RemappingUtils;
+
+import java.lang.reflect.Method;
 
 /**
  * ProxyMethod

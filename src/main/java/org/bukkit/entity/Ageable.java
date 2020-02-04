@@ -3,7 +3,7 @@ package org.bukkit.entity;
 /**
  * Represents an entity that can age and breed.
  */
-public interface Ageable extends Creature {    
+public interface Ageable extends Creature {
     /**
      * Gets the age of this animal.
      *
@@ -19,19 +19,19 @@ public interface Ageable extends Creature {
     public void setAge(int age);
 
     /**
+     * Gets the current agelock.
+     *
+     * @return the current agelock
+     */
+    public boolean getAgeLock();
+
+    /**
      * Lock the age of the animal, setting this will prevent the animal from
      * maturing or getting ready for mating.
      *
      * @param lock new lock
      */
     public void setAgeLock(boolean lock);
-
-    /**
-     * Gets the current agelock.
-     *
-     * @return the current agelock
-     */
-    public boolean getAgeLock();
 
     /**
      * Sets the age of the animal to a baby
@@ -49,7 +49,7 @@ public interface Ageable extends Creature {
      * @return return true if the animal is an adult
      */
     public boolean isAdult();
-    
+
     /**
      * Return the ability to breed of the animal.
      *

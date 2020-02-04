@@ -9,14 +9,18 @@ import org.bukkit.event.HandlerList;
  */
 public class EntityTargetEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
+    private final TargetReason reason;
     private boolean cancel = false;
     private Entity target;
-    private final TargetReason reason;
 
     public EntityTargetEvent(final Entity entity, final Entity target, final TargetReason reason) {
         super(entity);
         this.target = target;
         this.reason = reason;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public boolean isCancelled() {
@@ -66,10 +70,6 @@ public class EntityTargetEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 

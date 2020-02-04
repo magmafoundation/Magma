@@ -15,6 +15,10 @@ public class PlayerQuitEvent extends PlayerEvent {
         this.quitMessage = quitMessage;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets the quit message to send to all online players
      *
@@ -35,10 +39,6 @@ public class PlayerQuitEvent extends PlayerEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

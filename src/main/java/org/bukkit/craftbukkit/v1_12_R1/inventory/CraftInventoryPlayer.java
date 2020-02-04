@@ -1,7 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
 import com.google.common.base.Preconditions;
-
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.network.play.server.SPacketHeldItemChange;
@@ -26,6 +25,11 @@ public class CraftInventoryPlayer extends CraftInventory implements PlayerInvent
     @Override
     public ItemStack[] getStorageContents() {
         return asCraftMirror(getInventory().mainInventory);
+    }
+
+    @Override
+    public void setStorageContents(ItemStack[] items) throws IllegalArgumentException {
+        setSlots(items, 0, getInventory().mainInventory.size());
     }
 
     @Override
@@ -118,28 +122,28 @@ public class CraftInventoryPlayer extends CraftInventory implements PlayerInvent
         return getItem(getSize() - 2);
     }
 
-    public ItemStack getChestplate() {
-        return getItem(getSize() - 3);
-    }
-
-    public ItemStack getLeggings() {
-        return getItem(getSize() - 4);
-    }
-
-    public ItemStack getBoots() {
-        return getItem(getSize() - 5);
-    }
-
     public void setHelmet(ItemStack helmet) {
         setItem(getSize() - 2, helmet);
+    }
+
+    public ItemStack getChestplate() {
+        return getItem(getSize() - 3);
     }
 
     public void setChestplate(ItemStack chestplate) {
         setItem(getSize() - 3, chestplate);
     }
 
+    public ItemStack getLeggings() {
+        return getItem(getSize() - 4);
+    }
+
     public void setLeggings(ItemStack leggings) {
         setItem(getSize() - 4, leggings);
+    }
+
+    public ItemStack getBoots() {
+        return getItem(getSize() - 5);
     }
 
     public void setBoots(ItemStack boots) {
@@ -148,6 +152,11 @@ public class CraftInventoryPlayer extends CraftInventory implements PlayerInvent
 
     public ItemStack[] getArmorContents() {
         return asCraftMirror(getInventory().armorInventory);
+    }
+
+    @Override
+    public void setArmorContents(ItemStack[] items) {
+        setSlots(items, getInventory().mainInventory.size(), getInventory().armorInventory.size());
     }
 
     private void setSlots(ItemStack[] items, int baseSlot, int length) {
@@ -163,16 +172,6 @@ public class CraftInventoryPlayer extends CraftInventory implements PlayerInvent
                 setItem(baseSlot + i, items[i]);
             }
         }
-    }
-
-    @Override
-    public void setStorageContents(ItemStack[] items) throws IllegalArgumentException {
-        setSlots(items, 0, getInventory().mainInventory.size());
-    }
-
-    @Override
-    public void setArmorContents(ItemStack[] items) {
-        setSlots(items, getInventory().mainInventory.size(), getInventory().armorInventory.size());
     }
 
     @Override

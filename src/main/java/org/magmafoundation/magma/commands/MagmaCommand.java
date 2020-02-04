@@ -1,7 +1,6 @@
 package org.magmafoundation.magma.commands;
 
 import net.minecraft.command.CommandBase;
-import net.minecraft.util.text.TextFormatting;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -41,30 +40,30 @@ public class MagmaCommand extends Command {
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
 
-        if(!sender.hasPermission("magma.commands.magma")) {
+        if (!sender.hasPermission("magma.commands.magma")) {
             sender.sendMessage(ChatColor.RED + "You don't got the permission to execute this command!");
             return false;
         }
 
-        if(args.length == 0){
+        if (args.length == 0) {
             sender.sendMessage(ChatColor.RED + "Usage: " + usageMessage);
             return false;
         }
 
-        switch (args[0].toLowerCase()){
+        switch (args[0].toLowerCase()) {
             case "mods":
                 sender.sendMessage(ChatColor.GREEN + "" + ServerAPI.getModSize() + " " + ServerAPI.getModList());
                 break;
             case "playermods":
-                if(args.length == 1){
+                if (args.length == 1) {
                     sender.sendMessage(ChatColor.RED + "Usage: " + usageMessage);
                     return false;
                 }
 
                 Player player = Bukkit.getPlayer(args[1].toString());
-                if(player != null){
+                if (player != null) {
                     sender.sendMessage(ChatColor.GREEN + "" + PlayerAPI.getModSize(player) + " " + PlayerAPI.getModlist(player));
-                }else{
+                } else {
                     sender.sendMessage(ChatColor.RED + "The player [" + args[1] + "] is not online.");
                 }
                 break;

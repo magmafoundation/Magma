@@ -10,12 +10,16 @@ import org.bukkit.event.HandlerList;
  */
 public class PlayerGameModeChangeEvent extends PlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
     private final GameMode newGameMode;
+    private boolean cancelled;
 
     public PlayerGameModeChangeEvent(final Player player, final GameMode newGameMode) {
         super(player);
         this.newGameMode = newGameMode;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public boolean isCancelled() {
@@ -29,7 +33,7 @@ public class PlayerGameModeChangeEvent extends PlayerEvent implements Cancellabl
     /**
      * Gets the GameMode the player is switched to.
      *
-     * @return  player's new GameMode
+     * @return player's new GameMode
      */
     public GameMode getNewGameMode() {
         return newGameMode;
@@ -37,10 +41,6 @@ public class PlayerGameModeChangeEvent extends PlayerEvent implements Cancellabl
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

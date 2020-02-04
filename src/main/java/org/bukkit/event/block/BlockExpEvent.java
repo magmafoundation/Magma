@@ -16,6 +16,10 @@ public class BlockExpEvent extends BlockEvent {
         this.exp = exp;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Get the experience dropped by the block after the event has processed
      *
@@ -36,10 +40,6 @@ public class BlockExpEvent extends BlockEvent {
     }
 
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

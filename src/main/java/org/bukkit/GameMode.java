@@ -1,10 +1,9 @@
 package org.bukkit;
 
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import org.bukkit.entity.HumanEntity;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 /**
  * Represents the various type of game modes that {@link HumanEntity}s may
@@ -28,17 +27,37 @@ public enum GameMode {
     ADVENTURE(2),
 
     /**
-     * Spectator mode cannot interact with the world in anyway and is 
-     * invisible to normal players. This grants the player the 
+     * Spectator mode cannot interact with the world in anyway and is
+     * invisible to normal players. This grants the player the
      * ability to no-clip through the world.
      */
     SPECTATOR(3);
 
-    private final int value;
     private final static Map<Integer, GameMode> BY_ID = Maps.newHashMap();
+
+    static {
+        for (GameMode mode : values()) {
+            BY_ID.put(mode.getValue(), mode);
+        }
+    }
+
+    private final int value;
 
     private GameMode(final int value) {
         this.value = value;
+    }
+
+    /**
+     * Gets the GameMode represented by the specified value
+     *
+     * @param value Value to check
+     * @return Associative {@link GameMode} with the given value, or null if
+     * it doesn't exist
+     * @deprecated Magic value
+     */
+    @Deprecated
+    public static GameMode getByValue(final int value) {
+        return BY_ID.get(value);
     }
 
     /**
@@ -50,24 +69,5 @@ public enum GameMode {
     @Deprecated
     public int getValue() {
         return value;
-    }
-
-    /**
-     * Gets the GameMode represented by the specified value
-     *
-     * @param value Value to check
-     * @return Associative {@link GameMode} with the given value, or null if
-     *     it doesn't exist
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public static GameMode getByValue(final int value) {
-        return BY_ID.get(value);
-    }
-
-    static {
-        for (GameMode mode : values()) {
-            BY_ID.put(mode.getValue(), mode);
-        }
     }
 }

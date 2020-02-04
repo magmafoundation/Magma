@@ -1,8 +1,8 @@
 package org.bukkit;
 
-import java.util.Map;
-
 import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
 
 /**
  * All supported color values for dyes and cloth
@@ -74,20 +74,96 @@ public enum DyeColor {
      */
     BLACK(0xF, 0x0, Color.fromRGB(0x1D1D21), Color.fromRGB(0x1E1B1B));
 
-    private final byte woolData;
-    private final byte dyeData;
-    private final Color color;
-    private final Color firework;
     private final static DyeColor[] BY_WOOL_DATA;
     private final static DyeColor[] BY_DYE_DATA;
     private final static Map<Color, DyeColor> BY_COLOR;
     private final static Map<Color, DyeColor> BY_FIREWORK;
+
+    static {
+        BY_WOOL_DATA = values();
+        BY_DYE_DATA = values();
+        ImmutableMap.Builder<Color, DyeColor> byColor = ImmutableMap.builder();
+        ImmutableMap.Builder<Color, DyeColor> byFirework = ImmutableMap.builder();
+
+        for (DyeColor color : values()) {
+            BY_WOOL_DATA[color.woolData & 0xff] = color;
+            BY_DYE_DATA[color.dyeData & 0xff] = color;
+            byColor.put(color.getColor(), color);
+            byFirework.put(color.getFireworkColor(), color);
+        }
+
+        BY_COLOR = byColor.build();
+        BY_FIREWORK = byFirework.build();
+    }
+
+    private final byte woolData;
+    private final byte dyeData;
+    private final Color color;
+    private final Color firework;
 
     private DyeColor(final int woolData, final int dyeData, Color color, Color firework) {
         this.woolData = (byte) woolData;
         this.dyeData = (byte) dyeData;
         this.color = color;
         this.firework = firework;
+    }
+
+    /**
+     * Gets the DyeColor with the given wool data value.
+     *
+     * @param data Wool data value to fetch
+     * @return The {@link DyeColor} representing the given value, or null if
+     * it doesn't exist
+     * @see #getByDyeData(byte)
+     * @deprecated Magic value
+     */
+    @Deprecated
+    public static DyeColor getByWoolData(final byte data) {
+        int i = 0xff & data;
+        if (i >= BY_WOOL_DATA.length) {
+            return null;
+        }
+        return BY_WOOL_DATA[i];
+    }
+
+    /**
+     * Gets the DyeColor with the given dye data value.
+     *
+     * @param data Dye data value to fetch
+     * @return The {@link DyeColor} representing the given value, or null if
+     * it doesn't exist
+     * @see #getByWoolData(byte)
+     * @deprecated Magic value
+     */
+    @Deprecated
+    public static DyeColor getByDyeData(final byte data) {
+        int i = 0xff & data;
+        if (i >= BY_DYE_DATA.length) {
+            return null;
+        }
+        return BY_DYE_DATA[i];
+    }
+
+    /**
+     * Gets the DyeColor with the given color value.
+     *
+     * @param color Color value to get the dye by
+     * @return The {@link DyeColor} representing the given value, or null if
+     * it doesn't exist
+     */
+    public static DyeColor getByColor(final Color color) {
+        return BY_COLOR.get(color);
+    }
+
+    /**
+     * Gets the DyeColor with the given firework color value.
+     *
+     * @param color Color value to get dye by
+     * @return The {@link DyeColor} representing the given value, or null if
+     * it doesn't exist
+     */
+    public static DyeColor getByFireworkColor(final Color color) {
+        return BY_FIREWORK.get(color);
     }
 
     /**
@@ -130,80 +206,5 @@ public enum DyeColor {
      */
     public Color getFireworkColor() {
         return firework;
-    }
-
-    /**
-     * Gets the DyeColor with the given wool data value.
-     *
-     * @param data Wool data value to fetch
-     * @return The {@link DyeColor} representing the given value, or null if
-     *     it doesn't exist
-     * @see #getByDyeData(byte)
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public static DyeColor getByWoolData(final byte data) {
-        int i = 0xff & data;
-        if (i >= BY_WOOL_DATA.length) {
-            return null;
-        }
-        return BY_WOOL_DATA[i];
-    }
-
-    /**
-     * Gets the DyeColor with the given dye data value.
-     *
-     * @param data Dye data value to fetch
-     * @return The {@link DyeColor} representing the given value, or null if
-     *     it doesn't exist
-     * @see #getByWoolData(byte)
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public static DyeColor getByDyeData(final byte data) {
-        int i = 0xff & data;
-        if (i >= BY_DYE_DATA.length) {
-            return null;
-        }
-        return BY_DYE_DATA[i];
-    }
-
-    /**
-     * Gets the DyeColor with the given color value.
-     *
-     * @param color Color value to get the dye by
-     * @return The {@link DyeColor} representing the given value, or null if
-     *     it doesn't exist
-     */
-    public static DyeColor getByColor(final Color color) {
-        return BY_COLOR.get(color);
-    }
-
-    /**
-     * Gets the DyeColor with the given firework color value.
-     *
-     * @param color Color value to get dye by
-     * @return The {@link DyeColor} representing the given value, or null if
-     *     it doesn't exist
-     */
-    public static DyeColor getByFireworkColor(final Color color) {
-        return BY_FIREWORK.get(color);
-    }
-
-    static {
-        BY_WOOL_DATA = values();
-        BY_DYE_DATA = values();
-        ImmutableMap.Builder<Color, DyeColor> byColor = ImmutableMap.builder();
-        ImmutableMap.Builder<Color, DyeColor> byFirework = ImmutableMap.builder();
-
-        for (DyeColor color : values()) {
-            BY_WOOL_DATA[color.woolData & 0xff] = color;
-            BY_DYE_DATA[color.dyeData & 0xff] = color;
-            byColor.put(color.getColor(), color);
-            byFirework.put(color.getFireworkColor(), color);
-        }
-
-        BY_COLOR = byColor.build();
-        BY_FIREWORK = byFirework.build();
     }
 }

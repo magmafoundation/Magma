@@ -119,14 +119,14 @@ public class CraftBossBar implements BossBar {
     }
 
     @Override
-    public void setProgress(double progress) {
-    	Preconditions.checkArgument(progress >= 0.0 && progress <= 1.0, "Progress must be between 0.0 and 1.0 (%s)", progress);
-        handle.setPercent((float) progress);
+    public double getProgress() {
+        return handle.getPercent();
     }
 
     @Override
-    public double getProgress() {
-        return handle.getPercent();
+    public void setProgress(double progress) {
+        Preconditions.checkArgument(progress >= 0.0 && progress <= 1.0, "Progress must be between 0.0 and 1.0 (%s)", progress);
+        handle.setPercent((float) progress);
     }
 
     @Override
@@ -149,13 +149,13 @@ public class CraftBossBar implements BossBar {
     }
 
     @Override
-    public void setVisible(boolean visible) {
-        handle.setVisible(visible);
+    public boolean isVisible() {
+        return handle.visible;
     }
 
     @Override
-    public boolean isVisible() {
-        return handle.visible;
+    public void setVisible(boolean visible) {
+        handle.setVisible(visible);
     }
 
     @Override

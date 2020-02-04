@@ -10,7 +10,6 @@ import org.bukkit.util.Vector;
 /**
  * Fired when an Entity is knocked back by the hit of another Entity. The acceleration
  * vector can be modified. If this event is cancelled, the entity is not knocked back.
- *
  */
 public class EntityKnockbackByEntityEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
@@ -27,12 +26,12 @@ public class EntityKnockbackByEntityEvent extends EntityEvent implements Cancell
         this.acceleration = acceleration;
     }
 
-    @Override
-    public HandlerList getHandlers() {
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Override
+    public HandlerList getHandlers() {
         return handlers;
     }
 

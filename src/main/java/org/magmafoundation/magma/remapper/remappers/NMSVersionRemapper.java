@@ -1,12 +1,13 @@
 package org.magmafoundation.magma.remapper.remappers;
 
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.remapper.inter.ClassRemapperSupplier;
 import org.magmafoundation.magma.remapper.utils.ASMUtils;
 import org.objectweb.asm.commons.Remapper;
+
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * NMSVersionRemapper

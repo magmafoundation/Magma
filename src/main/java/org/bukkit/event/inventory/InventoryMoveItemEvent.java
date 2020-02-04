@@ -25,11 +25,11 @@ import org.bukkit.inventory.ItemStack;
  */
 public class InventoryMoveItemEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
     private final Inventory sourceInventory;
     private final Inventory destinationInventory;
-    private ItemStack itemStack;
     private final boolean didSourceInitiate;
+    private boolean cancelled;
+    private ItemStack itemStack;
 
     public InventoryMoveItemEvent(final Inventory sourceInventory, final ItemStack itemStack, final Inventory destinationInventory, final boolean didSourceInitiate) {
         Validate.notNull(itemStack, "ItemStack cannot be null");
@@ -37,6 +37,10 @@ public class InventoryMoveItemEvent extends Event implements Cancellable {
         this.itemStack = itemStack;
         this.destinationInventory = destinationInventory;
         this.didSourceInitiate = didSourceInitiate;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -99,10 +103,6 @@ public class InventoryMoveItemEvent extends Event implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

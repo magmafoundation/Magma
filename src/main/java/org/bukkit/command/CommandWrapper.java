@@ -12,7 +12,6 @@ import net.minecraft.util.math.BlockPos;
 import org.bukkit.craftbukkit.v1_12_R1.command.CraftBlockCommandSender;
 import org.bukkit.craftbukkit.v1_12_R1.command.CraftFunctionCommandSender;
 import org.bukkit.craftbukkit.v1_12_R1.command.CraftRemoteConsoleCommandSender;
-import org.magmafoundation.magma.api.ServerAPI;
 
 import javax.annotation.Nullable;
 import java.util.List;

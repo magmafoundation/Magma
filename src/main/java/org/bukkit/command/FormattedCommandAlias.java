@@ -1,8 +1,8 @@
 package org.bukkit.command;
 
-import java.util.ArrayList;
-
 import org.bukkit.Bukkit;
+
+import java.util.ArrayList;
 
 public class FormattedCommandAlias extends Command {
     private final String[] formatStrings;
@@ -10,6 +10,10 @@ public class FormattedCommandAlias extends Command {
     public FormattedCommandAlias(String alias, String[] formatStrings) {
         super(alias);
         this.formatStrings = formatStrings;
+    }
+
+    private static boolean inRange(int i, int j, int k) {
+        return i >= j && i <= k;
     }
 
     @Override
@@ -111,9 +115,5 @@ public class FormattedCommandAlias extends Command {
         }
 
         return formatString;
-    }
-
-    private static boolean inRange(int i, int j, int k) {
-        return i >= j && i <= k;
     }
 }

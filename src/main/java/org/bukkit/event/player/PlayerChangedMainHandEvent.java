@@ -18,6 +18,10 @@ public class PlayerChangedMainHandEvent extends PlayerEvent {
         this.mainHand = mainHand;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets the new main hand of the player. The old hand is still momentarily
      * available via {@link Player#getMainHand()}.
@@ -30,10 +34,6 @@ public class PlayerChangedMainHandEvent extends PlayerEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

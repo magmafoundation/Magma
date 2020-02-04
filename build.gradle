@@ -11,7 +11,7 @@ buildscript {
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
         maven {
-            url  "https://jcenter.bintray.com"
+            url "https://jcenter.bintray.com"
         }
         maven {
             url "https://plugins.gradle.org/m2/"
@@ -65,7 +65,7 @@ repositories {
     }
 }
 
-configurations{
+configurations {
     compile.extendsFrom exported
     libraries
 }
@@ -102,7 +102,7 @@ dependencies {
     compile 'org.apache.logging.log4j:log4j-core:2.8.1'
 }
 
-jar{
+jar {
     into('lib') {
         from configurations.libraries
     }
@@ -209,11 +209,11 @@ outputJar {
     classifier = 'server'
 
     manifest.attributes([
-            "Implementation-Title": "Magma",
+            "Implementation-Title"  : "Magma",
             "Implementation-Version": version,
-            "Main-Class": "net.minecraftforge.fml.relauncher.ServerLaunchWrapper",
-            "TweakClass": "net.minecraftforge.fml.common.launcher.FMLTweaker",
-            "Class-Path": getServerClasspath(file("jsons/1.12.2-rel.json"))
+            "Main-Class"            : "net.minecraftforge.fml.relauncher.ServerLaunchWrapper",
+            "TweakClass"            : "net.minecraftforge.fml.common.launcher.FMLTweaker",
+            "Class-Path"            : getServerClasspath(file("jsons/1.12.2-rel.json"))
     ])
 }
 
@@ -221,11 +221,11 @@ processJson {
     releaseJson = "jsons/1.12.2-rel.json"
     addReplacements([
             "@minecraft_version@": project.minecraft.version,
-            "@version@": project.version,
-            "@project@": "magma",
-            "@artifact@": "mf:magma:${project.version}",
-            "@universal_jar@": { outputJar.archiveName },
-            "@timestamp@": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "@version@"          : project.version,
+            "@project@"          : "magma",
+            "@artifact@"         : "mf:magma:${project.version}",
+            "@universal_jar@"    : { outputJar.archiveName },
+            "@timestamp@"        : new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
     ])
 }
 
@@ -246,8 +246,7 @@ String getServerClasspath(File file) {
     def node = new JsonSlurper().parse(file)
     def out = new StringBuilder()
     node.versionInfo.libraries.each { lib ->
-        if (lib.serverreq)
-        {
+        if (lib.serverreq) {
             def split = lib.name.split(':')
             def group = split[0].replace('.', '/')
             def artifact = split[1]
@@ -260,22 +259,24 @@ String getServerClasspath(File file) {
 }
 
 githubRelease {
-    if(System.getenv("GITHUB_TOKEN") != null){
+    if (System.getenv("GITHUB_TOKEN") != null) {
         token System.getenv("GITHUB_TOKEN")
-    }else{
+    } else {
         token ""
     }
     owner "MagmaFoundation"
     repo "Magma"
     releaseName "Magma Dev " + versioning.info.branch + "-" + versioning.info.build
     prerelease true
-    body { """\
+    body {
+        """\
 ## Change Log
 ${changelog().call().replace('\n', '\n* ')}
-""" }
+"""
+    }
     draft false
     releaseAssets = [
-        fileTree("build/distributions/").filter { it.name.endsWith("jar") || it.name.endsWith("zip") },
-        fileTree("/release/").filter { it.name.endsWith("zip") }
+            fileTree("build/distributions/").filter { it.name.endsWith("jar") || it.name.endsWith("zip") },
+            fileTree("/release/").filter { it.name.endsWith("zip") }
     ]
 }

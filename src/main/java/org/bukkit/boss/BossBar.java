@@ -71,19 +71,19 @@ public interface BossBar {
     boolean hasFlag(BarFlag flag);
 
     /**
+     * Returns the progress of the bar between 0.0 and 1.0
+     *
+     * @return the progress of the bar
+     */
+    double getProgress();
+
+    /**
      * Sets the progress of the bar. Values should be between 0.0 (empty) and
      * 1.0 (full)
      *
      * @param progress the progress of the bar
      */
     void setProgress(double progress);
-
-    /**
-     * Returns the progress of the bar between 0.0 and 1.0
-     *
-     * @return the progress of the bar
-     */
-    double getProgress();
 
     /**
      * Adds the player to this boss bar causing it to display on their screen.
@@ -115,13 +115,6 @@ public interface BossBar {
     List<Player> getPlayers();
 
     /**
-     * Set if the boss bar is displayed to attached players.
-     *
-     * @param visible visible status
-     */
-    void setVisible(boolean visible);
-
-    /**
      * Return if the boss bar is displayed to attached players.
      *
      * @return visible status
@@ -129,7 +122,15 @@ public interface BossBar {
     boolean isVisible();
 
     /**
+     * Set if the boss bar is displayed to attached players.
+     *
+     * @param visible visible status
+     */
+    void setVisible(boolean visible);
+
+    /**
      * Shows the previously hidden boss bar to all attached players
+     *
      * @deprecated {@link #setVisible(boolean)}
      */
     @Deprecated
@@ -137,6 +138,7 @@ public interface BossBar {
 
     /**
      * Hides this boss bar from all attached players
+     *
      * @deprecated {@link #setVisible(boolean)}
      */
     @Deprecated

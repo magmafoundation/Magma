@@ -13,8 +13,8 @@ import org.bukkit.inventory.ItemStack;
 public class EntityShootBowEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private final ItemStack bow;
-    private Entity projectile;
     private final float force;
+    private Entity projectile;
     private boolean cancelled;
 
     public EntityShootBowEvent(final LivingEntity shooter, final ItemStack bow, final Projectile projectile, final float force) {
@@ -22,6 +22,10 @@ public class EntityShootBowEvent extends EntityEvent implements Cancellable {
         this.bow = bow;
         this.projectile = projectile;
         this.force = force;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
@@ -75,10 +79,6 @@ public class EntityShootBowEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

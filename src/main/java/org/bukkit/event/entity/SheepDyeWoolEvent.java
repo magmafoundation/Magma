@@ -19,6 +19,10 @@ public class SheepDyeWoolEvent extends EntityEvent implements Cancellable {
         this.color = color;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     public boolean isCancelled() {
         return cancel;
     }
@@ -52,10 +56,6 @@ public class SheepDyeWoolEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 

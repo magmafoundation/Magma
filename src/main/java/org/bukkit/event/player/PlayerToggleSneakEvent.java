@@ -17,6 +17,10 @@ public class PlayerToggleSneakEvent extends PlayerEvent implements Cancellable {
         this.isSneaking = isSneaking;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Returns whether the player is now sneaking or not.
      *
@@ -36,10 +40,6 @@ public class PlayerToggleSneakEvent extends PlayerEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

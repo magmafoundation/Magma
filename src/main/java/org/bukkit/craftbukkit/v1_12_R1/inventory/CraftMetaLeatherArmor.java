@@ -1,7 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
-import java.util.Map;
-
+import com.google.common.collect.ImmutableMap.Builder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import org.bukkit.Color;
@@ -9,7 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
-import com.google.common.collect.ImmutableMap.Builder;
+import java.util.Map;
 
 @DelegateDeserialization(CraftMetaItem.SerializableMeta.class)
 class CraftMetaLeatherArmor extends CraftMetaItem implements LeatherArmorMeta {
@@ -62,7 +61,7 @@ class CraftMetaLeatherArmor extends CraftMetaItem implements LeatherArmorMeta {
 
     @Override
     boolean applicableTo(Material type) {
-        switch(type) {
+        switch (type) {
             case LEATHER_HELMET:
             case LEATHER_CHESTPLATE:
             case LEATHER_LEGGINGS:

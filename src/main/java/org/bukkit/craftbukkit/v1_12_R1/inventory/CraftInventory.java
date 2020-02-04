@@ -1,8 +1,5 @@
 package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
@@ -17,6 +14,10 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 
 public class CraftInventory implements Inventory {
     protected final IInventory inventory;
@@ -435,7 +436,7 @@ public class CraftInventory implements Inventory {
 
     public List<HumanEntity> getViewers() {
         try {
-        return this.inventory.getViewers();
+            return this.inventory.getViewers();
         } catch (AbstractMethodError e) {
             return new java.util.ArrayList<>();
         }
@@ -460,7 +461,7 @@ public class CraftInventory implements Inventory {
         } else if (inventory instanceof TileEntityFurnace) {
             return InventoryType.FURNACE;
         } else if (this instanceof CraftInventoryEnchanting) {
-           return InventoryType.ENCHANTING;
+            return InventoryType.ENCHANTING;
         } else if (inventory instanceof TileEntityBrewingStand) {
             return InventoryType.BREWING;
         } else if (inventory instanceof CraftInventoryCustom.MinecraftInventory) {
@@ -472,7 +473,7 @@ public class CraftInventory implements Inventory {
         } else if (inventory instanceof TileEntityBeacon) {
             return InventoryType.BEACON;
         } else if (this instanceof CraftInventoryAnvil) {
-           return InventoryType.ANVIL;
+            return InventoryType.ANVIL;
         } else if (inventory instanceof IHopper) {
             return InventoryType.HOPPER;
         } else if (inventory instanceof TileEntityShulkerBox) {
@@ -489,8 +490,8 @@ public class CraftInventory implements Inventory {
             if (inventory instanceof net.minecraft.tileentity.TileEntity) {
                 TileEntity tileEntity = (net.minecraft.tileentity.TileEntity) inventory;
                 org.bukkit.block.BlockState state = tileEntity.getWorld().getWorld()
-                    .getBlockAt(tileEntity.getPos().getX(), tileEntity.getPos().getY(),
-                        tileEntity.getPos().getZ()).getState();
+                        .getBlockAt(tileEntity.getPos().getX(), tileEntity.getPos().getY(),
+                                tileEntity.getPos().getZ()).getState();
 
                 if (state instanceof InventoryHolder) {
                     return (InventoryHolder) state;

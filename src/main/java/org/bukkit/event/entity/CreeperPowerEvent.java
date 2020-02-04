@@ -12,8 +12,8 @@ import org.bukkit.event.HandlerList;
  */
 public class CreeperPowerEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean canceled;
     private final PowerCause cause;
+    private boolean canceled;
     private LightningStrike bolt;
 
     public CreeperPowerEvent(final Creeper creeper, final LightningStrike bolt, final PowerCause cause) {
@@ -24,6 +24,10 @@ public class CreeperPowerEvent extends EntityEvent implements Cancellable {
     public CreeperPowerEvent(final Creeper creeper, final PowerCause cause) {
         super(creeper);
         this.cause = cause;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public boolean isCancelled() {
@@ -59,10 +63,6 @@ public class CreeperPowerEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 

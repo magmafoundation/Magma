@@ -13,9 +13,9 @@ import java.util.List;
  */
 public class EntityExplodeEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancel;
     private final Location location;
     private final List<Block> blocks;
+    private boolean cancel;
     private float yield;
 
     public EntityExplodeEvent(final Entity what, final Location location, final List<Block> blocks, final float yield) {
@@ -24,6 +24,10 @@ public class EntityExplodeEvent extends EntityEvent implements Cancellable {
         this.blocks = blocks;
         this.yield = yield;
         this.cancel = false;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public boolean isCancelled() {
@@ -76,10 +80,6 @@ public class EntityExplodeEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

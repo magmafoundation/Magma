@@ -1,5 +1,10 @@
 package org.bukkit.craftbukkit.v1_12_R1;
 
+import jline.UnsupportedTerminal;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import org.fusesource.jansi.AnsiConsole;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -7,10 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jline.UnsupportedTerminal;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import org.fusesource.jansi.AnsiConsole;
 //import org.fusesource.jansi.AnsiConsole;
 
 public class Main {
@@ -176,8 +177,8 @@ public class Main {
 
             try {
                 // This trick bypasses Maven Shade's clever rewriting of our getProperty call when using String literals
-                String jline_UnsupportedTerminal = new String(new char[] {'j','l','i','n','e','.','U','n','s','u','p','p','o','r','t','e','d','T','e','r','m','i','n','a','l'});
-                String jline_terminal = new String(new char[] {'j','l','i','n','e','.','t','e','r','m','i','n','a','l'});
+                String jline_UnsupportedTerminal = new String(new char[]{'j', 'l', 'i', 'n', 'e', '.', 'U', 'n', 's', 'u', 'p', 'p', 'o', 'r', 't', 'e', 'd', 'T', 'e', 'r', 'm', 'i', 'n', 'a', 'l'});
+                String jline_terminal = new String(new char[]{'j', 'l', 'i', 'n', 'e', '.', 't', 'e', 'r', 'm', 'i', 'n', 'a', 'l'});
 
                 useJline = !(jline_UnsupportedTerminal).equals(System.getProperty(jline_terminal));
 
@@ -187,8 +188,7 @@ public class Main {
                 }
                 if (Main.useJline) {
                     AnsiConsole.systemInstall();
-                }
-                else {
+                } else {
                     System.setProperty("jline.terminal", UnsupportedTerminal.class.getName());
                 }
 

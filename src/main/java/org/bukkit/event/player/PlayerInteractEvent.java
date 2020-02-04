@@ -1,14 +1,14 @@
 package org.bukkit.event.player;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.event.HandlerList;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * Represents an event that is called when a player interacts with an object or
@@ -42,6 +42,10 @@ public class PlayerInteractEvent extends PlayerEvent implements Cancellable {
 
         useItemInHand = Result.DEFAULT;
         useClickedBlock = clickedBlock == null ? Result.DENY : Result.ALLOW;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -200,10 +204,6 @@ public class PlayerInteractEvent extends PlayerEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

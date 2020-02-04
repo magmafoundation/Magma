@@ -1,10 +1,5 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nullable;
-
 import net.minecraft.entity.passive.EntityVillager;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
@@ -17,13 +12,53 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.MerchantRecipe;
 
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class CraftVillager extends CraftAgeable implements Villager, InventoryHolder {
 
     private static final Map<Career, Integer> careerIDMap = new HashMap<>();
+
+    static {
+        // build Career -> ID map
+        int id = 0;
+        for (Profession prof : Profession.values()) {
+            List<Career> careers = prof.getCareers();
+            if (!careers.isEmpty()) {
+                for (Career c : careers) {
+                    careerIDMap.put(c, ++id);
+                }
+            }
+
+            Validate.isTrue(id == careers.size(), "Career id registration mismatch");
+            id = 0;
+        }
+    }
+
     private CraftMerchant merchant;
 
     public CraftVillager(CraftServer server, EntityVillager entity) {
         super(server, entity);
+    }
+
+    @Nullable
+    private static Career getCareer(Profession profession, int id) {
+        Validate.isTrue(id > 0, "Career id must be greater than 0");
+
+        List<Career> careers = profession.getCareers();
+        for (Career c : careers) {
+            if (careerIDMap.containsKey(c) && careerIDMap.get(c) == id) {
+                return c;
+            }
+        }
+
+        return null;
+    }
+
+    private static int getCareerID(Career career) {
+        return careerIDMap.getOrDefault(career, 0);
     }
 
     @Override
@@ -127,39 +162,5 @@ public class CraftVillager extends CraftAgeable implements Villager, InventoryHo
     @Override
     public void setRiches(int riches) {
         getHandle().wealth = riches;
-    }
-
-    @Nullable
-    private static Career getCareer(Profession profession, int id) {
-        Validate.isTrue(id > 0, "Career id must be greater than 0");
-
-        List<Career> careers = profession.getCareers();
-        for (Career c : careers) {
-            if (careerIDMap.containsKey(c) && careerIDMap.get(c) == id) {
-                return c;
-            }
-        }
-
-        return null;
-    }
-
-    private static int getCareerID(Career career) {
-        return careerIDMap.getOrDefault(career, 0);
-    }
-
-    static {
-        // build Career -> ID map
-        int id = 0;
-        for (Profession prof : Profession.values()) {
-            List<Career> careers = prof.getCareers();
-            if (!careers.isEmpty()) {
-                for (Career c : careers) {
-                    careerIDMap.put(c, ++id);
-                }
-            }
-
-            Validate.isTrue(id == careers.size(), "Career id registration mismatch");
-            id = 0;
-        }
     }
 }

@@ -12,7 +12,8 @@ public final class PaperLegacyStatusClient implements StatusClient {
 
     private final InetSocketAddress address;
     private final int protocolVersion;
-    @Nullable private final InetSocketAddress virtualHost;
+    @Nullable
+    private final InetSocketAddress virtualHost;
 
     private PaperLegacyStatusClient(InetSocketAddress address, int protocolVersion, @Nullable InetSocketAddress virtualHost) {
         this.address = address;
@@ -20,31 +21,10 @@ public final class PaperLegacyStatusClient implements StatusClient {
         this.virtualHost = virtualHost;
     }
 
-    @Override
-    public InetSocketAddress getAddress() {
-        return this.address;
-    }
-
-    @Override
-    public int getProtocolVersion() {
-        return this.protocolVersion;
-    }
-
-    @Nullable
-    @Override
-    public InetSocketAddress getVirtualHost() {
-        return this.virtualHost;
-    }
-
-    @Override
-    public boolean isLegacy() {
-        return true;
-    }
-
     public static PaperServerListPingEvent processRequest(MinecraftServer server,
-            InetSocketAddress address, int protocolVersion, @Nullable InetSocketAddress virtualHost) {
+                                                          InetSocketAddress address, int protocolVersion, @Nullable InetSocketAddress virtualHost) {
 
-        PaperServerListPingEvent event =  new PaperServerListPingEventImpl(server,
+        PaperServerListPingEvent event = new PaperServerListPingEventImpl(server,
                 new PaperLegacyStatusClient(address, protocolVersion, virtualHost), Byte.MAX_VALUE, null);
         server.server.getPluginManager().callEvent(event);
 
@@ -67,6 +47,27 @@ public final class PaperLegacyStatusClient implements StatusClient {
     private static String getFirstLine(String s) {
         int pos = s.indexOf('\n');
         return pos >= 0 ? s.substring(0, pos) : s;
+    }
+
+    @Override
+    public InetSocketAddress getAddress() {
+        return this.address;
+    }
+
+    @Override
+    public int getProtocolVersion() {
+        return this.protocolVersion;
+    }
+
+    @Nullable
+    @Override
+    public InetSocketAddress getVirtualHost() {
+        return this.virtualHost;
+    }
+
+    @Override
+    public boolean isLegacy() {
+        return true;
     }
 
 }

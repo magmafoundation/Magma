@@ -3,13 +3,14 @@ package org.magmafoundation.magma.remapper.remappers;
 import com.google.common.base.Joiner;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableList;
+import net.md_5.specialsource.InheritanceMap;
+import net.md_5.specialsource.JarRemapper;
+import net.md_5.specialsource.provider.InheritanceProvider;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
-import net.md_5.specialsource.InheritanceMap;
-import net.md_5.specialsource.JarRemapper;
-import net.md_5.specialsource.provider.InheritanceProvider;
 
 /**
  * MagmaInheritanceMap

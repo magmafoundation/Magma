@@ -3,11 +3,7 @@ package org.bukkit.craftbukkit.v1_12_R1.command;
 import net.minecraft.command.ICommandSender;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.bukkit.Server;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.*;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 
 import java.util.Arrays;
@@ -43,7 +39,7 @@ public class CraftSimpleCommandMap extends SimpleCommandMap {
                 if (!target.testPermission(sender)) return true;
                 if (sender instanceof ConsoleCommandSender) {
                     FMLCommonHandler.instance().getMinecraftServerInstance().getCommandManager().executeCommand(this.vanillaConsoleSender, commandLine);
-            } else {
+                } else {
                     FMLCommonHandler.instance().getMinecraftServerInstance().getCommandManager().executeCommand(((CraftPlayer) sender).getHandle(), commandLine);
                 }
             } else {

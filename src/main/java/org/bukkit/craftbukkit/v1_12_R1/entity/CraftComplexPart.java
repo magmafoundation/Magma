@@ -18,13 +18,13 @@ public class CraftComplexPart extends CraftEntity implements ComplexEntityPart {
     }
 
     @Override
-    public void setLastDamageCause(EntityDamageEvent cause) {
-        getParent().setLastDamageCause(cause);
+    public EntityDamageEvent getLastDamageCause() {
+        return getParent().getLastDamageCause();
     }
 
     @Override
-    public EntityDamageEvent getLastDamageCause() {
-        return getParent().getLastDamageCause();
+    public void setLastDamageCause(EntityDamageEvent cause) {
+        getParent().setLastDamageCause(cause);
     }
 
     @Override

@@ -7,15 +7,6 @@ package org.magmafoundation.magma.remapper.proxy;
  * @since 11/11/2019 - 08:46 am
  */
 
-import java.io.InputStream;
-import java.net.JarURLConnection;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLStreamHandlerFactory;
-import java.security.CodeSigner;
-import java.security.CodeSource;
-import java.util.HashMap;
-import java.util.Map;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraft.server.MinecraftServer;
 import org.apache.commons.io.IOUtils;
@@ -26,10 +17,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.PluginClassLoader;
 import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 
+import java.io.InputStream;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLStreamHandlerFactory;
+import java.security.CodeSigner;
+import java.security.CodeSource;
+import java.util.HashMap;
+import java.util.Map;
+
 public class DelegateURLClassLoder extends URLClassLoader {
 
     public static final String desc = DelegateURLClassLoder.class.getName().replace('.', '/');
     private final PluginDescriptionFile description;
+    private final Map<String, Class<?>> classeCache = new HashMap<>();
 
     {
         PluginDescriptionFile description = null;
@@ -47,8 +49,6 @@ public class DelegateURLClassLoder extends URLClassLoader {
         }
         this.description = description;
     }
-
-    private final Map<String, Class<?>> classeCache = new HashMap<>();
 
     public DelegateURLClassLoder(final URL[] urls, final ClassLoader parent) {
         super(urls, parent);

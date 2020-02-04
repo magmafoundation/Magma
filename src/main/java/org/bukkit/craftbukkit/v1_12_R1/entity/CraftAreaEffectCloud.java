@@ -1,7 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.EntityAreaEffectCloud;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -15,12 +14,12 @@ import org.bukkit.craftbukkit.v1_12_R1.potion.CraftPotionUtil;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.potion.PotionData;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 public class CraftAreaEffectCloud extends CraftEntity implements AreaEffectCloud {
 
@@ -196,14 +195,14 @@ public class CraftAreaEffectCloud extends CraftEntity implements AreaEffectCloud
     }
 
     @Override
-    public void setBasePotionData(PotionData data) {
-        Validate.notNull(data, "PotionData cannot be null");
-        getHandle().setType(CraftPotionUtil.fromBukkit(data));
+    public PotionData getBasePotionData() {
+        return CraftPotionUtil.toBukkit(getHandle().getType());
     }
 
     @Override
-    public PotionData getBasePotionData() {
-        return CraftPotionUtil.toBukkit(getHandle().getType());
+    public void setBasePotionData(PotionData data) {
+        Validate.notNull(data, "PotionData cannot be null");
+        getHandle().setType(CraftPotionUtil.fromBukkit(data));
     }
 
     public ProjectileSource getSource() {

@@ -15,18 +15,18 @@ public interface Jukebox extends BlockState {
     public Material getPlaying();
 
     /**
-     * Sets the record being played.
-     *
-     * @param record The record Material, or null/AIR to stop playing
-     */
-    public void setPlaying(Material record);
-
-    /**
      * Checks if the jukebox is playing a record.
      *
      * @return True if there is a record playing
      */
     public boolean isPlaying();
+
+    /**
+     * Sets the record being played.
+     *
+     * @param record The record Material, or null/AIR to stop playing
+     */
+    public void setPlaying(Material record);
 
     /**
      * Stops the jukebox playing and ejects the current record.

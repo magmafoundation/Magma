@@ -28,9 +28,13 @@ public class PlayerItemMendEvent extends PlayerEvent implements Cancellable {
         this.repairAmount = repairAmount;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Get the {@link ItemStack} to be repaired.
-     *
+     * <p>
      * This is not necessarily the item the player is holding.
      *
      * @return the item to be repaired
@@ -50,7 +54,7 @@ public class PlayerItemMendEvent extends PlayerEvent implements Cancellable {
 
     /**
      * Get the amount the item is to be repaired.
-     *
+     * <p>
      * The default value is twice the value of the consumed experience orb
      * or the remaining damage left on the item, whichever is smaller.
      *
@@ -62,7 +66,7 @@ public class PlayerItemMendEvent extends PlayerEvent implements Cancellable {
 
     /**
      * Set the amount the item will be repaired.
-     *
+     * <p>
      * Half of this value will be subtracted from the experience orb which initiated this event.
      *
      * @param amount how much damage will be repaired on the item
@@ -83,10 +87,6 @@ public class PlayerItemMendEvent extends PlayerEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

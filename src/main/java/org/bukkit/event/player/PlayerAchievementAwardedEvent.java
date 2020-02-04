@@ -7,6 +7,7 @@ import org.bukkit.event.HandlerList;
 
 /**
  * Called when a player earns an achievement.
+ *
  * @deprecated future versions of Minecraft do not have achievements
  */
 @Deprecated
@@ -18,6 +19,10 @@ public class PlayerAchievementAwardedEvent extends PlayerEvent implements Cancel
     public PlayerAchievementAwardedEvent(Player player, Achievement achievement) {
         super(player);
         this.achievement = achievement;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -39,10 +44,6 @@ public class PlayerAchievementAwardedEvent extends PlayerEvent implements Cancel
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

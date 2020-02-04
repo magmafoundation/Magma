@@ -11,17 +11,12 @@ import org.spigotmc.SpigotConfig;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.AbstractSet;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class CraftPlayerProfile implements PlayerProfile {
 
-    private GameProfile profile;
     private final PropertySet properties = new PropertySet();
+    private GameProfile profile;
 
     public CraftPlayerProfile(CraftPlayer player) {
         this.profile = player.getHandle().getGameProfile();
@@ -33,6 +28,47 @@ public class CraftPlayerProfile implements PlayerProfile {
 
     public CraftPlayerProfile(GameProfile profile) {
         this.profile = profile;
+    }
+
+    private static void copyProfileProperties(GameProfile source, GameProfile target) {
+        PropertyMap sourceProperties = source.getProperties();
+        if (sourceProperties.isEmpty()) {
+            return;
+        }
+        PropertyMap properties = target.getProperties();
+        properties.clear();
+
+        for (Property property : sourceProperties.values()) {
+            properties.put(property.getName(), property);
+        }
+    }
+
+    private static ProfileProperty toBukkit(Property property) {
+        return new ProfileProperty(property.getName(), property.getValue(), property.getSignature());
+    }
+
+    public static PlayerProfile asBukkitCopy(GameProfile gameProfile) {
+        CraftPlayerProfile profile = new CraftPlayerProfile(gameProfile.getId(), gameProfile.getName());
+        copyProfileProperties(gameProfile, profile.profile);
+        return profile;
+    }
+
+    public static PlayerProfile asBukkitMirror(GameProfile profile) {
+        return new CraftPlayerProfile(profile);
+    }
+
+    public static Property asAuthlib(ProfileProperty property) {
+        return new Property(property.getName(), property.getValue(), property.getSignature());
+    }
+
+    public static GameProfile asAuthlibCopy(PlayerProfile profile) {
+        CraftPlayerProfile craft = ((CraftPlayerProfile) profile);
+        return asAuthlib(craft.clone());
+    }
+
+    public static GameProfile asAuthlib(PlayerProfile profile) {
+        CraftPlayerProfile craft = ((CraftPlayerProfile) profile);
+        return craft.getGameProfile();
     }
 
     @Override
@@ -185,47 +221,6 @@ public class CraftPlayerProfile implements PlayerProfile {
             }
         }
         return profile.isComplete() && (!isOnlineMode || !textures || hasTextures());
-    }
-
-    private static void copyProfileProperties(GameProfile source, GameProfile target) {
-        PropertyMap sourceProperties = source.getProperties();
-        if (sourceProperties.isEmpty()) {
-            return;
-        }
-        PropertyMap properties = target.getProperties();
-        properties.clear();
-
-        for (Property property : sourceProperties.values()) {
-            properties.put(property.getName(), property);
-        }
-    }
-
-    private static ProfileProperty toBukkit(Property property) {
-        return new ProfileProperty(property.getName(), property.getValue(), property.getSignature());
-    }
-
-    public static PlayerProfile asBukkitCopy(GameProfile gameProfile) {
-        CraftPlayerProfile profile = new CraftPlayerProfile(gameProfile.getId(), gameProfile.getName());
-        copyProfileProperties(gameProfile, profile.profile);
-        return profile;
-    }
-
-    public static PlayerProfile asBukkitMirror(GameProfile profile) {
-        return new CraftPlayerProfile(profile);
-    }
-
-    public static Property asAuthlib(ProfileProperty property) {
-        return new Property(property.getName(), property.getValue(), property.getSignature());
-    }
-
-    public static GameProfile asAuthlibCopy(PlayerProfile profile) {
-        CraftPlayerProfile craft = ((CraftPlayerProfile) profile);
-        return asAuthlib(craft.clone());
-    }
-
-    public static GameProfile asAuthlib(PlayerProfile profile) {
-        CraftPlayerProfile craft = ((CraftPlayerProfile) profile);
-        return craft.getGameProfile();
     }
 
     private class PropertySet extends AbstractSet<ProfileProperty> {

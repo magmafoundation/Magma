@@ -10,23 +10,29 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 
 /**
  * WARNING: This event only fires for a limited number of cases, and not for every case that CreatureSpawnEvent does.
- *
+ * <p>
  * You should still listen to CreatureSpawnEvent as a backup, and only use this event as an "enhancement".
  * The intent of this event is to improve server performance, so limited use cases.
- * 
+ * <p>
  * Currently: NATURAL and SPAWNER based reasons. Please submit a Pull Request for future additions.
  * Also, Plugins that replace Entity Registrations with their own custom entities might not fire this event.
  */
 public class PreCreatureSpawnEvent extends Event implements Cancellable {
+    private static final HandlerList handlers = new HandlerList();
     private final Location location;
     private final EntityType type;
     private final CreatureSpawnEvent.SpawnReason reason;
     private boolean shouldAbortSpawn;
+    private boolean cancelled = false;
 
     public PreCreatureSpawnEvent(Location location, EntityType type, CreatureSpawnEvent.SpawnReason reason) {
         this.location = Preconditions.checkNotNull(location, "Location may not be null").clone();
         this.type = Preconditions.checkNotNull(type, "Type may not be null");
         this.reason = Preconditions.checkNotNull(reason, "Reason may not be null");
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -67,18 +73,10 @@ public class PreCreatureSpawnEvent extends Event implements Cancellable {
         this.shouldAbortSpawn = shouldAbortSpawn;
     }
 
-    private static final HandlerList handlers = new HandlerList();
-
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
-    private boolean cancelled = false;
 
     /**
      * @return If the spawn of this creature is cancelled or not
@@ -90,6 +88,7 @@ public class PreCreatureSpawnEvent extends Event implements Cancellable {
 
     /**
      * Cancelling this event is more effecient than cancelling CreatureSpawnEvent
+     *
      * @param cancel true if you wish to cancel this event, and abort the spawn of this creature
      */
     @Override

@@ -22,6 +22,10 @@ public class BrewEvent extends BlockEvent implements Cancellable {
         this.fuelLevel = fuelLevel;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets the contents of the Brewing Stand.
      *
@@ -50,10 +54,6 @@ public class BrewEvent extends BlockEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

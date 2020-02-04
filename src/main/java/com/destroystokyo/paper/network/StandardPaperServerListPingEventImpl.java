@@ -27,6 +27,41 @@ public final class StandardPaperServerListPingEventImpl extends PaperServerListP
         this.originalSample = ping.getPlayers() == null ? null : ping.getPlayers().getPlayers(); // GH-1473 - pre-tick race condition NPE
     }
 
+    @SuppressWarnings("deprecation")
+    public static void processRequest(MinecraftServer server, NetworkManager networkManager) {
+        StandardPaperServerListPingEventImpl event = new StandardPaperServerListPingEventImpl(server, networkManager, server.getServerStatusResponse());
+        server.server.getPluginManager().callEvent(event);
+
+        // Close connection immediately if event is cancelled
+        if (event.isCancelled()) {
+            networkManager.closeChannel(null);
+            return;
+        }
+
+        // Setup response
+        ServerStatusResponse ping = new ServerStatusResponse();
+
+        // Description
+        ping.setServerDescription(new TextComponentString(event.getMotd()));
+
+        // Players
+        if (!event.shouldHidePlayers()) {
+            ping.setPlayers(new ServerStatusResponse.Players(event.getMaxPlayers(), event.getNumPlayers()));
+            ping.getPlayers().setPlayers(event.getPlayerSampleHandle());
+        }
+
+        // Version
+        ping.setVersion(new ServerStatusResponse.Version(event.getVersion(), event.getProtocolVersion()));
+
+        // Favicon
+        if (event.getServerIcon() != null) {
+            ping.setFavicon(event.getServerIcon().getData());
+        }
+
+        // Send response
+        networkManager.sendPacket(new SPacketServerInfo(ping));
+    }
+
     @Nonnull
     @Override
     public List<PlayerProfile> getPlayerSample() {
@@ -71,41 +106,6 @@ public final class StandardPaperServerListPingEventImpl extends PaperServerListP
         }
 
         return profiles;
-    }
-
-    @SuppressWarnings("deprecation")
-    public static void processRequest(MinecraftServer server, NetworkManager networkManager) {
-        StandardPaperServerListPingEventImpl event = new StandardPaperServerListPingEventImpl(server, networkManager, server.getServerStatusResponse());
-        server.server.getPluginManager().callEvent(event);
-
-        // Close connection immediately if event is cancelled
-        if (event.isCancelled()) {
-            networkManager.closeChannel(null);
-            return;
-        }
-
-        // Setup response
-        ServerStatusResponse ping = new ServerStatusResponse();
-
-        // Description
-        ping.setServerDescription(new TextComponentString(event.getMotd()));
-
-        // Players
-        if (!event.shouldHidePlayers()) {
-            ping.setPlayers(new ServerStatusResponse.Players(event.getMaxPlayers(), event.getNumPlayers()));
-            ping.getPlayers().setPlayers(event.getPlayerSampleHandle());
-        }
-
-        // Version
-        ping.setVersion(new ServerStatusResponse.Version(event.getVersion(), event.getProtocolVersion()));
-
-        // Favicon
-        if (event.getServerIcon() != null) {
-            ping.setFavicon(event.getServerIcon().getData());
-        }
-
-        // Send response
-        networkManager.sendPacket(new SPacketServerInfo(ping));
     }
 
 }

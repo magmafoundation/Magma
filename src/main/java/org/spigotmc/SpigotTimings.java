@@ -1,12 +1,13 @@
 package org.spigotmc;
 
-import java.util.HashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import org.bukkit.craftbukkit.v1_12_R1.scheduler.CraftTask;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.HashMap;
 
 /**
  * SpigotTimings

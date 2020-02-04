@@ -1,7 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1;
 
 import com.google.common.base.Preconditions;
-
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.common.util.EnumHelper;
@@ -562,6 +561,11 @@ public enum CraftSound {
     WEATHER_RAIN_ABOVE("weather.rain.above");
     private final String minecraftKey;
 
+    // Paper end
+    CraftSound(String minecraftKey) {
+        this.minecraftKey = minecraftKey;
+    }
+
     // Paper start - cancellable death event
     public static CraftSound getBySoundEffect(final SoundEvent effect) {
         ResourceLocation key = SoundEvent.REGISTRY.getNameForObject(effect);
@@ -572,7 +576,7 @@ public enum CraftSound {
             EnumHelper.addEnum(Sound.class, cs, new Class[0], new Object[0]);
         }
         if (!EnumUtils.isValidEnum(CraftSound.class, cs)) {
-            EnumHelper.addEnum(CraftSound.class, cs, new Class[] {String.class}, new Object[] {key.toString()});
+            EnumHelper.addEnum(CraftSound.class, cs, new Class[]{String.class}, new Object[]{key.toString()});
         }
         return valueOf(cs);
     }
@@ -583,10 +587,6 @@ public enum CraftSound {
 
     public static SoundEvent getSoundEffect(final Sound sound) {
         return getSoundEffect(getSound(sound));
-    }
-    // Paper end
-    CraftSound(String minecraftKey) {
-        this.minecraftKey = minecraftKey;
     }
 
     public static String getSound(final Sound sound) {

@@ -2,18 +2,7 @@ package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerBeacon;
-import net.minecraft.inventory.ContainerBrewingStand;
-import net.minecraft.inventory.ContainerChest;
-import net.minecraft.inventory.ContainerDispenser;
-import net.minecraft.inventory.ContainerEnchantment;
-import net.minecraft.inventory.ContainerFurnace;
-import net.minecraft.inventory.ContainerHopper;
-import net.minecraft.inventory.ContainerRepair;
-import net.minecraft.inventory.ContainerShulkerBox;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketOpenWindow;
 import net.minecraft.util.text.TextComponentString;
@@ -26,10 +15,10 @@ import org.bukkit.inventory.InventoryView;
 public class CraftContainer extends Container {
 
     private final InventoryView view;
+    private final int cachedSize;
     private InventoryType cachedType;
     private String cachedTitle;
     private Container delegate;
-    private final int cachedSize;
 
     public CraftContainer(InventoryView view, EntityPlayer player, int id) {
         this.view = view;
@@ -67,6 +56,33 @@ public class CraftContainer extends Container {
         }, player, id);
     }
 
+    public static String getNotchInventoryType(InventoryType type) {
+        switch (type) {
+            case WORKBENCH:
+                return "minecraft:crafting_table";
+            case FURNACE:
+                return "minecraft:furnace";
+            case DISPENSER:
+                return "minecraft:dispenser";
+            case ENCHANTING:
+                return "minecraft:enchanting_table";
+            case BREWING:
+                return "minecraft:brewing_stand";
+            case BEACON:
+                return "minecraft:beacon";
+            case ANVIL:
+                return "minecraft:anvil";
+            case HOPPER:
+                return "minecraft:hopper";
+            case DROPPER:
+                return "minecraft:dropper";
+            case SHULKER_BOX:
+                return "minecraft:shulker_box";
+            default:
+                return "minecraft:chest";
+        }
+    }
+
     @Override
     public InventoryView getBukkitView() {
         return view;
@@ -102,33 +118,6 @@ public class CraftContainer extends Container {
             player.updateInventory();
         }
         return true;
-    }
-
-    public static String getNotchInventoryType(InventoryType type) {
-        switch (type) {
-            case WORKBENCH:
-                return "minecraft:crafting_table";
-            case FURNACE:
-                return "minecraft:furnace";
-            case DISPENSER:
-                return "minecraft:dispenser";
-            case ENCHANTING:
-                return "minecraft:enchanting_table";
-            case BREWING:
-                return "minecraft:brewing_stand";
-            case BEACON:
-                return "minecraft:beacon";
-            case ANVIL:
-                return "minecraft:anvil";
-            case HOPPER:
-                return "minecraft:hopper";
-            case DROPPER:
-                return "minecraft:dropper";
-            case SHULKER_BOX:
-                return "minecraft:shulker_box";
-            default:
-                return "minecraft:chest";
-        }
     }
 
     private void setupSlots(IInventory top, InventoryPlayer bottom, EntityPlayer entityhuman) {

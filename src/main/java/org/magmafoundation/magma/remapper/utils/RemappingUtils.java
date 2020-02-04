@@ -1,13 +1,5 @@
 package org.magmafoundation.magma.remapper.utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.invoke.MethodType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import net.md_5.specialsource.transformer.MavenShade;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.magmafoundation.magma.Magma;
@@ -23,6 +15,15 @@ import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.ClassNode;
 import sun.reflect.Reflection;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.invoke.MethodType;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * RemappingUtils
  *
@@ -34,6 +35,7 @@ public class RemappingUtils {
     public static final String nmsPrefix = "net.minecraft.server.";
     public static final MagmaJarMapping jarMapping;
     private static final List<Remapper> remappers = new ArrayList<>();
+    private static final Object remapLock = new Object();
 
     static {
         jarMapping = new MagmaJarMapping();
@@ -61,8 +63,6 @@ public class RemappingUtils {
         remappers.add(new ReflectionRemapper());
         jarMapping.initFastMethodMapping(jarRemapper);
     }
-
-    private static final Object remapLock = new Object();
 
     public static byte[] remapFindClass(PluginDescriptionFile description, String name, byte[] bs) throws IOException {
         synchronized (remapLock) {

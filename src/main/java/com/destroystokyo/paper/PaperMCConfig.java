@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 
 public class PaperMCConfig {
 
-    private static File CONFIG_FILE;
     private static final String HEADER = "This is the main configuration file for Paper.\n"
             + "As you can see, there's tons to configure. Some options may impact gameplay, so use\n"
             + "with caution, and make sure you know what each option does before configuring.\n"
@@ -32,10 +31,34 @@ public class PaperMCConfig {
             + "IRC: #paper @ irc.spi.gt ( http://irc.spi.gt/iris/?channels=paper )\n"
             + "Wiki: https://paper.readthedocs.org/ \n"
             + "Paper Forums: https://aquifermc.org/ \n";
+    private static final Pattern SPACE = Pattern.compile(" ");
+    private static final Pattern NOT_NUMERIC = Pattern.compile("[^-\\d.]");
     /*========================================================================*/
     public static YamlConfiguration config;
+    public static int minChunkLoadThreads = 2;
+    public static boolean enableFileIOThreadSleep;
+    public static boolean loadPermsBeforePlugins = true;
+    public static int regionFileCacheSize = 256;
+    public static boolean enablePlayerCollisions = true;
+    public static boolean saveEmptyScoreboardTeams = false;
+    public static boolean bungeeOnlineMode = true;
+    public static int packetInSpamThreshold = 300;
+    public static String flyingKickPlayerMessage = "Flying is not enabled on this server";
+    public static String flyingKickVehicleMessage = "Flying is not enabled on this server";
+    public static int playerAutoSaveRate = -1;
+    public static int maxPlayerAutoSavePerTick = 10;
+    public static boolean removeInvalidStatistics = false;
+    public static boolean suggestPlayersWhenNullTabCompletions = true;
+    public static String authenticationServersDownKickMessage = ""; // empty = use translatable message
+    public static boolean savePlayerData = true;
+    public static boolean useAlternativeLuckFormula = false;
+    public static int tabSpamIncrement = 10;
+    public static int tabSpamLimit = 500;
+    public static int maxBookPageSize = 2560;
+    public static double maxBookTotalSizeMultiplier = 0.98D;
     static int version;
     static Map<String, Command> commands;
+    private static File CONFIG_FILE;
     private static boolean verbose;
     /*========================================================================*/
     private static boolean metricsStarted;
@@ -93,9 +116,6 @@ public class PaperMCConfig {
             Bukkit.getLogger().log(Level.SEVERE, "Could not save " + CONFIG_FILE, ex);
         }
     }
-
-    private static final Pattern SPACE = Pattern.compile(" ");
-    private static final Pattern NOT_NUMERIC = Pattern.compile("[^-\\d.]");
 
     public static int getSeconds(String str) {
         str = SPACE.matcher(str).replaceAll("");
@@ -177,13 +197,9 @@ public class PaperMCConfig {
         return config.getString(path, config.getString(path));
     }
 
-    public static int minChunkLoadThreads = 2;
-
     private static void chunkLoadThreads() {
         minChunkLoadThreads = Math.min(6, getInt("settings.min-chunk-load-threads", 2)); // Keep people from doing stupid things with max of 6
     }
-
-    public static boolean enableFileIOThreadSleep;
 
     private static void enableFileIOThreadSleep() {
         enableFileIOThreadSleep = getBoolean("settings.sleep-between-chunk-saves", false);
@@ -192,37 +208,25 @@ public class PaperMCConfig {
         }
     }
 
-    public static boolean loadPermsBeforePlugins = true;
-
     private static void loadPermsBeforePlugins() {
         loadPermsBeforePlugins = getBoolean("settings.load-permissions-yml-before-plugins", true);
     }
-
-    public static int regionFileCacheSize = 256;
 
     private static void regionFileCacheSize() {
         regionFileCacheSize = getInt("settings.region-file-cache-size", 256);
     }
 
-    public static boolean enablePlayerCollisions = true;
-
     private static void enablePlayerCollisions() {
         enablePlayerCollisions = getBoolean("settings.enable-player-collisions", true);
     }
-
-    public static boolean saveEmptyScoreboardTeams = false;
 
     private static void saveEmptyScoreboardTeams() {
         saveEmptyScoreboardTeams = getBoolean("settings.save-empty-scoreboard-teams", false);
     }
 
-    public static boolean bungeeOnlineMode = true;
-
     private static void bungeeOnlineMode() {
         bungeeOnlineMode = getBoolean("settings.bungee-online-mode", true);
     }
-
-    public static int packetInSpamThreshold = 300;
 
     private static void packetInSpamThreshold() {
         if (version < 11) {
@@ -232,16 +236,10 @@ public class PaperMCConfig {
         packetInSpamThreshold = getInt("settings.incoming-packet-spam-threshold", 300);
     }
 
-    public static String flyingKickPlayerMessage = "Flying is not enabled on this server";
-    public static String flyingKickVehicleMessage = "Flying is not enabled on this server";
-
     private static void flyingKickMessages() {
         flyingKickPlayerMessage = getString("messages.kick.flying-player", flyingKickPlayerMessage);
         flyingKickVehicleMessage = getString("messages.kick.flying-vehicle", flyingKickVehicleMessage);
     }
-
-    public static int playerAutoSaveRate = -1;
-    public static int maxPlayerAutoSavePerTick = 10;
 
     private static void playerAutoSaveRate() {
         playerAutoSaveRate = getInt("settings.player-auto-save-rate", -1);
@@ -252,8 +250,6 @@ public class PaperMCConfig {
         }
     }
 
-    public static boolean removeInvalidStatistics = false;
-
     private static void removeInvalidStatistics() {
         if (version < 12) {
             boolean oldValue = getBoolean("remove-invalid-statistics", false);
@@ -262,19 +258,13 @@ public class PaperMCConfig {
         removeInvalidStatistics = getBoolean("settings.remove-invalid-statistics", false);
     }
 
-    public static boolean suggestPlayersWhenNullTabCompletions = true;
-
     private static void suggestPlayersWhenNull() {
         suggestPlayersWhenNullTabCompletions = getBoolean("settings.suggest-player-names-when-null-tab-completions", suggestPlayersWhenNullTabCompletions);
     }
 
-    public static String authenticationServersDownKickMessage = ""; // empty = use translatable message
-
     private static void authenticationServersDownKickMessage() {
         authenticationServersDownKickMessage = Strings.emptyToNull(getString("messages.kick.authentication-servers-down", authenticationServersDownKickMessage));
     }
-
-    public static boolean savePlayerData = true;
 
     private static void savePlayerData() {
         savePlayerData = getBoolean("settings.save-player-data", savePlayerData);
@@ -284,8 +274,6 @@ public class PaperMCConfig {
         }
     }
 
-    public static boolean useAlternativeLuckFormula = false;
-
     private static void useAlternativeLuckFormula() {
         useAlternativeLuckFormula = getBoolean("settings.use-alternative-luck-formula", false);
         if (useAlternativeLuckFormula) {
@@ -293,17 +281,10 @@ public class PaperMCConfig {
         }
     }
 
-    public static int tabSpamIncrement = 10;
-    public static int tabSpamLimit = 500;
-
     private static void tabSpamLimiters() {
         tabSpamIncrement = getInt("settings.spam-limiter.tab-spam-increment", tabSpamIncrement);
         tabSpamLimit = getInt("settings.spam-limiter.tab-spam-limit", tabSpamLimit);
     }
-
-
-    public static int maxBookPageSize = 2560;
-    public static double maxBookTotalSizeMultiplier = 0.98D;
 
     private static void maxBookSize() {
         maxBookPageSize = getInt("settings.book-size.page-max", maxBookPageSize);

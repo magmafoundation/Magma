@@ -1,23 +1,9 @@
 package org.bukkit;
 
-import java.util.Map;
-
 import com.google.common.collect.Maps;
-import org.bukkit.entity.Ageable;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Guardian;
-import org.bukkit.entity.IronGolem;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Rabbit;
-import org.bukkit.entity.Squid;
-import org.bukkit.entity.Tameable;
-import org.bukkit.entity.TippedArrow;
-import org.bukkit.entity.Villager;
-import org.bukkit.entity.Witch;
-import org.bukkit.entity.Wolf;
-import org.bukkit.entity.ZombieVillager;
+import org.bukkit.entity.*;
+
+import java.util.Map;
 
 /**
  * A list of all Effects that can happen to entities.
@@ -149,13 +135,33 @@ public enum EntityEffect {
      */
     HURT_EXPLOSION(37, LivingEntity.class);
 
+    private final static Map<Byte, EntityEffect> BY_DATA = Maps.newHashMap();
+
+    static {
+        for (EntityEffect entityEffect : values()) {
+            BY_DATA.put(entityEffect.data, entityEffect);
+        }
+    }
+
     private final byte data;
     private final Class<? extends Entity> applicable;
-    private final static Map<Byte, EntityEffect> BY_DATA = Maps.newHashMap();
 
     EntityEffect(final int data, Class<? extends Entity> clazz) {
         this.data = (byte) data;
         this.applicable = clazz;
+    }
+
+    /**
+     * Gets the EntityEffect with the given data value
+     *
+     * @param data Data value to fetch
+     * @return The {@link EntityEffect} representing the given value, or null
+     * if it doesn't exist
+     * @deprecated Magic value
+     */
+    @Deprecated
+    public static EntityEffect getByData(final byte data) {
+        return BY_DATA.get(data);
     }
 
     /**
@@ -176,24 +182,5 @@ public enum EntityEffect {
      */
     public Class<? extends Entity> getApplicable() {
         return applicable;
-    }
-
-    /**
-     * Gets the EntityEffect with the given data value
-     *
-     * @param data Data value to fetch
-     * @return The {@link EntityEffect} representing the given value, or null
-     *     if it doesn't exist
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public static EntityEffect getByData(final byte data) {
-        return BY_DATA.get(data);
-    }
-
-    static {
-        for (EntityEffect entityEffect : values()) {
-            BY_DATA.put(entityEffect.data, entityEffect);
-        }
     }
 }

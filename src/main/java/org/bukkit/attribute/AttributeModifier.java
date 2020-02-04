@@ -1,11 +1,12 @@
 package org.bukkit.attribute;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.util.NumberConversions;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Concrete implementation of an attribute modifier.
@@ -30,6 +31,10 @@ public class AttributeModifier implements ConfigurationSerializable {
         this.name = name;
         this.amount = amount;
         this.operation = operation;
+    }
+
+    public static AttributeModifier deserialize(Map<String, Object> args) {
+        return new AttributeModifier(UUID.fromString((String) args.get("uuid")), (String) args.get("name"), NumberConversions.toDouble(args.get("amount")), Operation.values()[NumberConversions.toInt(args.get("operation"))]);
     }
 
     /**
@@ -76,10 +81,6 @@ public class AttributeModifier implements ConfigurationSerializable {
         data.put("operation", operation.ordinal());
         data.put("amount", amount);
         return data;
-    }
-
-    public static AttributeModifier deserialize(Map<String, Object> args) {
-        return new AttributeModifier(UUID.fromString((String) args.get("uuid")), (String) args.get("name"), NumberConversions.toDouble(args.get("amount")), Operation.values()[NumberConversions.toInt(args.get("operation"))]);
     }
 
     /**

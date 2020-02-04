@@ -1,11 +1,12 @@
 package org.bukkit.event.server;
 
-import java.util.List;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+
+import java.util.List;
 
 /**
  * Called when a {@link CommandSender} of any description (ie: player or
@@ -28,6 +29,10 @@ public class TabCompleteEvent extends Event implements Cancellable {
         this.sender = sender;
         this.buffer = buffer;
         this.completions = completions;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -80,10 +85,6 @@ public class TabCompleteEvent extends Event implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

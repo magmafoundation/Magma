@@ -1,10 +1,11 @@
 package org.magmafoundation.magma.remapper.proxy;
 
+import org.magmafoundation.magma.remapper.utils.RemappingUtils;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
-import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 
 /**
  * ProxyMethodHandles_Lookup

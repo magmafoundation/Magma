@@ -72,6 +72,9 @@ public interface Arrow extends Projectile {
      */
     public void setPickupStatus(PickupStatus status);
 
+    @Override
+    Spigot spigot();
+
     /**
      * Represents the pickup status of this arrow.
      */
@@ -91,21 +94,15 @@ public interface Arrow extends Projectile {
     }
 
     // Spigot start
-    public class Spigot extends Entity.Spigot
-    {
+    public class Spigot extends Entity.Spigot {
 
-        public double getDamage()
-        {
-            throw new UnsupportedOperationException( "Not supported yet." );
+        public double getDamage() {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
-        public void setDamage(double damage)
-        {
-            throw new UnsupportedOperationException( "Not supported yet." );
+        public void setDamage(double damage) {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
     }
-
-    @Override
-    Spigot spigot();
     // Spigot end
 }

@@ -31,6 +31,10 @@ public class ProjectileHitEvent extends EntityEvent {
         this.hitBlock = hitBlock;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     @Override
     public Projectile getEntity() {
         return (Projectile) entity;
@@ -56,10 +60,6 @@ public class ProjectileHitEvent extends EntityEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 

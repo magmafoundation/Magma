@@ -1,8 +1,8 @@
 package org.bukkit.craftbukkit.v1_12_R1;
 
+import net.minecraft.world.biome.Biome;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
-import net.minecraft.world.biome.Biome;
 import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlock;
 
 /**

@@ -16,6 +16,10 @@ public class PlayerBedLeaveEvent extends PlayerEvent {
         this.bed = bed;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Returns the bed block involved in this event.
      *
@@ -27,10 +31,6 @@ public class PlayerBedLeaveEvent extends PlayerEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

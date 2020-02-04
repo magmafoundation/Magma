@@ -1,12 +1,12 @@
 package org.bukkit.event.server;
 
-import java.net.InetAddress;
-import java.util.Iterator;
-
 import org.apache.commons.lang3.Validate;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.util.CachedServerIcon;
+
+import java.net.InetAddress;
+import java.util.Iterator;
 
 /**
  * Called when a server list ping is coming in. Displayed players can be
@@ -16,8 +16,8 @@ public class ServerListPingEvent extends ServerEvent implements Iterable<Player>
     private static final int MAGIC_PLAYER_COUNT = Integer.MIN_VALUE;
     private static final HandlerList handlers = new HandlerList();
     private final InetAddress address;
-    private String motd;
     private final int numPlayers;
+    private String motd;
     private int maxPlayers;
 
     public ServerListPingEvent(final InetAddress address, final String motd, final int numPlayers, final int maxPlayers) {
@@ -32,9 +32,9 @@ public class ServerListPingEvent extends ServerEvent implements Iterable<Player>
      * This constructor is intended for implementations that provide the
      * {@link #iterator()} method, thus provided the {@link #getNumPlayers()}
      * count.
-     * 
-     * @param address the address of the pinger
-     * @param motd the message of the day
+     *
+     * @param address    the address of the pinger
+     * @param motd       the message of the day
      * @param maxPlayers the max number of players
      */
     protected ServerListPingEvent(final InetAddress address, final String motd, final int maxPlayers) {
@@ -42,6 +42,10 @@ public class ServerListPingEvent extends ServerEvent implements Iterable<Player>
         this.address = address;
         this.motd = motd;
         this.maxPlayers = maxPlayers;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -109,11 +113,11 @@ public class ServerListPingEvent extends ServerEvent implements Iterable<Player>
      * Sets the server-icon sent to the client.
      *
      * @param icon the icon to send to the client
-     * @throws IllegalArgumentException if the {@link CachedServerIcon} is not
-     *     created by the caller of this event; null may be accepted for some
-     *     implementations
+     * @throws IllegalArgumentException      if the {@link CachedServerIcon} is not
+     *                                       created by the caller of this event; null may be accepted for some
+     *                                       implementations
      * @throws UnsupportedOperationException if the caller of this event does
-     *     not support setting the server icon
+     *                                       not support setting the server icon
      */
     public void setServerIcon(CachedServerIcon icon) throws IllegalArgumentException, UnsupportedOperationException {
         throw new UnsupportedOperationException();
@@ -121,10 +125,6 @@ public class ServerListPingEvent extends ServerEvent implements Iterable<Player>
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 
@@ -137,7 +137,7 @@ public class ServerListPingEvent extends ServerEvent implements Iterable<Player>
      * any new iterator.
      *
      * @throws UnsupportedOperationException if the caller of this event does
-     *     not support removing players
+     *                                       not support removing players
      */
     @Override
     public Iterator<Player> iterator() throws UnsupportedOperationException {

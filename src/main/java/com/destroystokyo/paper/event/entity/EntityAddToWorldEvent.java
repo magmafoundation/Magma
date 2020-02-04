@@ -6,24 +6,24 @@ import org.bukkit.event.entity.EntityEvent;
 
 /**
  * Fired any time an entity is being added to the world for any reason.
- *
+ * <p>
  * Not to be confused with {@link org.bukkit.event.entity.CreatureSpawnEvent}
  * This will fire anytime a chunk is reloaded too.
  */
 public class EntityAddToWorldEvent extends EntityEvent {
 
+    private static final HandlerList handlers = new HandlerList();
+
     public EntityAddToWorldEvent(Entity entity) {
         super(entity);
     }
 
-    private static final HandlerList handlers = new HandlerList();
-
-    @Override
-    public HandlerList getHandlers() {
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 
-    public static HandlerList getHandlerList() {
+    @Override
+    public HandlerList getHandlers() {
         return handlers;
     }
 }

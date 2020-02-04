@@ -10,12 +10,16 @@ import org.bukkit.event.HandlerList;
  */
 public class EntityTameEvent extends EntityEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
     private final AnimalTamer owner;
+    private boolean cancelled;
 
     public EntityTameEvent(final LivingEntity entity, final AnimalTamer owner) {
         super(entity);
         this.owner = owner;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
@@ -42,10 +46,6 @@ public class EntityTameEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

@@ -24,6 +24,10 @@ public class BlockDispenseEvent extends BlockEvent implements Cancellable {
         this.velocity = velocity;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets the item that is being dispensed. Modifying the returned item will
      * have no effect, you must use {@link
@@ -75,10 +79,6 @@ public class BlockDispenseEvent extends BlockEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

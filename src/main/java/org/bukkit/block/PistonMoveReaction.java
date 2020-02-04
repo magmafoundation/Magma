@@ -33,25 +33,18 @@ public enum PistonMoveReaction {
      */
     PUSH_ONLY(4);
 
-    private int id;
     private static Map<Integer, PistonMoveReaction> byId = new HashMap<Integer, PistonMoveReaction>();
+
     static {
         for (PistonMoveReaction reaction : PistonMoveReaction.values()) {
             byId.put(reaction.id, reaction);
         }
     }
 
+    private int id;
+
     private PistonMoveReaction(int id) {
         this.id = id;
-    }
-
-    /**
-     * @return The ID of the move reaction
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public int getId() {
-        return this.id;
     }
 
     /**
@@ -62,5 +55,14 @@ public enum PistonMoveReaction {
     @Deprecated
     public static PistonMoveReaction getById(int id) {
         return byId.get(id);
+    }
+
+    /**
+     * @return The ID of the move reaction
+     * @deprecated Magic value
+     */
+    @Deprecated
+    public int getId() {
+        return this.id;
     }
 }

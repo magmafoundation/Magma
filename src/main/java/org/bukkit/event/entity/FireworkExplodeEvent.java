@@ -16,6 +16,10 @@ public class FireworkExplodeEvent extends EntityEvent implements Cancellable {
         super(what);
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     @Override
     public boolean isCancelled() {
         return cancel;
@@ -40,10 +44,6 @@ public class FireworkExplodeEvent extends EntityEvent implements Cancellable {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

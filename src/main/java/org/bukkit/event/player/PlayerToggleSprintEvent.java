@@ -17,6 +17,10 @@ public class PlayerToggleSprintEvent extends PlayerEvent implements Cancellable 
         this.isSprinting = isSprinting;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets whether the player is now sprinting or not.
      *
@@ -36,10 +40,6 @@ public class PlayerToggleSprintEvent extends PlayerEvent implements Cancellable 
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

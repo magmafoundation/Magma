@@ -8,7 +8,9 @@ import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class WitchReadyPotionEvent extends EntityEvent implements Cancellable {
+    private static final HandlerList handlers = new HandlerList();
     private ItemStack potion;
+    private boolean cancelled = false;
 
     public WitchReadyPotionEvent(Witch witch, ItemStack potion) {
         super(witch);
@@ -17,7 +19,8 @@ public class WitchReadyPotionEvent extends EntityEvent implements Cancellable {
 
     /**
      * Fires thee event, returning the desired potion, or air of cancelled
-     * @param witch the witch whom is readying to use a potion
+     *
+     * @param witch  the witch whom is readying to use a potion
      * @param potion the potion to be used
      * @return The ItemStack to be used
      */
@@ -27,6 +30,10 @@ public class WitchReadyPotionEvent extends EntityEvent implements Cancellable {
             return new ItemStack(Material.AIR);
         }
         return event.getPotion();
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     @Override
@@ -43,24 +50,17 @@ public class WitchReadyPotionEvent extends EntityEvent implements Cancellable {
 
     /**
      * Sets the potion the which is going to hold and use
+     *
      * @param potion The potion
      */
     public void setPotion(ItemStack potion) {
         this.potion = potion != null ? potion.clone() : null;
     }
 
-    private static final HandlerList handlers = new HandlerList();
-
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
-    private boolean cancelled = false;
 
     @Override
     public boolean isCancelled() {

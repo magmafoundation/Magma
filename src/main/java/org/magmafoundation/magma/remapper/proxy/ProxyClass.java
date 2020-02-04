@@ -1,11 +1,12 @@
 package org.magmafoundation.magma.remapper.proxy;
 
+import org.magmafoundation.magma.remapper.utils.ASMUtils;
+import org.magmafoundation.magma.remapper.utils.RemappingUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
-import org.magmafoundation.magma.remapper.utils.ASMUtils;
-import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 
 /**
  * ProxyClass

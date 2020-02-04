@@ -8,6 +8,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Wrapper exception for all cases to which a plugin can be immediately blamed for
  */
 public class ServerPluginException extends ServerException {
+    private final Plugin responsiblePlugin;
+
     public ServerPluginException(String message, Throwable cause, Plugin responsiblePlugin) {
         super(message, cause);
         this.responsiblePlugin = checkNotNull(responsiblePlugin, "responsiblePlugin");
@@ -22,8 +24,6 @@ public class ServerPluginException extends ServerException {
         super(message, cause, enableSuppression, writableStackTrace);
         this.responsiblePlugin = checkNotNull(responsiblePlugin, "responsiblePlugin");
     }
-
-    private final Plugin responsiblePlugin;
 
     /**
      * Gets the plugin which is directly responsible for the exception being thrown

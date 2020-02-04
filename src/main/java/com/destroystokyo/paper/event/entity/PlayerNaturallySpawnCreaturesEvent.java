@@ -9,11 +9,17 @@ import org.bukkit.event.player.PlayerEvent;
  * Fired when the server is calculating what chunks to try to spawn monsters in every Monster Spawn Tick event
  */
 public class PlayerNaturallySpawnCreaturesEvent extends PlayerEvent implements Cancellable {
+    private static final HandlerList handlers = new HandlerList();
     private byte radius;
+    private boolean cancelled = false;
 
     public PlayerNaturallySpawnCreaturesEvent(Player player, byte radius) {
         super(player);
         this.radius = radius;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -30,18 +36,10 @@ public class PlayerNaturallySpawnCreaturesEvent extends PlayerEvent implements C
         this.radius = radius;
     }
 
-    private static final HandlerList handlers = new HandlerList();
-
     @Override
     public HandlerList getHandlers() {
         return handlers;
     }
-
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
-
-    private boolean cancelled = false;
 
     /**
      * @return If this players chunks will be excluded from natural spawns

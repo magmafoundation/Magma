@@ -1,12 +1,13 @@
 package org.bukkit.craftbukkit.v1_12_R1.attribute;
 
 import com.google.common.base.Preconditions;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class CraftAttributeInstance implements AttributeInstance {
 
@@ -16,6 +17,14 @@ public class CraftAttributeInstance implements AttributeInstance {
     public CraftAttributeInstance(net.minecraft.entity.ai.attributes.IAttributeInstance handle, Attribute attribute) {
         this.handle = handle;
         this.attribute = attribute;
+    }
+
+    private static net.minecraft.entity.ai.attributes.AttributeModifier convert(AttributeModifier bukkit) {
+        return new net.minecraft.entity.ai.attributes.AttributeModifier(bukkit.getUniqueId(), bukkit.getName(), bukkit.getAmount(), bukkit.getOperation().ordinal());
+    }
+
+    private static AttributeModifier convert(net.minecraft.entity.ai.attributes.AttributeModifier nms) {
+        return new AttributeModifier(nms.getID(), nms.getName(), nms.getAmount(), AttributeModifier.Operation.values()[nms.getOperation()]);
     }
 
     @Override
@@ -62,14 +71,6 @@ public class CraftAttributeInstance implements AttributeInstance {
 
     @Override
     public double getDefaultValue() {
-       return handle.getAttribute().getDefaultValue();
-    }
-
-    private static net.minecraft.entity.ai.attributes.AttributeModifier convert(AttributeModifier bukkit) {
-        return new net.minecraft.entity.ai.attributes.AttributeModifier(bukkit.getUniqueId(), bukkit.getName(), bukkit.getAmount(), bukkit.getOperation().ordinal());
-    }
-
-    private static AttributeModifier convert(net.minecraft.entity.ai.attributes.AttributeModifier nms) {
-        return new AttributeModifier(nms.getID(), nms.getName(), nms.getAmount(), AttributeModifier.Operation.values()[nms.getOperation()]);
+        return handle.getAttribute().getDefaultValue();
     }
 }

@@ -23,8 +23,7 @@ public enum PotionType {
     REGEN(PotionEffectType.REGENERATION, true, true),
     STRENGTH(PotionEffectType.INCREASE_DAMAGE, true, true),
     WEAKNESS(PotionEffectType.WEAKNESS, false, true),
-    LUCK(PotionEffectType.LUCK, false, false);
-    ;
+    LUCK(PotionEffectType.LUCK, false, false);;
 
     private final PotionEffectType effect;
     private final boolean upgradeable;
@@ -34,47 +33,6 @@ public enum PotionType {
         this.effect = effect;
         this.upgradeable = upgradeable;
         this.extendable = extendable;
-    }
-
-    public PotionEffectType getEffectType() {
-        return effect;
-    }
-
-    public boolean isInstant() {
-        return effect != null && effect.isInstant();
-    }
-
-    /**
-     * Checks if the potion type has an upgraded state.
-     * This refers to whether or not the potion type can be Tier 2,
-     * such as Potion of Fire Resistance II.
-     * 
-     * @return true if the potion type can be upgraded;
-     */
-    public boolean isUpgradeable() {
-        return upgradeable;
-    }
-
-    /**
-     * Checks if the potion type has an extended state.
-     * This refers to the extended duration potions
-     * 
-     * @return true if the potion type can be extended
-     */
-    public boolean isExtendable() {
-        return extendable;
-    }
-
-    /**
-     * @deprecated Non-functional
-     */
-    @Deprecated
-    public int getDamageValue() {
-        return this.ordinal();
-    }
-
-    public int getMaxLevel() {
-        return upgradeable ? 2 : 1;
     }
 
     /**
@@ -97,5 +55,46 @@ public enum PotionType {
                 return type;
         }
         return null;
+    }
+
+    public PotionEffectType getEffectType() {
+        return effect;
+    }
+
+    public boolean isInstant() {
+        return effect != null && effect.isInstant();
+    }
+
+    /**
+     * Checks if the potion type has an upgraded state.
+     * This refers to whether or not the potion type can be Tier 2,
+     * such as Potion of Fire Resistance II.
+     *
+     * @return true if the potion type can be upgraded;
+     */
+    public boolean isUpgradeable() {
+        return upgradeable;
+    }
+
+    /**
+     * Checks if the potion type has an extended state.
+     * This refers to the extended duration potions
+     *
+     * @return true if the potion type can be extended
+     */
+    public boolean isExtendable() {
+        return extendable;
+    }
+
+    /**
+     * @deprecated Non-functional
+     */
+    @Deprecated
+    public int getDamageValue() {
+        return this.ordinal();
+    }
+
+    public int getMaxLevel() {
+        return upgradeable ? 2 : 1;
     }
 }

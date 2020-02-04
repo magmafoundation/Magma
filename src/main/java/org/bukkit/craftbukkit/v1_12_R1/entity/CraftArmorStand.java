@@ -14,6 +14,22 @@ public class CraftArmorStand extends CraftLivingEntity implements ArmorStand {
         super(server, entity);
     }
 
+    private static EulerAngle fromNMS(Rotations old) {
+        return new EulerAngle(
+                Math.toRadians(old.getX()),
+                Math.toRadians(old.getY()),
+                Math.toRadians(old.getZ())
+        );
+    }
+
+    private static Rotations toNMS(EulerAngle old) {
+        return new Rotations(
+                (float) Math.toDegrees(old.getX()),
+                (float) Math.toDegrees(old.getY()),
+                (float) Math.toDegrees(old.getZ())
+        );
+    }
+
     @Override
     public String toString() {
         return "CraftArmorStand";
@@ -184,22 +200,6 @@ public class CraftArmorStand extends CraftLivingEntity implements ArmorStand {
     @Override
     public void setSmall(boolean small) {
         getHandle().setSmall(small);
-    }
-
-    private static EulerAngle fromNMS(Rotations old) {
-        return new EulerAngle(
-            Math.toRadians(old.getX()),
-            Math.toRadians(old.getY()),
-            Math.toRadians(old.getZ())
-        );
-    }
-
-    private static Rotations toNMS(EulerAngle old) {
-        return new Rotations(
-            (float) Math.toDegrees(old.getX()),
-            (float) Math.toDegrees(old.getY()),
-            (float) Math.toDegrees(old.getZ())
-        );
     }
 
     @Override

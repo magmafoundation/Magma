@@ -7,8 +7,8 @@ import org.bukkit.Material;
 import org.bukkit.Note;
 import org.bukkit.block.Block;
 import org.bukkit.block.NoteBlock;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 
 public class CraftNoteBlock extends CraftBlockEntityState<TileEntityNote> implements NoteBlock {
 
@@ -26,13 +26,13 @@ public class CraftNoteBlock extends CraftBlockEntityState<TileEntityNote> implem
     }
 
     @Override
-    public byte getRawNote() {
-        return this.getSnapshot().note;
+    public void setNote(Note note) {
+        this.getSnapshot().note = note.getId();
     }
 
     @Override
-    public void setNote(Note note) {
-        this.getSnapshot().note = note.getId();
+    public byte getRawNote() {
+        return this.getSnapshot().note;
     }
 
     @Override

@@ -2,13 +2,14 @@ package org.bukkit.plugin.messaging;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 /**
  * Standard implementation to {@link Messenger}
@@ -20,6 +21,60 @@ public class StandardMessenger implements Messenger {
     private final Map<Plugin, Set<String>> outgoingByPlugin = new HashMap<Plugin, Set<String>>();
     private final Object incomingLock = new Object();
     private final Object outgoingLock = new Object();
+
+    /**
+     * Validates a Plugin Channel name.
+     *
+     * @param channel Channel name to validate.
+     */
+    public static void validateChannel(String channel) {
+        if (channel == null) {
+            throw new IllegalArgumentException("Channel cannot be null");
+        }
+        if (channel.length() > Messenger.MAX_CHANNEL_SIZE) {
+            throw new ChannelNameTooLongException(channel);
+        }
+    }
+
+    /**
+     * Validates the input of a Plugin Message, ensuring the arguments are all
+     * valid.
+     *
+     * @param messenger Messenger to use for validation.
+     * @param source    Source plugin of the Message.
+     * @param channel   Plugin Channel to send the message by.
+     * @param message   Raw message payload to send.
+     * @throws IllegalArgumentException      Thrown if the source plugin is
+     *                                       disabled.
+     * @throws IllegalArgumentException      Thrown if source, channel or message
+     *                                       is null.
+     * @throws MessageTooLargeException      Thrown if the message is too big.
+     * @throws ChannelNameTooLongException   Thrown if the channel name is too
+     *                                       long.
+     * @throws ChannelNotRegisteredException Thrown if the channel is not
+     *                                       registered for this plugin.
+     */
+    public static void validatePluginMessage(Messenger messenger, Plugin source, String channel, byte[] message) {
+        if (messenger == null) {
+            throw new IllegalArgumentException("Messenger cannot be null");
+        }
+        if (source == null) {
+            throw new IllegalArgumentException("Plugin source cannot be null");
+        }
+        if (!source.isEnabled()) {
+            throw new IllegalArgumentException("Plugin must be enabled to send messages");
+        }
+        if (message == null) {
+            throw new IllegalArgumentException("Message cannot be null");
+        }
+        if (!messenger.isOutgoingChannelRegistered(source, channel)) {
+            throw new ChannelNotRegisteredException(channel);
+        }
+        if (message.length > Messenger.MAX_MESSAGE_SIZE) {
+            throw new MessageTooLargeException(message);
+        }
+        validateChannel(channel);
+    }
 
     private void addToOutgoing(Plugin plugin, String channel) {
         synchronized (outgoingLock) {
@@ -426,64 +481,10 @@ public class StandardMessenger implements Messenger {
                 registration.getListener().onPluginMessageReceived(channel, source, message);
             } catch (Throwable t) {
                 registration.getPlugin().getLogger().log(Level.WARNING,
-                    String.format("Plugin %s generated an exception whilst handling plugin message",
-                        registration.getPlugin().getDescription().getFullName()
-                    ), t);
+                        String.format("Plugin %s generated an exception whilst handling plugin message",
+                                registration.getPlugin().getDescription().getFullName()
+                        ), t);
             }
         }
-    }
-
-    /**
-     * Validates a Plugin Channel name.
-     *
-     * @param channel Channel name to validate.
-     */
-    public static void validateChannel(String channel) {
-        if (channel == null) {
-            throw new IllegalArgumentException("Channel cannot be null");
-        }
-        if (channel.length() > Messenger.MAX_CHANNEL_SIZE) {
-            throw new ChannelNameTooLongException(channel);
-        }
-    }
-
-    /**
-     * Validates the input of a Plugin Message, ensuring the arguments are all
-     * valid.
-     *
-     * @param messenger Messenger to use for validation.
-     * @param source Source plugin of the Message.
-     * @param channel Plugin Channel to send the message by.
-     * @param message Raw message payload to send.
-     * @throws IllegalArgumentException Thrown if the source plugin is
-     *     disabled.
-     * @throws IllegalArgumentException Thrown if source, channel or message
-     *     is null.
-     * @throws MessageTooLargeException Thrown if the message is too big.
-     * @throws ChannelNameTooLongException Thrown if the channel name is too
-     *     long.
-     * @throws ChannelNotRegisteredException Thrown if the channel is not
-     *     registered for this plugin.
-     */
-    public static void validatePluginMessage(Messenger messenger, Plugin source, String channel, byte[] message) {
-        if (messenger == null) {
-            throw new IllegalArgumentException("Messenger cannot be null");
-        }
-        if (source == null) {
-            throw new IllegalArgumentException("Plugin source cannot be null");
-        }
-        if (!source.isEnabled()) {
-            throw new IllegalArgumentException("Plugin must be enabled to send messages");
-        }
-        if (message == null) {
-            throw new IllegalArgumentException("Message cannot be null");
-        }
-        if (!messenger.isOutgoingChannelRegistered(source, channel)) {
-            throw new ChannelNotRegisteredException(channel);
-        }
-        if (message.length > Messenger.MAX_MESSAGE_SIZE) {
-            throw new MessageTooLargeException(message);
-        }
-        validateChannel(channel);
     }
 }

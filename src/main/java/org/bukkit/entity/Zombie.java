@@ -36,16 +36,16 @@ public interface Zombie extends Monster {
     public void setVillager(boolean flag);
 
     /**
-     * @param profession
-     * @see ZombieVillager#getVillagerProfession()
-     */
-    @Deprecated
-    public void setVillagerProfession(Villager.Profession profession);
-
-    /**
      * @return profession
      * @see ZombieVillager#getVillagerProfession()
      */
     @Deprecated
     public Villager.Profession getVillagerProfession();
+
+    /**
+     * @param profession
+     * @see ZombieVillager#getVillagerProfession()
+     */
+    @Deprecated
+    public void setVillagerProfession(Villager.Profession profession);
 }

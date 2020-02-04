@@ -1,18 +1,17 @@
 package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
-import java.util.Map;
-
+import com.google.common.collect.ImmutableMap.Builder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.text.ITextComponent;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.DelegateDeserialization;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMetaItem.SerializableMeta;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.inventory.meta.BookMeta;
 
-import com.google.common.collect.ImmutableMap.Builder;
+import java.util.Map;
 
 @DelegateDeserialization(SerializableMeta.class)
 class CraftMetaBookSigned extends CraftMetaBook implements BookMeta {
@@ -71,7 +70,7 @@ class CraftMetaBookSigned extends CraftMetaBook implements BookMeta {
             NBTTagList list = new NBTTagList();
             for (ITextComponent page : pages) {
                 list.appendTag(new NBTTagString(
-                    ITextComponent.Serializer.componentToJson(page)
+                        ITextComponent.Serializer.componentToJson(page)
                 ));
             }
             itemData.setTag(BOOK_PAGES.NBT, list);
@@ -93,11 +92,11 @@ class CraftMetaBookSigned extends CraftMetaBook implements BookMeta {
     @Override
     boolean applicableTo(Material type) {
         switch (type) {
-        case WRITTEN_BOOK:
-        case BOOK_AND_QUILL:
-            return true;
-        default:
-            return false;
+            case WRITTEN_BOOK:
+            case BOOK_AND_QUILL:
+                return true;
+            default:
+                return false;
         }
     }
 

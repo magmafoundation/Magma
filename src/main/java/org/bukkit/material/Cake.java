@@ -50,15 +50,6 @@ public class Cake extends MaterialData {
     }
 
     /**
-     * Gets the number of slices remaining on this cake
-     *
-     * @return The number of slices remaining
-     */
-    public int getSlicesRemaining() {
-        return 6 - getData();
-    }
-
-    /**
      * Sets the number of slices eaten from this cake
      *
      * @param n The number of slices eaten
@@ -67,6 +58,15 @@ public class Cake extends MaterialData {
         if (n < 6) {
             setData((byte) n);
         } // TODO: else destroy the block? Probably not possible though
+    }
+
+    /**
+     * Gets the number of slices remaining on this cake
+     *
+     * @return The number of slices remaining
+     */
+    public int getSlicesRemaining() {
+        return 6 - getData();
     }
 
     /**

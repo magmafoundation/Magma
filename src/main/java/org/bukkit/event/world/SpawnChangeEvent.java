@@ -1,7 +1,7 @@
 package org.bukkit.event.world;
 
-import org.bukkit.World;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.event.HandlerList;
 
 /**
@@ -17,6 +17,10 @@ public class SpawnChangeEvent extends WorldEvent {
         this.previousLocation = previousLocation;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets the previous spawn location
      *
@@ -28,10 +32,6 @@ public class SpawnChangeEvent extends WorldEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

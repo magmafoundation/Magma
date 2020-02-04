@@ -1,10 +1,9 @@
 package org.bukkit.material.types;
 
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import org.bukkit.block.BlockFace;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 /**
  * Represents the different textured blocks of mushroom.
@@ -67,32 +66,19 @@ public enum MushroomBlockTexture {
     private final static Map<Byte, MushroomBlockTexture> BY_DATA = Maps.newHashMap();
     private final static Map<BlockFace, MushroomBlockTexture> BY_BLOCKFACE = Maps.newHashMap();
 
+    static {
+        for (MushroomBlockTexture type : values()) {
+            BY_DATA.put(type.data, type);
+            BY_BLOCKFACE.put(type.capFace, type);
+        }
+    }
+
     private final Byte data;
     private final BlockFace capFace;
 
     private MushroomBlockTexture(final int data, final BlockFace capFace) {
         this.data = (byte) data;
         this.capFace = capFace;
-    }
-
-    /**
-     * Gets the associated data value representing this mushroom block face.
-     *
-     * @return A byte containing the data value of this mushroom block face
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public byte getData() {
-        return data;
-    }
-
-    /**
-     * Gets the face that has cap texture.
-     *
-     * @return The cap face
-     */
-    public BlockFace getCapFace() {
-        return capFace;
     }
 
     /**
@@ -114,17 +100,29 @@ public enum MushroomBlockTexture {
      * @param face the required block face with cap texture
      * @return The {@link MushroomBlockTexture} representing the given block
      * face, or null if it doesn't exist
-     *
      * @see BlockFace
      */
     public static MushroomBlockTexture getCapByFace(final BlockFace face) {
         return BY_BLOCKFACE.get(face);
     }
 
-    static {
-        for (MushroomBlockTexture type : values()) {
-            BY_DATA.put(type.data, type);
-            BY_BLOCKFACE.put(type.capFace, type);
-        }
+    /**
+     * Gets the associated data value representing this mushroom block face.
+     *
+     * @return A byte containing the data value of this mushroom block face
+     * @deprecated Magic value
+     */
+    @Deprecated
+    public byte getData() {
+        return data;
+    }
+
+    /**
+     * Gets the face that has cap texture.
+     *
+     * @return The cap face
+     */
+    public BlockFace getCapFace() {
+        return capFace;
     }
 }

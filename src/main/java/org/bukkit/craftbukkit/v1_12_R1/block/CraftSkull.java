@@ -7,7 +7,6 @@ import net.minecraft.tileentity.TileEntitySkull;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-
 import org.bukkit.SkullType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -26,15 +25,6 @@ public class CraftSkull extends CraftBlockEntityState<TileEntitySkull> implement
 
     public CraftSkull(final Material material, final TileEntitySkull te) {
         super(material, te);
-    }
-
-    @Override
-    public void load(TileEntitySkull skull) {
-        super.load(skull);
-
-        profile = skull.getPlayerProfile();
-        skullType = getSkullType(skull.getSkullType());
-        rotation = (byte) skull.skullRotation;
     }
 
     static SkullType getSkullType(int id) {
@@ -56,7 +46,7 @@ public class CraftSkull extends CraftBlockEntityState<TileEntitySkull> implement
     }
 
     static int getSkullType(SkullType type) {
-        switch(type) {
+        switch (type) {
             default:
             case SKELETON:
                 return 0;
@@ -149,6 +139,15 @@ public class CraftSkull extends CraftBlockEntityState<TileEntitySkull> implement
             default:
                 throw new AssertionError(rotation);
         }
+    }
+
+    @Override
+    public void load(TileEntitySkull skull) {
+        super.load(skull);
+
+        profile = skull.getPlayerProfile();
+        skullType = getSkullType(skull.getSkullType());
+        rotation = (byte) skull.skullRotation;
     }
 
     @Override

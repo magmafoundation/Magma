@@ -17,6 +17,9 @@ public class PlayerSpawnLocationEvent extends PlayerEvent {
         this.spawnLocation = spawnLocation;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
 
     /**
      * Gets player's spawn location.
@@ -40,10 +43,6 @@ public class PlayerSpawnLocationEvent extends PlayerEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

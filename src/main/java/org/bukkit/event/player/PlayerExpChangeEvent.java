@@ -1,6 +1,5 @@
 package org.bukkit.event.player;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
@@ -14,6 +13,10 @@ public class PlayerExpChangeEvent extends PlayerEvent {
     public PlayerExpChangeEvent(final Player player, final int expAmount) {
         super(player);
         exp = expAmount;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     /**
@@ -36,10 +39,6 @@ public class PlayerExpChangeEvent extends PlayerEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

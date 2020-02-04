@@ -1,10 +1,7 @@
 package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap.Builder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.apache.commons.lang3.Validate;
@@ -19,8 +16,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap.Builder;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @DelegateDeserialization(CraftMetaItem.SerializableMeta.class)
 class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
@@ -136,7 +135,7 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
 
     @Override
     boolean applicableTo(Material type) {
-        switch(type) {
+        switch (type) {
             case POTION:
             case SPLASH_POTION:
             case LINGERING_POTION:
@@ -158,14 +157,14 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
     }
 
     @Override
-    public void setBasePotionData(PotionData data) {
-        Validate.notNull(data, "PotionData cannot be null");
-        this.type = data;
+    public PotionData getBasePotionData() {
+        return type;
     }
 
     @Override
-    public PotionData getBasePotionData() {
-        return type;
+    public void setBasePotionData(PotionData data) {
+        Validate.notNull(data, "PotionData cannot be null");
+        this.type = data;
     }
 
     public boolean hasCustomEffects() {

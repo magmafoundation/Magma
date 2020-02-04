@@ -21,6 +21,10 @@ public class PlayerLocaleChangeEvent extends PlayerEvent {
         this.newLocale = newLocale;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Gets the locale the player switched from.
      *
@@ -41,10 +45,6 @@ public class PlayerLocaleChangeEvent extends PlayerEvent {
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

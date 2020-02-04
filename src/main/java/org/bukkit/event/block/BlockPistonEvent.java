@@ -9,8 +9,8 @@ import org.bukkit.event.Cancellable;
  * Called when a piston block is triggered
  */
 public abstract class BlockPistonEvent extends BlockEvent implements Cancellable {
-    private boolean cancelled;
     private final BlockFace direction;
+    private boolean cancelled;
 
     public BlockPistonEvent(final Block block, final BlockFace direction) {
         super(block);

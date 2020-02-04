@@ -10,6 +10,12 @@ public class CraftCreature extends CraftLivingEntity implements Creature {
         super(server, entity);
     }
 
+    public CraftLivingEntity getTarget() {
+        if (getHandle().getAttackTarget() == null) return null;
+
+        return (CraftLivingEntity) getHandle().getAttackTarget().getBukkitEntity();
+    }
+
     public void setTarget(LivingEntity target) {
         EntityCreature entity = getHandle();
         if (target == null) {
@@ -17,12 +23,6 @@ public class CraftCreature extends CraftLivingEntity implements Creature {
         } else if (target instanceof CraftLivingEntity) {
             entity.setAttackTarget(((CraftLivingEntity) target).getHandle(), null, false);
         }
-    }
-
-    public CraftLivingEntity getTarget() {
-        if (getHandle().getAttackTarget() == null) return null;
-
-        return (CraftLivingEntity) getHandle().getAttackTarget().getBukkitEntity();
     }
 
     @Override

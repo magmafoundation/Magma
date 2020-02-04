@@ -17,6 +17,10 @@ public class PlayerToggleFlightEvent extends PlayerEvent implements Cancellable 
         this.isFlying = isFlying;
     }
 
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
     /**
      * Returns whether the player is trying to start or stop flying.
      *
@@ -36,10 +40,6 @@ public class PlayerToggleFlightEvent extends PlayerEvent implements Cancellable 
 
     @Override
     public HandlerList getHandlers() {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList() {
         return handlers;
     }
 }

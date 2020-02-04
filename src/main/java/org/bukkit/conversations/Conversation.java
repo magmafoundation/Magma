@@ -34,8 +34,6 @@ import java.util.Map;
  */
 public class Conversation {
 
-    private Prompt firstPrompt;
-    private boolean abandoned;
     protected Prompt currentPrompt;
     protected ConversationContext context;
     protected boolean modal;
@@ -43,12 +41,14 @@ public class Conversation {
     protected ConversationPrefix prefix;
     protected List<ConversationCanceller> cancellers;
     protected List<ConversationAbandonedListener> abandonedListeners;
+    private Prompt firstPrompt;
+    private boolean abandoned;
 
     /**
      * Initializes a new Conversation.
      *
-     * @param plugin The plugin that owns this conversation.
-     * @param forWhom The entity for whom this conversation is mediating.
+     * @param plugin      The plugin that owns this conversation.
+     * @param forWhom     The entity for whom this conversation is mediating.
      * @param firstPrompt The first prompt in the conversation graph.
      */
     public Conversation(Plugin plugin, Conversable forWhom, Prompt firstPrompt) {
@@ -58,11 +58,11 @@ public class Conversation {
     /**
      * Initializes a new Conversation.
      *
-     * @param plugin The plugin that owns this conversation.
-     * @param forWhom The entity for whom this conversation is mediating.
-     * @param firstPrompt The first prompt in the conversation graph.
+     * @param plugin             The plugin that owns this conversation.
+     * @param forWhom            The entity for whom this conversation is mediating.
+     * @param firstPrompt        The first prompt in the conversation graph.
      * @param initialSessionData Any initial values to put in the conversation
-     *     context sessionData map.
+     *                           context sessionData map.
      */
     public Conversation(Plugin plugin, Conversable forWhom, Prompt firstPrompt, Map<Object, Object> initialSessionData) {
         this.firstPrompt = firstPrompt;

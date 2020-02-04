@@ -14,14 +14,6 @@ public class CraftAttributeMap implements Attributable {
         this.handle = handle;
     }
 
-    @Override
-    public AttributeInstance getAttribute(Attribute attribute) {
-        Preconditions.checkArgument(attribute != null, "attribute");
-        net.minecraft.entity.ai.attributes.IAttributeInstance nms = handle.getAttributeInstanceByName(toMinecraft(attribute.name()));
-
-        return (nms == null) ? null : new CraftAttributeInstance(nms, attribute);
-    }
-
     static String toMinecraft(String bukkit) {
         int first = bukkit.indexOf('_');
         int second = bukkit.indexOf('_', first + 1);
@@ -35,5 +27,13 @@ public class CraftAttributeMap implements Attributable {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public AttributeInstance getAttribute(Attribute attribute) {
+        Preconditions.checkArgument(attribute != null, "attribute");
+        net.minecraft.entity.ai.attributes.IAttributeInstance nms = handle.getAttributeInstanceByName(toMinecraft(attribute.name()));
+
+        return (nms == null) ? null : new CraftAttributeInstance(nms, attribute);
     }
 }

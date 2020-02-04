@@ -44,20 +44,20 @@ import org.bukkit.Statistic.Type;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlockState;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftDamageSource;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.CraftSound;
 import org.bukkit.craftbukkit.v1_12_R1.CraftStatistic;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlock;
+import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCrafting;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMetaBook;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftDamageSource;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -434,7 +434,7 @@ public class CraftEventFactory {
             net.minecraft.entity.item.EntityItem entityitem = new net.minecraft.entity.item.EntityItem(victim.world, entity.getLocation().getX(), entity.getLocation().getY(), entity.getLocation().getZ(), CraftItemStack.asNMSCopy(stack));
             if (entityitem != null) {
                 victim.capturedDrops.add((EntityItem) entityitem);
-        }
+            }
         }
         // Magma end
 
@@ -473,7 +473,7 @@ public class CraftEventFactory {
                 net.minecraft.entity.item.EntityItem entityitem = new net.minecraft.entity.item.EntityItem(victim.world, entity.getLocation().getX(), entity.getLocation().getY(), entity.getLocation().getZ(), CraftItemStack.asNMSCopy(stack));
                 if (entityitem != null) {
                     victim.capturedDrops.add((EntityItem) entityitem);
-        }
+                }
             }
             // Cauldron end
         }
@@ -548,11 +548,11 @@ public class CraftEventFactory {
                 damager = ((EntityDamageSourceIndirect) source).getProximateDamageSource();
                 // Cauldron start - vanilla compatibility
                 if (damager != null) {
-                if (damager.getBukkitEntity() instanceof ThrownPotion) {
-                    cause = DamageCause.MAGIC;
-                } else if (damager.getBukkitEntity() instanceof Projectile) {
-                    cause = DamageCause.PROJECTILE;
-                }
+                    if (damager.getBukkitEntity() instanceof ThrownPotion) {
+                        cause = DamageCause.MAGIC;
+                    } else if (damager.getBukkitEntity() instanceof Projectile) {
+                        cause = DamageCause.PROJECTILE;
+                    }
                 }
             } else if ("thorns".equals(source.damageType)) {
                 cause = DamageCause.THORNS;
@@ -673,7 +673,7 @@ public class CraftEventFactory {
         }
 
         if (cause != null) {
-        return callEntityDamageEvent(null, entity, cause, modifiers, modifierFunctions);
+            return callEntityDamageEvent(null, entity, cause, modifiers, modifierFunctions);
         } else {
             return new EntityDamageEvent(entity.getBukkitEntity(), DamageCause.CUSTOM, modifiers, modifierFunctions); // use custom
         }
@@ -872,7 +872,7 @@ public class CraftEventFactory {
         // Cauldron start - vanilla compatibility
         CraftPlayer craftPlayer = player.getBukkitEntity();
         try {
-        player.openContainer.transferTo(container, craftPlayer);
+            player.openContainer.transferTo(container, craftPlayer);
         } catch (AbstractMethodError e) {
         }
         // Cauldron end
@@ -1020,7 +1020,7 @@ public class CraftEventFactory {
         }
         InventoryCloseEvent event = new InventoryCloseEvent(human.openContainer.getBukkitView());
         if (human.openContainer.getBukkitView() != null) {
-        human.world.getServer().getPluginManager().callEvent(event);
+            human.world.getServer().getPluginManager().callEvent(event);
         }
         human.openContainer.transferTo(human.inventoryContainer, human.getBukkitEntity());
     }

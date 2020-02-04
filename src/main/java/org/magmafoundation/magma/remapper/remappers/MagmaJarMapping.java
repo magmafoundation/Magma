@@ -1,10 +1,6 @@
 package org.magmafoundation.magma.remapper.remappers;
 
 import com.google.common.collect.BiMap;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.lang.reflect.Modifier;
-import java.util.*;
 import net.md_5.specialsource.InheritanceMap;
 import net.md_5.specialsource.NodeType;
 import net.md_5.specialsource.provider.InheritanceProvider;
@@ -14,6 +10,11 @@ import org.magmafoundation.magma.remapper.inter.ClassRemapperSupplier;
 import org.magmafoundation.magma.remapper.mappingsModel.ClassMappings;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.Remapper;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 /**
  * MagmaJarMapping
@@ -34,6 +35,11 @@ public class MagmaJarMapping implements ClassRemapperSupplier {
     public final Map<String, ClassMappings> byMCPName = new HashMap<>();
     public final Set<String> doNotMapField = new HashSet<>();
     public final Set<String> doNotMapMethod = new HashSet<>();
+    public final LinkedHashMap<String, String> packages = new LinkedHashMap<String, String>();
+    //------------------------- From SpecialSource
+    protected String currentClass = null;
+    protected InheritanceMap inheritanceMap = new InheritanceMap();
+    protected InheritanceProvider fallbackInheritanceProvider = null;
 
     public void initFastMethodMapping(Remapper remapper) {
         for (ClassMappings classMapping : byNMSSrcName.values()) {
@@ -53,11 +59,11 @@ public class MagmaJarMapping implements ClassRemapperSupplier {
                 String methodArgumentsDesc = sj.toString().intern();
                 map.forEach((k, v) -> {
                     classMapping.getMethodMapping()
-                        .computeIfAbsent(methodArgumentsDesc, kk -> new HashMap<>())
-                        .put(k, v);
+                            .computeIfAbsent(methodArgumentsDesc, kk -> new HashMap<>())
+                            .put(k, v);
                     classMapping.getInverseMethodMapping()
-                        .computeIfAbsent(methodArgumentsDesc, kk -> new HashMap<>())
-                        .put(v, k);
+                            .computeIfAbsent(methodArgumentsDesc, kk -> new HashMap<>())
+                            .put(v, k);
                 });
             });
         }
@@ -205,13 +211,6 @@ public class MagmaJarMapping implements ClassRemapperSupplier {
         return sj.toString();
     }
 
-    //------------------------- From SpecialSource
-    protected String currentClass = null;
-    public final LinkedHashMap<String, String> packages = new LinkedHashMap<String, String>();
-    protected InheritanceMap inheritanceMap = new InheritanceMap();
-    protected InheritanceProvider fallbackInheritanceProvider = null;
-
-
     /**
      * Set the inheritance map used for caching superclass/interfaces. This call be omitted to use a local cache, or set to your own global cache.
      */
@@ -256,10 +255,10 @@ public class MagmaJarMapping implements ClassRemapperSupplier {
     /**
      * Load a mapping given a .csrg file
      *
-     * @param reader Mapping file reader
-     * @param inputTransformer Transformation to apply on input
+     * @param reader            Mapping file reader
+     * @param inputTransformer  Transformation to apply on input
      * @param outputTransformer Transformation to apply on output
-     * @param reverse Swap input and output mappings (after applying any input/output transformations)
+     * @param reverse           Swap input and output mappings (after applying any input/output transformations)
      */
     public void loadMappings(BufferedReader reader, MappingTransformer inputTransformer, MappingTransformer outputTransformer, boolean reverse) throws IOException {
         if (inputTransformer == null) {
@@ -416,7 +415,7 @@ public class MagmaJarMapping implements ClassRemapperSupplier {
 
                 if (byNMSSrcName.containsKey(oldClassName) && !newClassName.equals(byNMSSrcName.get(oldClassName).getNmsSrcName())) {
                     throw new IllegalArgumentException("Duplicate class mapping: " + oldClassName + " -> " + newClassName
-                        + " but already mapped to " + byNMSSrcName.get(oldClassName) + " in line=" + line);
+                            + " but already mapped to " + byNMSSrcName.get(oldClassName) + " in line=" + line);
                 }
 
                 if (oldClassName.endsWith("/*") && newClassName.endsWith("/*")) {
@@ -446,7 +445,7 @@ public class MagmaJarMapping implements ClassRemapperSupplier {
 
                 if (packages.containsKey(oldPackageName) && !newPackageName.equals(packages.get(oldPackageName))) {
                     throw new IllegalArgumentException("Duplicate package mapping: " + oldPackageName + " ->" + newPackageName
-                        + " but already mapped to " + packages.get(oldPackageName) + " in line=" + line);
+                            + " but already mapped to " + packages.get(oldPackageName) + " in line=" + line);
                 }
 
                 packages.put(oldPackageName, newPackageName);
@@ -460,7 +459,7 @@ public class MagmaJarMapping implements ClassRemapperSupplier {
                 int splitNew = newFull.lastIndexOf('/');
                 if (splitOld == -1 || splitNew == -1) {
                     throw new IllegalArgumentException("Field name is invalid, not fully-qualified: " + oldFull
-                        + " -> " + newFull + " in line=" + line);
+                            + " -> " + newFull + " in line=" + line);
                 }
 
                 String oldClassName = inputTransformer.transformClassName(oldFull.substring(0, splitOld));
@@ -481,7 +480,7 @@ public class MagmaJarMapping implements ClassRemapperSupplier {
                 int splitNew = newFull.lastIndexOf('/');
                 if (splitOld == -1 || splitNew == -1) {
                     throw new IllegalArgumentException("Field name is invalid, not fully-qualified: " + oldFull
-                        + " -> " + newFull + " in line=" + line);
+                            + " -> " + newFull + " in line=" + line);
                 }
 
                 String oldClassName = inputTransformer.transformClassName(oldFull.substring(0, splitOld));

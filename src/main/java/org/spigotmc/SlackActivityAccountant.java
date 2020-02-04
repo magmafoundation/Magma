@@ -9,13 +9,12 @@ import net.minecraft.server.MinecraftServer;
  * estimated total weight of all activities.
  */
 public class SlackActivityAccountant {
-    private double prevTickSlackWeightReciprocal = 1 / MIN_SLACK_WEIGHT;
     private static final double MIN_SLACK_WEIGHT = 1 / 65536.0;
-    private double averageTickNonSlackNanos = 0;
     private static final double AVERAGING_FACTOR = 0.375;
-
-    private long currentActivityStartNanos;
     private static final long OFF = -1;
+    private double prevTickSlackWeightReciprocal = 1 / MIN_SLACK_WEIGHT;
+    private double averageTickNonSlackNanos = 0;
+    private long currentActivityStartNanos;
     private long currentActivityEndNanos;
     private double tickSlackWeight;
     private long tickSlackNanos;

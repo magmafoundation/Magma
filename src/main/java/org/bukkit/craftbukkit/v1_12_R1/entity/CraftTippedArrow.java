@@ -1,7 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.potion.Potion;
 import org.apache.commons.lang3.Validate;
@@ -15,7 +14,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 public class CraftTippedArrow extends CraftArrow implements TippedArrow {
 
@@ -108,6 +107,11 @@ public class CraftTippedArrow extends CraftArrow implements TippedArrow {
     }
 
     @Override
+    public PotionData getBasePotionData() {
+        return CraftPotionUtil.toBukkit(getHandle().getType());
+    }
+
+    @Override
     public void setBasePotionData(PotionData data) {
         Validate.notNull(data, "PotionData cannot be null");
         Validate.isTrue(data.getType() != PotionType.UNCRAFTABLE || !getHandle().customPotionEffects.isEmpty(), "Tipped Arrows must have at least 1 effect");
@@ -115,17 +119,12 @@ public class CraftTippedArrow extends CraftArrow implements TippedArrow {
     }
 
     @Override
-    public PotionData getBasePotionData() {
-        return CraftPotionUtil.toBukkit(getHandle().getType());
+    public Color getColor() {
+        return Color.fromRGB(getHandle().getColor());
     }
 
     @Override
     public void setColor(Color color) {
         getHandle().setFixedColor(color.asRGB());
-    }
-
-    @Override
-    public Color getColor() {
-        return Color.fromRGB(getHandle().getColor());
     }
 }

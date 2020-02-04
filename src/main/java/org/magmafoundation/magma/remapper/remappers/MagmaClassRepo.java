@@ -1,11 +1,12 @@
 package org.magmafoundation.magma.remapper.remappers;
 
-import java.io.IOException;
-import java.io.InputStream;
 import net.md_5.specialsource.repo.CachingRepo;
 import org.magmafoundation.magma.remapper.ClassLoaderContext;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * MagmaClassRepo

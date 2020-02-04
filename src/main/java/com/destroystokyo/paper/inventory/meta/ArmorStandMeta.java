@@ -12,6 +12,13 @@ public interface ArmorStandMeta extends ItemMeta {
     boolean isInvisible();
 
     /**
+     * Sets that this ArmorStand should be invisible when spawned
+     *
+     * @param invisible true if set invisible
+     */
+    void setInvisible(boolean invisible);
+
+    /**
      * Gets whether this ArmorStand should have no base plate when spawned
      *
      * @return true if it will not have a base plate
@@ -33,6 +40,13 @@ public interface ArmorStandMeta extends ItemMeta {
     boolean isSmall();
 
     /**
+     * Sets that this ArmorStand should be small when spawned
+     *
+     * @param small true if small
+     */
+    void setSmall(boolean small);
+
+    /**
      * Gets whether this ArmorStand will be a marker when spawned
      * The exact details of this flag are an implementation detail
      *
@@ -41,11 +55,12 @@ public interface ArmorStandMeta extends ItemMeta {
     boolean isMarker();
 
     /**
-     * Sets that this ArmorStand should be invisible when spawned
+     * Sets that this ArmorStand should be a marker when spawned
+     * The exact details of this flag are an implementation detail
      *
-     * @param invisible true if set invisible
+     * @param marker true if a marker
      */
-    void setInvisible(boolean invisible);
+    void setMarker(boolean marker);
 
     /**
      * Sets that this ArmorStand should have no base plate when spawned
@@ -60,19 +75,4 @@ public interface ArmorStandMeta extends ItemMeta {
      * @param showArms true if show arms
      */
     void setShowArms(boolean showArms);
-
-    /**
-     * Sets that this ArmorStand should be small when spawned
-     *
-     * @param small true if small
-     */
-    void setSmall(boolean small);
-
-    /**
-     * Sets that this ArmorStand should be a marker when spawned
-     * The exact details of this flag are an implementation detail
-     *
-     * @param marker true if a marker
-     */
-    void setMarker(boolean marker);
 }

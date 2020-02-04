@@ -1,10 +1,6 @@
 package org.bukkit.command;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,23 +12,26 @@ import org.bukkit.permissions.Permissible;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.util.StringUtil;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a Command, which executes various tasks upon user input
  */
 public abstract class Command {
+    public org.spigotmc.CustomTimingsHandler timings; // Spigot
+    protected String description = "";
+    protected String usageMessage;
     private String name;
     private String nextLabel;
     private String label;
     private List<String> aliases;
     private List<String> activeAliases;
     private CommandMap commandMap = null;
-    protected String description = "";
-    protected String usageMessage;
     private String permission;
     private String permissionMessage;
-    public org.spigotmc.CustomTimingsHandler timings; // Spigot
 
     protected Command(String name) {
         this(name, "", "/" + name, new ArrayList<String>());
@@ -49,12 +48,55 @@ public abstract class Command {
         this.timings = new org.spigotmc.CustomTimingsHandler("** Command: " + name); // Spigot
     }
 
+    public static void broadcastCommandMessage(CommandSender source, String message) {
+        broadcastCommandMessage(source, message, true);
+    }
+
+    public static void broadcastCommandMessage(CommandSender source, String message, boolean sendToSource) {
+        String result = source.getName() + ": " + message;
+
+        if (source instanceof BlockCommandSender) {
+            BlockCommandSender blockCommandSender = (BlockCommandSender) source;
+
+            if (blockCommandSender.getBlock().getWorld().getGameRuleValue("commandBlockOutput").equalsIgnoreCase("false")) {
+                Bukkit.getConsoleSender().sendMessage(result);
+                return;
+            }
+        } else if (source instanceof CommandMinecart) {
+            CommandMinecart commandMinecart = (CommandMinecart) source;
+
+            if (commandMinecart.getWorld().getGameRuleValue("commandBlockOutput").equalsIgnoreCase("false")) {
+                Bukkit.getConsoleSender().sendMessage(result);
+                return;
+            }
+        }
+
+        Set<Permissible> users = Bukkit.getPluginManager().getPermissionSubscriptions(Server.BROADCAST_CHANNEL_ADMINISTRATIVE);
+        String colored = ChatColor.GRAY + "" + ChatColor.ITALIC + "[" + result + ChatColor.GRAY + ChatColor.ITALIC + "]";
+
+        if (sendToSource && !(source instanceof ConsoleCommandSender)) {
+            source.sendMessage(message);
+        }
+
+        for (Permissible user : users) {
+            if (user instanceof CommandSender && user.hasPermission(Server.BROADCAST_CHANNEL_ADMINISTRATIVE)) {
+                CommandSender target = (CommandSender) user;
+
+                if (target instanceof ConsoleCommandSender) {
+                    target.sendMessage(result);
+                } else if (target != source) {
+                    target.sendMessage(colored);
+                }
+            }
+        }
+    }
+
     /**
      * Executes the command, returning its success
      *
-     * @param sender Source object which is executing this command
+     * @param sender       Source object which is executing this command
      * @param commandLabel The alias of the command used
-     * @param args All arguments passed to the command, split via ' '
+     * @param args         All arguments passed to the command, split via ' '
      * @return true if the command was successful, otherwise false
      */
     public abstract boolean execute(CommandSender sender, String commandLabel, String[] args);
@@ -64,10 +106,10 @@ public abstract class Command {
      * options the player can tab through.
      *
      * @param sender Source object which is executing this command
-     * @param alias the alias being used
-     * @param args All arguments passed to the command, split via ' '
+     * @param alias  the alias being used
+     * @param args   All arguments passed to the command, split via ' '
      * @return a list of tab-completions for the specified arguments. This
-     *     will never be null. List may be immutable.
+     * will never be null. List may be immutable.
      * @throws IllegalArgumentException if sender, alias, or args is null
      */
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
@@ -78,12 +120,12 @@ public abstract class Command {
      * Executed on tab completion for this command, returning a list of
      * options the player can tab through.
      *
-     * @param sender Source object which is executing this command
-     * @param alias the alias being used
-     * @param args All arguments passed to the command, split via ' '
+     * @param sender   Source object which is executing this command
+     * @param alias    the alias being used
+     * @param args     All arguments passed to the command, split via ' '
      * @param location The position looked at by the sender, or null if none
      * @return a list of tab-completions for the specified arguments. This
-     *     will never be null. List may be immutable.
+     * will never be null. List may be immutable.
      * @throws IllegalArgumentException if sender, alias, or args is null
      */
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
@@ -133,7 +175,7 @@ public abstract class Command {
      *
      * @param name New command name
      * @return returns true if the name change happened instantly or false if
-     *     the command was already registered
+     * the command was already registered
      */
     public boolean setName(String name) {
         if (!isRegistered()) {
@@ -230,7 +272,7 @@ public abstract class Command {
      *
      * @param name The command's name
      * @return returns true if the name change happened instantly or false if
-     *     the command was already registered
+     * the command was already registered
      */
     public boolean setLabel(String name) {
         this.nextLabel = name;
@@ -248,7 +290,7 @@ public abstract class Command {
      *
      * @param commandMap the CommandMap to register this command to
      * @return true if the registration was successful (the current registered
-     *     CommandMap was the passed CommandMap or null) false otherwise
+     * CommandMap was the passed CommandMap or null) false otherwise
      */
     public boolean register(CommandMap commandMap) {
         if (allowChangesFrom(commandMap)) {
@@ -265,8 +307,8 @@ public abstract class Command {
      *
      * @param commandMap the CommandMap to unregister
      * @return true if the unregistration was successful (the current
-     *     registered CommandMap was the passed CommandMap or null) false
-     *     otherwise
+     * registered CommandMap was the passed CommandMap or null) false
+     * otherwise
      */
     public boolean unregister(CommandMap commandMap) {
         if (allowChangesFrom(commandMap)) {
@@ -302,34 +344,6 @@ public abstract class Command {
     }
 
     /**
-     * Returns a message to be displayed on a failed permission check for this
-     * command
-     *
-     * @return Permission check failed message
-     */
-    public String getPermissionMessage() {
-        return permissionMessage;
-    }
-
-    /**
-     * Gets a brief description of this command
-     *
-     * @return Description of this command
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * Gets an example usage of this command
-     *
-     * @return One or more example usages
-     */
-    public String getUsage() {
-        return usageMessage;
-    }
-
-    /**
      * Sets the list of aliases to request on registration for this command.
      * This is not effective outside of defining aliases in the {@link
      * PluginDescriptionFile#getCommands()} (under the
@@ -347,6 +361,37 @@ public abstract class Command {
     }
 
     /**
+     * Returns a message to be displayed on a failed permission check for this
+     * command
+     *
+     * @return Permission check failed message
+     */
+    public String getPermissionMessage() {
+        return permissionMessage;
+    }
+
+    /**
+     * Sets the message sent when a permission check fails
+     *
+     * @param permissionMessage new permission message, null to indicate
+     *                          default message, or an empty string to indicate no message
+     * @return this command object, for chaining
+     */
+    public Command setPermissionMessage(String permissionMessage) {
+        this.permissionMessage = permissionMessage;
+        return this;
+    }
+
+    /**
+     * Gets a brief description of this command
+     *
+     * @return Description of this command
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
      * Sets a brief description of this command. Defining a description in the
      * {@link PluginDescriptionFile#getCommands()} (under the
      * `<code>description</code>' node) is equivalent to this method.
@@ -360,15 +405,12 @@ public abstract class Command {
     }
 
     /**
-     * Sets the message sent when a permission check fails
+     * Gets an example usage of this command
      *
-     * @param permissionMessage new permission message, null to indicate
-     *     default message, or an empty string to indicate no message
-     * @return this command object, for chaining
+     * @return One or more example usages
      */
-    public Command setPermissionMessage(String permissionMessage) {
-        this.permissionMessage = permissionMessage;
-        return this;
+    public String getUsage() {
+        return usageMessage;
     }
 
     /**
@@ -380,49 +422,6 @@ public abstract class Command {
     public Command setUsage(String usage) {
         this.usageMessage = usage;
         return this;
-    }
-
-    public static void broadcastCommandMessage(CommandSender source, String message) {
-        broadcastCommandMessage(source, message, true);
-    }
-
-    public static void broadcastCommandMessage(CommandSender source, String message, boolean sendToSource) {
-        String result = source.getName() + ": " + message;
-
-        if (source instanceof BlockCommandSender) {
-            BlockCommandSender blockCommandSender = (BlockCommandSender) source;
-
-            if (blockCommandSender.getBlock().getWorld().getGameRuleValue("commandBlockOutput").equalsIgnoreCase("false")) {
-                Bukkit.getConsoleSender().sendMessage(result);
-                return;
-            }
-        } else if (source instanceof CommandMinecart) {
-            CommandMinecart commandMinecart = (CommandMinecart) source;
-
-            if (commandMinecart.getWorld().getGameRuleValue("commandBlockOutput").equalsIgnoreCase("false")) {
-                Bukkit.getConsoleSender().sendMessage(result);
-                return;
-            }
-        }
-
-        Set<Permissible> users = Bukkit.getPluginManager().getPermissionSubscriptions(Server.BROADCAST_CHANNEL_ADMINISTRATIVE);
-        String colored = ChatColor.GRAY + "" + ChatColor.ITALIC + "[" + result + ChatColor.GRAY + ChatColor.ITALIC + "]";
-
-        if (sendToSource && !(source instanceof ConsoleCommandSender)) {
-            source.sendMessage(message);
-        }
-
-        for (Permissible user : users) {
-            if (user instanceof CommandSender && user.hasPermission(Server.BROADCAST_CHANNEL_ADMINISTRATIVE)) {
-                CommandSender target = (CommandSender) user;
-
-                if (target instanceof ConsoleCommandSender) {
-                    target.sendMessage(result);
-                } else if (target != source) {
-                    target.sendMessage(colored);
-                }
-            }
-        }
     }
 
     @Override

@@ -1,121 +1,14 @@
 package org.bukkit;
 
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.Validate;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 /**
  * A note class to store a specific note.
  */
 public class Note {
-
-    /**
-     * An enum holding tones.
-     */
-    public enum Tone {
-        G(0x1, true),
-        A(0x3, true),
-        B(0x5, false),
-        C(0x6, true),
-        D(0x8, true),
-        E(0xA, false),
-        F(0xB, true);
-
-        private final boolean sharpable;
-        private final byte id;
-
-        private static final Map<Byte, Tone> BY_DATA = Maps.newHashMap();
-        /** The number of tones including sharped tones. */
-        public static final byte TONES_COUNT = 12;
-
-        private Tone(int id, boolean sharpable) {
-            this.id = (byte) (id % TONES_COUNT);
-            this.sharpable = sharpable;
-        }
-
-        /**
-         * Returns the not sharped id of this tone.
-         *
-         * @return the not sharped id of this tone.
-         * @deprecated Magic value
-         */
-        @Deprecated
-        public byte getId() {
-            return getId(false);
-        }
-
-        /**
-         * Returns the id of this tone. These method allows to return the
-         * sharped id of the tone. If the tone couldn't be sharped it always
-         * return the not sharped id of this tone.
-         *
-         * @param sharped Set to true to return the sharped id.
-         * @return the id of this tone.
-         * @deprecated Magic value
-         */
-        @Deprecated
-        public byte getId(boolean sharped) {
-            byte id = (byte) (sharped && sharpable ? this.id + 1 : this.id);
-
-            return (byte) (id % TONES_COUNT);
-        }
-
-        /**
-         * Returns if this tone could be sharped.
-         *
-         * @return if this tone could be sharped.
-         */
-        public boolean isSharpable() {
-            return sharpable;
-        }
-
-        /**
-         * Returns if this tone id is the sharped id of the tone.
-         *
-         * @param id the id of the tone.
-         * @return if the tone id is the sharped id of the tone.
-         * @throws IllegalArgumentException if neither the tone nor the
-         *     semitone have the id.
-         * @deprecated Magic value
-         */
-        @Deprecated
-        public boolean isSharped(byte id) {
-            if (id == getId(false)) {
-                return false;
-            } else if (id == getId(true)) {
-                return true;
-            } else {
-                // The id isn't matching to the tone!
-                throw new IllegalArgumentException("The id isn't matching to the tone.");
-            }
-        }
-
-        /**
-         * Returns the tone to id. Also returning the semitones.
-         *
-         * @param id the id of the tone.
-         * @return the tone to id.
-         * @deprecated Magic value
-         */
-        @Deprecated
-        public static Tone getById(byte id) {
-            return BY_DATA.get(id);
-        }
-
-        static {
-            for (Tone tone : values()) {
-                int id = tone.id % TONES_COUNT;
-                BY_DATA.put((byte) id, tone);
-
-                if (tone.isSharpable()) {
-                    id = (id + 1) % TONES_COUNT;
-                    BY_DATA.put((byte) id, tone);
-                }
-            }
-        }
-    }
 
     private final byte note;
 
@@ -123,7 +16,7 @@ public class Note {
      * Creates a new note.
      *
      * @param note Internal note id. {@link #getId()} always return this
-     *     value. The value has to be in the interval [0;&nbsp;24].
+     *             value. The value has to be in the interval [0;&nbsp;24].
      */
     public Note(int note) {
         Validate.isTrue(note >= 0 && note <= 24, "The note value has to be between 0 and 24.");
@@ -134,9 +27,9 @@ public class Note {
     /**
      * Creates a new note.
      *
-     * @param octave The octave where the note is in. Has to be 0 - 2.
-     * @param tone The tone within the octave. If the octave is 2 the note has
-     *     to be F#.
+     * @param octave  The octave where the note is in. Has to be 0 - 2.
+     * @param tone    The tone within the octave. If the octave is 2 the note has
+     *                to be F#.
      * @param sharped Set if the tone is sharped (e.g. for F#).
      */
     public Note(int octave, Tone tone, boolean sharped) {
@@ -155,7 +48,7 @@ public class Note {
      * Creates a new note for a flat tone, such as A-flat.
      *
      * @param octave The octave where the note is in. Has to be 0 - 1.
-     * @param tone The tone within the octave.
+     * @param tone   The tone within the octave.
      * @return The new note.
      */
     public static Note flat(int octave, Tone tone) {
@@ -168,8 +61,8 @@ public class Note {
      * Creates a new note for a sharp tone, such as A-sharp.
      *
      * @param octave The octave where the note is in. Has to be 0 - 2.
-     * @param tone The tone within the octave. If the octave is 2 the note has
-     *     to be F#.
+     * @param tone   The tone within the octave. If the octave is 2 the note has
+     *               to be F#.
      * @return The new note.
      */
     public static Note sharp(int octave, Tone tone) {
@@ -180,7 +73,7 @@ public class Note {
      * Creates a new note for a natural tone, such as A-natural.
      *
      * @param octave The octave where the note is in. Has to be 0 - 1.
-     * @param tone The tone within the octave.
+     * @param tone   The tone within the octave.
      * @return The new note.
      */
     public static Note natural(int octave, Tone tone) {
@@ -272,5 +165,113 @@ public class Note {
     @Override
     public String toString() {
         return "Note{" + getTone().toString() + (isSharped() ? "#" : "") + "}";
+    }
+
+    /**
+     * An enum holding tones.
+     */
+    public enum Tone {
+        G(0x1, true),
+        A(0x3, true),
+        B(0x5, false),
+        C(0x6, true),
+        D(0x8, true),
+        E(0xA, false),
+        F(0xB, true);
+
+        /**
+         * The number of tones including sharped tones.
+         */
+        public static final byte TONES_COUNT = 12;
+        private static final Map<Byte, Tone> BY_DATA = Maps.newHashMap();
+
+        static {
+            for (Tone tone : values()) {
+                int id = tone.id % TONES_COUNT;
+                BY_DATA.put((byte) id, tone);
+
+                if (tone.isSharpable()) {
+                    id = (id + 1) % TONES_COUNT;
+                    BY_DATA.put((byte) id, tone);
+                }
+            }
+        }
+
+        private final boolean sharpable;
+        private final byte id;
+
+        private Tone(int id, boolean sharpable) {
+            this.id = (byte) (id % TONES_COUNT);
+            this.sharpable = sharpable;
+        }
+
+        /**
+         * Returns the tone to id. Also returning the semitones.
+         *
+         * @param id the id of the tone.
+         * @return the tone to id.
+         * @deprecated Magic value
+         */
+        @Deprecated
+        public static Tone getById(byte id) {
+            return BY_DATA.get(id);
+        }
+
+        /**
+         * Returns the not sharped id of this tone.
+         *
+         * @return the not sharped id of this tone.
+         * @deprecated Magic value
+         */
+        @Deprecated
+        public byte getId() {
+            return getId(false);
+        }
+
+        /**
+         * Returns the id of this tone. These method allows to return the
+         * sharped id of the tone. If the tone couldn't be sharped it always
+         * return the not sharped id of this tone.
+         *
+         * @param sharped Set to true to return the sharped id.
+         * @return the id of this tone.
+         * @deprecated Magic value
+         */
+        @Deprecated
+        public byte getId(boolean sharped) {
+            byte id = (byte) (sharped && sharpable ? this.id + 1 : this.id);
+
+            return (byte) (id % TONES_COUNT);
+        }
+
+        /**
+         * Returns if this tone could be sharped.
+         *
+         * @return if this tone could be sharped.
+         */
+        public boolean isSharpable() {
+            return sharpable;
+        }
+
+        /**
+         * Returns if this tone id is the sharped id of the tone.
+         *
+         * @param id the id of the tone.
+         * @return if the tone id is the sharped id of the tone.
+         * @throws IllegalArgumentException if neither the tone nor the
+         *                                  semitone have the id.
+         * @deprecated Magic value
+         */
+        @Deprecated
+        public boolean isSharped(byte id) {
+            if (id == getId(false)) {
+                return false;
+            } else if (id == getId(true)) {
+                return true;
+            } else {
+                // The id isn't matching to the tone!
+                throw new IllegalArgumentException("The id isn't matching to the tone.");
+            }
+        }
     }
 }

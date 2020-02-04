@@ -47,21 +47,21 @@ public class BlockBreakEvent extends BlockExpEvent implements Cancellable {
     }
 
     /**
-     * Sets whether or not the block will drop items as it normally would.
-     *
-     * @param dropItems Whether or not the block will drop items
-     */
-    public void setDropItems(boolean dropItems) {
-        this.dropItems = dropItems;
-    }
-
-    /**
      * Gets whether or not the block will drop items.
      *
      * @return Whether or not the block will drop items
      */
     public boolean isDropItems() {
         return this.dropItems;
+    }
+
+    /**
+     * Sets whether or not the block will drop items as it normally would.
+     *
+     * @param dropItems Whether or not the block will drop items
+     */
+    public void setDropItems(boolean dropItems) {
+        this.dropItems = dropItems;
     }
 
     public boolean isCancelled() {
