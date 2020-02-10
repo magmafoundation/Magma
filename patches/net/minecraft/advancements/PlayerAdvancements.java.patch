@@ -16,6 +16,15 @@
  
  public class PlayerAdvancements
  {
+@@ -39,7 +39,7 @@
+     };
+     private final MinecraftServer server;
+     private final File progressFile;
+-    private final Map<Advancement, AdvancementProgress> progress = Maps.<Advancement, AdvancementProgress>newLinkedHashMap();
++    public final Map<Advancement, AdvancementProgress> progress = Maps.<Advancement, AdvancementProgress>newLinkedHashMap(); // Magma - private -> public - Citizens
+     private final Set<Advancement> visible = Sets.<Advancement>newLinkedHashSet();
+     private final Set<Advancement> visibilityChanged = Sets.<Advancement>newLinkedHashSet();
+     private final Set<Advancement> progressChanged = Sets.<Advancement>newLinkedHashSet();
 @@ -142,8 +142,12 @@
  
                      if (advancement == null)
