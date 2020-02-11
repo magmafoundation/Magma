@@ -1,15 +1,42 @@
 --- ../src-base/minecraft/net/minecraftforge/fml/common/network/handshake/FMLHandshakeServerState.java
 +++ ../src-work/minecraft/net/minecraftforge/fml/common/network/handshake/FMLHandshakeServerState.java
-@@ -36,6 +36,7 @@
+@@ -19,14 +19,14 @@
+ 
+ package net.minecraftforge.fml.common.network.handshake;
+ 
++import com.google.common.collect.ImmutableList;
+ import io.netty.channel.ChannelFutureListener;
+ import io.netty.channel.ChannelHandlerContext;
+-
++import java.util.Collections;
+ import java.util.Iterator;
+ import java.util.Map;
+ import java.util.Map.Entry;
+ import java.util.function.Consumer;
+-
+ import net.minecraft.util.ResourceLocation;
+ import net.minecraftforge.fml.common.FMLLog;
+ import net.minecraftforge.fml.common.Loader;
+@@ -36,6 +36,9 @@
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.registries.ForgeRegistry;
  import net.minecraftforge.registries.RegistryManager;
++import org.magmafoundation.magma.Magma;
 +import org.magmafoundation.magma.api.PlayerAPI;
++import org.magmafoundation.magma.configuration.MagmaConfig;
  
  enum FMLHandshakeServerState implements IHandshakeState<FMLHandshakeServerState>
  {
-@@ -67,6 +68,10 @@
+@@ -65,8 +68,18 @@
+ 
+             FMLHandshakeMessage.ModList client = (FMLHandshakeMessage.ModList)msg;
              NetworkDispatcher dispatcher = ctx.channel().attr(NetworkDispatcher.FML_DISPATCHER).get();
++            if(MagmaConfig.instance.blacklistedModsEnable.getValues()){
++                if(!MagmaConfig.instance.blacklistedMods.getValues().equals("") && client.modListAsString().contains(MagmaConfig.instance.blacklistedMods.getValues())){
++                    dispatcher.kickWithMessage(MagmaConfig.instance.blacklistedModsKickMessage.getValues());
++                    return;
++                }
++            }
              dispatcher.setModList(client.modList());
              FMLLog.log.info("Client attempting to join with {} mods : {}", client.modListSize(), client.modListAsString());
 +            if(client.modListSize() > 0) {

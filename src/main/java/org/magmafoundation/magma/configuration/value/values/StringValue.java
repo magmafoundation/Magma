@@ -16,6 +16,8 @@ public class StringValue extends Value<String> {
 
     public StringValue(ConfigBase config, String path, String key, String description) {
         super(path, key, description);
+        this.value = key;
+        this.config = config;
     }
 
     @Override

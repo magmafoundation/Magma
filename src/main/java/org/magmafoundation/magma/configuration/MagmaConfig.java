@@ -16,6 +16,8 @@ import org.magmafoundation.magma.commands.VersionCommand;
 import org.magmafoundation.magma.configuration.value.Value;
 import org.magmafoundation.magma.configuration.value.values.BooleanValue;
 import org.magmafoundation.magma.configuration.value.values.IntValue;
+import org.magmafoundation.magma.configuration.value.values.StringArrayValue;
+import org.magmafoundation.magma.configuration.value.values.StringValue;
 
 /**
  * MagmaConfig
@@ -32,8 +34,16 @@ public class MagmaConfig extends ConfigBase {
 
     public static MagmaConfig instance;
 
+    //============================Debug======================================
     public final BooleanValue debugPrintBukkitMatterials = new BooleanValue(this, "debug.debugPrintBukkitMatterials", false, "Prints the Forge Bukkit Materials");
     public final BooleanValue debugPrintCommandNode = new BooleanValue(this, "debug.debugPrintCommandNode", false, "Prints out all Command Nodes for permissions");
+    //============================Debug======================================
+
+    //============================Black List Mods=============================
+    public final BooleanValue blacklistedModsEnable = new BooleanValue(this, "forge.blacklistedmods.enabled", false, "Enable blacklisting of mods");
+    public final StringArrayValue blacklistedMods = new StringArrayValue(this, "forge.blacklistedmods.list", "", "A list of mods to blacklist");
+    public final StringValue blacklistedModsKickMessage = new StringValue(this, "forge.blacklistedmods.kickmessage", "Please Remove Blacklisted Mods", "Mod Blacklist kick message");
+    //============================Black List Mods=============================
 
     //=============================WORLD SETTINGS=============================
     public final IntValue expMergeMaxValue = new IntValue(this, "experience-merge-max-value", -1, "Instructs the server put a maximum value on experience orbs, preventing them all from merging down into 1 single orb.");
@@ -81,20 +91,20 @@ public class MagmaConfig extends ConfigBase {
     protected void load() {
         try {
             config = YamlConfiguration.loadConfiguration(configFile);
-            String header = HEADER + "\n";
+            StringBuilder header = new StringBuilder(HEADER + "\n");
             for (Value toggle : values.values()) {
                 if (!toggle.description.equals("")) {
-                    header += "Value: " + toggle.path + " Default: " + toggle.key + "   # " + toggle.description + "\n";
+                    header.append("Value: ").append(toggle.path).append(" Default: ").append(toggle.key).append("   # ").append(toggle.description).append("\n");
                 }
 
                 config.addDefault(toggle.path, toggle.key);
                 values.get(toggle.path).setValues(config.getString(toggle.path));
             }
-            config.options().header(header);
-            config.options().copyDefaults(true);
+            version = getInt("config-version", 2);
+            set("config-version", 2);
 
-            version = getInt("config-version", 1);
-            set("config-version", 1);
+            config.options().header(header.toString());
+            config.options().copyDefaults(true);
 
             this.save();
         } catch (Exception ex) {
