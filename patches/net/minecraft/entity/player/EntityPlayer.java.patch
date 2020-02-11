@@ -378,11 +378,15 @@
                      }
                  }
              }
-@@ -1527,9 +1650,9 @@
+@@ -1527,9 +1650,13 @@
          return this.gameProfile;
      }
  
 -    public EntityPlayer.SleepResult trySleep(BlockPos bedLocation)
++    public GameProfile getProfile(){
++        return getGameProfile();
++    }
++
 +    public SleepResult trySleep(BlockPos bedLocation)
      {
 -        EntityPlayer.SleepResult ret = net.minecraftforge.event.ForgeEventFactory.onPlayerSleepInBed(this, bedLocation);
@@ -390,7 +394,7 @@
          if (ret != null) return ret;
          final IBlockState state = this.world.isBlockLoaded(bedLocation) ? this.world.getBlockState(bedLocation) : null;
          final boolean isBed = state != null && state.getBlock().isBed(state, this.world, bedLocation, this);
-@@ -1539,31 +1662,31 @@
+@@ -1539,31 +1666,31 @@
          {
              if (this.isPlayerSleeping() || !this.isEntityAlive())
              {
@@ -428,7 +432,7 @@
              }
          }
  
-@@ -1572,6 +1695,20 @@
+@@ -1572,6 +1699,20 @@
              this.dismountRidingEntity();
          }
  
@@ -449,7 +453,7 @@
          this.spawnShoulderEntities();
          this.setSize(0.2F, 0.2F);
  
-@@ -1598,7 +1735,7 @@
+@@ -1598,7 +1739,7 @@
              this.world.updateAllPlayersSleepingFlag();
          }
  
@@ -458,7 +462,7 @@
      }
  
      private boolean bedInRange(BlockPos p_190774_1_, EnumFacing p_190774_2_)
-@@ -1651,6 +1788,23 @@
+@@ -1651,6 +1792,23 @@
              this.world.updateAllPlayersSleepingFlag();
          }
  
@@ -482,7 +486,7 @@
          this.sleepTimer = immediately ? 0 : 100;
  
          if (setSpawn)
-@@ -1757,11 +1911,13 @@
+@@ -1757,11 +1915,13 @@
          {
              this.spawnPos = pos;
              this.spawnForced = forced;
@@ -496,7 +500,7 @@
          }
      }
  
-@@ -1820,7 +1976,12 @@
+@@ -1820,7 +1980,12 @@
              this.motionY = d3 * 0.6D;
              this.jumpMovementFactor = f;
              this.fallDistance = 0.0F;
@@ -510,7 +514,7 @@
          }
          else
          {
-@@ -2225,10 +2386,16 @@
+@@ -2225,10 +2390,16 @@
  
      protected void spawnShoulderEntities()
      {
@@ -531,7 +535,7 @@
      }
  
      private void spawnShoulderEntity(@Nullable NBTTagCompound p_192026_1_)
-@@ -2247,6 +2414,23 @@
+@@ -2247,6 +2418,23 @@
          }
      }
  
@@ -555,7 +559,7 @@
      @SideOnly(Side.CLIENT)
      public boolean isInvisibleToPlayer(EntityPlayer player)
      {
-@@ -2481,7 +2665,7 @@
+@@ -2481,7 +2669,7 @@
          return (NBTTagCompound)this.dataManager.get(LEFT_SHOULDER_ENTITY);
      }
  
@@ -564,7 +568,7 @@
      {
          this.dataManager.set(LEFT_SHOULDER_ENTITY, tag);
      }
-@@ -2491,7 +2675,7 @@
+@@ -2491,7 +2679,7 @@
          return (NBTTagCompound)this.dataManager.get(RIGHT_SHOULDER_ENTITY);
      }
  
@@ -573,7 +577,7 @@
      {
          this.dataManager.set(RIGHT_SHOULDER_ENTITY, tag);
      }
-@@ -2531,7 +2715,7 @@
+@@ -2531,7 +2719,7 @@
  
      public boolean canUseCommandBlock()
      {
@@ -582,7 +586,7 @@
      }
  
      /**
-@@ -2671,7 +2855,7 @@
+@@ -2671,7 +2859,7 @@
      @SuppressWarnings("unchecked")
      @Override
      @Nullable
@@ -591,7 +595,7 @@
      {
          if (capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
          {
-@@ -2683,7 +2867,7 @@
+@@ -2683,7 +2871,7 @@
      }
  
      @Override
@@ -600,7 +604,7 @@
      {
          return capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(capability, facing);
      }
-@@ -2702,7 +2886,7 @@
+@@ -2702,7 +2890,7 @@
          SYSTEM(1, "options.chat.visibility.system"),
          HIDDEN(2, "options.chat.visibility.hidden");
  
@@ -609,7 +613,7 @@
          private final int chatVisibility;
          private final String resourceKey;
  
-@@ -2732,7 +2916,7 @@
+@@ -2732,7 +2920,7 @@
  
          static
          {
@@ -618,7 +622,7 @@
              {
                  ID_LOOKUP[entityplayer$enumchatvisibility.chatVisibility] = entityplayer$enumchatvisibility;
              }
-@@ -2763,4 +2947,11 @@
+@@ -2763,4 +2951,11 @@
          OTHER_PROBLEM,
          NOT_SAFE;
      }
