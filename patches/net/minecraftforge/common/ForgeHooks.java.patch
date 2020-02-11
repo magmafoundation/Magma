@@ -234,7 +234,7 @@
          }
          return event.isCanceled() ? -1 : event.getExpToDrop();
      }
-@@ -875,74 +815,101 @@
+@@ -875,74 +815,94 @@
          // handle all placement events here
          int meta = itemstack.getItemDamage();
          int size = itemstack.getCount();
@@ -298,7 +298,6 @@
 +            if (itemstack.getTagCompound() != null) {
                  newNBT = itemstack.getTagCompound().copy();
              }
-+            org.bukkit.event.block.BlockPlaceEvent blockPlaceEvent = null;
              BlockEvent.PlaceEvent placeEvent = null;
              @SuppressWarnings("unchecked")
 -            List<BlockSnapshot> blockSnapshots = (List<BlockSnapshot>)world.capturedBlockSnapshots.clone();
@@ -316,24 +315,18 @@
 -            if (blockSnapshots.size() > 1)
 -            {
 +            if (blockSnapshots.size() > 1) {
-+                blockPlaceEvent = org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory
-+                    .callBlockMultiPlaceEvent(world, player, hand, toBlockStates(world, blockSnapshots), pos.getX(), pos.getY(), pos.getZ());
                  placeEvent = ForgeEventFactory.onPlayerMultiBlockPlace(player, blockSnapshots, side, hand);
 -            }
 -            else if (blockSnapshots.size() == 1)
 -            {
 +            } else if (blockSnapshots.size() == 1) {
-+                // Call both Bukkit's BlockPlaceEvent and Forge's
-+                blockPlaceEvent = org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory
-+                    .callBlockPlaceEvent(world, player, hand, toBlockState(world, blockSnapshots.get(0)), pos.getX(), pos.getY(), pos.getZ());
                  placeEvent = ForgeEventFactory.onPlayerBlockPlace(player, blockSnapshots.get(0), side, hand);
              }
  
 -            if (placeEvent != null && placeEvent.isCanceled())
 -            {
-+            if (placeEvent != null && placeEvent.isCanceled() || (blockPlaceEvent != null && (blockPlaceEvent.isCancelled() || !blockPlaceEvent.canBuild()))) {
++            if (placeEvent != null && placeEvent.isCanceled()) {
                  ret = EnumActionResult.FAIL; // cancel placement
-+                blockPlaceEvent.getPlayer().updateInventory();
                  // revert back all captured blocks
 -                for (BlockSnapshot blocksnapshot : Lists.reverse(blockSnapshots))
 -                {
@@ -362,7 +355,7 @@
                      int updateFlag = snap.getFlag();
                      IBlockState oldBlock = snap.getReplacedBlock();
                      IBlockState newBlock = world.getBlockState(snap.getPos());
-@@ -950,10 +917,32 @@
+@@ -950,10 +910,32 @@
                      {
                          newBlock.getBlock().onBlockAdded(world, snap.getPos(), newBlock);
                      }
@@ -397,7 +390,7 @@
              }
          }
          world.capturedBlockSnapshots.clear();
-@@ -961,6 +950,16 @@
+@@ -961,6 +943,16 @@
          return ret;
      }
  
@@ -414,7 +407,7 @@
      public static boolean onAnvilChange(ContainerRepair container, @Nonnull ItemStack left, @Nonnull ItemStack right, IInventory outputSlot, String name, int baseCost)
      {
          AnvilUpdateEvent e = new AnvilUpdateEvent(left, right, name, baseCost);
-@@ -993,7 +992,7 @@
+@@ -993,7 +985,7 @@
      }
  
      /**

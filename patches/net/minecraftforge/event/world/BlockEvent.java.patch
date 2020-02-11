@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraftforge/event/world/BlockEvent.java
 +++ ../src-work/minecraft/net/minecraftforge/event/world/BlockEvent.java
-@@ -19,29 +19,27 @@
+@@ -19,29 +19,31 @@
  
  package net.minecraftforge.event.world;
  
@@ -8,6 +8,8 @@
 -import java.util.List;
 -
 +import com.google.common.collect.ImmutableList;
++import java.util.ArrayList;
++import java.util.stream.Collectors;
  import net.minecraft.block.BlockPortal;
  import net.minecraft.block.state.IBlockState;
 -import net.minecraft.enchantment.EnchantmentHelper;
@@ -25,6 +27,7 @@
  import net.minecraftforge.common.util.BlockSnapshot;
  import net.minecraftforge.fml.common.eventhandler.Cancelable;
  import net.minecraftforge.fml.common.eventhandler.Event;
++import org.bukkit.block.BlockState;
 +import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlockState;
  
@@ -34,10 +37,11 @@
  import javax.annotation.Nullable;
 +import java.util.EnumSet;
 +import java.util.List;
++import org.bukkit.event.block.BlockMultiPlaceEvent;
  
  public class BlockEvent extends Event
  {
-@@ -125,16 +123,17 @@
+@@ -125,16 +127,17 @@
              super(world, pos, state);
              this.player = player;
  
@@ -61,7 +65,7 @@
          }
  
          public EntityPlayer getPlayer()
-@@ -204,8 +203,7 @@
+@@ -204,8 +207,7 @@
       */
      @Cancelable
      @Deprecated // Remove in 1.13
@@ -71,19 +75,21 @@
          private final EntityPlayer player;
          private final EnumHand hand;
  
-@@ -213,17 +211,31 @@
+@@ -213,17 +215,33 @@
              super(blockSnapshot, placedAgainst, player);
              this.player = player;
              this.hand = hand;
 -            if (DEBUG)
 -            {
-+            // Cauldron start - handle event on bukkit side
-+            CraftBlockState blockstate = CraftBlockState.getBlockState(getWorld(), getPos().getX(), getPos().getY(), getPos().getZ());
-+            org.bukkit.event.block.BlockPlaceEvent bukkitEvent = CraftEventFactory.callBlockPlaceEvent(getWorld(), player, hand, blockstate, getPos().getX(), getPos().getY(), getPos().getZ());
-+            if (bukkitEvent.isCancelled() || !bukkitEvent.canBuild()) {
-+                this.setCanceled(true);
++            if(!(this instanceof MultiPlaceEvent)){
++                // Cauldron start - handle event on bukkit side
++                CraftBlockState blockstate = new CraftBlockState(blockSnapshot);
++                org.bukkit.event.block.BlockPlaceEvent bukkitEvent = CraftEventFactory.callBlockPlaceEvent(getWorld(), player, hand, blockstate, getPos().getX(), getPos().getY(), getPos().getZ());
++                if (bukkitEvent.isCancelled() || !bukkitEvent.canBuild()) {
++                    this.setCanceled(true);
++                }
++                // Cauldron end
 +            }
-+            // Cauldron end
 +            if (DEBUG) {
                  System.out.printf("Created PlaceEvent - [PlacedBlock: %s ][PlacedAgainst: %s ][ItemStack: %s ][Player: %s ][Hand: %s]\n", getPlacedBlock(), placedAgainst, player.getHeldItem(hand), player, hand);
              }
@@ -108,3 +114,16 @@
      }
  
      /**
+@@ -275,6 +293,12 @@
+         public MultiPlaceEvent(@Nonnull List<BlockSnapshot> blockSnapshots, @Nonnull IBlockState placedAgainst, @Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
+             super(blockSnapshots.get(0), placedAgainst, player, hand);
+             this.blockSnapshots = ImmutableList.copyOf(blockSnapshots);
++
++            // Magma MultiBlockPlace Event
++            ArrayList<BlockState> blockStates = this.blockSnapshots.stream().map(CraftBlockState::new).collect(Collectors.toCollection(() -> new ArrayList<>(blockSnapshots.size())));
++            BlockMultiPlaceEvent event = CraftEventFactory.callBlockMultiPlaceEvent(getWorld(), player, hand, blockStates,getPos().getX(), getPos().getY(), getPos().getZ());
++            this.setCanceled(event.isCancelled() || !event.canBuild());
++
+             if (DEBUG)
+             {
+                 System.out.printf("Created MultiPlaceEvent - [PlacedAgainst: %s ][ItemInHand: %s ][Player: %s ]\n", placedAgainst, player.getHeldItem(hand), player);
