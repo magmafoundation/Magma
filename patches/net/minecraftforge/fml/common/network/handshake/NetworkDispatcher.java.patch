@@ -9,3 +9,12 @@
      private ConnectionState state;
      private ConnectionType connectionType;
      private final Side side;
+@@ -320,7 +320,7 @@
+         kickWithMessage("This is modded. No modded response received. Bye!");
+     }
+ 
+-    private void kickWithMessage(String message)
++    public void kickWithMessage(String message)
+     {
+         FMLLog.log.error("Network Disconnect: {}", message);
+         final TextComponentString TextComponentString = new TextComponentString(message);

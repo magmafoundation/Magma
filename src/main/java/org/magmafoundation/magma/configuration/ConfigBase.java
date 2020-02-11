@@ -1,17 +1,16 @@
 package org.magmafoundation.magma.configuration;
 
-import net.minecraft.server.MinecraftServer;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.magmafoundation.magma.configuration.value.Value;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import net.minecraft.server.MinecraftServer;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.magmafoundation.magma.configuration.value.Value;
 
 /**
  * ConfigBase
@@ -121,6 +120,11 @@ public abstract class ConfigBase {
             config.addDefault(path, def);
         }
         return config.getString(path, def);
+    }
+
+    public List<String> getStringList(String path, List<String> def) {
+        config.addDefault(path, def);
+        return config.getStringList(path);
     }
 
     public String getFakePlayer(String className, String defaultName) {
