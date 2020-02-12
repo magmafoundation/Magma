@@ -1,32 +1,27 @@
 package org.bukkit.craftbukkit.v1_12_R1;
 
+import com.destroystokyo.paper.PaperMCConfig;
+import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.mojang.authlib.GameProfile;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.base64.Base64;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.io.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
-
-import com.destroystokyo.paper.PaperMCConfig;
 import jline.console.ConsoleReader;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.command.CommandBase;
@@ -39,21 +34,18 @@ import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.FurnaceRecipes;
-import net.minecraft.server.*;
-
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedPlayerList;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.PendingCommand;
+import net.minecraft.server.dedicated.PropertyManager;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.server.management.UserListEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryNamespaced;
 import net.minecraft.util.text.translation.I18n;
-import net.minecraft.world.GameType;
-import net.minecraft.world.MinecraftException;
-import net.minecraft.world.WorldServer;
-import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
+import net.minecraft.world.*;
 import net.minecraft.world.chunk.storage.RegionFile;
 import net.minecraft.world.chunk.storage.RegionFileCache;
 import net.minecraft.world.storage.MapData;
@@ -63,47 +55,28 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.StringUtils;
-import org.bukkit.BanList;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
-import org.bukkit.UnsafeValues;
-import org.bukkit.Warning.WarningState;
+import org.apache.commons.lang3.Validate;
+import org.bukkit.*;
 import org.bukkit.World;
+import org.bukkit.Warning.WarningState;
 import org.bukkit.World.Environment;
-import org.bukkit.WorldCreator;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.command.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.conversations.Conversable;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_12_R1.help.SimpleHelpMap;
 import org.bukkit.craftbukkit.v1_12_R1.boss.CraftBossBar;
 import org.bukkit.craftbukkit.v1_12_R1.command.CraftSimpleCommandMap;
 import org.bukkit.craftbukkit.v1_12_R1.command.UnknownCommandEvent;
 import org.bukkit.craftbukkit.v1_12_R1.command.VanillaCommandWrapper;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.generator.CraftChunkData;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftFurnaceRecipe;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCustom;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemFactory;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMerchantCustom;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftRecipe;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapedRecipe;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapelessRecipe;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.RecipeIterator;
+import org.bukkit.craftbukkit.v1_12_R1.help.SimpleHelpMap;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.*;
 import org.bukkit.craftbukkit.v1_12_R1.map.CraftMapView;
 import org.bukkit.craftbukkit.v1_12_R1.metadata.EntityMetadataStore;
 import org.bukkit.craftbukkit.v1_12_R1.metadata.PlayerMetadataStore;
@@ -111,67 +84,38 @@ import org.bukkit.craftbukkit.v1_12_R1.metadata.WorldMetadataStore;
 import org.bukkit.craftbukkit.v1_12_R1.potion.CraftPotionBrewer;
 import org.bukkit.craftbukkit.v1_12_R1.scheduler.CraftScheduler;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboardManager;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftIconCache;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
-import org.bukkit.craftbukkit.v1_12_R1.util.DatFileFilter;
-import org.bukkit.craftbukkit.v1_12_R1.util.Versioning;
+import org.bukkit.craftbukkit.v1_12_R1.util.*;
 import org.bukkit.craftbukkit.v1_12_R1.util.permissions.CraftDefaultPermissions;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerChatTabCompleteEvent;
 import org.bukkit.event.server.BroadcastMessageEvent;
+import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.help.HelpMap;
-import org.bukkit.inventory.FurnaceRecipe;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Merchant;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginLoadOrder;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.ServicesManager;
-import org.bukkit.plugin.SimplePluginManager;
-import org.bukkit.plugin.SimpleServicesManager;
+import org.bukkit.plugin.*;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.Messenger;
-import org.bukkit.potion.Potion;
 import org.bukkit.plugin.messaging.StandardMessenger;
+import org.bukkit.potion.Potion;
+import org.bukkit.scheduler.BukkitWorker;
 import org.bukkit.util.StringUtil;
 import org.bukkit.util.permissions.DefaultPermissions;
 import org.magmafoundation.magma.Magma;
+import org.magmafoundation.magma.configuration.MagmaConfig;
+import org.spigotmc.SpigotConfig;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
 
-import org.apache.commons.lang3.Validate;
-
-import com.google.common.base.Charsets;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.collect.MapMaker;
-import com.mojang.authlib.GameProfile;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufOutputStream;
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.base64.Base64;
 //import jline.console.ConsoleReader;
-import org.bukkit.NamespacedKey;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
-import org.bukkit.event.server.TabCompleteEvent;
-import net.md_5.bungee.api.chat.BaseComponent;
 
 public final class CraftServer implements Server {
     static {
@@ -772,6 +716,96 @@ public final class CraftServer implements Server {
 
     @Override
     public void reload() {
+        reloadCount++;
+        configuration = YamlConfiguration.loadConfiguration(getConfigFile());
+        commandsConfiguration = YamlConfiguration.loadConfiguration(getCommandsConfigFile());
+        PropertyManager config = new PropertyManager(console.options);
+        ((DedicatedServer) console).settings = config;
+
+        boolean animals = config.getBooleanProperty("spawn-animals", console.getCanSpawnAnimals());
+        boolean monsters = config.getBooleanProperty("spawn-monsters", console.worlds[0].getDifficulty() != EnumDifficulty.PEACEFUL);
+        EnumDifficulty difficulty = EnumDifficulty.getDifficultyEnum(config.getIntProperty("difficulty", console.worldServerList.get(0).getDifficulty().ordinal()));
+
+        online.value = config.getBooleanProperty("online-mode", console.isServerInOnlineMode());
+        console.setCanSpawnAnimals(config.getBooleanProperty("spawn-animals", console.getCanSpawnAnimals()));
+        console.setAllowPvp(config.getBooleanProperty("pvp", console.isPVPEnabled()));
+        console.setAllowFlight(config.getBooleanProperty("allow-flight", console.isFlightAllowed()));
+        console.setMOTD(config.getStringProperty("motd", console.getMOTD()));
+        monsterSpawn = configuration.getInt("spawn-limits.monsters");
+        animalSpawn = configuration.getInt("spawn-limits.animals");
+        waterAnimalSpawn = configuration.getInt("spawn-limits.water-animals");
+        ambientSpawn = configuration.getInt("spawn-limits.ambient");
+        warningState = WarningState.value(configuration.getString("settings.deprecated-verbose"));
+        printSaveWarning = false;
+        console.autosavePeriod = configuration.getInt("ticks-per.autosave");
+        chunkGCPeriod = configuration.getInt("chunk-gc.period-in-ticks");
+        chunkGCLoadThresh = configuration.getInt("chunk-gc.load-threshold");
+        loadIcon();
+
+        try {
+            playerList.getBannedIPs().readSavedFile();
+        } catch (IOException ex) {
+            logger.log(Level.WARNING, "Failed to load banned-ips.json, " + ex.getMessage());
+        }
+        try {
+            playerList.getBannedPlayers().readSavedFile();
+        } catch (IOException ex) {
+            logger.log(Level.WARNING, "Failed to load banned-players.json, " + ex.getMessage());
+        }
+
+        SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
+        for (WorldServer world : console.worlds) {
+            world.worldInfo.setDifficulty(difficulty);
+            world.setAllowedSpawnTypes(monsters, animals);
+            if (this.getTicksPerAnimalSpawns() < 0) {
+                world.ticksPerAnimalSpawns = 400;
+            } else {
+                world.ticksPerAnimalSpawns = this.getTicksPerAnimalSpawns();
+            }
+
+            if (this.getTicksPerMonsterSpawns() < 0) {
+                world.ticksPerMonsterSpawns = 1;
+            } else {
+                world.ticksPerMonsterSpawns = this.getTicksPerMonsterSpawns();
+            }
+            world.spigotConfig.init(); // Spigot
+        }
+
+        pluginManager.clearPlugins();
+        commandMap.clearCommands();
+        resetRecipes();
+        reloadData();
+        SpigotConfig.registerCommands();
+        overrideAllCommandBlockCommands = commandsConfiguration.getList("command-block-overrides").contains("*");
+
+        int pollCount = 0;
+
+        // Wait for at most 2.5 seconds for plugins to close their threads
+        while (pollCount < 50 && getScheduler().getActiveWorkers().size() > 0) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+            }
+            pollCount++;
+        }
+
+        List<BukkitWorker> overdueWorkers = getScheduler().getActiveWorkers();
+        for (BukkitWorker worker : overdueWorkers) {
+            Plugin plugin = worker.getOwner();
+            String author = "<NoAuthorGiven>";
+            if (plugin.getDescription().getAuthors().size() > 0) {
+                author = plugin.getDescription().getAuthors().get(0);
+            }
+            getLogger().log(Level.SEVERE, String.format(
+                "Nag author: '%s' of '%s' about the following: %s",
+                author,
+                plugin.getDescription().getName(),
+                "This plugin is not properly shutting down its async tasks when it is being reloaded.  This may cause conflicts with the newly loaded version of the plugin"
+            ));
+        }
+        loadPlugins();
+        enablePlugins(PluginLoadOrder.STARTUP);
+        enablePlugins(PluginLoadOrder.POSTWORLD);
     }
 
     @Override

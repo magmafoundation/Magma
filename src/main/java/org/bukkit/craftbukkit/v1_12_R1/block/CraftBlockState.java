@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1.block;
 
+import java.util.List;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -7,19 +8,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.BlockSnapshot;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_12_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.material.Attachable;
 import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
-
-import java.util.List;
 
 public class CraftBlockState implements BlockState {
     private final CraftWorld world;
@@ -41,14 +40,14 @@ public class CraftBlockState implements BlockState {
         this.chunk = (CraftChunk) block.getChunk();
         this.flag = 3;
 
-        createData(block.getData());
         TileEntity te = world.getHandle().getTileEntity(new BlockPos(this.x, this.y, this.z));
-        if (te != null)
-        {
+        if (te != null) {
             nbt = new NBTTagCompound();
             te.writeToNBT(nbt);
+        } else {
+            nbt = null;
         }
-        else nbt = null;
+        createData(block.getData());
     }
 
 	public CraftBlockState(final Block block, int flag) {
@@ -207,7 +206,11 @@ public class CraftBlockState implements BlockState {
             TileEntity te = world.getHandle().getTileEntity(new BlockPos(this.x, this.y, this.z));
             if (te != null)
             {
-                te.readFromNBT(nbt);
+                NBTTagCompound tagCompound = new NBTTagCompound();
+                te.writeToNBT(tagCompound);
+                if(!tagCompound.equals(nbt)){
+                    te.readFromNBT(nbt);
+                }
             }
         }
         return true;
