@@ -717,7 +717,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +573,213 @@
+@@ -453,159 +573,214 @@
                      worldserver1.flush();
                  }
              }
@@ -759,7 +759,8 @@
          this.serverRunning = false;
      }
  
-+    private static final int TPS = 20;
++    public static double currentTPS;
++    public static final int TPS = 20;
 +    private static final long SEC_IN_NANO = 1000000000;
 +    public static final long TICK_TIME = SEC_IN_NANO / TPS;
 +    private static final long MAX_CATCHUP_BUFFER = TICK_TIME * TPS * 60L;
@@ -867,10 +868,10 @@
 -                        this.tick();
 -                        i = 0L;
 +                        final long diff = curTime - tickSection;
-+                        double currentTps = 1E9 / diff * SAMPLE_INTERVAL;
-+                        tps1.add(currentTps, diff);
-+                        tps5.add(currentTps, diff);
-+                        tps15.add(currentTps, diff);
++                        currentTPS = 1E9 / diff * SAMPLE_INTERVAL;
++                        tps1.add(currentTPS, diff);
++                        tps5.add(currentTPS, diff);
++                        tps15.add(currentTPS, diff);
 +                        // Backwards compat with bad plugins
 +                        recentTps[0] = tps1.getAverage();
 +                        recentTps[1] = tps5.getAverage();
@@ -1005,7 +1006,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +787,44 @@
+@@ -613,52 +788,44 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1070,7 +1071,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +833,15 @@
+@@ -667,16 +834,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1092,7 +1093,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,143 +849,175 @@
+@@ -684,143 +850,175 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1327,7 +1328,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1032,51 @@
+@@ -835,53 +1033,51 @@
          return ret;
      }
  
@@ -1405,7 +1406,7 @@
                  }
              });
          }
-@@ -889,145 +1084,115 @@
+@@ -889,145 +1085,115 @@
          return report;
      }
  
@@ -1595,7 +1596,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1200,75 @@
+@@ -1035,80 +1201,75 @@
          }
      }
  
@@ -1705,7 +1706,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1277,193 @@
+@@ -1117,228 +1278,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -1988,7 +1989,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1472,219 @@
+@@ -1347,316 +1473,219 @@
          return null;
      }
  

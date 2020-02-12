@@ -12,6 +12,7 @@ import org.magmafoundation.magma.Metrics;
 import org.magmafoundation.magma.Metrics.SimplePie;
 import org.magmafoundation.magma.api.ServerAPI;
 import org.magmafoundation.magma.commands.MagmaCommand;
+import org.magmafoundation.magma.commands.TPSCommand;
 import org.magmafoundation.magma.commands.VersionCommand;
 import org.magmafoundation.magma.configuration.value.Value;
 import org.magmafoundation.magma.configuration.value.values.BooleanValue;
@@ -84,6 +85,7 @@ public class MagmaConfig extends ConfigBase {
     @Override
     protected void addCommands() {
         commands.put("magma", new MagmaCommand("magma"));
+        commands.put("tps", new TPSCommand("tps"));
         commands.put("version", new VersionCommand("version"));
     }
 
