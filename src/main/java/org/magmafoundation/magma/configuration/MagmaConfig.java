@@ -50,6 +50,8 @@ public class MagmaConfig extends ConfigBase {
     public final IntValue expMergeMaxValue = new IntValue(this, "experience-merge-max-value", -1, "Instructs the server put a maximum value on experience orbs, preventing them all from merging down into 1 single orb.");
     //=============================WORLD SETTINGS=============================
 
+    public final BooleanValue forgeBukkitPermissionHandlerEnable = new BooleanValue(this, "forge.bukkitPermissionHandler.enable", true, "Let's Bukkit permission plugins handle forge/modded commands");
+
     private static Metrics metrics;
 
     public MagmaConfig() {
