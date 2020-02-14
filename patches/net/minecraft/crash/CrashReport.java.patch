@@ -1,0 +1,120 @@
+--- ../src-base/minecraft/net/minecraft/crash/CrashReport.java
++++ ../src-work/minecraft/net/minecraft/crash/CrashReport.java
+@@ -21,6 +21,7 @@
+ import org.apache.commons.lang3.ArrayUtils;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import org.magmafoundation.magma.Magma;
+ 
+ public class CrashReport
+ {
+@@ -42,80 +43,43 @@
+ 
+     private void populateEnvironment()
+     {
+-        this.systemDetailsCategory.addDetail("Minecraft Version", new ICrashReportDetail<String>()
+-        {
+-            public String call()
+-            {
+-                return "1.12.2";
+-            }
++        this.systemDetailsCategory.addDetail("Minecraft Version", () -> "1.12.2");
++        this.systemDetailsCategory.addDetail("Magma Version", Magma::getVersion);
++        this.systemDetailsCategory.addDetail("Operating System", () -> System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version"));
++        this.systemDetailsCategory.addDetail("Java Version", () -> System.getProperty("java.version") + ", " + System.getProperty("java.vendor"));
++        this.systemDetailsCategory.addDetail("Java VM Version", () -> System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), " + System.getProperty("java.vm.vendor"));
++        this.systemDetailsCategory.addDetail("Memory", () -> {
++            Runtime runtime = Runtime.getRuntime();
++            long i = runtime.maxMemory();
++            long j = runtime.totalMemory();
++            long k = runtime.freeMemory();
++            long l = i / 1024L / 1024L;
++            long i1 = j / 1024L / 1024L;
++            long j1 = k / 1024L / 1024L;
++            return k + " bytes (" + j1 + " MB) / " + j + " bytes (" + i1 + " MB) up to " + i + " bytes (" + l + " MB)";
+         });
+-        this.systemDetailsCategory.addDetail("Operating System", new ICrashReportDetail<String>()
+-        {
+-            public String call()
+-            {
+-                return System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ") version " + System.getProperty("os.version");
+-            }
+-        });
+-        this.systemDetailsCategory.addDetail("Java Version", new ICrashReportDetail<String>()
+-        {
+-            public String call()
+-            {
+-                return System.getProperty("java.version") + ", " + System.getProperty("java.vendor");
+-            }
+-        });
+-        this.systemDetailsCategory.addDetail("Java VM Version", new ICrashReportDetail<String>()
+-        {
+-            public String call()
+-            {
+-                return System.getProperty("java.vm.name") + " (" + System.getProperty("java.vm.info") + "), " + System.getProperty("java.vm.vendor");
+-            }
+-        });
+-        this.systemDetailsCategory.addDetail("Memory", new ICrashReportDetail<String>()
+-        {
+-            public String call()
+-            {
+-                Runtime runtime = Runtime.getRuntime();
+-                long i = runtime.maxMemory();
+-                long j = runtime.totalMemory();
+-                long k = runtime.freeMemory();
+-                long l = i / 1024L / 1024L;
+-                long i1 = j / 1024L / 1024L;
+-                long j1 = k / 1024L / 1024L;
+-                return k + " bytes (" + j1 + " MB) / " + j + " bytes (" + i1 + " MB) up to " + i + " bytes (" + l + " MB)";
+-            }
+-        });
+-        this.systemDetailsCategory.addDetail("JVM Flags", new ICrashReportDetail<String>()
+-        {
+-            public String call()
+-            {
+-                RuntimeMXBean runtimemxbean = ManagementFactory.getRuntimeMXBean();
+-                List<String> list = runtimemxbean.getInputArguments();
+-                int i = 0;
+-                StringBuilder stringbuilder = new StringBuilder();
++        this.systemDetailsCategory.addDetail("JVM Flags", () -> {
++            RuntimeMXBean runtimemxbean = ManagementFactory.getRuntimeMXBean();
++            List<String> list = runtimemxbean.getInputArguments();
++            int i = 0;
++            StringBuilder stringbuilder = new StringBuilder();
+ 
+-                for (String s : list)
++            for (String s : list)
++            {
++                if (s.startsWith("-X"))
+                 {
+-                    if (s.startsWith("-X"))
++                    if (i++ > 0)
+                     {
+-                        if (i++ > 0)
+-                        {
+-                            stringbuilder.append(" ");
+-                        }
+-
+-                        stringbuilder.append(s);
++                        stringbuilder.append(" ");
+                     }
+-                }
+ 
+-                return String.format("%d total; %s", i, stringbuilder.toString());
++                    stringbuilder.append(s);
++                }
+             }
++
++            return String.format("%d total; %s", i, stringbuilder.toString());
+         });
+-        this.systemDetailsCategory.addDetail("IntCache", new ICrashReportDetail<String>()
+-        {
+-            public String call() throws Exception
+-            {
+-                return IntCache.getCacheSizes();
+-            }
+-        });
++        this.systemDetailsCategory.addDetail("IntCache", IntCache::getCacheSizes);
+         net.minecraftforge.fml.common.FMLCommonHandler.instance().enhanceCrashReport(this, this.systemDetailsCategory);
+     }
+ 

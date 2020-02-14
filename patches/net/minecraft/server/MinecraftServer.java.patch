@@ -942,7 +942,7 @@
 -            {
 -                LOGGER.error("This crash report has been saved to: {}", (Object)file1.getAbsolutePath());
 +            if (crashreport.saveToFile(file1)) {
-+                LOGGER.error(String.format("This crash report has been saved to: {0}", new Object[] { file1.getAbsolutePath()}));
++                LOGGER.error(String.format("This crash report has been saved to: %s", file1.getAbsolutePath()));
              }
              else
              {
