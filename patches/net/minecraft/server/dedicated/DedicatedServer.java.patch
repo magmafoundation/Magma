@@ -155,7 +155,7 @@
              }
  
              this.setCanSpawnAnimals(this.settings.getBooleanProperty("spawn-animals", true));
-@@ -180,11 +224,24 @@
+@@ -180,11 +224,19 @@
              {
                  this.setServerPort(this.settings.getIntProperty("server-port", 25565));
              }
@@ -167,11 +167,6 @@
  
 +            magmaConfig.registerCommands();
 +
-+            // Magma - Allow bukkit plugins to handle forge commands
-+            if(MagmaConfig.instance.forgeBukkitPermissionHandlerEnable.getValues()){
-+                PermissionAPI.setPermissionHandler(new BukkitPermissionsHandler());
-+            }
-+
              LOGGER.info("Generating keypair");
              this.setKeyPair(CryptManager.generateKeyPair());
              LOGGER.info("Starting Minecraft server on {}:{}", this.getServerHostname().isEmpty() ? "*" : this.getServerHostname(), Integer.valueOf(this.getServerPort()));
@@ -180,7 +175,7 @@
              try
              {
                  this.getNetworkSystem().addLanEndpoint(inetaddress, this.getServerPort());
-@@ -196,13 +253,6 @@
+@@ -196,13 +248,6 @@
                  LOGGER.warn("Perhaps a server is already running on that port?");
                  return false;
              }
@@ -194,7 +189,7 @@
              }
  
              if (this.convertFiles())
-@@ -217,7 +267,7 @@
+@@ -217,7 +262,7 @@
              else
              {
                  net.minecraftforge.fml.common.FMLCommonHandler.instance().onServerStarted();
@@ -203,7 +198,7 @@
                  long j = System.nanoTime();
  
                  if (this.getFolderName() == null)
-@@ -254,6 +304,7 @@
+@@ -254,6 +299,7 @@
                      worldtype = WorldType.DEFAULT;
                  }
  
@@ -211,7 +206,7 @@
                  this.isCommandBlockEnabled();
                  this.getOpPermissionLevel();
                  this.isSnooperEnabled();
-@@ -271,8 +322,10 @@
+@@ -271,8 +317,10 @@
                  long i1 = System.nanoTime() - j;
                  String s3 = String.format("%.3fs", (double)i1 / 1.0E9D);
                  LOGGER.info("Done ({})! For help, type \"help\" or \"?\"", (Object)s3);
@@ -223,7 +218,7 @@
                  if (this.settings.hasProperty("announce-player-achievements"))
                  {
                      this.worlds[0].getGameRules().setOrCreateGameRule("announceAdvancements", this.settings.getBooleanProperty("announce-player-achievements", true) ? "true" : "false");
-@@ -287,21 +340,32 @@
+@@ -287,21 +335,32 @@
                      this.rconQueryThread.startThread();
                  }
  
@@ -264,7 +259,7 @@
                  Items.AIR.getSubItems(CreativeTabs.SEARCH, NonNullList.create());
                  // <3 you Grum for this, saves us ~30 patch files! --^
                  return net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStarting(this);
-@@ -427,11 +491,20 @@
+@@ -427,11 +486,20 @@
  
      public void executePendingCommands()
      {
@@ -289,7 +284,7 @@
      }
  
      public boolean isDedicatedServer()
-@@ -684,13 +757,65 @@
+@@ -684,13 +752,65 @@
  
      public String getPlugins()
      {
