@@ -155,7 +155,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +158,272 @@
+@@ -144,178 +158,276 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -171,7 +171,7 @@
 +    public OptionSet options;
 +    public org.bukkit.command.ConsoleCommandSender console;
 +    public org.bukkit.command.RemoteConsoleCommandSender remoteConsole;
-+	public ConsoleReader reader;
++    public ConsoleReader reader;
 +    public static int currentTick = (int) (System.currentTimeMillis() / 50);
 +    public Thread primaryThread;
 +    public Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
@@ -190,8 +190,8 @@
 +    private static MinecraftServer instance;
 +
 +    public MinecraftServer(OptionSet options, Proxy proxyIn, DataFixer dataFixerIn,
-+            YggdrasilAuthenticationService authServiceIn, MinecraftSessionService sessionServiceIn,
-+            GameProfileRepository profileRepoIn, PlayerProfileCache profileCacheIn) {
++        YggdrasilAuthenticationService authServiceIn, MinecraftSessionService sessionServiceIn,
++        GameProfileRepository profileRepoIn, PlayerProfileCache profileCacheIn) {
 +        instance = this;
          this.serverProxy = proxyIn;
          this.authService = authServiceIn;
@@ -228,11 +228,11 @@
 +            }
 +            catch (IOException ex) {
 +                MinecraftServer.LOGGER.warn((String)null, (Throwable)ex);
-+        }
++            }
 +        }
 +        Runtime.getRuntime().addShutdownHook(new ServerShutdownThread(this));
 +        this.serverThread = primaryThread = new Thread(net.minecraftforge.fml.common.thread.SidedThreadGroups.SERVER,
-+                this, "Server thread"); // Moved from main
++            this, "Server thread"); // Moved from main
      }
  
 -    public ServerCommandManager createCommandManager()
@@ -408,7 +408,7 @@
 +                    Item item = entry.getValue();
 +                    if(!key.getResourceDomain().equals("minecraft")) {
 +                        String materialName = key.toString().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
-+                        Material material = Material.addMaterial(Item.getIdFromItem(item), item.getItemStackLimit(), materialName);
++                        Material material = Material.addMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE, Integer.TYPE}, new Object[]{Item.getIdFromItem(item), item.getItemStackLimit()}));
 +                        if(MagmaConfig.instance.debugPrintBukkitMatterials.getValues()){
 +                            if (material != null) {
 +                                MinecraftServer.LOGGER.info(String.format("Injected new Forge item material %s with ID %d.", material.name(), material.getId()));
@@ -421,13 +421,16 @@
 -                else
 -                {
 -                    this.worlds[i] = (WorldServer)(new WorldServer(this, isavehandler, worldinfo, j, this.profiler)).init();
-+
++                for (Material material : Material.values()) {
++                    if (material.getId() < 256)
++                        Material.addBlockMaterial(material);
+                 }
 +                for (Map.Entry<ResourceLocation, Block> entry : ForgeRegistries.BLOCKS.getEntries()) {
 +                    ResourceLocation key = entry.getKey();
 +                    Block block = entry.getValue();
 +                    if(!key.getResourceDomain().equals("minecraft")) {
 +                        String materialName = key.toString().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
-+                        Material material = Material.addMaterial(Block.getIdFromBlock(block), materialName);
++                        Material material = Material.addBlockMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE}, new Object[]{Block.getIdFromBlock(block)}));
 +                        if(MagmaConfig.instance.debugPrintBukkitMatterials.getValues()) {
 +                            if (material != null) {
 +                                MinecraftServer.LOGGER.info(String.format("Injected new Forge block material %s with ID %d.", material.name(), material.getId()));
@@ -436,9 +439,7 @@
 +                            }
 +                        }
 +                    }
-                 }
-+                Map<String, EntityType> NAME_MAP = ReflectionHelper.getPrivateValue(EntityType.class, null, "NAME_MAP");
-+                Map<Short, EntityType> ID_MAP = ReflectionHelper.getPrivateValue(EntityType.class, null, "ID_MAP");
++                }
  
 -                this.worlds[i].initialize(worldsettings);
 -            }
@@ -446,13 +447,13 @@
 -            {
 -                this.worlds[i] = (WorldServer)(new WorldServerMulti(this, isavehandler, j, this.worlds[0], this.profiler)).init();
 -            }
++                Map<String, EntityType> NAME_MAP = ReflectionHelper.getPrivateValue(EntityType.class, null, "NAME_MAP");
++                Map<Short, EntityType> ID_MAP = ReflectionHelper.getPrivateValue(EntityType.class, null, "ID_MAP");
+ 
+-            this.worlds[i].addEventListener(new ServerWorldEventHandler(this, this.worlds[i]));
 +                for (Map.Entry<String, Class<? extends Entity>> entity : EntityRegistry.entityClassMap.entrySet()) {
 +                    String entityname = entity.getKey();
 +                    String entityType = entityname.replace("-", "_").toUpperCase();
- 
--            this.worlds[i].addEventListener(new ServerWorldEventHandler(this, this.worlds[i]));
-+                    int typeId = GameData.getEntityRegistry().getID(EntityRegistry.getEntry(entity.getValue()));
-+                    EntityType bukkitType = EnumHelper.addEnum(EntityType.class, entityType, new Class[] { String.class, Class.class, Integer.TYPE, Boolean.TYPE }, new Object[] { entityname, CraftCustomEntity.class, typeId, false });
  
 -            if (!this.isSinglePlayer())
 -            {
@@ -460,6 +461,14 @@
 -            }
 -        }
 -        } //Forge: End dead code
++                    int typeId = GameData.getEntityRegistry().getID(EntityRegistry.getEntry(entity.getValue()));
++                    EntityType bukkitType = EnumHelper.addEnum(EntityType.class, entityType, new Class[] { String.class, Class.class, Integer.TYPE, Boolean.TYPE }, new Object[] { entityname, CraftCustomEntity.class, typeId, false });
+ 
+-        WorldServer overWorld = (WorldServer)(isDemo() ? new WorldServerDemo(this, isavehandler, worldinfo, 0, profiler).init() : new WorldServer(this, isavehandler, worldinfo, 0, profiler).init());
+-        overWorld.initialize(worldsettings);
+-        for (int dim : net.minecraftforge.common.DimensionManager.getStaticDimensionIDs())
+-        {
+-            WorldServer world = (dim == 0 ? overWorld : (WorldServer)new WorldServerMulti(this, isavehandler, dim, overWorld, profiler).init());
 +                    NAME_MAP.put(entityname.toLowerCase(), bukkitType);
 +                    ID_MAP.put((short)typeId, bukkitType);
 +                }
@@ -483,12 +492,7 @@
 +                } else {
 +                    world = (WorldServer) (new WorldServer(this, idatamanager, worlddata, dim, this.profiler, worldEnvironment, gen)).init();
 +                }
- 
--        WorldServer overWorld = (WorldServer)(isDemo() ? new WorldServerDemo(this, isavehandler, worldinfo, 0, profiler).init() : new WorldServer(this, isavehandler, worldinfo, 0, profiler).init());
--        overWorld.initialize(worldsettings);
--        for (int dim : net.minecraftforge.common.DimensionManager.getStaticDimensionIDs())
--        {
--            WorldServer world = (dim == 0 ? overWorld : (WorldServer)new WorldServerMulti(this, isavehandler, dim, overWorld, profiler).init());
++
 +                world.initialize(worldsettings);
 +                this.server.scoreboardManager = new CraftScoreboardManager(this, world.getScoreboard());
 +            } else {
@@ -526,7 +530,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +431,51 @@
+@@ -323,45 +435,51 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -569,7 +573,7 @@
 +                    }
 +                    ++i;
 +                    worldserver.getChunkProvider().provideChunk(blockposition.getX() + l1 >> 4,
-+                            blockposition.getZ() + i2 >> 4);
++                        blockposition.getZ() + i2 >> 4);
 +                }
              }
          }
@@ -594,7 +598,7 @@
 +        if (file1.isFile()) {
 +            try {
 +                this.setResourcePack("level://" + URLEncoder.encode(worldNameIn, StandardCharsets.UTF_8.toString())
-+                        + "/" + "resources.zip", "");
++                    + "/" + "resources.zip", "");
 +            } catch (UnsupportedEncodingException var5) {
 +                LOGGER.warn("Something went wrong url encoding {}", (Object) worldNameIn);
              }
@@ -605,7 +609,7 @@
          }
      }
  
-@@ -379,73 +493,79 @@
+@@ -379,73 +497,79 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -639,7 +643,7 @@
 +            if (worldserver != null) {
 +                if (!isSilent) {
 +                    LOGGER.info("Saving chunks for level '{}'/{}", worldserver.getWorldInfo().getWorldName(),
-+                            worldserver.provider.getDimensionType().getName());
++                        worldserver.provider.getDimensionType().getName());
                  }
  
 -                try
@@ -717,7 +721,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +573,214 @@
+@@ -453,159 +577,214 @@
                      worldserver1.flush();
                  }
              }
@@ -778,33 +782,33 @@
 +        private final double[] samples;
 +        private final long[] times;
 +
-+              RollingAverage(int size) {
-+                  this.size = size;
-+                  this.time = size * SEC_IN_NANO;
-+                  this.total = TPS * SEC_IN_NANO * size;
-+                  this.samples = new double[size];
-+                  this.times = new long[size];
-+                  for (int i = 0; i < size; i++) {
-+                          this.samples[i] = TPS;
-+                          this.times[i] = SEC_IN_NANO;
-+                      }
-+              }
++        RollingAverage(int size) {
++            this.size = size;
++            this.time = size * SEC_IN_NANO;
++            this.total = TPS * SEC_IN_NANO * size;
++            this.samples = new double[size];
++            this.times = new long[size];
++            for (int i = 0; i < size; i++) {
++                this.samples[i] = TPS;
++                this.times[i] = SEC_IN_NANO;
++            }
++        }
 +
-+              public void add(double x, long t) {
-+                  time -= times[index];
-+                  total -= samples[index] * times[index];
-+                  samples[index] = x;
-+                  times[index] = t;
-+                  time += t;
-+                  total += x * t;
-+                  if (++index == size) {
-+                          index = 0;
-+                      }
-+              }
++        public void add(double x, long t) {
++            time -= times[index];
++            total -= samples[index] * times[index];
++            samples[index] = x;
++            times[index] = t;
++            time += t;
++            total += x * t;
++            if (++index == size) {
++                index = 0;
++            }
++        }
 +
-+              public double getAverage() {
-+                  return total / time;
-+              }
++        public double getAverage() {
++            return total / time;
++        }
 +    }
 +
      public void run()
@@ -842,7 +846,7 @@
 +                        } else if (wait < catchupTime) {
 +                            catchupTime -= wait;
 +                            wait = 0;
-+                    } else {
++                        } else {
 +                            wait -= catchupTime;
 +                            catchupTime = 0;
 +                        }
@@ -889,7 +893,7 @@
 +                    lastTick = curTime;
  
 -                    Thread.sleep(Math.max(1L, 50L - i));
-+                            this.tick();
++                    this.tick();
                      this.serverIsRunning = true;
                  }
 -                net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStopping();
@@ -932,7 +936,7 @@
  
 -            File file1 = new File(new File(this.getDataDirectory(), "crash-reports"), "crash-" + (new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss")).format(new Date()) + "-server.txt");
 +            File file1 = new File(new File(this.getDataDirectory(), "crash-reports"),
-+                    "crash-" + (new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss")).format(new Date()) + "-server.txt");
++                "crash-" + (new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss")).format(new Date()) + "-server.txt");
  
 -            if (crashreport.saveToFile(file1))
 -            {
@@ -961,7 +965,6 @@
 -            {
 +            } catch (Throwable throwable) {
                  LOGGER.error("Exception stopping the server", throwable);
--            }
 +                FMLCommonHandler.instance().handleServerStopped();
 +                this.serverStopped = true;
 +                try {
@@ -969,7 +972,7 @@
 +                }
 +                catch (Exception ex) {}
 +                this.systemExitNow();
-+                }
+             }
              finally
              {
 -                net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStopped();
@@ -1006,7 +1009,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +788,44 @@
+@@ -613,52 +792,44 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1071,7 +1074,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +834,15 @@
+@@ -667,16 +838,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1081,7 +1084,7 @@
              this.nanoTimeSinceStatusRefresh = i;
 -            this.statusResponse.setPlayers(new ServerStatusResponse.Players(this.getMaxPlayers(), this.getCurrentPlayerCount()));
 +            this.statusResponse
-+                    .setPlayers(new ServerStatusResponse.Players(this.getMaxPlayers(), this.getCurrentPlayerCount()));
++                .setPlayers(new ServerStatusResponse.Players(this.getMaxPlayers(), this.getCurrentPlayerCount()));
              GameProfile[] agameprofile = new GameProfile[Math.min(this.getCurrentPlayerCount(), 12)];
              int j = MathHelper.getInt(this.random, 0, this.getCurrentPlayerCount() - agameprofile.length);
  
@@ -1093,7 +1096,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,143 +850,175 @@
+@@ -684,143 +854,175 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1150,13 +1153,13 @@
 -            while (!this.futureTaskQueue.isEmpty())
 -            {
 -                Util.runTask(this.futureTaskQueue.poll(), LOGGER);
+-            }
 +        // Spigot start
 +        FutureTask<?> entry;
 +        int count = this.futureTaskQueue.size();
 +        while (count-- > 0 && (entry = this.futureTaskQueue.poll()) != null) {
 +            Util.runTask(entry, MinecraftServer.LOGGER);
-             }
--        }
+         }
 +        // Spigot end
  
          this.profiler.endStartSection("levels");
@@ -1178,7 +1181,7 @@
 +            for (int i = 0; i < this.getPlayerList().getPlayers().size(); ++i) {
 +                EntityPlayerMP entityplayer = (EntityPlayerMP) this.getPlayerList().getPlayers().get(i);
 +                entityplayer.connection.sendPacket(new SPacketTimeUpdate(entityplayer.world.getTotalWorldTime(),
-+                        entityplayer.getPlayerTime(), entityplayer.world.getGameRules().getBoolean("doDaylightCycle"))); // Add support for per player time
++                    entityplayer.getPlayerTime(), entityplayer.world.getGameRules().getBoolean("doDaylightCycle"))); // Add support for per player time
 +            }
 +        }
 +        SpigotTimings.timeUpdateTimer.stopTiming(); // Spigot
@@ -1216,32 +1219,36 @@
  
 -                this.profiler.startSection("tick");
 -                net.minecraftforge.fml.common.FMLCommonHandler.instance().onPreWorldTick(worldserver);
--
-                 try
-                 {
-+                    worldserver.timings.doTick.startTiming(); // Spigot
-                     worldserver.tick();
-+                    worldserver.timings.doTick.stopTiming(); // Spigot
-                 }
-                 catch (Throwable throwable1)
-                 {
--                    CrashReport crashreport = CrashReport.makeCrashReport(throwable1, "Exception ticking world");
--                    worldserver.addWorldInfoToCrashReport(crashreport);
--                    throw new ReportedException(crashreport);
--                }
++            try
++            {
++                worldserver.timings.doTick.startTiming(); // Spigot
++                worldserver.tick();
++                worldserver.timings.doTick.stopTiming(); // Spigot
++            }
++            catch (Throwable throwable1)
++            {
 +                CrashReport crashreport = CrashReport.makeCrashReport(throwable1, "Exception ticking world");
 +                worldserver.addWorldInfoToCrashReport(crashreport);
 +                throw new ReportedException(crashreport);
 +            }
  
-                 try
-                 {
-+                    worldserver.timings.tickEntities.startTiming(); // Spigot
-                     worldserver.updateEntities();
-+                    worldserver.timings.tickEntities.stopTiming(); // Spigot
-                 }
-                 catch (Throwable throwable)
-                 {
+-                try
+-                {
+-                    worldserver.tick();
+-                }
+-                catch (Throwable throwable1)
+-                {
+-                    CrashReport crashreport = CrashReport.makeCrashReport(throwable1, "Exception ticking world");
+-                    worldserver.addWorldInfoToCrashReport(crashreport);
+-                    throw new ReportedException(crashreport);
+-                }
+-
+-                try
+-                {
+-                    worldserver.updateEntities();
+-                }
+-                catch (Throwable throwable)
+-                {
 -                    CrashReport crashreport1 = CrashReport.makeCrashReport(throwable, "Exception ticking world entities");
 -                    worldserver.addWorldInfoToCrashReport(crashreport1);
 -                    throw new ReportedException(crashreport1);
@@ -1253,12 +1260,19 @@
 -                worldserver.getEntityTracker().tick();
 -                this.profiler.endSection();
 -                this.profiler.endSection();
++            try
++            {
++                worldserver.timings.tickEntities.startTiming(); // Spigot
++                worldserver.updateEntities();
++                worldserver.timings.tickEntities.stopTiming(); // Spigot
+             }
++            catch (Throwable throwable)
++            {
 +                CrashReport crashreport1 = CrashReport.makeCrashReport(throwable, "Exception ticking world entities");
 +                worldserver.addWorldInfoToCrashReport(crashreport1);
 +                throw new ReportedException(crashreport1);
-             }
++            }
  
--            worldTickTimes.get(id)[this.tickCounter % 100] = System.nanoTime() - i;
 +            net.minecraftforge.fml.common.FMLCommonHandler.instance().onPostWorldTick(worldserver);
 +            this.profiler.endSection();
 +            this.profiler.startSection("tracker");
@@ -1267,9 +1281,9 @@
 +            worldserver.timings.tracker.stopTiming(); // Spigot
 +            this.profiler.endSection();
 +            this.profiler.endSection();
-+                worldserver.explosionDensityCache.clear(); // Paper - Optimize explosions
++            worldserver.explosionDensityCache.clear(); // Paper - Optimize explosions
 +
-+                worldTickTimes.get(id)[this.tickCounter % 100] = System.nanoTime() - i;
+             worldTickTimes.get(id)[this.tickCounter % 100] = System.nanoTime() - i;
          }
  
          this.profiler.endStartSection("dim_unloading");
@@ -1328,7 +1342,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1033,51 @@
+@@ -835,53 +1037,51 @@
          return ret;
      }
  
@@ -1385,8 +1399,8 @@
 +        report.getCategory().addDetail("Profiler Position", new ICrashReportDetail<String>() {
 +            public String call() throws Exception {
 +                return MinecraftServer.this.profiler.profilingEnabled
-+                        ? MinecraftServer.this.profiler.getNameOfLastSection()
-+                        : "N/A (disabled)";
++                    ? MinecraftServer.this.profiler.getNameOfLastSection()
++                    : "N/A (disabled)";
              }
          });
  
@@ -1401,12 +1415,12 @@
 +            report.getCategory().addDetail("Player Count", new ICrashReportDetail<String>() {
 +                public String call() {
 +                    return MinecraftServer.this.playerList.getCurrentPlayerCount() + " / "
-+                            + MinecraftServer.this.playerList.getMaxPlayers() + "; "
-+                            + MinecraftServer.this.playerList.getPlayers();
++                        + MinecraftServer.this.playerList.getMaxPlayers() + "; "
++                        + MinecraftServer.this.playerList.getPlayers();
                  }
              });
          }
-@@ -889,145 +1085,115 @@
+@@ -889,145 +1089,115 @@
          return report;
      }
  
@@ -1414,7 +1428,7 @@
 -    {
 -        List<String> list = Lists.<String>newArrayList();
 +    public List<String> getTabCompletions(ICommandSender sender, String input, @Nullable BlockPos pos,
-+            boolean hasTargetBlock) {
++        boolean hasTargetBlock) {
 +        Set<String> completionsSet = Sets.newHashSet(server.tabComplete(sender, input, pos, hasTargetBlock));
          boolean flag = input.startsWith("/");
  
@@ -1596,7 +1610,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1201,75 @@
+@@ -1035,80 +1205,75 @@
          }
      }
  
@@ -1662,7 +1676,7 @@
              playerSnooper.addClientStat("players_max", Integer.valueOf(this.getMaxPlayers()));
 -            playerSnooper.addClientStat("players_seen", Integer.valueOf(this.playerList.getAvailablePlayerDat().length));
 +            playerSnooper.addClientStat("players_seen",
-+                    Integer.valueOf(this.playerList.getAvailablePlayerDat().length));
++                Integer.valueOf(this.playerList.getAvailablePlayerDat().length));
          }
  
          playerSnooper.addClientStat("uses_auth", Boolean.valueOf(this.onlineMode));
@@ -1670,9 +1684,9 @@
 -        playerSnooper.addClientStat("run_time", Long.valueOf((getCurrentTimeMillis() - playerSnooper.getMinecraftStartTimeMillis()) / 60L * 1000L));
 -        playerSnooper.addClientStat("avg_tick_ms", Integer.valueOf((int)(MathHelper.average(this.tickTimeArray) * 1.0E-6D)));
 +        playerSnooper.addClientStat("run_time",
-+                Long.valueOf((getCurrentTimeMillis() - playerSnooper.getMinecraftStartTimeMillis()) / 60L * 1000L));
++            Long.valueOf((getCurrentTimeMillis() - playerSnooper.getMinecraftStartTimeMillis()) / 60L * 1000L));
 +        playerSnooper.addClientStat("avg_tick_ms",
-+                Integer.valueOf((int) (MathHelper.average(this.tickTimeArray) * 1.0E-6D)));
++            Integer.valueOf((int) (MathHelper.average(this.tickTimeArray) * 1.0E-6D)));
          int l = 0;
  
 -        if (this.worlds != null)
@@ -1687,26 +1701,26 @@
                      WorldInfo worldinfo = worldserver1.getWorldInfo();
 -                    playerSnooper.addClientStat("world[" + l + "][dimension]", Integer.valueOf(worldserver1.provider.getDimensionType().getId()));
 +                    playerSnooper.addClientStat("world[" + l + "][dimension]",
-+                            Integer.valueOf(worldserver1.provider.getDimensionType().getId()));
++                        Integer.valueOf(worldserver1.provider.getDimensionType().getId()));
                      playerSnooper.addClientStat("world[" + l + "][mode]", worldinfo.getGameType());
                      playerSnooper.addClientStat("world[" + l + "][difficulty]", worldserver1.getDifficulty());
 -                    playerSnooper.addClientStat("world[" + l + "][hardcore]", Boolean.valueOf(worldinfo.isHardcoreModeEnabled()));
 -                    playerSnooper.addClientStat("world[" + l + "][generator_name]", worldinfo.getTerrainType().getName());
 -                    playerSnooper.addClientStat("world[" + l + "][generator_version]", Integer.valueOf(worldinfo.getTerrainType().getVersion()));
 +                    playerSnooper.addClientStat("world[" + l + "][hardcore]",
-+                            Boolean.valueOf(worldinfo.isHardcoreModeEnabled()));
++                        Boolean.valueOf(worldinfo.isHardcoreModeEnabled()));
 +                    playerSnooper.addClientStat("world[" + l + "][generator_name]",
-+                            worldinfo.getTerrainType().getName());
++                        worldinfo.getTerrainType().getName());
 +                    playerSnooper.addClientStat("world[" + l + "][generator_version]",
-+                            Integer.valueOf(worldinfo.getTerrainType().getVersion()));
++                        Integer.valueOf(worldinfo.getTerrainType().getVersion()));
                      playerSnooper.addClientStat("world[" + l + "][height]", Integer.valueOf(this.buildLimit));
 -                    playerSnooper.addClientStat("world[" + l + "][chunks_loaded]", Integer.valueOf(worldserver1.getChunkProvider().getLoadedChunkCount()));
 +                    playerSnooper.addClientStat("world[" + l + "][chunks_loaded]",
-+                            Integer.valueOf(worldserver1.getChunkProvider().getLoadedChunkCount()));
++                        Integer.valueOf(worldserver1.getChunkProvider().getLoadedChunkCount()));
                      ++l;
                  }
              }
-@@ -1117,228 +1278,193 @@
+@@ -1117,228 +1282,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -1989,7 +2003,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1473,219 @@
+@@ -1347,316 +1477,219 @@
          return null;
      }
  
@@ -2010,7 +2024,7 @@
 -    public int getMaxWorldSize()
 -    {
 +    public static MinecraftServer getServerInstance() {
-+         return instance;
++        return instance;
 +    }
 +
 +    // Magma NMS
@@ -2042,12 +2056,14 @@
  
 -            synchronized (this.futureTaskQueue)
 -            {
+-                this.futureTaskQueue.add(listenablefuturetask);
+-                return listenablefuturetask;
+-            }
 +            // Spigot start
-                 this.futureTaskQueue.add(listenablefuturetask);
-                 return listenablefuturetask;
++            this.futureTaskQueue.add(listenablefuturetask);
++            return listenablefuturetask;
 +            // Spigot end
-             }
--        }
+         }
          else
          {
 -            try
@@ -2163,16 +2179,24 @@
 -
          Bootstrap.register();
 -
--        try
--        {
+         try
+         {
 -            boolean flag = true;
 -            String s = null;
--            String s1 = ".";
+             String s1 = ".";
 -            String s2 = null;
 -            boolean flag1 = false;
 -            boolean flag2 = false;
 -            int l = -1;
--
++            YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString()); // Paper
++            MinecraftSessionService minecraftsessionservice = yggdrasilauthenticationservice
++                .createMinecraftSessionService();
++            GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
++            PlayerProfileCache playerprofilecache = new PlayerProfileCache(gameprofilerepository,
++                new File(s1, USER_CACHE_FILE.getName()));
++            final DedicatedServer dedicatedserver = new DedicatedServer(options, DataFixesManager.createFixer(),
++                yggdrasilauthenticationservice, minecraftsessionservice, gameprofilerepository, playerprofilecache);
+ 
 -            for (int i1 = 0; i1 < p_main_0_.length; ++i1)
 -            {
 -                String s3 = p_main_0_[i1];
@@ -2185,8 +2209,8 @@
 -                    {
 -                        flag3 = true;
 -
-                         try
-                         {
+-                        try
+-                        {
 -                            l = Integer.parseInt(s4);
 -                        }
 -                        catch (NumberFormatException var13)
@@ -2217,29 +2241,20 @@
 -                    {
 -                        flag2 = true;
 -                    }
--                }
--                else
--                {
--                    flag = false;
--                }
-+            String s1 = ".";
-+            YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString()); // Paper
-+            MinecraftSessionService minecraftsessionservice = yggdrasilauthenticationservice
-+                    .createMinecraftSessionService();
-+            GameProfileRepository gameprofilerepository = yggdrasilauthenticationservice.createProfileRepository();
-+            PlayerProfileCache playerprofilecache = new PlayerProfileCache(gameprofilerepository,
-+                    new File(s1, USER_CACHE_FILE.getName()));
-+            final DedicatedServer dedicatedserver = new DedicatedServer(options, DataFixesManager.createFixer(),
-+                    yggdrasilauthenticationservice, minecraftsessionservice, gameprofilerepository, playerprofilecache);
- 
--                if (flag3)
--                {
--                    ++i1;
 +            if (options.has("port")) {
 +                int port = (Integer) options.valueOf("port");
 +                if (port > 0) {
 +                    dedicatedserver.setServerPort(port);
                  }
+-                else
+-                {
+-                    flag = false;
+-                }
+-
+-                if (flag3)
+-                {
+-                    ++i1;
+-                }
              }
  
 -            YggdrasilAuthenticationService yggdrasilauthenticationservice = new YggdrasilAuthenticationService(Proxy.NO_PROXY, UUID.randomUUID().toString());
