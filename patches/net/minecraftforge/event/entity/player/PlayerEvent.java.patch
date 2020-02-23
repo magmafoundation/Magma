@@ -1,0 +1,36 @@
+--- ../src-base/minecraft/net/minecraftforge/event/entity/player/PlayerEvent.java
++++ ../src-work/minecraft/net/minecraftforge/event/entity/player/PlayerEvent.java
+@@ -20,17 +20,16 @@
+ package net.minecraftforge.event.entity.player;
+ 
+ import java.io.File;
+-
+-import net.minecraftforge.common.MinecraftForge;
+-import net.minecraftforge.event.ForgeEventFactory;
+-import net.minecraftforge.fml.common.eventhandler.Cancelable;
+-import net.minecraft.block.Block;
+ import net.minecraft.block.state.IBlockState;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.util.math.BlockPos;
++import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.event.ForgeEventFactory;
+ import net.minecraftforge.event.entity.living.LivingEvent;
++import net.minecraftforge.fml.common.eventhandler.Cancelable;
+ import net.minecraftforge.fml.common.eventhandler.Event;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+ 
+ /**
+  * PlayerEvent is fired whenever an event involving Living entities occurs. <br>
+@@ -154,6 +153,11 @@
+             super(player);
+             this.username = username;
+             this.setDisplayname(username);
++            CraftPlayer cplayer = (CraftPlayer) player.getBukkitEntity();
++            String displayName = cplayer.getDisplayName();
++            if(displayName != null) {
++                displayname = displayName;
++            }
+         }
+ 
+         public String getUsername()

@@ -356,11 +356,11 @@
 -                                targetEntity.setFire(j * 4);
 +                                // targetEntity.setFire(j * 4);
 +                                // CraftBukkit start - Call a combust event when somebody hits with a fire enchanted item
-+                                EntityCombustByEntityEvent combustEvent = new EntityCombustByEntityEvent(this.getBukkitEntity(), entity.getBukkitEntity(), j * 4);
++                                EntityCombustByEntityEvent combustEvent = new EntityCombustByEntityEvent(this.getBukkitEntity(), targetEntity.getBukkitEntity(), j * 4);
 +                                org.bukkit.Bukkit.getPluginManager().callEvent(combustEvent);
 +
 +                                if (!combustEvent.isCancelled()) {
-+                                    entity.setFire(combustEvent.getDuration());
++                                    targetEntity.setFire(combustEvent.getDuration());
 +                                }
 +                                // CraftBukkit end
                              }

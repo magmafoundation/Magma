@@ -31,9 +31,9 @@
  
              FMLHandshakeMessage.ModList client = (FMLHandshakeMessage.ModList)msg;
              NetworkDispatcher dispatcher = ctx.channel().attr(NetworkDispatcher.FML_DISPATCHER).get();
-+            if(MagmaConfig.instance.blacklistedModsEnable.getValues()){
-+                if(!MagmaConfig.instance.blacklistedMods.getValues().equals("") && client.modListAsString().contains(MagmaConfig.instance.blacklistedMods.getValues())){
-+                    dispatcher.kickWithMessage(MagmaConfig.instance.blacklistedModsKickMessage.getValues());
++            if(Magma.getInstance().getMagmaConfig().blacklistedModsEnable.getValues()){
++                if(!Magma.getInstance().getMagmaConfig().blacklistedMods.getValues().equals("") && client.modListAsString().contains(Magma.getInstance().getMagmaConfig().blacklistedMods.getValues())){
++                    dispatcher.kickWithMessage(Magma.getInstance().getMagmaConfig().blacklistedModsKickMessage.getValues());
 +                    return;
 +                }
 +            }

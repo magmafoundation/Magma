@@ -1,5 +1,6 @@
 package org.magmafoundation.magma.configuration.value.values;
 
+import java.util.Arrays;
 import org.magmafoundation.magma.configuration.ConfigBase;
 
 import java.util.ArrayList;
@@ -24,12 +25,7 @@ public class StringArrayValue extends ArrayValue<String> {
         this.valueArray = new ArrayList<String>(vals.length);
         this.valueSet = new HashSet<String>(vals.length);
 
-        for (String val : vals) {
-            if (val.length() == 0) {
-                continue;
-            }
-            this.valueArray.add(val);
-        }
+        Arrays.stream(vals).filter(val -> val.length() != 0).forEach(val -> this.valueArray.add(val));
         this.valueSet.addAll(this.valueArray);
     }
 }
