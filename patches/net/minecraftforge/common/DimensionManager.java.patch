@@ -68,7 +68,15 @@
              worlds.remove(id);
              server.worldTickTimes.remove(id);
              FMLLog.log.info("Unloading dimension {}", id);
-@@ -258,11 +274,40 @@
+@@ -242,6 +258,7 @@
+ 
+     public static void initDimension(int dim)
+     {
++        if (dim == 0) return;
+         WorldServer overworld = getWorld(0);
+         if (overworld == null)
+         {
+@@ -258,11 +275,41 @@
          }
          MinecraftServer mcServer = overworld.getMinecraftServer();
          ISaveHandler savehandler = overworld.getSaveHandler();
@@ -95,6 +103,7 @@
 +            }
 +
 +            name = provider.getSaveFolder();
++            if (name == null) name = "DIM0";
 +        }
 +
 +        ChunkGenerator generator = mcServer.server.getGenerator(name);
@@ -111,7 +120,17 @@
          if (!mcServer.isSinglePlayer())
          {
              world.getWorldInfo().setGameType(mcServer.getGameType());
-@@ -390,20 +435,7 @@
+@@ -343,7 +390,8 @@
+         return ForgeChunkManager.getPersistentChunksFor(world).isEmpty()
+                 && world.playerEntities.isEmpty()
+                 && !world.provider.getDimensionType().shouldLoadSpawn()
+-                && !keepLoaded.contains(world.provider.getDimension());
++                && !keepLoaded.contains(world.provider.getDimension())
++                && world.getWorld().getKeepSpawnInMemory();
+     }
+ 
+     /**
+@@ -390,20 +438,7 @@
                  FMLLog.log.debug("Aborting unload for dimension {} as status changed", id);
                  continue;
              }
@@ -133,7 +152,7 @@
          }
      }
  
-@@ -499,4 +531,100 @@
+@@ -499,4 +534,100 @@
              return null;
          }
      }

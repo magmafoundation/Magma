@@ -8,10 +8,11 @@
  import javax.annotation.Nullable;
  import net.minecraft.entity.item.EntityItemFrame;
  import net.minecraft.entity.player.EntityPlayer;
-@@ -15,6 +16,11 @@
+@@ -15,6 +16,12 @@
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.MathHelper;
  import net.minecraft.world.World;
++import org.apache.commons.io.Charsets;
 +import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 +import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 +import org.bukkit.craftbukkit.v1_12_R1.map.CraftMapView;
@@ -20,15 +21,16 @@
  
  public class MapData extends WorldSavedData
  {
-@@ -25,13 +31,19 @@
+@@ -25,13 +32,19 @@
      public boolean unlimitedTracking;
      public byte scale;
      public byte[] colors = new byte[16384];
 -    public List<MapData.MapInfo> playersArrayList = Lists.<MapData.MapInfo>newArrayList();
 -    private final Map<EntityPlayer, MapData.MapInfo> playersHashMap = Maps.<EntityPlayer, MapData.MapInfo>newHashMap();
+-    public Map<String, MapDecoration> mapDecorations = Maps.<String, MapDecoration>newLinkedHashMap();
 +    public List<MapInfo> playersArrayList = Lists.<MapInfo>newArrayList();
-+    private final Map<EntityPlayer, MapInfo> playersHashMap = Maps.<EntityPlayer, MapInfo>newHashMap();
-     public Map<String, MapDecoration> mapDecorations = Maps.<String, MapDecoration>newLinkedHashMap();
++    public final Map<EntityPlayer, MapInfo> playersHashMap = Maps.newHashMap(); // Spigot private -> public
++    public Map<UUID, MapDecoration> mapDecorations = Maps.newLinkedHashMap(); // Spigot
  
 +    public final CraftMapView mapView;
 +    private CraftServer server;
@@ -42,7 +44,7 @@
      }
  
      public void calculateMapCenter(double x, double z, int mapScale)
-@@ -45,7 +57,31 @@
+@@ -45,7 +58,31 @@
  
      public void readFromNBT(NBTTagCompound nbt)
      {
@@ -75,7 +77,7 @@
          this.xCenter = nbt.getInteger("xCenter");
          this.zCenter = nbt.getInteger("zCenter");
          this.scale = nbt.getByte("scale");
-@@ -97,6 +133,25 @@
+@@ -97,6 +134,25 @@
  
      public NBTTagCompound writeToNBT(NBTTagCompound compound)
      {
@@ -101,7 +103,7 @@
          compound.setInteger("dimension", this.dimension);
          compound.setInteger("xCenter", this.xCenter);
          compound.setInteger("zCenter", this.zCenter);
-@@ -113,7 +168,7 @@
+@@ -113,25 +169,25 @@
      {
          if (!this.playersHashMap.containsKey(player))
          {
@@ -110,7 +112,12 @@
              this.playersHashMap.put(player, mapdata$mapinfo);
              this.playersArrayList.add(mapdata$mapinfo);
          }
-@@ -125,7 +180,7 @@
+ 
+         if (!player.inventory.hasItemStack(mapStack))
+         {
+-            this.mapDecorations.remove(player.getName());
++            this.mapDecorations.remove(player.getUniqueID()); // Spigot
+         }
  
          for (int i = 0; i < this.playersArrayList.size(); ++i)
          {
@@ -119,7 +126,47 @@
  
              if (!mapdata$mapinfo1.player.isDead && (mapdata$mapinfo1.player.inventory.hasItemStack(mapStack) || mapStack.isOnItemFrame()))
              {
-@@ -268,7 +323,7 @@
+                 if (!mapStack.isOnItemFrame() && mapdata$mapinfo1.player.dimension == this.dimension && this.trackingPosition)
+                 {
+-                    this.updateDecorations(MapDecoration.Type.PLAYER, mapdata$mapinfo1.player.world, mapdata$mapinfo1.player.getName(), mapdata$mapinfo1.player.posX, mapdata$mapinfo1.player.posZ, (double)mapdata$mapinfo1.player.rotationYaw);
++                    this.updateDecorations(MapDecoration.Type.PLAYER, mapdata$mapinfo1.player.world, mapdata$mapinfo1.player.getUniqueID(), mapdata$mapinfo1.player.posX, mapdata$mapinfo1.player.posZ, (double)mapdata$mapinfo1.player.rotationYaw);
+                 }
+             }
+             else
+@@ -145,7 +201,7 @@
+         {
+             EntityItemFrame entityitemframe = mapStack.getItemFrame();
+             BlockPos blockpos = entityitemframe.getHangingPosition();
+-            this.updateDecorations(MapDecoration.Type.FRAME, player.world, "frame-" + entityitemframe.getEntityId(), (double)blockpos.getX(), (double)blockpos.getZ(), (double)(entityitemframe.facingDirection.getHorizontalIndex() * 90));
++            this.updateDecorations(MapDecoration.Type.FRAME, player.world, UUID.nameUUIDFromBytes(("frame-" + entityitemframe.getEntityId()).getBytes(Charsets.UTF_8)), (double)blockpos.getX(), (double)blockpos.getZ(), (double)(entityitemframe.facingDirection.getHorizontalIndex() * 90));
+         }
+ 
+         if (mapStack.hasTagCompound() && mapStack.getTagCompound().hasKey("Decorations", 9))
+@@ -155,10 +211,11 @@
+             for (int j = 0; j < nbttaglist.tagCount(); ++j)
+             {
+                 NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(j);
+-
+-                if (!this.mapDecorations.containsKey(nbttagcompound.getString("id")))
++                // Spigot - start
++                UUID uuid = UUID.nameUUIDFromBytes(nbttagcompound.getString("id").getBytes(Charsets.UTF_8));
++                if (!this.mapDecorations.containsKey(uuid))
+                 {
+-                    this.updateDecorations(MapDecoration.Type.byIcon(nbttagcompound.getByte("type")), player.world, nbttagcompound.getString("id"), nbttagcompound.getDouble("x"), nbttagcompound.getDouble("z"), nbttagcompound.getDouble("rot"));
++                    this.updateDecorations(MapDecoration.Type.byIcon(nbttagcompound.getByte("type")), player.world, uuid, nbttagcompound.getDouble("x"), nbttagcompound.getDouble("z"), nbttagcompound.getDouble("rot"));
+                 }
+             }
+         }
+@@ -193,7 +250,7 @@
+         }
+     }
+ 
+-    private void updateDecorations(MapDecoration.Type type, World worldIn, String decorationName, double worldX, double worldZ, double rotationIn)
++    private void updateDecorations(MapDecoration.Type type, World worldIn, UUID decorationName, double worldX, double worldZ, double rotationIn) // Spigot; string->uuid
+     {
+         int i = 1 << this.scale;
+         float f = (float)(worldX - (double)this.xCenter) / (float)i;
+@@ -268,7 +325,7 @@
      @Nullable
      public Packet<?> getMapPacket(ItemStack mapStack, World worldIn, EntityPlayer player)
      {
@@ -128,7 +175,7 @@
          return mapdata$mapinfo == null ? null : mapdata$mapinfo.getPacket(mapStack);
      }
  
-@@ -276,19 +331,19 @@
+@@ -276,19 +333,19 @@
      {
          super.markDirty();
  
@@ -152,7 +199,7 @@
              this.playersHashMap.put(player, mapdata$mapinfo);
              this.playersArrayList.add(mapdata$mapinfo);
          }
-@@ -315,14 +370,25 @@
+@@ -315,14 +372,25 @@
          @Nullable
          public Packet<?> getPacket(ItemStack stack)
          {

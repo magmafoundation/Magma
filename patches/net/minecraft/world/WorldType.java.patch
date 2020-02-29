@@ -9,15 +9,13 @@
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
  
-@@ -33,6 +36,13 @@
+@@ -33,6 +36,11 @@
          this.canBeCreated = true;
          this.id = id;
          WORLD_TYPES[id] = this;
 +        if (org.bukkit.WorldType.getByName(name) == null) {
-+            org.bukkit.WorldType worldType = EnumHelper
-+                .addEnum(org.bukkit.WorldType.class, name, new Class [] { String.class }, new Object[] { name });
-+            Map<String, org.bukkit.WorldType> BY_NAME = ObfuscationReflectionHelper.getPrivateValue(
-+                org.bukkit.WorldType.class, null, "BY_NAME");
++            org.bukkit.WorldType worldType = EnumHelper.addEnum(org.bukkit.WorldType.class, name, new Class [] { String.class }, new Object[] { name });
++            Map<String, org.bukkit.WorldType> BY_NAME = ObfuscationReflectionHelper.getPrivateValue(org.bukkit.WorldType.class, null, "BY_NAME");
 +            BY_NAME.put(name.toUpperCase(), worldType);
 +        }
      }

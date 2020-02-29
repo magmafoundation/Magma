@@ -1,6 +1,12 @@
 --- ../src-base/minecraft/net/minecraft/world/storage/WorldInfo.java
 +++ ../src-work/minecraft/net/minecraft/world/storage/WorldInfo.java
-@@ -6,7 +6,9 @@
+@@ -1,26 +1,27 @@
+ package net.minecraft.world.storage;
+ 
+ import com.google.common.collect.Maps;
++import java.util.List;
+ import java.util.Map;
+ import java.util.Map.Entry;
  import javax.annotation.Nullable;
  import net.minecraft.crash.CrashReportCategory;
  import net.minecraft.crash.ICrashReportDetail;
@@ -10,13 +16,16 @@
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.util.datafix.DataFixer;
  import net.minecraft.util.datafix.FixTypes;
-@@ -17,10 +19,14 @@
- import net.minecraft.world.EnumDifficulty;
- import net.minecraft.world.GameRules;
- import net.minecraft.world.GameType;
-+import net.minecraft.world.WorldServer;
- import net.minecraft.world.WorldSettings;
- import net.minecraft.world.WorldType;
+ import net.minecraft.util.datafix.IDataFixer;
+ import net.minecraft.util.datafix.IDataWalker;
+ import net.minecraft.util.math.BlockPos;
+-import net.minecraft.world.DimensionType;
+-import net.minecraft.world.EnumDifficulty;
+-import net.minecraft.world.GameRules;
+-import net.minecraft.world.GameType;
+-import net.minecraft.world.WorldSettings;
+-import net.minecraft.world.WorldType;
++import net.minecraft.world.*;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
 +import org.bukkit.Bukkit;
@@ -25,7 +34,7 @@
  
  public class WorldInfo
  {
-@@ -65,8 +71,10 @@
+@@ -65,8 +66,10 @@
      private int borderWarningTime = 15;
      private final Map<Integer, NBTTagCompound> dimensionData = Maps.newHashMap();
      private GameRules gameRules = new GameRules();
@@ -37,7 +46,7 @@
      protected WorldInfo()
      {
      }
-@@ -161,6 +169,7 @@
+@@ -161,6 +164,7 @@
          this.thunderTime = nbt.getInteger("thunderTime");
          this.thundering = nbt.getBoolean("thundering");
          this.hardcore = nbt.getBoolean("hardcore");
@@ -45,7 +54,7 @@
  
          if (nbt.hasKey("initialized", 99))
          {
-@@ -376,6 +385,7 @@
+@@ -376,6 +380,7 @@
  
          nbt.setBoolean("DifficultyLocked", this.difficultyLocked);
          nbt.setTag("GameRules", this.gameRules.writeToNBT());
@@ -53,7 +62,7 @@
          NBTTagCompound nbttagcompound1 = new NBTTagCompound();
  
          for (Entry<Integer, NBTTagCompound> entry : this.dimensionData.entrySet())
-@@ -511,6 +521,14 @@
+@@ -511,6 +516,14 @@
  
      public void setThundering(boolean thunderingIn)
      {
@@ -68,7 +77,7 @@
          this.thundering = thunderingIn;
      }
  
-@@ -531,6 +549,14 @@
+@@ -531,6 +544,14 @@
  
      public void setRaining(boolean isRaining)
      {
@@ -83,18 +92,18 @@
          this.raining = isRaining;
      }
  
-@@ -712,6 +738,10 @@
-     public void setDifficulty(EnumDifficulty newDifficulty)
+@@ -713,6 +734,10 @@
      {
          net.minecraftforge.common.ForgeHooks.onDifficultyChange(newDifficulty, this.difficulty);
-+        SPacketServerDifficulty packet = new SPacketServerDifficulty(this.getDifficulty(), this.isDifficultyLocked());
-+        for (EntityPlayerMP player :(java.util.List<EntityPlayerMP>) (java.util.List) world.playerEntities) {
-+            player.connection.sendPacket(packet);
-+        }
          this.difficulty = newDifficulty;
++        SPacketServerDifficulty packet = new SPacketServerDifficulty(this.getDifficulty(), this.isDifficultyLocked());
++        if (world.playerEntities != null && !world.playerEntities.isEmpty()) {
++            ((List<EntityPlayerMP>) (List) world.playerEntities).forEach(player -> player.connection.sendPacket(packet));
++        }
      }
  
-@@ -815,7 +845,7 @@
+     public boolean isDifficultyLocked()
+@@ -815,7 +840,7 @@
       * Used by Forge to store the dimensions available to a world
       * @param additionalProperties
       */
@@ -103,7 +112,7 @@
      {
          // one time set for this
          if (this.additionalProperties == null)
-@@ -869,4 +899,28 @@
+@@ -869,4 +894,28 @@
      {
          return this.versionName;
      }

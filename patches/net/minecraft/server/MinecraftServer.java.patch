@@ -543,7 +543,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +449,51 @@
+@@ -323,45 +449,43 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -551,43 +551,34 @@
 -        WorldServer worldserver = net.minecraftforge.common.DimensionManager.getWorld(j1);
 -        BlockPos blockpos = worldserver.getSpawnPoint();
 -        long k1 = getCurrentTimeMillis();
-+        // CraftBukkit start - fire WorldLoadEvent and handle whether or not to keep the spawn in memory
-+        for (int m = 0; m < worldServerList.size(); m++) {
-+            WorldServer worldserver = this.worldServerList.get(m);
-+            MinecraftServer.LOGGER.info("Preparing start region for level " + m + " (Seed: " + worldserver.getSeed() + ")");
++        WorldServer worldserver = this.worlds[j1];
++        MinecraftServer.LOGGER.info("Preparing start region for level " + worldserver.dimension + " (Seed: " + worldserver.getSeed() + ")");
++        BlockPos blockposition = worldserver.getSpawnPoint();
++        long jk = getCurrentTimeMillis();
++        i = 0;
  
 -        for (int l1 = -192; l1 <= 192 && this.isServerRunning(); l1 += 16)
 -        {
 -            for (int i2 = -192; i2 <= 192 && this.isServerRunning(); i2 += 16)
 -            {
--                long j2 = getCurrentTimeMillis();
-+            if (!worldserver.getWorld().getKeepSpawnInMemory()) {
-+                continue;
-+            }
++        for (int l1 = -192; l1 <= 192 && this.isServerRunning(); l1 += 16) {
++            for (int i2 = -192; i2 <= 192 && this.isServerRunning(); i2 += 16) {
+                 long j2 = getCurrentTimeMillis();
  
 -                if (j2 - k1 > 1000L)
 -                {
 -                    this.outputPercentRemaining("Preparing spawn area", i1 * 100 / 625);
 -                    k1 = j2;
--                }
-+            BlockPos blockposition = worldserver.getSpawnPoint();
-+            long jk = getCurrentTimeMillis();
-+            i = 0;
- 
++                if (j2 - jk > 1000L) {
++                    this.outputPercentRemaining("Preparing spawn area", i * 100 / 625);
++                    jk = j2;
+                 }
+-
 -                ++i1;
 -                worldserver.getChunkProvider().provideChunk(blockpos.getX() + l1 >> 4, blockpos.getZ() + i2 >> 4);
-+            for (int l1 = -192; l1 <= 192 && this.isServerRunning(); l1 += 16) {
-+                for (int i2 = -192; i2 <= 192 && this.isServerRunning(); i2 += 16) {
-+                    long j2 = getCurrentTimeMillis();
-+
-+                    if (j2 - jk > 1000L) {
-+                        this.outputPercentRemaining("Preparing spawn area", i * 100 / 625);
-+                        jk = j2;
-+                    }
-+                    ++i;
-+                    worldserver.getChunkProvider().provideChunk(blockposition.getX() + l1 >> 4,
-+                        blockposition.getZ() + i2 >> 4);
-+                }
++                ++i;
++                worldserver.getChunkProvider().provideChunk(blockposition.getX() + l1 >> 4,
++                    blockposition.getZ() + i2 >> 4);
              }
          }
  
@@ -622,7 +613,7 @@
          }
      }
  
-@@ -379,73 +511,79 @@
+@@ -379,73 +503,79 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -734,7 +725,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +591,214 @@
+@@ -453,159 +583,214 @@
                      worldserver1.flush();
                  }
              }
@@ -1022,7 +1013,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +806,44 @@
+@@ -613,52 +798,44 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1087,7 +1078,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +852,15 @@
+@@ -667,16 +844,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1109,7 +1100,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,143 +868,175 @@
+@@ -684,143 +860,175 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1355,7 +1346,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1051,51 @@
+@@ -835,53 +1043,51 @@
          return ret;
      }
  
@@ -1433,7 +1424,7 @@
                  }
              });
          }
-@@ -889,145 +1103,115 @@
+@@ -889,145 +1095,115 @@
          return report;
      }
  
@@ -1623,7 +1614,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1219,75 @@
+@@ -1035,80 +1211,75 @@
          }
      }
  
@@ -1733,7 +1724,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1296,193 @@
+@@ -1117,228 +1288,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -2016,7 +2007,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1491,219 @@
+@@ -1347,316 +1483,219 @@
          return null;
      }
  

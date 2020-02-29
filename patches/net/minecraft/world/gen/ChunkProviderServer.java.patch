@@ -31,7 +31,19 @@
      @Nullable
      public Chunk loadChunk(int x, int z)
      {
-@@ -106,7 +111,7 @@
+@@ -92,6 +97,11 @@
+     @Nullable
+     public Chunk loadChunk(int x, int z, @Nullable Runnable runnable)
+     {
++        return getChunkAt(x, z, runnable, true);
++    }
++
++    public Chunk getChunkAt(int x, int z, Runnable runnable, boolean generate)
++    {
+         Chunk chunk = this.getLoadedChunk(x, z);
+         if (chunk == null)
+         {
+@@ -106,7 +116,7 @@
                  {
                  this.id2ChunkMap.put(ChunkPos.asLong(x, z), chunk);
                  chunk.onLoad();
@@ -40,7 +52,16 @@
                  }
  
                  loadingChunks.remove(pos);
-@@ -154,7 +159,7 @@
+@@ -123,6 +133,8 @@
+                     return null;
+                 }
+             }
++        } else if (chunk == null && generate) {
++            chunk = provideChunk(x, z);
+         }
+ 
+         // If we didn't load the chunk async and have a callback run it now
+@@ -154,7 +166,7 @@
  
              this.id2ChunkMap.put(i, chunk);
              chunk.onLoad();
@@ -49,7 +70,7 @@
          }
  
          return chunk;
-@@ -266,17 +271,21 @@
+@@ -266,17 +278,21 @@
  
                      if (chunk != null && chunk.unloadQueued)
                      {
@@ -77,7 +98,7 @@
  
              this.chunkLoader.chunkTick();
          }
-@@ -284,6 +293,39 @@
+@@ -284,6 +300,39 @@
          return false;
      }
  

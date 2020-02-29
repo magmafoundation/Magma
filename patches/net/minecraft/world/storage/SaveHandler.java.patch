@@ -29,7 +29,37 @@
      public SaveHandler(File p_i46648_1_, String saveDirectoryNameIn, boolean p_i46648_3_, DataFixer dataFixerIn)
      {
          this.dataFixer = dataFixerIn;
-@@ -221,6 +227,14 @@
+@@ -208,11 +214,28 @@
+         try
+         {
+             File file1 = new File(this.playersDirectory, player.getCachedUniqueIdString() + ".dat");
+-
++            // Spigot Start
++            boolean usingWrongFile = false;
++            if ( !file1.exists() )
++            {
++                file1 = new File( this.playersDirectory, UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + player.getName() ).getBytes( "UTF-8" ) ).toString() + ".dat");
++                if (file1.exists())
++                {
++                    usingWrongFile = true;
++                    org.bukkit.Bukkit.getServer().getLogger().warning( "Using offline mode UUID file for player " + player.getName() + " as it is the only copy we can find." );
++                }
++            }
++            // Spigot End
+             if (file1.exists() && file1.isFile())
+             {
+                 nbttagcompound = CompressedStreamTools.readCompressed(new FileInputStream(file1));
+             }
++            // Spigot Start
++            if ( usingWrongFile )
++            {
++                file1.renameTo(new File( file1.getPath() + ".offline-read" ) );
++            }
++            // Spigot End
+         }
+         catch (Exception var4)
+         {
+@@ -221,6 +244,14 @@
  
          if (nbttagcompound != null)
          {
@@ -44,7 +74,7 @@
              player.readFromNBT(this.dataFixer.process(FixTypes.PLAYER, nbttagcompound));
          }
  
-@@ -228,6 +242,20 @@
+@@ -228,6 +259,20 @@
          return nbttagcompound;
      }
  
@@ -65,7 +95,7 @@
      public IPlayerFileData getPlayerNBTManager()
      {
          return this;
-@@ -284,4 +312,48 @@
+@@ -284,4 +329,48 @@
          }
          return null;
      }
