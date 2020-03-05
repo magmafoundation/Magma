@@ -18,6 +18,7 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.magmafoundation.magma.Magma;
+import org.magmafoundation.magma.patcher.Patcher;
 import org.magmafoundation.magma.remapper.ClassLoaderContext;
 import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 
@@ -37,6 +38,7 @@ public final class PluginClassLoader extends URLClassLoader {
     private final URL url;
     private JavaPlugin pluginInit;
     private IllegalStateException pluginState;
+    private Patcher patcher;
 
     static {
         try {
@@ -61,6 +63,8 @@ public final class PluginClassLoader extends URLClassLoader {
         this.jar = new JarFile(file);
         this.manifest = jar.getManifest();
         this.url = file.toURI().toURL();
+
+        this.patcher = Magma.getInstance().getPatcherManager().getPatchByName(description.getName());
 
         try {
             Class<?> jarClass;
@@ -166,6 +170,11 @@ public final class PluginClassLoader extends URLClassLoader {
                 InputStream stream = url.openStream();
                 if (stream != null) {
                     byte[] bytecode = IOUtils.toByteArray(stream);
+
+                    if (this.patcher != null) {
+                        bytecode = this.patcher.transform(name.replace("/", "."), bytecode);
+                    }
+
                     bytecode = RemappingUtils.remapFindClass(description, name, bytecode);
                     JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
                     URL jarURL = jarURLConnection.getJarFileURL();

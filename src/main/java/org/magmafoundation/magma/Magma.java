@@ -1,7 +1,7 @@
 package org.magmafoundation.magma;
 
-import org.bukkit.Bukkit;
 import org.magmafoundation.magma.configuration.MagmaConfig;
+import org.magmafoundation.magma.patcher.PatcherManager;
 
 /**
  * Magma
@@ -15,14 +15,19 @@ public class Magma {
 
     private MagmaConfig magmaConfig;
 
+    private PatcherManager patcherManager;
+
     private static final String NAME = "Magma";
     private static final String VERSION = (Magma.class.getPackage().getImplementationVersion() != null) ? Magma.class.getPackage().getImplementationVersion() : "dev-env";
     private static final String BUKKIT_VERSION = "v1_12_R1";
     private static final String NMS_PREFIX = "net/minecraft/server/";
-    private static final String LIBRARY_VERSION = "1";
+    private static final String LIBRARY_VERSION = "2";
 
     public Magma() {
         INSTANCE = this;
+
+        patcherManager = new PatcherManager();
+        patcherManager.init();
 
         this.magmaConfig = new MagmaConfig();
     }
@@ -55,4 +60,7 @@ public class Magma {
         return magmaConfig;
     }
 
+    public PatcherManager getPatcherManager() {
+        return patcherManager;
+    }
 }

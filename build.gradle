@@ -100,6 +100,8 @@ dependencies {
     compile 'org.apache.logging.log4j:log4j-iostreams:2.12.1'
     compile 'org.apache.logging.log4j:log4j-api:2.8.1'
     compile 'org.apache.logging.log4j:log4j-core:2.8.1'
+    compile 'org.reflections:reflections:0.9.12'
+    compile 'javassist:javassist:3.12.1.GA'
 }
 
 jar{
@@ -236,6 +238,8 @@ extractForgeSources {
 genGradleProjects {
     addCompileDep "junit:junit:4.12"
     addCompileDep "bukkit:bukkit:1.12.2-R0.1"
+    addCompileDep "org.reflections:reflections:0.9.12"
+    addCompileDep "javassist:javassist:3.12.1.GA"
     addRepo("MagmaFoundation", "https://repo.hexeption.co.uk/artifactory/Magma/")
 }
 
