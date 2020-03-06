@@ -1,0 +1,24 @@
+--- ../src-base/minecraft/net/minecraftforge/fml/common/eventhandler/EventBus.java
++++ ../src-work/minecraft/net/minecraftforge/fml/common/eventhandler/EventBus.java
+@@ -38,6 +38,8 @@
+ import com.google.common.collect.MapMaker;
+ import com.google.common.collect.Sets;
+ import com.google.common.reflect.TypeToken;
++import org.bukkit.Bukkit;
++import org.magmafoundation.magma.api.events.ForgeEvents;
+ 
+ public class EventBus implements IEventExceptionHandler
+ {
+@@ -173,6 +175,12 @@
+     {
+         if (shutdown) return false;
+ 
++        // Magma start
++        if (Bukkit.getServer() != null && ForgeEvents.getHandlersList().getRegisteredListeners().length > 0) {
++            Bukkit.getPluginManager().callEvent(new ForgeEvents(event));
++        }
++        // Magma end
++
+         IEventListener[] listeners = event.getListenerList().getListeners(busID);
+         int index = 0;
+         try
