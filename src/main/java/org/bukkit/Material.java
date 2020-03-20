@@ -688,6 +688,10 @@ public enum Material {
         }
     }
 
+    public static Material getBlockMaterial(final String name) {
+        return BY_NAME.get(name);
+    }
+
     /**
      * Gets the item ID or block ID of this Material
      *
