@@ -157,7 +157,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +160,288 @@
+@@ -144,178 +160,292 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -535,6 +535,10 @@
 +        this.playerList.setPlayerManager(this.worlds);
          this.setDifficultyForAllWorlds(this.getDifficulty());
          this.initialWorldChunkLoad();
++        for (WorldServer worlds : this.worldServerList) {
++            this.server.getPluginManager().callEvent(new org.bukkit.event.world.WorldLoadEvent(worlds.getWorld()));
++        }
++        this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.POSTWORLD);
      }
  
 -    public void initialWorldChunkLoad()
@@ -543,7 +547,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +449,43 @@
+@@ -323,45 +453,43 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -613,7 +617,7 @@
          }
      }
  
-@@ -379,73 +503,79 @@
+@@ -379,73 +507,79 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -725,7 +729,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +583,214 @@
+@@ -453,159 +587,214 @@
                      worldserver1.flush();
                  }
              }
@@ -1013,7 +1017,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +798,44 @@
+@@ -613,52 +802,44 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1078,7 +1082,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +844,15 @@
+@@ -667,16 +848,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1100,7 +1104,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,143 +860,175 @@
+@@ -684,143 +864,175 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1346,7 +1350,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1043,51 @@
+@@ -835,53 +1047,51 @@
          return ret;
      }
  
@@ -1424,7 +1428,7 @@
                  }
              });
          }
-@@ -889,145 +1095,115 @@
+@@ -889,145 +1099,115 @@
          return report;
      }
  
@@ -1614,7 +1618,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1211,75 @@
+@@ -1035,80 +1215,75 @@
          }
      }
  
@@ -1724,7 +1728,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1288,193 @@
+@@ -1117,228 +1292,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -2007,7 +2011,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1483,219 @@
+@@ -1347,316 +1487,219 @@
          return null;
      }
  
