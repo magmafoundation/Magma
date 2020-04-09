@@ -10,15 +10,19 @@ import net.minecraftforge.server.permission.IPermissionHandler;
 import net.minecraftforge.server.permission.context.IContext;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.util.permissions.DefaultPermissions;
 
 public class BukkitPermissionsHandler implements IPermissionHandler {
 
-    private final Map<String, String> registeredNodes = new HashMap<>();
+    private final Map<String, Permission> registeredNodes = new HashMap<>();
 
     @Override
     public void registerNode(String node, DefaultPermissionLevel level, String desc) {
-        registeredNodes.put(node, desc);
-
+        Permission permission = new Permission(node, desc, fromForge(level));
+        DefaultPermissions.registerPermission(permission, false);
+        registeredNodes.put(node, permission);
     }
 
     @Override
@@ -34,6 +38,18 @@ public class BukkitPermissionsHandler implements IPermissionHandler {
 
     @Override
     public String getNodeDescription(String node) {
-        return registeredNodes.getOrDefault(node, "No Description Set");
+        return registeredNodes.containsKey(node) ? registeredNodes.get(node).getDescription() : "No Description Set";
+    }
+
+    private PermissionDefault fromForge(DefaultPermissionLevel level) {
+        switch (level) {
+            case ALL:
+                return PermissionDefault.TRUE;
+            case OP:
+                return PermissionDefault.OP;
+            case NONE:
+                return PermissionDefault.FALSE;
+        }
+        return PermissionDefault.FALSE;
     }
 }
