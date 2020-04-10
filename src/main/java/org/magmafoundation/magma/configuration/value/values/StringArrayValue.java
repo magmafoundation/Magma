@@ -20,12 +20,13 @@ public class StringArrayValue extends ArrayValue<String> {
 
     @Override
     public void initArray(String array) {
-        String[] vals = values.split(",");
+        array = array.replaceAll("\\[(.*)\\]", "$1");
+        String[] vals = array.split(",");
 
         this.valueArray = new ArrayList<String>(vals.length);
         this.valueSet = new HashSet<String>(vals.length);
 
-        Arrays.stream(vals).filter(val -> val.length() != 0).forEach(val -> this.valueArray.add(val));
+        Arrays.stream(vals).filter(val -> val.length() != 0).map(String::trim).forEach(val -> this.valueArray.add(val));
         this.valueSet.addAll(this.valueArray);
     }
 }

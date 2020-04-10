@@ -33,10 +33,11 @@ public abstract class ArrayValue<T> extends Value<String> {
 
     @Override
     public void setValues(String values) {
-        this.config.set(path, this.values = values);
+        this.values = values;
         this.valueSet.clear();
         this.valueArray.clear();
         this.initArray(values);
+        this.config.set(path, valueArray);
     }
 
     public boolean contains(T t) {
