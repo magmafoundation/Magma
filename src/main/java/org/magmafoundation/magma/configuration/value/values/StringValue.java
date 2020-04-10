@@ -27,6 +27,6 @@ public class StringValue extends Value<String> {
 
     @Override
     public void setValues(String values) {
-        config.set(path, this.value = value);
+        config.set(path, this.value = values);
     }
 }
