@@ -39,7 +39,7 @@ We hope to eliminate all issues with craftbukkit forge servers. In the end, we e
 
 If you wish to inspect Magma, submit PRs, or otherwise work with Magma itself, you're in the right place!.
 
-Please read the [CONTRIBUTING.md](https://github.com/magmafoundation/Magma-1.14/blob/master/CONTRIBUTING.md) to see how to contribute, setup, and run.
+Please read the [CONTRIBUTING.md](https://github.com/magmafoundation/Magma/blob/master/CONTRIBUTING.md) to see how to contribute, setup, and run.
 
 ## Chat
 
