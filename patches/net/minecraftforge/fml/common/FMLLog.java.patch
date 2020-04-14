@@ -1,6 +1,15 @@
 --- ../src-base/minecraft/net/minecraftforge/fml/common/FMLLog.java
 +++ ../src-work/minecraft/net/minecraftforge/fml/common/FMLLog.java
-@@ -33,7 +33,7 @@
+@@ -22,6 +22,8 @@
+ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+ import net.minecraftforge.fml.relauncher.FMLRelaunchLog;
+ 
++import net.minecraftforge.fml.common.MagmaFMLLogInjector;
++
+ import org.apache.logging.log4j.Level;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+@@ -33,7 +35,7 @@
  public class FMLLog
  {
  
@@ -9,7 +18,7 @@
  
      public static void bigWarning(String format, Object... data)
      {
-@@ -45,6 +45,7 @@
+@@ -45,6 +47,7 @@
              log.warn("*  at {}{}", trace[i].toString(), i == 7 ? "..." : "");
          }
          log.warn("****************************************");
