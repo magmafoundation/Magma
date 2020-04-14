@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraftforge/fml/relauncher/FMLSecurityManager.java
++++ ../src-work/minecraft/net/minecraftforge/fml/relauncher/FMLSecurityManager.java
+@@ -46,7 +46,7 @@
+                     || ("net.minecraft.server.dedicated.DedicatedServer".equals(callingClass) && "net.minecraft.server.MinecraftServer".equals(callingParent)))
+                     )
+             {
+-                throw new ExitTrappedException();
++//                throw new ExitTrappedException();
+             }
+         }
+         else if ("setSecurityManager".equals(permName))

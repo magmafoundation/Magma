@@ -1,0 +1,19 @@
+--- ../src-base/minecraft/net/minecraftforge/fml/common/FMLLog.java
++++ ../src-work/minecraft/net/minecraftforge/fml/common/FMLLog.java
+@@ -33,7 +33,7 @@
+ public class FMLLog
+ {
+ 
+-    public static final Logger log = LogManager.getLogger("FML");
++    public static final MagmaFMLLogInjector log = new MagmaFMLLogInjector(LogManager.getLogger("FML"));
+ 
+     public static void bigWarning(String format, Object... data)
+     {
+@@ -45,6 +45,7 @@
+             log.warn("*  at {}{}", trace[i].toString(), i == 7 ? "..." : "");
+         }
+         log.warn("****************************************");
++
+     }
+ 
+     @Deprecated
