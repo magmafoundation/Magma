@@ -4,7 +4,7 @@
  package net.minecraftforge.fml.relauncher;
  
  import net.minecraftforge.fml.common.FMLLog;
-+import net.minecraftforge.fml.common.MagmaFMLLogInjector;
++import org.magmafoundation.magma.utils.MagmaFMLLogInjector;
  import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
  
  import org.apache.logging.log4j.Level;
