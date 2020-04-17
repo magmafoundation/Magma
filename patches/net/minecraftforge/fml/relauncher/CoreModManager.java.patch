@@ -16,6 +16,15 @@
      static
      {
          for(String cls : rootPlugins)
+@@ -223,7 +222,7 @@
+             {
+                 FMLLog.log.info("Detected deobfuscated environment, loading log configs for colored console logs.");
+                 // use server logging configs in deobfuscated environment so developers get nicely colored console logs
+-                System.setProperty("log4j.configurationFile", "log4j2_server.xml");
++                System.setProperty("log4j.configurationFile", "log4j2_magma.xml");
+                 ((LoggerContext) LogManager.getContext(false)).reconfigure();
+             }
+         }
 @@ -486,11 +485,10 @@
          try
          {

@@ -26,6 +26,9 @@ public class Magma {
     public Magma() {
         INSTANCE = this;
 
+        if(System.getProperty("log4j.configurationFile") == null)
+            System.setProperty("log4j.configurationFile", "log4j2_magma.xml");
+
         patcherManager = new PatcherManager();
         patcherManager.init();
 
