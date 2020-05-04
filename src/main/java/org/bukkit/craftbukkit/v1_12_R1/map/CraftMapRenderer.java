@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1.map;
 
+import java.util.UUID;
 import net.minecraft.world.storage.MapData;
 import net.minecraft.world.storage.MapDecoration;
 import org.bukkit.Bukkit;
@@ -35,7 +36,7 @@ public class CraftMapRenderer extends MapRenderer {
 
         for (Object key : worldMap.mapDecorations.keySet()) {
             // If this cursor is for a player check visibility with vanish system
-            Player other = Bukkit.getPlayerExact((String) key);
+            Player other = Bukkit.getPlayer((UUID) key);
             if (other != null && !player.canSee(other)) {
                 continue;
             }
