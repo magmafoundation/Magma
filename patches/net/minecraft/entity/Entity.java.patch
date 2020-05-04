@@ -981,34 +981,7 @@
          this.dataManager.set(CUSTOM_NAME, name);
      }
  
-@@ -2838,7 +3161,25 @@
- 
-     public void setEntityBoundingBox(AxisAlignedBB bb)
-     {
--        this.boundingBox = bb;
-+//        this.boundingBox = bb;
-+        double a = bb.minX,
-+            b = bb.minY,
-+            c = bb.minZ,
-+            d = bb.maxX,
-+            e = bb.maxY,
-+            f = bb.maxZ;
-+        double len = bb.maxX - bb.minX;
-+        if (len < 0) d = a;
-+        if (len > 64) d = a + 64.0;
-+
-+        len = bb.maxY - bb.minY;
-+        if (len < 0) e = b;
-+        if (len > 64) e = b + 64.0;
-+
-+        len = bb.maxZ - bb.minZ;
-+        if (len < 0) f = c;
-+        if (len > 64) f = c + 64.0;
-+        this.boundingBox = new AxisAlignedBB(a, b, c, d, e, f);
-     }
- 
-     public float getEyeHeight()
-@@ -2870,6 +3211,11 @@
+@@ -2870,6 +3193,11 @@
          return true;
      }
  
@@ -1020,7 +993,7 @@
      public BlockPos getPosition()
      {
          return new BlockPos(this.posX, this.posY + 0.5D, this.posZ);
-@@ -3030,7 +3376,7 @@
+@@ -3030,7 +3358,7 @@
          {
              return ((net.minecraft.entity.item.EntityMinecart)this).getCartItem();
          }
@@ -1029,7 +1002,7 @@
          {
              return new ItemStack(((EntityBoat)this).getItemBoat());
          }
-@@ -3109,14 +3455,14 @@
+@@ -3109,14 +3437,14 @@
      }
  
      @Override
@@ -1046,7 +1019,7 @@
      {
          return capabilities == null ? null : capabilities.getCapability(capability, facing);
      }
-@@ -3319,7 +3665,7 @@
+@@ -3319,7 +3647,7 @@
          return SoundCategory.NEUTRAL;
      }
  
