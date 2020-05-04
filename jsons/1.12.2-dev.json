@@ -144,7 +144,7 @@
       "url" : "http://repo.maven.apache.org/maven2"
     },
     {
-      "name": "org.reflections:reflections:0.9.12",
+      "name": "org.reflections:reflections:0.9.10",
       "children" : ["sources"],
       "url" : "http://repo.maven.apache.org/maven2"
     },
