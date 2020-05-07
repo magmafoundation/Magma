@@ -1,6 +1,6 @@
 ![Magma](https://img.hexeption.co.uk/magma.png)
 
-![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202854-orange.svg?style=for-the-badge) [![](https://img.shields.io/jenkins/build/https/ci.hexeption.co.uk/job/Magma-Main/job/master?label=CI&style=for-the-badge)](https://ci.hexeption.co.uk)
+![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202854-orange.svg?style=for-the-badge) [![](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fci.hexeption.dev%2Fjob%2Fmagmafoundation%2Fjob%2FMagma%2Fjob%2Fmaster%2F&style=for-the-badge)](https://ci.hexeption.dev)
 ![](https://bstats.org/signatures/bukkit/magma.svg)
 
 ## About
@@ -16,7 +16,7 @@ We hope to eliminate all issues with craftbukkit forge servers. In the end, we e
 ### Installation
 
 1. Download the recommended builds from the [**Releases** section](https://github.com/magmafoundation/Magma/releases)
-   1. Download Beta builds from the [**CI**](https://ci.hexeption.co.uk/job/Magma-Main/job/master/)
+   1. Download Beta builds from the [**CI**](https://ci.hexeption.dev/job/magmafoundation/job/Magma/job/master/)
 2. Make a new directory for the server
 3. Move the jar that you previously downloaded to the new directory
 4. Run the jar
@@ -47,7 +47,7 @@ You are welcome to visit Magma's Discord server [here](https://discord.gg/6rkqng
 
 ## Unstable/Test builds
 
-For unstable/test builds you can check the [__CI__](https://ci.hexeption.co.uk/job/Magma-Main/job/master/)
+For unstable/test builds you can check the [__CI__](https://ci.hexeption.dev/job/magmafoundation/job/Magma/job/master/#/)
 
 ## Partners
 <a href="https://aternos.org/en/"><img src="https://design.aternos.org/dl/logotype-horizontal-blue.png" width="200"></a>
