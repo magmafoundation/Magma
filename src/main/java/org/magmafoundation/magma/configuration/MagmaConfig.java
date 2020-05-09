@@ -33,7 +33,9 @@ public class MagmaConfig extends ConfigBase {
             "Site: https://magmafoundation.org\n" +
             "Discord: https://discord.gg/6rkqngA\n";
 
-    public static MagmaConfig instance;
+    public static MagmaConfig instance = new MagmaConfig();
+
+    public final BooleanValue magmaAutoUpdater = new BooleanValue(this, "magma.auto-update", true, "Auto updates the Magma jar");
 
     //============================Debug======================================
     public final BooleanValue debugPrintBukkitMatterials = new BooleanValue(this, "debug.debugPrintBukkitMatterials", false, "Prints the Forge Bukkit Materials");
@@ -53,12 +55,10 @@ public class MagmaConfig extends ConfigBase {
 
     public final BooleanValue forgeBukkitPermissionHandlerEnable = new BooleanValue(this, "forge.bukkitPermissionHandler.enable", true, "Let's Bukkit permission plugins handle forge/modded commands");
 
-    private static Metrics metrics;
 
     public MagmaConfig() {
         super("magma.yml", "magma");
         init();
-        instance = this;
     }
 
     public void init() {
@@ -76,10 +76,6 @@ public class MagmaConfig extends ConfigBase {
                     t.printStackTrace();
                 }
             }
-        }
-        if(metrics == null){
-            metrics = new Metrics();
-            metrics.addCustomChart(new SimplePie("number_of_mods", () -> String.valueOf(ServerAPI.getModSize()))); // Report how many mods are running
         }
         load();
     }

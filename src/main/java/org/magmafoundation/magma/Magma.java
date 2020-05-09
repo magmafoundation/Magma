@@ -11,9 +11,7 @@ import org.magmafoundation.magma.patcher.PatcherManager;
  */
 public class Magma {
 
-    private static Magma INSTANCE;
-
-    private MagmaConfig magmaConfig;
+    private static Magma INSTANCE = new Magma();
 
     private PatcherManager patcherManager;
 
@@ -28,11 +26,6 @@ public class Magma {
 
         if(System.getProperty("log4j.configurationFile") == null)
             System.setProperty("log4j.configurationFile", "log4j2_magma.xml");
-
-        patcherManager = new PatcherManager();
-        patcherManager.init();
-
-        this.magmaConfig = new MagmaConfig();
     }
 
     public static Magma getInstance() {
@@ -59,11 +52,11 @@ public class Magma {
         return LIBRARY_VERSION;
     }
 
-    public MagmaConfig getMagmaConfig() {
-        return magmaConfig;
-    }
-
     public PatcherManager getPatcherManager() {
         return patcherManager;
+    }
+
+    public void setPatcherManager(PatcherManager patcherManager) {
+        this.patcherManager = patcherManager;
     }
 }

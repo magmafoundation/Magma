@@ -52,7 +52,7 @@
  import net.minecraftforge.fml.common.versioning.ArtifactVersion;
  import net.minecraftforge.fml.common.versioning.DependencyParser;
  import net.minecraftforge.fml.common.versioning.VersionParser;
-@@ -68,38 +63,13 @@
+@@ -68,38 +63,14 @@
  import net.minecraftforge.fml.relauncher.libraries.Repository;
  import net.minecraftforge.registries.GameData;
  import net.minecraftforge.registries.ObjectHolderRegistry;
@@ -63,6 +63,7 @@
 +import org.magmafoundation.magma.Magma;
 +import org.magmafoundation.magma.api.ServerAPI;
 +import org.magmafoundation.magma.commands.permission.BukkitPermissionsHandler;
++import org.magmafoundation.magma.configuration.MagmaConfig;
  
 -import com.google.common.base.CharMatcher;
 -import com.google.common.base.Joiner;
@@ -95,18 +96,18 @@
  /**
   * The loader class performs the actual loading of the mod code from disk.
   *
-@@ -631,6 +601,10 @@
+@@ -631,6 +602,10 @@
          FMLCommonHandler.instance().fireSidedRegistryEvents();
          ObjectHolderRegistry.INSTANCE.applyObjectHolders();
          ItemStackHolderInjector.INSTANCE.inject();
 +        // Magma - Allow bukkit plugins to handle forge commands
-+        if (Magma.getInstance().getMagmaConfig().forgeBukkitPermissionHandlerEnable.getValues()) {
++        if (MagmaConfig.instance.forgeBukkitPermissionHandlerEnable.getValues()) {
 +            PermissionAPI.setPermissionHandler(new BukkitPermissionsHandler());
 +        }
          modController.transition(LoaderState.INITIALIZATION, false);
          progressBar.step("Initializing Minecraft Engine");
      }
-@@ -757,6 +731,7 @@
+@@ -757,6 +732,7 @@
          modController.distributeStateMessage(LoaderState.AVAILABLE);
          GameData.freezeData();
          FMLLog.log.info("Forge Mod Loader has successfully loaded {} mod{}", mods.size(), mods.size() == 1 ? "" : "s");
@@ -114,7 +115,7 @@
          progressBar.step("Completing Minecraft initialization");
      }
  
-@@ -904,8 +879,10 @@
+@@ -904,8 +880,10 @@
              }
          }
  

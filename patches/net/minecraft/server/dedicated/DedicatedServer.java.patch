@@ -165,7 +165,7 @@
 +            SpigotConfig.registerCommands();
 +            // Spigot end
  
-+            magma.getMagmaConfig().registerCommands();
++            MagmaConfig.instance.registerCommands();
 +
              LOGGER.info("Generating keypair");
              this.setKeyPair(CryptManager.generateKeyPair());

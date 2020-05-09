@@ -85,7 +85,7 @@
 +        customCommand.setPermission(permissionNode);
 +        if (list != null) customCommand.setAliases(list);
 +        commandMap.register(command.getName(), customCommand);
-+        if (Magma.getInstance().getMagmaConfig().debugPrintCommandNode.getValues()) {
++        if ( MagmaConfig.instance.debugPrintCommandNode.getValues()) {
 +            LogManager.getLogger().info("Registered command " + command.getName() + " with permission node " + permissionNode);
 +        }
 +        if (list != null) {
