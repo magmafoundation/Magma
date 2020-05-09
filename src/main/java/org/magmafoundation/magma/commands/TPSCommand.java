@@ -26,6 +26,20 @@ public class TPSCommand extends Command {
         this.setPermission("spigot.command.tps");
     }
 
+    public static String format(double tps)  // Paper - Made static
+    {
+        return ((tps > 18.0) ? ChatColor.GREEN : (tps > 16.0) ? ChatColor.YELLOW : ChatColor.RED).toString()
+            + ((tps > 20.0) ? "*" : "") + Math.min(Math.round(tps * 100.0) / 100.0, 20.0);
+    }
+
+    private static final long mean(long[] array) {
+        long r = 0;
+        for (long i : array) {
+            r += i;
+        }
+        return r / array.length;
+    }
+
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
         if (!this.testPermission(sender)) {
@@ -107,20 +121,6 @@ public class TPSCommand extends Command {
         }
         sender.sendMessage(String.format("%s%sServer Status: %s", ChatColor.WHITE, ChatColor.BOLD, status));
         return true;
-    }
-
-    public static String format(double tps)  // Paper - Made static
-    {
-        return ((tps > 18.0) ? ChatColor.GREEN : (tps > 16.0) ? ChatColor.YELLOW : ChatColor.RED).toString()
-            + ((tps > 20.0) ? "*" : "") + Math.min(Math.round(tps * 100.0) / 100.0, 20.0);
-    }
-
-    private static final long mean(long[] array) {
-        long r = 0;
-        for (long i : array) {
-            r += i;
-        }
-        return r / array.length;
     }
 
 

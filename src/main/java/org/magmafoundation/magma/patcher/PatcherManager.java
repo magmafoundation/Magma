@@ -1,10 +1,7 @@
 package org.magmafoundation.magma.patcher;
 
-import com.google.common.reflect.Reflection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import net.minecraftforge.fml.common.FMLLog;
 import org.reflections.Reflections;
 

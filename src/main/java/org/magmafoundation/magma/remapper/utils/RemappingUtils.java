@@ -34,6 +34,7 @@ public class RemappingUtils {
     public static final String nmsPrefix = "net.minecraft.server.";
     public static final MagmaJarMapping jarMapping;
     private static final List<Remapper> remappers = new ArrayList<>();
+    private static final Object remapLock = new Object();
 
     static {
         jarMapping = new MagmaJarMapping();
@@ -42,10 +43,10 @@ public class RemappingUtils {
         jarMapping.packages.put("org/bukkit/craftbukkit/libs/joptsimple/", "joptsimple/");
         jarMapping.registerMethodMapping("org/bukkit/Bukkit", "getOnlinePlayers", "()[Lorg/bukkit/entity/Player;", "org/bukkit/Bukkit", "_INVALID_getOnlinePlayers", "()[Lorg/bukkit/entity/Player;");
         jarMapping.registerMethodMapping("org/bukkit/Server", "getOnlinePlayers", "()[Lorg/bukkit/entity/Player;", "org/bukkit/Server", "_INVALID_getOnlinePlayers", "()[Lorg/bukkit/entity/Player;");
-        jarMapping.registerMethodMapping("org/bukkit/craftbukkit/" + Magma.getBukkitVersion() + "/CraftServer", "getOnlinePlayers", "()[Lorg/bukkit/entity/Player;", "org/bukkit/craftbukkit/" + Magma.getBukkitVersion() + "/CraftServer", "_INVALID_getOnlinePlayers", "()[Lorg/bukkit/entity/Player;");
+        jarMapping.registerMethodMapping("org/bukkit/craftbukkit/" + Magma.getBukkitVersion() + "/CraftServer", "getOnlinePlayers", "()[Lorg/bukkit/entity/Player;",
+            "org/bukkit/craftbukkit/" + Magma.getBukkitVersion() + "/CraftServer", "_INVALID_getOnlinePlayers", "()[Lorg/bukkit/entity/Player;");
         jarMapping.setInheritanceMap(new MagmaInheritanceMap());
         jarMapping.setFallbackInheritanceProvider(new MagmaInheritanceProvider());
-
 
         Map<String, String> relocations = new HashMap<String, String>();
         relocations.put("net.minecraft.server", "net.minecraft.server." + Magma.getBukkitVersion());
@@ -61,8 +62,6 @@ public class RemappingUtils {
         remappers.add(new ReflectionRemapper());
         jarMapping.initFastMethodMapping(jarRemapper);
     }
-
-    private static final Object remapLock = new Object();
 
     public static byte[] remapFindClass(PluginDescriptionFile description, String name, byte[] bs) throws IOException {
         synchronized (remapLock) {

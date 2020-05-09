@@ -1,7 +1,6 @@
 package org.magmafoundation.magma.utils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 import net.minecraft.server.dedicated.DedicatedServer;

@@ -4,6 +4,7 @@ import net.md_5.specialsource.JarMapping;
 import net.md_5.specialsource.JarRemapper;
 
 public class MagmaRemapper extends JarRemapper {
+
     public MagmaRemapper(JarMapping jarMapping) {
         super(jarMapping);
     }

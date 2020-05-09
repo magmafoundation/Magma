@@ -20,6 +20,10 @@ public class ForgeEvents extends Event {
         this.forgeEvents = forgeEvents;
     }
 
+    public static HandlerList getHandlersList() {
+        return handlers;
+    }
+
     @Override
     public HandlerList getHandlers() {
         return handlers;
@@ -27,9 +31,5 @@ public class ForgeEvents extends Event {
 
     public net.minecraftforge.fml.common.eventhandler.Event getForgeEvents() {
         return forgeEvents;
-    }
-
-    public static HandlerList getHandlersList() {
-        return handlers;
     }
 }

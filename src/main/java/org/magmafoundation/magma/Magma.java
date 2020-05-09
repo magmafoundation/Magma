@@ -1,6 +1,5 @@
 package org.magmafoundation.magma;
 
-import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.patcher.PatcherManager;
 
 /**
@@ -11,21 +10,20 @@ import org.magmafoundation.magma.patcher.PatcherManager;
  */
 public class Magma {
 
-    private static Magma INSTANCE = new Magma();
-
-    private PatcherManager patcherManager;
-
     private static final String NAME = "Magma";
     private static final String VERSION = (Magma.class.getPackage().getImplementationVersion() != null) ? Magma.class.getPackage().getImplementationVersion() : "dev-env";
     private static final String BUKKIT_VERSION = "v1_12_R1";
     private static final String NMS_PREFIX = "net/minecraft/server/";
     private static final String LIBRARY_VERSION = "3";
+    private static Magma INSTANCE = new Magma();
+    private PatcherManager patcherManager;
 
     public Magma() {
         INSTANCE = this;
 
-        if(System.getProperty("log4j.configurationFile") == null)
+        if (System.getProperty("log4j.configurationFile") == null) {
             System.setProperty("log4j.configurationFile", "log4j2_magma.xml");
+        }
     }
 
     public static Magma getInstance() {

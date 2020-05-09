@@ -58,19 +58,18 @@ public class TerminalConsoleAppender extends AbstractAppender {
 
     private static boolean initialized;
     private static ConsoleReader reader;
+    private static Function<String, String> formatter = Functions.identity();
+
+    protected TerminalConsoleAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions) {
+        super(name, filter, layout, ignoreExceptions);
+    }
 
     public static ConsoleReader getReader() {
         return reader;
     }
 
-    private static Function<String, String> formatter = Functions.identity();
-
     public static void setFormatter(Function<String, String> format) {
         formatter = format != null ? format : Functions.identity();
-    }
-
-    protected TerminalConsoleAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions) {
-        super(name, filter, layout, ignoreExceptions);
     }
 
     @PluginFactory

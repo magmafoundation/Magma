@@ -1,10 +1,9 @@
 package org.magmafoundation.magma.configuration.value.values;
 
-import java.util.Arrays;
-import org.magmafoundation.magma.configuration.ConfigBase;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import org.magmafoundation.magma.configuration.ConfigBase;
 
 /**
  * StringArrayValue

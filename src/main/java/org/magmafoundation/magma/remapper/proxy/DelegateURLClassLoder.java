@@ -30,6 +30,7 @@ public class DelegateURLClassLoder extends URLClassLoader {
 
     public static final String desc = DelegateURLClassLoder.class.getName().replace('.', '/');
     private final PluginDescriptionFile description;
+    private final Map<String, Class<?>> classeCache = new HashMap<>();
 
     {
         PluginDescriptionFile description = null;
@@ -47,8 +48,6 @@ public class DelegateURLClassLoder extends URLClassLoader {
         }
         this.description = description;
     }
-
-    private final Map<String, Class<?>> classeCache = new HashMap<>();
 
     public DelegateURLClassLoder(final URL[] urls, final ClassLoader parent) {
         super(urls, parent);

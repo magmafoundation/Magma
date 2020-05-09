@@ -19,6 +19,7 @@ import org.magmafoundation.magma.configuration.value.Value;
  * @since 19/08/2019 - 05:17 am
  */
 public abstract class ConfigBase {
+
     protected final File configFile;
     protected final String commandName;
 

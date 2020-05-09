@@ -1,12 +1,11 @@
 package org.magmafoundation.magma.api;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * PlayerAPI
@@ -73,7 +72,7 @@ public class PlayerAPI {
      * Checks if a mod is in the list.
      *
      * @param player - The player
-     * @param modid  for the mod wanted to check.
+     * @param modid for the mod wanted to check.
      * @return boolean - if it's in the list or not.
      */
     public static boolean hasMod(Player player, String modid) {

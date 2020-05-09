@@ -34,6 +34,11 @@ public class MagmaJarMapping implements ClassRemapperSupplier {
     public final Map<String, ClassMappings> byMCPName = new HashMap<>();
     public final Set<String> doNotMapField = new HashSet<>();
     public final Set<String> doNotMapMethod = new HashSet<>();
+    public final LinkedHashMap<String, String> packages = new LinkedHashMap<String, String>();
+    //------------------------- From SpecialSource
+    protected String currentClass = null;
+    protected InheritanceMap inheritanceMap = new InheritanceMap();
+    protected InheritanceProvider fallbackInheritanceProvider = null;
 
     public void initFastMethodMapping(Remapper remapper) {
         for (ClassMappings classMapping : byNMSSrcName.values()) {
@@ -204,13 +209,6 @@ public class MagmaJarMapping implements ClassRemapperSupplier {
         }
         return sj.toString();
     }
-
-    //------------------------- From SpecialSource
-    protected String currentClass = null;
-    public final LinkedHashMap<String, String> packages = new LinkedHashMap<String, String>();
-    protected InheritanceMap inheritanceMap = new InheritanceMap();
-    protected InheritanceProvider fallbackInheritanceProvider = null;
-
 
     /**
      * Set the inheritance map used for caching superclass/interfaces. This call be omitted to use a local cache, or set to your own global cache.
