@@ -57,6 +57,7 @@ pipeline {
               webhookURL: "${discordWebhook}"
             )
           }
+          cleanWs()
         }
     }
   }
