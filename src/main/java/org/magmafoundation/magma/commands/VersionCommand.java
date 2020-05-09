@@ -1,13 +1,12 @@
 package org.magmafoundation.magma.commands;
 
+import java.util.Collections;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.ForgeVersion;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.magmafoundation.magma.Magma;
-
-import java.util.Collections;
 
 /**
  * VersionCommand
@@ -32,7 +31,9 @@ public class VersionCommand extends Command {
             return false;
         }
 
-        sender.sendMessage("This server is running " + Bukkit.getName() + " version " + Magma.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ", Forge Version " + ForgeVersion.getVersion() + ")");
+        sender.sendMessage(
+            "This server is running " + Bukkit.getName() + " version " + Magma.getVersion() + " (Implementing API version " + Bukkit.getBukkitVersion() + ", Forge Version " + ForgeVersion.getVersion()
+                + ")");
         return true;
     }
 }
