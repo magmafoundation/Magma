@@ -273,10 +273,10 @@ githubRelease {
     repo "Magma"
     releaseName "Magma Dev " + versioning.info.branch + "-" + versioning.info.build
     prerelease true
-    body { """\
-## Change Log
-${changelog().call().replace('\n', '\n* ')}
-""" }
+//    body { """\
+//## Change Log
+//${changelog().call().replace('\n', '\n* ')}
+//""" }
     draft false
     releaseAssets = [
         fileTree("build/distributions/").filter { it.name.endsWith("jar") || it.name.endsWith("zip") },
