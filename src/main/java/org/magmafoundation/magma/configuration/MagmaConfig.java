@@ -26,22 +26,25 @@ import org.magmafoundation.magma.configuration.value.values.StringValue;
 public class MagmaConfig extends ConfigBase {
 
     public static MagmaConfig instance = new MagmaConfig();
-    public final BooleanValue magmaAutoUpdater = new BooleanValue(this, "magma.auto-update", true, "Auto updates the Magma jar");
+
     //============================Debug======================================
     public final BooleanValue debugPrintBukkitMatterials = new BooleanValue(this, "debug.debugPrintBukkitMatterials", false, "Prints the Forge Bukkit Materials");
     public final BooleanValue debugPrintBukkitBannerPatterns = new BooleanValue(this, "debug.debugPrintBukkitBannerPatterns", false, "Prints the Forge Bukkit Banner Patterns");
     public final BooleanValue debugPrintCommandNode = new BooleanValue(this, "debug.debugPrintCommandNode", false, "Prints out all Command Nodes for permissions");
+
     //============================Black List Mods=============================
     public final BooleanValue blacklistedModsEnable = new BooleanValue(this, "forge.blacklistedmods.enabled", false, "Enable blacklisting of mods");
-    //============================Debug======================================
     public final StringArrayValue blacklistedMods = new StringArrayValue(this, "forge.blacklistedmods.list", "", "A list of mods to blacklist");
     public final StringValue blacklistedModsKickMessage = new StringValue(this, "forge.blacklistedmods.kickmessage", "Please Remove Blacklisted Mods", "Mod Blacklist kick message");
+
     //=============================WORLD SETTINGS=============================
     public final IntValue expMergeMaxValue = new IntValue(this, "experience-merge-max-value", -1,
         "Instructs the server put a maximum value on experience orbs, preventing them all from merging down into 1 single orb.");
-    //============================Black List Mods=============================
+
+    //=============================Misc SETTINGS=============================
     public final BooleanValue forgeBukkitPermissionHandlerEnable = new BooleanValue(this, "forge.bukkitPermissionHandler.enable", true, "Let's Bukkit permission plugins handle forge/modded commands");
-    //=============================WORLD SETTINGS=============================
+    public final BooleanValue magmaAutoUpdater = new BooleanValue(this, "magma.auto-update", true, "Auto updates the Magma jar");
+
     private final String HEADER = "This is the main configuration file for Magma.\n" +
         "\n" +
         "Site: https://magmafoundation.org\n" +
