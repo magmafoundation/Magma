@@ -31,8 +31,14 @@ public class MagmaUpdater {
             new InputStreamReader(new URL("https://ci.hexeption.dev/job/Magma%20Foundation/job/Magma/job/master/lastSuccessfulBuild/api/json").openStream()))) {
 
             JsonObject root = gson.fromJson(reader, JsonObject.class);
-            JsonArray changeSetsItems = root.get("changeSets").getAsJsonArray();
-            JsonObject changeSet = changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().get(0).getAsJsonObject();
+            JsonArray changeSetsItems = changeSetsItems = root.get("changeSets").getAsJsonArray();
+            JsonObject changeSet;
+            try {
+                changeSet = changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().get(0).getAsJsonObject();
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println("Failed to retrieve latest version.");
+                return false;
+            }
 
             time = changeSet.get("date").toString().replace("+0100", "").replaceAll("\"", "");
             newSha = changeSet.get("commitId").toString().replaceAll("\"", "").substring(0, 7);

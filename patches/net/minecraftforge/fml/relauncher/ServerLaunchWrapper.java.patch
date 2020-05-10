@@ -40,11 +40,11 @@
 +          DownloadServerFiles.downloadServerLibraries();
 +      }
 +
-+//        System.out.println("Checking for new version...");
-+//        MagmaUpdater magmaUpdater = new MagmaUpdater();
-+//        if (magmaUpdater.versionChecker() && MagmaConfig.instance.magmaAutoUpdater.getValues()) {
-+//            magmaUpdater.downloadJar();
-+//        }
++        System.out.println("Checking for new version...");
++        MagmaUpdater magmaUpdater = new MagmaUpdater();
++        if (magmaUpdater.versionChecker() && MagmaConfig.instance.magmaAutoUpdater.getValues()) {
++            magmaUpdater.downloadJar();
++        }
 +
 +      new ServerLaunchWrapper().run(args);
      }

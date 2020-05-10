@@ -2192,8 +2192,9 @@
          ServerEula eula = new ServerEula(new File("eula.txt"));
 -        if (!eula.hasAcceptedEULA())
 -        {
+-            LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
 +        if (!eula.hasAcceptedEULA()) {
-             LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
++            System.out.println("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
              eula.createEULAFile();
              return;
          }
