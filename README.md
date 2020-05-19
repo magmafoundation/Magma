@@ -1,7 +1,11 @@
-![Magma](https://i.imgur.com/zTCTCWG.png)
+<div align="center">
+<img src="https://i.imgur.com/zTCTCWG.png" alt="Magma logo" align="middle"></img>
 
-![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202854-orange.svg?style=for-the-badge) [![](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fci.hexeption.dev%2Fjob%2FMagma%2520Foundation%2Fjob%2FMagma%2Fjob%2Fmaster%2F&style=for-the-badge)](https://ci.hexeption.dev)
+![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202854-orange.svg?style=for-the-badge)
+[![](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fci.hexeption.dev%2Fjob%2FMagma%2520Foundation%2Fjob%2FMagma%2Fjob%2Fmaster%2F&style=for-the-badge)](https://ci.hexeption.dev)
+
 ![](https://bstats.org/signatures/bukkit/magma.svg)
+</div>
 
 ## About
 
