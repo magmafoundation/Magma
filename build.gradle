@@ -58,7 +58,7 @@ repositories {
     }
     maven {
         name 'MagmaFoundation'
-        url 'https://repo.hexeption.co.uk/artifactory/Magma/'
+        url 'https://repo.hexeption.dev/repository/magma/'
     }
     flatDir {
         dirs 'src/main/resources'
@@ -240,7 +240,7 @@ genGradleProjects {
     addCompileDep "bukkit:bukkit:1.12.2-R0.1"
     addCompileDep "org.reflections:reflections:0.9.10"
     addCompileDep "javassist:javassist:3.12.1.GA"
-    addRepo("MagmaFoundation", "https://repo.hexeption.co.uk/artifactory/Magma/")
+    addRepo("MagmaFoundation", "https://repo.hexeption.dev/repository/magma/")
 }
 
 
