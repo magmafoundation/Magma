@@ -16,7 +16,7 @@ import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 public class ProxyClass {
 
     public static Class<?> forName(String className) throws ClassNotFoundException {
-        return forName(className, true, RemappingUtils.getCallerClassLoder());
+        return forName(className, true, RemappingUtils.getCallerClassLoader());
     }
 
     public static Class<?> forName(String className, boolean initialize, ClassLoader loader) throws ClassNotFoundException {

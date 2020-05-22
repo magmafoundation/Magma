@@ -150,7 +150,7 @@ public class RemappingUtils {
         return jarMapping.fastReverseMapFieldName(type, fieldName);
     }
 
-    public static ClassLoader getCallerClassLoder() {
+    public static ClassLoader getCallerClassLoader() {
         return Reflection.getCallerClass().getClassLoader();
     }
 
