@@ -118,7 +118,11 @@ sourceSets {
     main.java.srcDir 'projects/Magma/src/main/java/'
     test.java.srcDir 'src/test/java/'
 }
-
+compileJava {
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+    options.compilerArgs << "-XDignore.symbol.file"
+}
 
 minecraft {
     version = "1.12.2"
