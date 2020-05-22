@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import jdk.internal.reflect.Reflection;
 import net.md_5.specialsource.transformer.MavenShade;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.magmafoundation.magma.Magma;
@@ -21,7 +23,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.ClassNode;
-import sun.reflect.Reflection;
+
 
 /**
  * RemappingUtils
@@ -149,7 +151,7 @@ public class RemappingUtils {
     }
 
     public static ClassLoader getCallerClassLoder() {
-        return Reflection.getCallerClass(3).getClassLoader();
+        return Reflection.getCallerClass().getClassLoader();
     }
 
     public static String inverseMapName(Class clazz) {
