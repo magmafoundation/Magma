@@ -99,7 +99,7 @@
 +                                            server.getPluginManager().callEvent(spreadEvent);
 +
 +                                            if (!spreadEvent.isCancelled()) {
-+                                                blockState.update(true);
++                                                blockState.update(false);
 +                                            }
 +                                        }
 +                                        // CraftBukkit end
