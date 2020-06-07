@@ -162,7 +162,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +165,300 @@
+@@ -144,178 +165,302 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -491,8 +491,10 @@
 +                }
  
 -            this.worlds[i].addEventListener(new ServerWorldEventHandler(this, this.worlds[i]));
-+                for (int i = 0; i < PatternType.values().length; i++) {
-+                    System.out.println(PatternType.values()[i].toString() + "-" + PatternType.values()[i].getIdentifier());
++                if(MagmaConfig.instance.debugPrintBukkitBannerPatterns.getValues()){
++                    for (int i = 0; i < PatternType.values().length; i++) {
++                        MinecraftServer.LOGGER.info(String.format("Injected new Forge Banner Pattern %s with ID %s", PatternType.values()[i].toString(), PatternType.values()[i].getIdentifier()));
++                    }
 +                }
  
 -            if (!this.isSinglePlayer())
@@ -560,7 +562,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +466,43 @@
+@@ -323,45 +468,43 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -630,7 +632,7 @@
          }
      }
  
-@@ -379,73 +520,79 @@
+@@ -379,73 +522,79 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -742,7 +744,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +600,214 @@
+@@ -453,159 +602,214 @@
                      worldserver1.flush();
                  }
              }
@@ -1030,7 +1032,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +815,44 @@
+@@ -613,52 +817,44 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1095,7 +1097,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +861,15 @@
+@@ -667,16 +863,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1117,7 +1119,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,143 +877,175 @@
+@@ -684,143 +879,175 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1363,7 +1365,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1060,51 @@
+@@ -835,53 +1062,51 @@
          return ret;
      }
  
@@ -1441,7 +1443,7 @@
                  }
              });
          }
-@@ -889,145 +1112,115 @@
+@@ -889,145 +1114,115 @@
          return report;
      }
  
@@ -1631,7 +1633,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1228,75 @@
+@@ -1035,80 +1230,75 @@
          }
      }
  
@@ -1741,7 +1743,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1305,193 @@
+@@ -1117,228 +1307,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -2024,7 +2026,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1500,219 @@
+@@ -1347,316 +1502,219 @@
          return null;
      }
  
