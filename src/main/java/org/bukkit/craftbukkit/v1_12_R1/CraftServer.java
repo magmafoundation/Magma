@@ -776,6 +776,7 @@ public final class CraftServer implements Server {
         resetRecipes();
         reloadData();
         SpigotConfig.registerCommands();
+        MagmaConfig.instance.registerCommands();
         overrideAllCommandBlockCommands = commandsConfiguration.getList("command-block-overrides").contains("*");
 
         int pollCount = 0;
