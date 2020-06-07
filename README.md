@@ -15,6 +15,10 @@ Magma is based on Forge and Paper, meaning it can run both Craftbukkit/Spigot/Pa
 
 We hope to eliminate all issues with craftbukkit forge servers. In the end, we envision a seamless, low lag Magma experience with support for newer 1.12+ versions of Minecraft.
 
+## 1.15
+
+Magma 1.15 is getting close to a beta!!! 
+
 ## Deployment
 
 ### Installation
