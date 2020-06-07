@@ -20,7 +20,7 @@ We hope to eliminate all issues with craftbukkit forge servers. In the end, we e
 ### Installation
 
 1. Download the recommended builds from the [**Releases** section](https://github.com/magmafoundation/Magma/releases)
-   1. Download Beta builds from the [**CI**](https://ci.hexeption.dev/job/magmafoundation/job/Magma/job/master/)
+   1. Download Beta builds from the [**CI**](https://ci.hexeption.dev/job/Magma%20Foundation/job/Magma/job/master/)
 2. Make a new directory for the server
 3. Move the jar that you previously downloaded to the new directory
 4. Run the jar
