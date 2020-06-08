@@ -59,12 +59,12 @@
 + */
 +
  package net.minecraftforge.fml.relauncher;
- 
+
  import java.lang.annotation.ElementType;
 @@ -5,8 +62,24 @@
  import java.lang.annotation.RetentionPolicy;
  import java.lang.annotation.Target;
- 
+
 +import net.minecraftforge.fml.common.SidedProxy;
 +
 +
