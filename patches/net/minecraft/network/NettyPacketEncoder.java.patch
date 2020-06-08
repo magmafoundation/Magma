@@ -1,0 +1,34 @@
+--- ../src-base/minecraft/net/minecraft/network/NettyPacketEncoder.java
++++ ../src-work/minecraft/net/minecraft/network/NettyPacketEncoder.java
+@@ -4,6 +4,8 @@
+ import io.netty.channel.ChannelHandlerContext;
+ import io.netty.handler.codec.MessageToByteEncoder;
+ import java.io.IOException;
++
++import net.minecraft.network.login.server.SPacketLoginSuccess;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+ import org.apache.logging.log4j.Marker;
+@@ -37,12 +39,21 @@
+                 LOGGER.debug(RECEIVED_PACKET_MARKER, "OUT: [{}:{}] {}", p_encode_1_.channel().attr(NetworkManager.PROTOCOL_ATTRIBUTE_KEY).get(), integer, p_encode_2_.getClass().getName());
+             }
+ 
+-            if (integer == null)
++            if (integer == null && !(p_encode_2_ instanceof SPacketLoginSuccess))
+             {
++                System.out.println("Enumconnection state had null id. Dump:");
++                System.out.println("Name: " + enumconnectionstate.toString());
++                System.out.println("To String: " + enumconnectionstate.toString());
++                System.out.println("Packet Encoding Type 1 : " + p_encode_1_.getClass().getName());
++                System.out.println("Packet Encoding Type 2 : " + p_encode_2_.getClass().getName());
++                System.out.println("Packet Encoding Type 3 : " + p_encode_3_.getClass().getName());
+                 throw new IOException("Can't serialize unregistered packet");
+             }
+             else
+             {
++                //For some reason this isn't always set by the packet, so we'll set it
++                if(p_encode_2_ instanceof SPacketLoginSuccess) integer = 2;
++
+                 PacketBuffer packetbuffer = new PacketBuffer(p_encode_3_);
+                 packetbuffer.writeVarInt(integer.intValue());
+ 

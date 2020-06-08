@@ -400,7 +400,11 @@
                  {
                      ++j;
                  }
+<<<<<<< HEAD
 @@ -302,15 +518,19 @@
+=======
+@@ -302,15 +518,35 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
      {
          if (this.allPlayersSleeping && !this.isRemote)
          {
@@ -411,6 +415,25 @@
              {
 -                if (!entityplayer.isSpectator() && !entityplayer.isPlayerFullyAsleep())
 -                {
+<<<<<<< HEAD
+=======
++//                if (entityplayer.isPlayerFullyAsleep()) {
++//////                if(entityplayer.isPlayerSleeping()){
++////                    foundActualSleepers = true;
++////                    Bukkit.broadcastMessage("Player " + entityplayer.getName() + " is asleep.");
++////                }
++//////                if (!entityplayer.isSpectator() && !entityplayer.isPlayerFullyAsleep() || entityplayer.fauxSleeping)
++////                if (!entityplayer.isSpectator() && !entityplayer.isPlayerFullyAsleep())
++////                {
++////                    Bukkit.broadcastMessage("Player " + entityplayer.getName() + " is NOT asleep. (Spec)");
++////                    return false;
++////                }
++////                if(entityplayer.fauxSleeping)
++////                {
++////                    Bukkit.broadcastMessage("Player " + entityplayer.getName() + " is NOT asleep. (Faux)");
++////                    return true;
++////                }
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
 +                if(entityplayer.isPlayerFullyAsleep() || entityplayer.isSpectator() || entityplayer.fauxSleeping){
 +                    foundActualSleepers = true;
 +                } else {
@@ -423,7 +446,11 @@
          }
          else
          {
+<<<<<<< HEAD
 @@ -346,7 +566,7 @@
+=======
+@@ -346,7 +582,7 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
          this.worldInfo.setSpawnZ(j);
      }
  
@@ -432,7 +459,11 @@
      {
          return this.getChunkProvider().chunkExists(x, z);
      }
+<<<<<<< HEAD
 @@ -355,7 +575,7 @@
+=======
+@@ -355,7 +591,7 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
      {
          this.profiler.startSection("playerCheckLight");
  
@@ -441,7 +472,11 @@
          {
              int i = this.rand.nextInt(this.playerEntities.size());
              EntityPlayer entityplayer = this.playerEntities.get(i);
+<<<<<<< HEAD
 @@ -392,12 +612,14 @@
+=======
+@@ -392,12 +628,14 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
              {
                  this.profiler.startSection("getChunk");
                  Chunk chunk = iterator.next();
@@ -456,7 +491,11 @@
                  this.profiler.endStartSection("thunder");
  
                  if (this.provider.canDoLightning(chunk) && flag && flag1 && this.rand.nextInt(100000) == 0)
+<<<<<<< HEAD
 @@ -416,7 +638,7 @@
+=======
+@@ -416,7 +654,7 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
                              entityskeletonhorse.setTrap(true);
                              entityskeletonhorse.setGrowingAge(0);
                              entityskeletonhorse.setPosition((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ());
@@ -465,7 +504,11 @@
                              this.addWeatherEffect(new EntityLightningBolt(this, (double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ(), true));
                          }
                          else
+<<<<<<< HEAD
 @@ -438,12 +660,14 @@
+=======
+@@ -438,12 +676,14 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
                      if (this.isAreaLoaded(blockpos2, 1)) // Forge: check area to avoid loading neighbors in unloaded chunks
                      if (this.canBlockFreezeNoWater(blockpos2))
                      {
@@ -482,7 +525,11 @@
                      }
  
                      if (flag && this.getBiome(blockpos2).canRain())
+<<<<<<< HEAD
 @@ -481,8 +705,15 @@
+=======
+@@ -481,8 +721,15 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
                          }
                      }
                  }
@@ -499,7 +546,11 @@
              this.profiler.endSection();
          }
      }
+<<<<<<< HEAD
 @@ -611,6 +842,7 @@
+=======
+@@ -611,6 +858,7 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
  
          this.provider.onWorldUpdateEntities();
          super.updateEntities();
@@ -507,7 +558,11 @@
      }
  
      protected void tickPlayers()
+<<<<<<< HEAD
 @@ -686,15 +918,20 @@
+=======
+@@ -686,15 +934,20 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
          {
              int i = this.pendingTickListEntriesTreeSet.size();
  
@@ -534,7 +589,11 @@
                  }
  
                  this.profiler.startSection("cleaning");
+<<<<<<< HEAD
 @@ -756,7 +993,6 @@
+=======
+@@ -756,7 +1009,6 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
                  return !this.pendingTickListEntriesTreeSet.isEmpty();
              }
          }
@@ -542,7 +601,11 @@
  
      @Nullable
      public List<NextTickListEntry> getPendingBlockUpdates(Chunk chunkIn, boolean remove)
+<<<<<<< HEAD
 @@ -796,7 +1032,8 @@
+=======
+@@ -796,7 +1048,8 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
                  {
                      if (remove)
                      {
@@ -552,7 +615,11 @@
                          {
                              this.pendingTickListEntriesHashSet.remove(nextticklistentry);
                          }
+<<<<<<< HEAD
 @@ -806,7 +1043,7 @@
+=======
+@@ -806,7 +1059,7 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
  
                      if (list == null)
                      {
@@ -561,7 +628,11 @@
                      }
  
                      list.add(nextticklistentry);
+<<<<<<< HEAD
 @@ -817,21 +1054,6 @@
+=======
+@@ -817,21 +1070,6 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
          return list;
      }
  
@@ -583,7 +654,11 @@
      private boolean canSpawnNPCs()
      {
          return this.mcServer.getCanSpawnNPCs();
+<<<<<<< HEAD
 @@ -845,9 +1067,62 @@
+=======
+@@ -845,9 +1083,62 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
      protected IChunkProvider createChunkProvider()
      {
          IChunkLoader ichunkloader = this.saveHandler.getChunkLoader(this.provider);
@@ -647,7 +722,11 @@
      public boolean isBlockModifiable(EntityPlayer player, BlockPos pos)
      {
          return super.isBlockModifiable(player, pos);
+<<<<<<< HEAD
 @@ -921,6 +1196,22 @@
+=======
+@@ -921,6 +1212,22 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
          {
              if (net.minecraftforge.event.ForgeEventFactory.onCreateWorldSpawn(this, settings)) return;
              this.findingSpawnPoint = true;
@@ -670,7 +749,11 @@
              BiomeProvider biomeprovider = this.provider.getBiomeProvider();
              List<Biome> list = biomeprovider.getBiomesToSpawnIn();
              Random random = new Random(this.getSeed());
+<<<<<<< HEAD
 @@ -941,7 +1232,7 @@
+=======
+@@ -941,7 +1248,7 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
  
              int l = 0;
  
@@ -679,7 +762,11 @@
              {
                  i += random.nextInt(64) - random.nextInt(64);
                  k += random.nextInt(64) - random.nextInt(64);
+<<<<<<< HEAD
 @@ -992,6 +1283,7 @@
+=======
+@@ -992,6 +1299,7 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
  
          if (chunkproviderserver.canSave())
          {
@@ -687,7 +774,11 @@
              if (progressCallback != null)
              {
                  progressCallback.displaySavingString("Saving level");
+<<<<<<< HEAD
 @@ -1006,14 +1298,6 @@
+=======
+@@ -1006,14 +1314,6 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
  
              chunkproviderserver.saveChunks(all);
              net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.WorldEvent.Save(this));
@@ -702,7 +793,11 @@
          }
      }
  
+<<<<<<< HEAD
 @@ -1039,6 +1323,12 @@
+=======
+@@ -1039,6 +1339,12 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
              }
          }
  
@@ -715,7 +810,11 @@
          this.worldInfo.setBorderSize(this.getWorldBorder().getDiameter());
          this.worldInfo.getBorderCenterX(this.getWorldBorder().getCenterX());
          this.worldInfo.getBorderCenterZ(this.getWorldBorder().getCenterZ());
+<<<<<<< HEAD
 @@ -1058,6 +1348,12 @@
+=======
+@@ -1058,6 +1364,12 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
          return this.canAddEntity(entityIn) ? super.spawnEntity(entityIn) : false;
      }
  
@@ -728,7 +827,11 @@
      public void loadEntities(Collection<Entity> entityCollection)
      {
          for (Entity entity : Lists.newArrayList(entityCollection))
+<<<<<<< HEAD
 @@ -1074,7 +1370,6 @@
+=======
+@@ -1074,7 +1386,6 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
      {
          if (entityIn.isDead)
          {
@@ -736,7 +839,11 @@
              return false;
          }
          else
+<<<<<<< HEAD
 @@ -1085,7 +1380,7 @@
+=======
+@@ -1085,7 +1396,7 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
              {
                  Entity entity = this.entitiesByUuid.get(uuid);
  
@@ -745,7 +852,11 @@
                  {
                      this.unloadedEntityList.remove(entity);
                  }
+<<<<<<< HEAD
 @@ -1093,7 +1388,6 @@
+=======
+@@ -1093,7 +1404,6 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
                  {
                      if (!(entityIn instanceof EntityPlayer))
                      {
@@ -753,7 +864,11 @@
                          return false;
                      }
  
+<<<<<<< HEAD
 @@ -1141,9 +1435,17 @@
+=======
+@@ -1141,9 +1451,17 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
  
      public boolean addWeatherEffect(Entity entityIn)
      {
@@ -772,7 +887,11 @@
              return true;
          }
          else
+<<<<<<< HEAD
 @@ -1164,11 +1466,14 @@
+=======
+@@ -1164,11 +1482,14 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
  
      public Explosion newExplosion(@Nullable Entity entityIn, double x, double y, double z, float strength, boolean isFlaming, boolean isSmoking)
      {
@@ -791,7 +910,11 @@
          if (!isSmoking)
          {
              explosion.clearAffectedBlockPositions();
+<<<<<<< HEAD
 @@ -1211,7 +1516,8 @@
+=======
+@@ -1211,7 +1532,8 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
              {
                  if (this.fireBlockEvent(blockeventdata))
                  {
@@ -801,7 +924,11 @@
                  }
              }
  
+<<<<<<< HEAD
 @@ -1298,11 +1604,19 @@
+=======
+@@ -1298,11 +1620,19 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
  
      public void spawnParticle(EnumParticleTypes particleType, boolean longDistance, double xCoord, double yCoord, double zCoord, int numberOfParticles, double xOffset, double yOffset, double zOffset, double particleSpeed, int... particleArguments)
      {
@@ -821,7 +948,11 @@
              this.sendPacketWithinDistance(entityplayermp, longDistance, xCoord, yCoord, zCoord, spacketparticles);
          }
      }
+<<<<<<< HEAD
 @@ -1367,4 +1681,5 @@
+=======
+@@ -1367,4 +1697,5 @@
+>>>>>>> 6c98d0e12c47752d0f8ed97a13fc7220a012f6c6
              {
              }
          }
