@@ -44,6 +44,7 @@ public class MagmaConfig extends ConfigBase {
     //=============================Misc SETTINGS=============================
     public final BooleanValue forgeBukkitPermissionHandlerEnable = new BooleanValue(this, "forge.bukkitPermissionHandler.enable", true, "Let's Bukkit permission plugins handle forge/modded commands");
     public final BooleanValue magmaAutoUpdater = new BooleanValue(this, "magma.auto-update", true, "Auto updates the Magma jar");
+    public final StringValue magmaAutoAupdaterPath = new StringValue(this, "magma.auto-update-path", "", "Path to place new jar");
 
     private final String HEADER = "This is the main configuration file for Magma.\n" +
         "\n" +
