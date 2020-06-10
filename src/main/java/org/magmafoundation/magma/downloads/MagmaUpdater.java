@@ -65,7 +65,7 @@ public class MagmaUpdater {
             System.out.println("Updating Magma Jar ...");
             URL website = new URL(url);
             ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-            FileOutputStream fos = new FileOutputStream(new File("/" + MagmaConfig.instance.magmaAutoAupdaterPath.getValues() + fileName));
+            FileOutputStream fos = new FileOutputStream(new File("/" + MagmaConfig.instance.magmaAutoUpdaterPath.getValues() + fileName));
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         } catch (IOException e) {
             e.printStackTrace();
