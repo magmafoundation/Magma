@@ -7,8 +7,11 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import org.bukkit.craftbukkit.v1_12_R1.Main;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.configuration.MagmaConfig;
+import org.yaml.snakeyaml.error.YAMLException;
 
 /**
  * DownloadServerFiles
@@ -56,8 +59,11 @@ public class DownloadServerFiles {
                 FileOutputStream fos = new FileOutputStream(fileName);
                 fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
                 System.out.println("Extracting Zip");
-                unzip(minecraftlibraries, ".");
-            } catch (IOException e) {
+                String[] pathRaw = MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath().split("/");
+                String path = MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace(pathRaw[pathRaw.length-1], "");
+                System.out.println(path);
+                unzip(minecraftlibraries, path);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

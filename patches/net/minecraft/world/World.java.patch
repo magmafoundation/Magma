@@ -906,8 +906,11 @@
              if (p_190525_9_.apply(entityplayer1))
              {
                  double d1 = entityplayer1.getDistanceSq(x, y, z);
-@@ -3597,6 +3973,16 @@
+@@ -3595,8 +3971,19 @@
+ 
+     public void updateAllPlayersSleepingFlag()
      {
++        ((WorldServer) this).updateAllPlayersSleepingFlag();
      }
  
 +    // CraftBukkit start
@@ -923,7 +926,7 @@
      public float getThunderStrength(float delta)
      {
          return (this.prevThunderingStrength + (this.thunderingStrength - this.prevThunderingStrength) * delta) * this.getRainStrength(delta);
-@@ -3885,7 +4271,7 @@
+@@ -3885,7 +4272,7 @@
          int j2 = x * 16 + 8 - blockpos1.getX();
          int k2 = z * 16 + 8 - blockpos1.getZ();
          int l2 = 128;
