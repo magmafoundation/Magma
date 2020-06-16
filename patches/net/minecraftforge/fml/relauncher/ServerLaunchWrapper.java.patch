@@ -1,17 +1,22 @@
 --- ../src-base/minecraft/net/minecraftforge/fml/relauncher/ServerLaunchWrapper.java
 +++ ../src-work/minecraft/net/minecraftforge/fml/relauncher/ServerLaunchWrapper.java
-@@ -20,20 +20,62 @@
+@@ -20,20 +20,72 @@
  package net.minecraftforge.fml.relauncher;
  
  import java.lang.reflect.Method;
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.List;
+ 
+-import org.apache.logging.log4j.LogManager;
+-import org.apache.logging.log4j.core.LoggerContext;
++import net.minecraft.server.MinecraftServer;
++import net.minecraft.server.dedicated.DedicatedServer;
 +import org.magmafoundation.magma.Magma;
 +import org.magmafoundation.magma.configuration.MagmaConfig;
 +import org.magmafoundation.magma.downloads.DownloadServerFiles;
 +import org.magmafoundation.magma.downloads.MagmaUpdater;
  
--import org.apache.logging.log4j.LogManager;
--import org.apache.logging.log4j.core.LoggerContext;
--
  public class ServerLaunchWrapper {
  
 +    public static long beginTime;
@@ -40,11 +45,15 @@
 +          DownloadServerFiles.downloadServerLibraries();
 +      }
 +
-+        System.out.println("Checking for new version...");
-+        MagmaUpdater magmaUpdater = new MagmaUpdater();
-+        if (magmaUpdater.versionChecker() && MagmaConfig.instance.magmaAutoUpdater.getValues()) {
-+            magmaUpdater.downloadJar();
-+        }
++      List<String> a = Arrays.asList(args);
++
++      if(!a.contains("-dau")) {
++          System.out.println("Checking for new version...");
++          MagmaUpdater magmaUpdater = new MagmaUpdater();
++          if (magmaUpdater.versionChecker() && MagmaConfig.instance.magmaAutoUpdater.getValues()) {
++              magmaUpdater.downloadJar();
++          }
++      }
 +
 +      new ServerLaunchWrapper().run(args);
      }
@@ -67,7 +76,7 @@
      private ServerLaunchWrapper()
      {
  
-@@ -56,9 +98,9 @@
+@@ -56,9 +108,9 @@
          {
              System.err.printf("We appear to be missing one or more essential library files.\n" +
              		"You will need to add them to your server before FML and Forge will run successfully.");

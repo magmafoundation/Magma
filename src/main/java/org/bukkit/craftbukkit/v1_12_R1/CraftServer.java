@@ -339,7 +339,7 @@ public final class CraftServer implements Server {
         if (type == PluginLoadOrder.STARTUP) {
             helpMap.clear();
             helpMap.initializeGeneralTopics();
-            loadCustomPermissions(); // Paper
+//            loadCustomPermissions(); // Paper
         }
 
         Plugin[] plugins = pluginManager.getPlugins();
@@ -357,12 +357,12 @@ public final class CraftServer implements Server {
             this.setVanillaCommands(false);
             // Spigot end
             commandMap.registerServerAliases();
-            loadCustomPermissions();
+//            loadCustomPermissions();
             DefaultPermissions.registerCorePermissions();
             CraftDefaultPermissions.registerCorePermissions();
             helpMap.initializeCommands();
         }
-
+        loadCustomPermissions();
     }
 
     @Override
