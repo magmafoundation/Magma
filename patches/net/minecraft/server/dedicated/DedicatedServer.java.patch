@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/server/dedicated/DedicatedServer.java
 +++ ../src-work/minecraft/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -1,18 +1,11 @@
+@@ -1,21 +1,16 @@
  package net.minecraft.server.dedicated;
  
 -import com.google.common.collect.Lists;
@@ -20,7 +20,12 @@
  import java.util.Random;
  import java.util.concurrent.TimeUnit;
  import java.util.regex.Pattern;
-@@ -43,30 +36,51 @@
++
++import jline.internal.InputStreamReader;
+ import net.minecraft.command.ICommandSender;
+ import net.minecraft.crash.CrashReport;
+ import net.minecraft.crash.ICrashReportDetail;
+@@ -43,30 +38,51 @@
  import net.minecraft.world.World;
  import net.minecraft.world.WorldSettings;
  import net.minecraft.world.WorldType;
@@ -77,7 +82,7 @@
          Thread thread = new Thread("Server Infinisleeper")
          {
              {
-@@ -96,15 +110,24 @@
+@@ -96,15 +112,24 @@
          {
              public void run()
              {
@@ -109,7 +114,7 @@
                      }
                  }
                  catch (IOException ioexception1)
-@@ -113,6 +136,27 @@
+@@ -113,6 +138,27 @@
                  }
              }
          };
@@ -137,7 +142,7 @@
          thread.setDaemon(true);
          thread.start();
          LOGGER.info("Starting minecraft server version 1.12.2");
-@@ -125,7 +169,7 @@
+@@ -125,17 +171,9 @@
          net.minecraftforge.fml.common.FMLCommonHandler.instance().onServerStart(this);
  
          LOGGER.info("Loading properties");
@@ -145,8 +150,18 @@
 +        this.settings =  new PropertyManager(this.options); // CraftBukkit - CLI argument support
          this.eula = new ServerEula(new File("eula.txt"));
  
-         if (!this.eula.hasAcceptedEULA())
-@@ -144,7 +188,7 @@
+-        if (!this.eula.hasAcceptedEULA())
+-        {
+-            LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
+-            this.eula.createEULAFile();
+-            return false;
+-        }
+-        else
+-        {
+             if (this.isSinglePlayer())
+             {
+                 this.setHostname("127.0.0.1");
+@@ -144,7 +182,7 @@
              {
                  this.setOnlineMode(this.settings.getBooleanProperty("online-mode", true));
                  this.setPreventProxyConnections(this.settings.getBooleanProperty("prevent-proxy-connections", false));
@@ -155,7 +170,7 @@
              }
  
              this.setCanSpawnAnimals(this.settings.getBooleanProperty("spawn-animals", true));
-@@ -180,11 +224,19 @@
+@@ -180,11 +218,19 @@
              {
                  this.setServerPort(this.settings.getIntProperty("server-port", 25565));
              }
@@ -175,7 +190,7 @@
              try
              {
                  this.getNetworkSystem().addLanEndpoint(inetaddress, this.getServerPort());
-@@ -196,13 +248,6 @@
+@@ -196,13 +242,6 @@
                  LOGGER.warn("Perhaps a server is already running on that port?");
                  return false;
              }
@@ -189,7 +204,7 @@
              }
  
              if (this.convertFiles())
-@@ -217,7 +262,7 @@
+@@ -217,7 +256,7 @@
              else
              {
                  net.minecraftforge.fml.common.FMLCommonHandler.instance().onServerStarted();
@@ -198,7 +213,7 @@
                  long j = System.nanoTime();
  
                  if (this.getFolderName() == null)
-@@ -254,6 +299,7 @@
+@@ -254,6 +293,7 @@
                      worldtype = WorldType.DEFAULT;
                  }
  
@@ -206,7 +221,7 @@
                  this.isCommandBlockEnabled();
                  this.getOpPermissionLevel();
                  this.isSnooperEnabled();
-@@ -271,8 +317,10 @@
+@@ -271,8 +311,10 @@
                  long i1 = System.nanoTime() - j;
                  String s3 = String.format("%.3fs", (double)i1 / 1.0E9D);
                  LOGGER.info("Done ({})! For help, type \"help\" or \"?\"", (Object)s3);
@@ -218,7 +233,7 @@
                  if (this.settings.hasProperty("announce-player-achievements"))
                  {
                      this.worlds[0].getGameRules().setOrCreateGameRule("announceAdvancements", this.settings.getBooleanProperty("announce-player-achievements", true) ? "true" : "false");
-@@ -287,21 +335,32 @@
+@@ -287,26 +329,37 @@
                      this.rconQueryThread.startThread();
                  }
  
@@ -259,7 +274,13 @@
                  Items.AIR.getSubItems(CreativeTabs.SEARCH, NonNullList.create());
                  // <3 you Grum for this, saves us ~30 patch files! --^
                  return net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStarting(this);
-@@ -427,11 +486,20 @@
+             }
+-        }
++//        }
+     }
+ 
+     public String loadResourcePackSHA()
+@@ -427,11 +480,20 @@
  
      public void executePendingCommands()
      {
@@ -284,7 +305,7 @@
      }
  
      public boolean isDedicatedServer()
-@@ -684,13 +752,65 @@
+@@ -684,13 +746,65 @@
  
      public String getPlugins()
      {

@@ -10,12 +10,14 @@
  import com.google.common.util.concurrent.Futures;
  import com.google.common.util.concurrent.ListenableFuture;
  import com.google.common.util.concurrent.ListenableFutureTask;
-@@ -17,91 +18,112 @@
+@@ -15,93 +16,112 @@
+ import io.netty.handler.codec.base64.Base64;
+ import java.awt.GraphicsEnvironment;
  import java.awt.image.BufferedImage;
- import java.io.File;
- import java.io.IOException;
-+import java.io.OutputStream;
- import java.io.UnsupportedEncodingException;
+-import java.io.File;
+-import java.io.IOException;
+-import java.io.UnsupportedEncodingException;
++import java.io.*;
  import java.net.Proxy;
  import java.net.URLEncoder;
  import java.nio.charset.StandardCharsets;
@@ -36,6 +38,7 @@
  import javax.annotation.Nullable;
  import javax.imageio.ImageIO;
 +import jline.console.ConsoleReader;
++import jline.internal.InputStreamReader;
 +import joptsimple.OptionSet;
  import net.minecraft.advancements.AdvancementManager;
  import net.minecraft.advancements.FunctionManager;
@@ -154,7 +157,7 @@
      @SideOnly(Side.SERVER)
      private String hostname;
      private int serverPort = -1;
-@@ -128,7 +150,6 @@
+@@ -128,7 +148,6 @@
      private KeyPair serverKeyPair;
      private String serverOwner;
      private String folderName;
@@ -162,7 +165,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +165,302 @@
+@@ -144,178 +163,302 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -562,7 +565,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +468,43 @@
+@@ -323,45 +466,43 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -632,7 +635,7 @@
          }
      }
  
-@@ -379,73 +522,79 @@
+@@ -379,73 +520,79 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -744,7 +747,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +602,214 @@
+@@ -453,159 +600,214 @@
                      worldserver1.flush();
                  }
              }
@@ -1032,7 +1035,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +817,44 @@
+@@ -613,70 +815,63 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1097,9 +1100,13 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +863,15 @@
+         }
+ 
          this.profiler.startSection("root");
-         this.updateTimeLightAndEntities();
+-        this.updateTimeLightAndEntities();
++        if(this.worlds.length > 0) {
++            this.updateTimeLightAndEntities();
++        }
  
 -        if (i - this.nanoTimeSinceStatusRefresh >= 5000000000L)
 -        {
@@ -2026,7 +2033,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1502,219 @@
+@@ -1347,316 +1502,254 @@
          return null;
      }
  
@@ -2192,15 +2199,49 @@
          //Forge: Copied from DedicatedServer.init as to run as early as possible, Old code left in place intentionally.
          //Done in good faith with permission: https://github.com/MinecraftForge/MinecraftForge/issues/3659#issuecomment-390467028
          ServerEula eula = new ServerEula(new File("eula.txt"));
--        if (!eula.hasAcceptedEULA())
--        {
++
+         if (!eula.hasAcceptedEULA())
+         {
 -            LOGGER.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
-+        if (!eula.hasAcceptedEULA()) {
-+            System.out.println("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
-             eula.createEULAFile();
-             return;
+-            eula.createEULAFile();
+-            return;
++            try {
++            System.out.println("You need to agree to the EULA in order to run the server.");
++            System.out.println("By Typing yes you are indicating your agreement to mojangs EULA (https://account.mojang.com/documents/minecraft_eula).");
++            System.out.println("Would you like to accept the EULA? (Type `yes` or `no`):");
++            boolean startServer = false;
++            int wrongCounter = 0;
++            while(!startServer) {
++                BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
++                String answer = input.readLine();
++                switch (answer.toLowerCase()) {
++                    case "yes":
++                        new File("eula.txt").delete();
++                        new File("eula.txt").createNewFile();
++                        OutputStream os = new FileOutputStream(new File("eula.txt"));
++                        os.write("eula=true".getBytes(), 0, "eula=true".length());
++                        System.out.println("Accepted the EULA! starting Magma....");
++                        startServer = true;
++                        continue;
++                    case "no":
++                        System.out.println("EULA NOT ACCEPTED!\nStoping Server...");
++                        return;
++                    default:
++                        if (wrongCounter >= 2) {
++                            System.out.println("You need to agree to the EULA. Go to eula.txt and accept it.");
++                            return;
++                        }
++                        wrongCounter++;
++                        System.out.println("Invalid response! (" + wrongCounter + "/3) Input 'yes' or 'no'");
++                        System.out.println("Would you like to accept the EULA? (Type `yes` or `no`):");
++                        break;
++                }
++            }
++            } catch (Exception exception){
++                exception.printStackTrace();
++            }
          }
--
+ 
          Bootstrap.register();
 -
          try

@@ -16,6 +16,7 @@ import org.magmafoundation.magma.configuration.value.values.BooleanValue;
 import org.magmafoundation.magma.configuration.value.values.IntValue;
 import org.magmafoundation.magma.configuration.value.values.StringArrayValue;
 import org.magmafoundation.magma.configuration.value.values.StringValue;
+import org.magmafoundation.RestartCommand;
 
 /**
  * MagmaConfig
@@ -106,6 +107,7 @@ public class MagmaConfig extends ConfigBase {
         commands.put("magma", new MagmaCommand("magma"));
         commands.put("tps", new TPSCommand("tps"));
         commands.put("version", new VersionCommand("version"));
+        commands.put("restart", new RestartCommand("restart"));
     }
 
     @Override
