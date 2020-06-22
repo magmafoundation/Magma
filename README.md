@@ -23,11 +23,11 @@ Magma 1.15 is getting close to a beta!!!
 
 ### Installation
 
-1. Download the recommended builds from the [**Releases** section](https://github.com/magmafoundation/Magma/releases)
+1. Download the recommended builds from the [**Releases** section](https://github.com/magmafoundation/Magma/releases) (Don't use the "-installer" version, it's broken right now)
    1. Download Beta builds from the [**CI**](https://ci.hexeption.dev/job/Magma%20Foundation/job/Magma/job/master/)
 2. Make a new directory for the server
 3. Move the jar that you previously downloaded to the new directory
-4. Run the jar
+4. Run the jar with cmd, going to your directory and entering `java -jar Magma-[version here]-server.jar`. Change [version-here] to your Magma version number.
 
 ### Building the sources
 
