@@ -1,9 +1,9 @@
 ---
-name: General Issue
-about: Get support for unexpected behaviour
-title: "[Issue]"
-labels: support
-assignees: ''
+name: Feature Request
+about: Submit a feature request for magma
+title: "[Feature]"
+labels: Feature
+assignees: 'Kwright02'
 
 ---
 
