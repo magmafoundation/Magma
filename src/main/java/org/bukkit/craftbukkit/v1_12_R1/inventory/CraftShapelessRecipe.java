@@ -1,11 +1,12 @@
 package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
 import java.util.List;
-
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistry;
 import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +21,7 @@ public class CraftShapelessRecipe extends ShapelessRecipe implements CraftRecipe
     }
 
     public CraftShapelessRecipe(ItemStack result, ShapelessRecipes recipe) {
-        this(CraftNamespacedKey.fromMinecraft(recipe.key), result);
+        this(recipe.key != null ? CraftNamespacedKey.fromMinecraft(recipe.key) : NamespacedKey.randomKey(), result);
         this.recipe = recipe;
     }
 
@@ -42,7 +43,11 @@ public class CraftShapelessRecipe extends ShapelessRecipe implements CraftRecipe
             data.set(i, Ingredient.fromStacks(new net.minecraft.item.ItemStack[]{CraftItemStack.asNMSCopy(ingred.get(i))}));
         }
         // TODO: Check if it's correct way to register recipes
-        ForgeRegistries.RECIPES.register(new ShapelessRecipes("", CraftItemStack.asNMSCopy(this.getResult()), data));
-        // CraftingManager.a(CraftNamespacedKey.toMinecraft(this.getKey()), new ShapelessRecipes("", CraftItemStack.asNMSCopy(this.getResult()), data));
+        ShapelessRecipes recipe = new ShapelessRecipes("", CraftItemStack.asNMSCopy(this.getResult()), data);
+        recipe.setKey(CraftNamespacedKey.toMinecraft(this.getKey()));
+        recipe.setRegistryName(recipe.key);
+        ((ForgeRegistry<IRecipe>) ForgeRegistries.RECIPES).unfreeze();
+        ForgeRegistries.RECIPES.register(recipe);
+        ((ForgeRegistry<IRecipe>) ForgeRegistries.RECIPES).freeze();
     }
 }
