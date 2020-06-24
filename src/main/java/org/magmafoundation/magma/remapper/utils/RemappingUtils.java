@@ -14,7 +14,12 @@ import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.remapper.RemapContext;
 import org.magmafoundation.magma.remapper.inter.ClassRemapperSupplier;
 import org.magmafoundation.magma.remapper.mappingsModel.ClassMappings;
-import org.magmafoundation.magma.remapper.remappers.*;
+import org.magmafoundation.magma.remapper.remappers.MagmaInheritanceMap;
+import org.magmafoundation.magma.remapper.remappers.MagmaInheritanceProvider;
+import org.magmafoundation.magma.remapper.remappers.MagmaJarMapping;
+import org.magmafoundation.magma.remapper.remappers.MagmaJarRemapper;
+import org.magmafoundation.magma.remapper.remappers.NMSVersionRemapper;
+import org.magmafoundation.magma.remapper.remappers.ReflectionRemapper;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -41,13 +46,15 @@ public class RemappingUtils {
         jarMapping.packages.put("org/bukkit/craftbukkit/libs/jline/", "jline/");
         jarMapping.packages.put("org/bukkit/craftbukkit/libs/joptsimple/", "joptsimple/");
         jarMapping.classes.put("catserver/api/bukkit/event/ForgeEvent", "org/magmafoundation/magma/api/events/ForgeEvents");
-        jarMapping.registerFieldMapping("catserver/api/bukkit/event/ForgeEvent","handlers", "org/magmafoundation/magma/api/events/ForgeEvent", "handlers");
-        jarMapping.registerFieldMapping("catserver/api/bukkit/event/ForgeEvent","forgeEvent", "org/magmafoundation/magma/api/events/ForgeEvent", "forgeEvent");
+        jarMapping.registerFieldMapping("catserver/api/bukkit/event/ForgeEvent", "handlers", "org/magmafoundation/magma/api/events/ForgeEvent", "handlers");
+        jarMapping.registerFieldMapping("catserver/api/bukkit/event/ForgeEvent", "forgeEvent", "org/magmafoundation/magma/api/events/ForgeEvent", "forgeEvent");
         jarMapping.registerMethodMapping("org/bukkit/Bukkit", "getOnlinePlayers", "()[Lorg/bukkit/entity/Player;", "org/bukkit/Bukkit", "_INVALID_getOnlinePlayers", "()[Lorg/bukkit/entity/Player;");
         jarMapping.registerMethodMapping("org/bukkit/Server", "getOnlinePlayers", "()[Lorg/bukkit/entity/Player;", "org/bukkit/Server", "_INVALID_getOnlinePlayers", "()[Lorg/bukkit/entity/Player;");
         jarMapping.registerMethodMapping("org/bukkit/craftbukkit/" + Magma.getBukkitVersion() + "/CraftServer", "getOnlinePlayers", "()[Lorg/bukkit/entity/Player;",
             "org/bukkit/craftbukkit/" + Magma.getBukkitVersion() + "/CraftServer", "_INVALID_getOnlinePlayers", "()[Lorg/bukkit/entity/Player;");
-        jarMapping.registerMethodMapping("catserver/api/bukkit/event/ForgeEvent", "getForgeEvent", "()Lnet/minecraftforge/fml/common/eventhandler/Event;", "org/magmafoundation/magma/api/events/ForgeEvent", "getForgeEvent", "()Lnet/minecraftforge/fml/common/eventhandler/Event;");
+        jarMapping
+            .registerMethodMapping("catserver/api/bukkit/event/ForgeEvent", "getForgeEvent", "()Lnet/minecraftforge/fml/common/eventhandler/Event;", "org/magmafoundation/magma/api/events/ForgeEvent",
+                "getForgeEvent", "()Lnet/minecraftforge/fml/common/eventhandler/Event;");
         jarMapping.setInheritanceMap(new MagmaInheritanceMap());
         jarMapping.setFallbackInheritanceProvider(new MagmaInheritanceProvider());
 
@@ -151,10 +158,6 @@ public class RemappingUtils {
         return jarMapping.fastReverseMapFieldName(type, fieldName);
     }
 
-    public static ClassLoader getCallerClassLoder() {
-        return ReflectionUtils.getCallerClassLoader();
-    }
-
     public static String inverseMapName(Class clazz) {
         ClassMappings mapping = jarMapping.byMCPName.get(clazz.getName());
         return mapping == null ? clazz.getName() : mapping.getNmsName();
@@ -163,26 +166,6 @@ public class RemappingUtils {
     public static String inverseMapSimpleName(Class clazz) {
         ClassMappings mapping = jarMapping.byMCPName.get(clazz.getName());
         return mapping == null ? clazz.getSimpleName() : mapping.getNmsSimpleName();
-    }
-
-    public static class ReflectionUtils {
-
-        private static final SecurityManager securityManager = new SecurityManager();
-
-        public static Class<?> getCallerClass(int skip) {
-            return securityManager.getCallerClass(skip);
-        }
-
-        public static ClassLoader getCallerClassLoader() {
-            return ReflectionUtils.getCallerClass(3).getClassLoader();
-        }
-
-        static class SecurityManager extends java.lang.SecurityManager {
-
-            public Class<?> getCallerClass(int skip) {
-                return getClassContext()[skip + 1];
-            }
-        }
     }
 
 }
