@@ -21,7 +21,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.ClassNode;
-import sun.reflect.Reflection;
 
 /**
  * RemappingUtils
@@ -153,7 +152,7 @@ public class RemappingUtils {
     }
 
     public static ClassLoader getCallerClassLoder() {
-        return Reflection.getCallerClass(3).getClassLoader();
+        return ReflectionUtils.getCallerClassLoader();
     }
 
     public static String inverseMapName(Class clazz) {
@@ -165,4 +164,25 @@ public class RemappingUtils {
         ClassMappings mapping = jarMapping.byMCPName.get(clazz.getName());
         return mapping == null ? clazz.getSimpleName() : mapping.getNmsSimpleName();
     }
+
+    public static class ReflectionUtils {
+
+        private static final SecurityManager securityManager = new SecurityManager();
+
+        public static Class<?> getCallerClass(int skip) {
+            return securityManager.getCallerClass(skip);
+        }
+
+        public static ClassLoader getCallerClassLoader() {
+            return ReflectionUtils.getCallerClass(3).getClassLoader();
+        }
+
+        static class SecurityManager extends java.lang.SecurityManager {
+
+            public Class<?> getCallerClass(int skip) {
+                return getClassContext()[skip + 1];
+            }
+        }
+    }
+
 }
