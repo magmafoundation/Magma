@@ -1,0 +1,10 @@
+--- ../src-base/minecraft/net/minecraft/client/settings/KeyBinding.java
++++ ../src-work/minecraft/net/minecraft/client/settings/KeyBinding.java
+@@ -11,7 +11,6 @@
+ import net.minecraftforge.fml.relauncher.SideOnly;
+ import org.lwjgl.input.Keyboard;
+ 
+-@SideOnly(Side.CLIENT)
+ public class KeyBinding implements Comparable<KeyBinding>
+ {
+     private static final Map<String, KeyBinding> KEYBIND_ARRAY = Maps.<String, KeyBinding>newHashMap();
