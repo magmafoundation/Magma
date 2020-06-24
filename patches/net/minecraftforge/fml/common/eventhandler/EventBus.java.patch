@@ -9,13 +9,16 @@
  
  public class EventBus implements IEventExceptionHandler
  {
-@@ -173,6 +175,12 @@
+@@ -173,6 +175,15 @@
      {
          if (shutdown) return false;
  
 +        // Magma start
-+        if (Bukkit.getServer() != null && ForgeEvents.getHandlersList().getRegisteredListeners().length > 0) {
-+            Bukkit.getPluginManager().callEvent(new ForgeEvents(event));
++        if (Bukkit.getServer() != null) {
++            ForgeEvents bukkitHookForgeEvent = new ForgeEvents(event);
++            if (bukkitHookForgeEvent.getHandlers().getRegisteredListeners().length > 0) {
++                org.bukkit.Bukkit.getPluginManager().callEvent(bukkitHookForgeEvent);
++            }
 +        }
 +        // Magma end
 +

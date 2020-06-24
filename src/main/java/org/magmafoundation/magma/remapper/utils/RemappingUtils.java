@@ -41,10 +41,14 @@ public class RemappingUtils {
         jarMapping.packages.put("org/bukkit/craftbukkit/libs/it/unimi/dsi/fastutil/", "it/unimi/dsi/fastutil/");
         jarMapping.packages.put("org/bukkit/craftbukkit/libs/jline/", "jline/");
         jarMapping.packages.put("org/bukkit/craftbukkit/libs/joptsimple/", "joptsimple/");
+        jarMapping.classes.put("catserver/api/bukkit/event/ForgeEvent", "org/magmafoundation/magma/api/events/ForgeEvents");
+        jarMapping.registerFieldMapping("catserver/api/bukkit/event/ForgeEvent","handlers", "org/magmafoundation/magma/api/events/ForgeEvents", "handlers");
+        jarMapping.registerFieldMapping("catserver/api/bukkit/event/ForgeEvent","forgeEvent", "org/magmafoundation/magma/api/events/ForgeEvents", "forgeEvents");
         jarMapping.registerMethodMapping("org/bukkit/Bukkit", "getOnlinePlayers", "()[Lorg/bukkit/entity/Player;", "org/bukkit/Bukkit", "_INVALID_getOnlinePlayers", "()[Lorg/bukkit/entity/Player;");
         jarMapping.registerMethodMapping("org/bukkit/Server", "getOnlinePlayers", "()[Lorg/bukkit/entity/Player;", "org/bukkit/Server", "_INVALID_getOnlinePlayers", "()[Lorg/bukkit/entity/Player;");
         jarMapping.registerMethodMapping("org/bukkit/craftbukkit/" + Magma.getBukkitVersion() + "/CraftServer", "getOnlinePlayers", "()[Lorg/bukkit/entity/Player;",
             "org/bukkit/craftbukkit/" + Magma.getBukkitVersion() + "/CraftServer", "_INVALID_getOnlinePlayers", "()[Lorg/bukkit/entity/Player;");
+        jarMapping.registerMethodMapping("catserver/api/bukkit/event/ForgeEvent", "getForgeEvent", "()Lnet/minecraftforge/fml/common/eventhandler/Event;", "org/magmafoundation/magma/api/events/ForgeEvents", "getForgeEvents", "()Lnet/minecraftforge/fml/common/eventhandler/Event;");
         jarMapping.setInheritanceMap(new MagmaInheritanceMap());
         jarMapping.setFallbackInheritanceProvider(new MagmaInheritanceProvider());
 
