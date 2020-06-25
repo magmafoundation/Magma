@@ -19,6 +19,10 @@ We hope to eliminate all issues with craftbukkit forge servers. In the end, we e
 
 Magma 1.15 is getting close to a beta!!! 
 
+## 1.7
+
+That has already been done. Try Thermos for Forge and Bukkit compatibility.
+
 ## Deployment
 
 ### Installation
