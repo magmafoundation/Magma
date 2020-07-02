@@ -17,7 +17,7 @@ We hope to eliminate all issues with craftbukkit forge servers. In the end, we e
 
 ## 1.15
 
-Magma 1.15 is getting close to a beta!!! 
+Magma 1.15.x is in beta! Learn more [here](https://github.com/magmafoundation/Magma-1.15.x).
 
 ## Deployment
 
