@@ -28,7 +28,7 @@ public class MagmaConfig extends ConfigBase {
     public static MagmaConfig instance = new MagmaConfig();
 
     //============================Debug======================================
-    public final BooleanValue debugPrintBukkitMatterials = new BooleanValue(this, "debug.debugPrintBukkitMatterials", false, "Prints the Forge Bukkit Materials");
+    public final BooleanValue debugPrintBukkitMaterials = new BooleanValue(this, "debug.debugPrintBukkitMaterials", false, "Prints the Forge Bukkit Materials");
     public final BooleanValue debugPrintBukkitBannerPatterns = new BooleanValue(this, "debug.debugPrintBukkitBannerPatterns", false, "Prints the Forge Bukkit Banner Patterns");
     public final BooleanValue debugPrintCommandNode = new BooleanValue(this, "debug.debugPrintCommandNode", false, "Prints out all Command Nodes for permissions");
 
