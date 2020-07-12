@@ -15,6 +15,15 @@ Magma is based on Forge and Paper, meaning it can run both Craftbukkit/Spigot/Pa
 
 We hope to eliminate all issues with craftbukkit forge servers. In the end, we envision a seamless, low lag Magma experience with support for newer 1.12+ versions of Minecraft.
 
+## Big Paper Update :fireworks:
+
+Magma at the moment ain't using all of the API/Patches with this update we will have all features of Paper and more optimizations and including Timings v2
+We can't wait to have this finished and shared with all for a better/faster server software
+
+We have Dev Build channel in the discord for this update so you can come and test it out and find bugs for use to fix be for release
+
+All work is being done on the [feature/full-paper-support](https://github.com/magmafoundation/Magma/tree/feature/full-paper-support) branch if you would like to check it out
+
 ## 1.15
 
 Magma 1.15.x is in beta! Learn more [here](https://github.com/magmafoundation/Magma-1.15.x).
