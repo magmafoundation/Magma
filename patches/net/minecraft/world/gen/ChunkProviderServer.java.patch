@@ -84,7 +84,7 @@
          }
  
          return chunk;
-@@ -266,17 +281,21 @@
+@@ -266,24 +281,63 @@
  
                      if (chunk != null && chunk.unloadQueued)
                      {
@@ -110,9 +110,11 @@
 +            // Magma - Stops forge automatically unloading world on startup.
 +//            if (this.id2ChunkMap.isEmpty()) net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
  
++            if(this.id2ChunkMap.isEmpty() && !net.minecraftforge.common.DimensionManager.isBukkitDimension(this.world.provider.getDimension())) net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
++
              this.chunkLoader.chunkTick();
          }
-@@ -284,6 +303,39 @@
+ 
          return false;
      }
  

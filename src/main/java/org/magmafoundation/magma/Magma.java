@@ -3,6 +3,7 @@ package org.magmafoundation.magma;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import org.bukkit.Bukkit;
 import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.patcher.PatcherManager;
 
@@ -31,7 +32,7 @@ public class Magma {
 
         try {
 
-            setName(MagmaConfig.instance.overrideServerBrand.getValues() ? MagmaConfig.instance.serverBrandValue.getValues() : "Magma");
+            setName(MagmaConfig.instance.overrideServerBrand.getValues() ? MagmaConfig.instance.serverBrand.getValues() : "Magma");
 
         } catch (Exception e){
             MinecraftServer.getServerInstance().logSevere("Error setting server brand, using default value 'Magma'");
