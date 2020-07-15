@@ -1,7 +1,7 @@
 package org.magmafoundation.magma.api.events;
 
+import net.minecraftforge.fml.common.eventhandler.Event;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
@@ -10,17 +10,17 @@ import org.bukkit.event.HandlerList;
  * @author Hexeption admin@hexeption.co.uk
  * @since 06/03/2020 - 12:32 am
  */
-public class ForgeEvents extends Event {
+public class ForgeEvent extends org.bukkit.event.Event {
 
     private static final HandlerList handlers = new HandlerList();
-    private final net.minecraftforge.fml.common.eventhandler.Event forgeEvents;
+    private final Event forgeEvent;
 
-    public ForgeEvents(net.minecraftforge.fml.common.eventhandler.Event forgeEvents) {
+    public ForgeEvent(Event event) {
         super(!Bukkit.getServer().isPrimaryThread());
-        this.forgeEvents = forgeEvents;
+        this.forgeEvent = event;
     }
 
-    public static HandlerList getHandlersList() {
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 
@@ -29,7 +29,11 @@ public class ForgeEvents extends Event {
         return handlers;
     }
 
-    public net.minecraftforge.fml.common.eventhandler.Event getForgeEvents() {
-        return forgeEvents;
+    public Event getForgeEvent() {
+        return forgeEvent;
+    }
+
+    public String getEventName() {
+        return forgeEvent.getClass().getSimpleName();
     }
 }

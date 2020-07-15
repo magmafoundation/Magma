@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 import org.magmafoundation.magma.remapper.utils.ASMUtils;
+import org.magmafoundation.magma.remapper.utils.ReflectionUtils;
 import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 
 /**
@@ -16,7 +17,7 @@ import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 public class ProxyClass {
 
     public static Class<?> forName(String className) throws ClassNotFoundException {
-        return forName(className, true, RemappingUtils.getCallerClassLoder());
+        return forName(className, true, ReflectionUtils.getCallerClassLoader());
     }
 
     public static Class<?> forName(String className, boolean initialize, ClassLoader loader) throws ClassNotFoundException {

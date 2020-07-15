@@ -15,9 +15,23 @@ Magma is based on Forge and Paper, meaning it can run both Craftbukkit/Spigot/Pa
 
 We hope to eliminate all issues with craftbukkit forge servers. In the end, we envision a seamless, low lag Magma experience with support for newer 1.12+ versions of Minecraft.
 
+## Big Paper Update :fireworks:
+
+Magma at the moment ain't using all of the API/Patches with this update we will have all features of Paper and more optimizations and including Timings v2
+
+We can't wait to have this finished and shared with all for a better/faster server software
+
+We have Dev Build channel in the discord for this update so you can come and test it out and find bugs for us to fix before release
+
+All work is being done on the [feature/full-paper-support](https://github.com/magmafoundation/Magma/tree/feature/full-paper-support) branch if you would like to check it out
+
 ## 1.15
 
-Magma 1.15 is getting close to a beta!!! 
+Magma 1.15.x is in beta! Learn more [here](https://github.com/magmafoundation/Magma-1.15.x).
+
+## 1.16
+
+Magma 1.16.x is in development, but a usable release is not available yet. You can still view the source code [here](https://github.com/magmafoundation/Magma-1.16.x).
 
 ## Deployment
 
@@ -61,6 +75,7 @@ For unstable/test builds you can check the [__CI__](https://ci.hexeption.dev/job
 <a href="https://aternos.org/en/"><img src="https://company.aternos.org/img/logotype-blue.svg" width="200"></a>
 <a href="https://songoda.com/"><img src="https://cdn2.songoda.com/branding/logo.png" width="200"></a>
 <a href="https://serverjars.com/"><img src="https://serverjars.com/assets/img/logo_white.svg" width="200"></a>
+<a href="https://craftycontrol.com/"><img src="https://i.imgur.com/243oDOX.png" width="100" height="100"></a>
 
 ![YourKit-Logo](https://www.yourkit.com/images/yklogo.png)
 
