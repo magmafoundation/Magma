@@ -1,0 +1,18 @@
+--- ../src-base/minecraft/net/minecraft/client/ClientBrandRetriever.java
++++ ../src-work/minecraft/net/minecraft/client/ClientBrandRetriever.java
+@@ -2,12 +2,14 @@
+ 
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
++import org.magmafoundation.magma.Magma;
+ 
+ @SideOnly(Side.CLIENT)
+ public class ClientBrandRetriever
+ {
+     public static String getClientModName()
+     {
+-        return net.minecraftforge.fml.common.FMLCommonHandler.instance().getModName();
++//        return net.minecraftforge.fml.common.FMLCommonHandler.instance().getModName();
++        return Magma.getName();
+     }
+ }

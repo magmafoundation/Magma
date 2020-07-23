@@ -46,6 +46,9 @@ public class MagmaConfig extends ConfigBase {
     public final BooleanValue magmaAutoUpdater = new BooleanValue(this, "magma.auto-update", true, "Auto updates the Magma jar");
     public final StringValue magmaAutoUpdaterPath = new StringValue(this, "magma.auto-update-path", "", "Path to place new jar");
 
+    public final BooleanValue overrideServerBrand = new BooleanValue(this, "magma.advanced.override-brand", false, "Enables or disables overriding the server brand");
+    public final StringValue serverBrandValue = new StringValue(this, "magma.advanced.override-value", "Spigot", "Value to use for server brand when overriding is enabled");
+
     private final String HEADER = "This is the main configuration file for Magma.\n" +
         "\n" +
         "Site: https://magmafoundation.org\n" +
