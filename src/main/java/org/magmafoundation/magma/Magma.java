@@ -2,6 +2,7 @@ package org.magmafoundation.magma;
 
 import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.patcher.PatcherManager;
+import net.minecraft.server.MinecraftServer;
 
 /**
  * Magma
@@ -11,7 +12,7 @@ import org.magmafoundation.magma.patcher.PatcherManager;
  */
 public class Magma {
 
-    private static final String NAME = "Magma";
+    private static String NAME = "Magma";
     private static final String VERSION = (Magma.class.getPackage().getImplementationVersion() != null) ? Magma.class.getPackage().getImplementationVersion() : "dev-env";
     private static final String BUKKIT_VERSION = "v1_12_R1";
     private static final String NMS_PREFIX = "net/minecraft/server/";
@@ -25,6 +26,19 @@ public class Magma {
         if (System.getProperty("log4j.configurationFile") == null) {
             System.setProperty("log4j.configurationFile", "log4j2_magma.xml");
         }
+
+        try {
+
+            setName(MagmaConfig.instance.overrideServerBrand.getValues() ? MagmaConfig.instance.serverBrandValue.getValues() : "Magma");
+
+        } catch (Exception e){
+            MinecraftServer.getServerInstance().logSevere("Error setting server brand, using default value 'Magma'");
+        }
+
+    }
+
+    private static void setName(String name){
+        Magma.NAME = name;
     }
 
     public static Magma getInstance() {

@@ -1367,7 +1367,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1059,51 @@
+@@ -835,53 +1059,52 @@
          return ret;
      }
  
@@ -1408,9 +1408,11 @@
  
 -    public String getServerModName()
 -    {
+-        return net.minecraftforge.fml.common.FMLCommonHandler.instance().getModName();
 +    public String getServerModName() {
 +        // TODO: Should we change this for CraftBukkit's server name?
-         return net.minecraftforge.fml.common.FMLCommonHandler.instance().getModName();
++//        return net.minecraftforge.fml.common.FMLCommonHandler.instance().getModName();
++        return Magma.getName();
      }
  
 -    public CrashReport addServerInfoToCrashReport(CrashReport report)
@@ -1445,7 +1447,7 @@
                  }
              });
          }
-@@ -889,145 +1111,115 @@
+@@ -889,145 +1112,115 @@
          return report;
      }
  
@@ -1635,7 +1637,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1227,75 @@
+@@ -1035,80 +1228,75 @@
          }
      }
  
@@ -1745,7 +1747,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1304,193 @@
+@@ -1117,228 +1305,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -2028,7 +2030,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1499,254 @@
+@@ -1347,316 +1500,254 @@
          return null;
      }
  
