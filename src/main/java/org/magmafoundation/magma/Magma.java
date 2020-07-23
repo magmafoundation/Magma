@@ -1,5 +1,6 @@
 package org.magmafoundation.magma;
 
+import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.patcher.PatcherManager;
 
 /**
@@ -31,6 +32,7 @@ public class Magma {
     }
 
     public static String getName() {
+        if(MagmaConfig.instance.overrideServerBrand.getValues()) return MagmaConfig.instance.serverBrand.getValues();
         return NAME;
     }
 
