@@ -48,7 +48,6 @@ public class MagmaConfig extends ConfigBase {
     public final BooleanValue overrideServerBrand = new BooleanValue(this, "magma.advanced.override-brand", false, "Enables overriding the brand string");
     public final StringValue serverBrand = new StringValue(this, "magma.advanced.override-brand-name", "Spigot", "Value to use for new brand string");
 
-
     private final String HEADER = "This is the main configuration file for Magma.\n" +
         "\n" +
         "Site: https://magmafoundation.org\n" +
