@@ -1,11 +1,8 @@
 package org.magmafoundation.magma;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.bukkit.Bukkit;
 import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.patcher.PatcherManager;
+import net.minecraft.server.MinecraftServer;
 
 /**
  * Magma
@@ -49,6 +46,7 @@ public class Magma {
     }
 
     public static String getName() {
+        if(MagmaConfig.instance.overrideServerBrand.getValues()) return MagmaConfig.instance.serverBrand.getValues();
         return NAME;
     }
 
