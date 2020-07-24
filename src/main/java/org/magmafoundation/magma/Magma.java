@@ -1,7 +1,12 @@
 package org.magmafoundation.magma;
 
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.patcher.PatcherManager;
+
+import java.util.UUID;
 
 /**
  * Magma
