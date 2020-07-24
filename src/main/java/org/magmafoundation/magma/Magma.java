@@ -1,6 +1,8 @@
 package org.magmafoundation.magma;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.patcher.PatcherManager;
 
