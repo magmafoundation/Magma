@@ -33,6 +33,7 @@ public class TPSCommand extends Command {
     }
 
     private static final long mean(long[] array) {
+        if(array == null) return -1;
         long r = 0;
         for (long i : array) {
             r += i;
