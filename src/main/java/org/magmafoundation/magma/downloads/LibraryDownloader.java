@@ -6,7 +6,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
@@ -14,6 +13,7 @@ import java.net.URLClassLoader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import org.magmafoundation.magma.utils.JarLoader;
+import org.magmafoundation.magma.utils.MD5Checksum;
 
 /**
  * LibraryDownloader
@@ -24,19 +24,14 @@ import org.magmafoundation.magma.utils.JarLoader;
 public class LibraryDownloader {
 
     public void run() {
-        parseLibraryJson(new InputStreamReader(LibraryDownloader.this.getClass().getResourceAsStream("/magma_libs.json")));
-    }
-
-    private void parseLibraryJson(Reader reader) {
-        Gson gson = new GsonBuilder().create();
-
-        JsonElement librarys = gson.fromJson(reader, JsonElement.class);
-        String verison = librarys.getAsJsonObject().get("version").getAsString();
-        JsonArray libs = librarys.getAsJsonObject().get("libraries").getAsJsonArray();
+        System.out.println("Starting Library Downloader");
+        JsonArray libs = parseLibraryJson(new InputStreamReader(getClass().getResourceAsStream("/magma_libs.json")));
         libs.forEach(jsonElement -> {
             String name = jsonElement.getAsJsonObject().get("name").getAsString();
             String repo = jsonElement.getAsJsonObject().get("repo").getAsString();
-            Libary libary = craftLibary(name, repo);
+            String md5 = jsonElement.getAsJsonObject().get("md5").getAsString();
+
+            Libary libary = craftLibary(name, repo, md5);
             try {
                 File file = downloadFile(libary);
                 JarLoader.loadjar(new JarLoader((URLClassLoader) ClassLoader.getSystemClassLoader()), file);
@@ -45,12 +40,19 @@ public class LibraryDownloader {
                 e.printStackTrace();
             }
         });
-
-        System.out.println();
-
     }
 
-    private Libary craftLibary(String fullName, String repo) {
+    private JsonArray parseLibraryJson(Reader reader) {
+        Gson gson = new GsonBuilder().create();
+
+        JsonElement librarys = gson.fromJson(reader, JsonElement.class);
+        String verison = librarys.getAsJsonObject().get("version").getAsString();
+        System.out.println("Library Version: " + verison);
+        JsonArray libs = librarys.getAsJsonObject().get("libraries").getAsJsonArray();
+        return libs;
+    }
+
+    private Libary craftLibary(String fullName, String repo, String md5) {
         String groupId = fullName.split(":")[0];
         groupId = groupId.replaceAll("\\.", "/"); // Replaces all '.' with '/'
         String artifactId = fullName.split(":")[1];
@@ -61,8 +63,7 @@ public class LibraryDownloader {
                 String jarName = artifactId + "-" + version.replace("SNAPSHOT", "") + time + ".jar";
                 String folderName = groupId + "/" + artifactId + "/" + version;
                 String url = repo + "/" + folderName + "/" + jarName;
-                Libary libary = new Libary(jarName, folderName, url);
-                System.out.println(libary.toString());
+                Libary libary = new Libary(jarName, folderName, url, md5);
                 return libary;
             }
         } catch (Exception e) {
@@ -72,8 +73,7 @@ public class LibraryDownloader {
         String folderName = groupId + "/" + artifactId + "/" + version;
         String url = repo + "/" + folderName + "/" + jarName;
 
-        Libary libary = new Libary(jarName, folderName, url);
-        System.out.println(libary.toString());
+        Libary libary = new Libary(jarName, folderName, url, md5);
         return libary;
     }
 
@@ -82,11 +82,13 @@ public class LibraryDownloader {
         private final String jarName;
         private final String folderName;
         private final String url;
+        private final String md5sum;
 
-        public Libary(String jarName, String folderName, String url) {
+        public Libary(String jarName, String folderName, String url, String md5sum) {
             this.jarName = jarName;
             this.folderName = folderName;
             this.url = url;
+            this.md5sum = md5sum;
         }
 
         @Override
@@ -95,18 +97,38 @@ public class LibraryDownloader {
                 "jarName='" + jarName + '\'' +
                 ", folderName='" + folderName + '\'' +
                 ", url='" + url + '\'' +
+                ", md5sum='" + md5sum + '\'' +
                 '}';
         }
     }
 
-    private File downloadFile(Libary libary) throws IOException {
-        URL website = new URL(libary.url);
-        ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+    private File downloadFile(Libary libary) throws Exception {
         String folderName = "./libraries/" + libary.folderName + "/";
-        new File(folderName).mkdirs();
-        FileOutputStream fos = new FileOutputStream(folderName + libary.jarName);
-        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        return new File(folderName + libary.jarName);
+        String fullPath = folderName + libary.jarName;
+
+        if (new File(fullPath).exists()) {
+            if (MD5Checksum.getMD5Checksum(fullPath).equals(libary.md5sum)) {
+                return new File(fullPath);
+            } else {
+                new File(folderName).mkdirs();
+                System.out.println("MD5 is Different Re Downloading Jar: " + fullPath);
+
+                URL website = new URL(libary.url);
+                ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+                FileOutputStream fos = new FileOutputStream(fullPath);
+                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+                return new File(fullPath);
+            }
+        } else {
+            new File(folderName).mkdirs();
+
+            System.out.println("Downloading Jar: " + fullPath);
+
+            URL website = new URL(libary.url);
+            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            FileOutputStream fos = new FileOutputStream(fullPath);
+            fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            return new File(fullPath);
+        }
     }
 }
-
