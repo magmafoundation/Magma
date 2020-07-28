@@ -229,7 +229,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
                 else { return new CraftAmbient(server, (EntityAmbientCreature) entity); }
             }
             else if (entity instanceof EntityArmorStand) { return new CraftArmorStand(server, (EntityArmorStand) entity); }
-            else  { return new CraftLivingEntity(server, (EntityLiving) entity); }
+            else  { return new CraftLivingEntity(server, (EntityLivingBase) entity); }
         }
         else if (entity instanceof MultiPartEntityPart) {
             MultiPartEntityPart part = (MultiPartEntityPart) entity;
