@@ -140,6 +140,7 @@ public class Main {
                         .ofType(File.class)
                         .defaultsTo(new File("magma.yml"))
                         .describedAs("Yml file");
+
                 // Magma End
 
                 // Paper start

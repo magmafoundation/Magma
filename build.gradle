@@ -81,6 +81,7 @@ dependencies {
     compile 'net.md-5:SpecialSource:1.8.5'
     compile 'net.md-5:bungeecord-chat:1.12-SNAPSHOT'
     compile 'net.minecraft:launchwrapper:1.12'
+    compile 'org.projectlombok:lombok:1.16.12'
     compile 'net.sf.jopt-simple:jopt-simple:5.0.3'
     compile 'com.googlecode.json-simple:json-simple:1.1.1'
     compile 'com.mojang:authlib:1.5.25'

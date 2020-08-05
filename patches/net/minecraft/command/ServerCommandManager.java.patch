@@ -1,6 +1,15 @@
 --- ../src-base/minecraft/net/minecraft/command/ServerCommandManager.java
 +++ ../src-work/minecraft/net/minecraft/command/ServerCommandManager.java
-@@ -40,6 +40,10 @@
+@@ -32,6 +32,8 @@
+ import net.minecraft.util.text.ITextComponent;
+ import net.minecraft.util.text.TextComponentTranslation;
+ import net.minecraft.util.text.TextFormatting;
++import net.minecraftforge.fml.common.FMLCommonHandler;
++import net.minecraftforge.fml.common.Loader;
+ 
+ public class ServerCommandManager extends CommandHandler implements ICommandListener
+ {
+@@ -40,6 +42,10 @@
      public ServerCommandManager(MinecraftServer serverIn)
      {
          this.server = serverIn;
@@ -11,7 +20,7 @@
          this.registerCommand(new CommandTime());
          this.registerCommand(new CommandGameMode());
          this.registerCommand(new CommandDifficulty());
-@@ -89,8 +93,7 @@
+@@ -89,8 +95,7 @@
          this.registerCommand(new CommandLocate());
          this.registerCommand(new CommandReload());
          this.registerCommand(new CommandFunction());
@@ -21,7 +30,7 @@
          {
              this.registerCommand(new CommandOp());
              this.registerCommand(new CommandDeOp());
-@@ -147,7 +150,7 @@
+@@ -147,7 +152,7 @@
              }
          }
  
