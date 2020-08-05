@@ -1,0 +1,25 @@
+--- ../src-base/minecraft/net/minecraft/command/CommandReload.java
++++ ../src-work/minecraft/net/minecraft/command/CommandReload.java
+@@ -1,6 +1,8 @@
+ package net.minecraft.command;
+ 
+ import net.minecraft.server.MinecraftServer;
++import net.minecraft.util.text.TextComponentTranslation;
++import net.minecraftforge.fml.common.Loader;
+ 
+ public class CommandReload extends CommandBase
+ {
+@@ -25,10 +27,12 @@
+         {
+             throw new WrongUsageException("commands.reload.usage", new Object[0]);
+         }
+-        else
++        else if(Loader.instance().getActiveModList().size() == 4)
+         {
+             server.reload();
+             notifyCommandListener(sender, this, "commands.reload.success", new Object[0]);
++        } else {
++            sender.sendMessage(new TextComponentTranslation("You have mods loaded so /reload is disabled. Please use /stop"));
+         }
+     }
+ }

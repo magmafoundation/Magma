@@ -1,6 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/world/gen/ChunkProviderServer.java
 +++ ../src-work/minecraft/net/minecraft/world/gen/ChunkProviderServer.java
-@@ -26,16 +26,17 @@
+@@ -14,6 +14,7 @@
+ import net.minecraft.crash.CrashReport;
+ import net.minecraft.crash.CrashReportCategory;
+ import net.minecraft.entity.EnumCreatureType;
++import net.minecraft.tileentity.TileEntity;
+ import net.minecraft.util.ReportedException;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.ChunkPos;
+@@ -26,16 +27,17 @@
  import net.minecraft.world.chunk.storage.IChunkLoader;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
@@ -20,7 +28,7 @@
  
      public ChunkProviderServer(WorldServer worldObjIn, IChunkLoader chunkLoaderIn, IChunkGenerator chunkGeneratorIn)
      {
-@@ -83,6 +84,10 @@
+@@ -83,6 +85,10 @@
          return chunk;
      }
  
@@ -31,7 +39,7 @@
      @Nullable
      public Chunk loadChunk(int x, int z)
      {
-@@ -92,6 +97,12 @@
+@@ -92,6 +98,12 @@
      @Nullable
      public Chunk loadChunk(int x, int z, @Nullable Runnable runnable)
      {
@@ -44,7 +52,7 @@
          Chunk chunk = this.getLoadedChunk(x, z);
          if (chunk == null)
          {
-@@ -104,9 +115,9 @@
+@@ -104,9 +116,9 @@
  
                  if (chunk != null)
                  {
@@ -57,7 +65,7 @@
                  }
  
                  loadingChunks.remove(pos);
-@@ -123,6 +134,8 @@
+@@ -123,6 +135,8 @@
                      return null;
                  }
              }
@@ -66,15 +74,15 @@
          }
  
          // If we didn't load the chunk async and have a callback run it now
-@@ -136,6 +149,7 @@
+@@ -136,6 +150,7 @@
  
          if (chunk == null)
          {
-+            world.timings.syncChunkLoadTimer.startTiming();
++            world.timings.tileEntityTick.startTiming();
              long i = ChunkPos.asLong(x, z);
  
              try
-@@ -154,7 +168,8 @@
+@@ -154,7 +169,8 @@
  
              this.id2ChunkMap.put(i, chunk);
              chunk.onLoad();
@@ -84,7 +92,18 @@
          }
  
          return chunk;
-@@ -266,24 +281,63 @@
+@@ -173,6 +189,10 @@
+                 this.chunkGenerator.recreateStructures(chunk, x, z);
+             }
+ 
++            for(TileEntity te: chunk.tileEntities.values()){
++                te.onChunkLoad();
++            }
++
+             return chunk;
+         }
+         catch (Exception exception)
+@@ -266,17 +286,21 @@
  
                      if (chunk != null && chunk.unloadQueued)
                      {
@@ -110,11 +129,9 @@
 +            // Magma - Stops forge automatically unloading world on startup.
 +//            if (this.id2ChunkMap.isEmpty()) net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
  
-+            if(this.id2ChunkMap.isEmpty() && !net.minecraftforge.common.DimensionManager.isBukkitDimension(this.world.provider.getDimension())) net.minecraftforge.common.DimensionManager.unloadWorld(this.world.provider.getDimension());
-+
              this.chunkLoader.chunkTick();
          }
- 
+@@ -284,6 +308,43 @@
          return false;
      }
  
@@ -147,6 +164,10 @@
 +        this.saveChunkData(chunk);
 +        this.saveChunkExtraData(chunk);
 +        this.id2ChunkMap.remove(chunk.chunkKey);
++        //Unload tile entities in unloaded chunk
++        for(TileEntity te : chunk.tileEntities.values()){
++            te.onChunkUnload();
++        }
 +        return true;
 +    }
 +    // CraftBukkit end

@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/tileentity/TileEntity.java
 +++ ../src-work/minecraft/net/minecraft/tileentity/TileEntity.java
-@@ -20,16 +20,22 @@
+@@ -20,16 +20,24 @@
  import net.minecraftforge.fml.relauncher.SideOnly;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
@@ -12,6 +12,7 @@
 +
  public abstract class TileEntity implements net.minecraftforge.common.capabilities.ICapabilitySerializable<NBTTagCompound>
  {
++
      private static final Logger LOGGER = LogManager.getLogger();
      private static final RegistryNamespaced < ResourceLocation, Class <? extends TileEntity >> REGISTRY = new RegistryNamespaced < ResourceLocation, Class <? extends TileEntity >> ();
 -    protected World world;
@@ -20,11 +21,12 @@
      protected boolean tileEntityInvalid;
      private int blockMetadata = -1;
      protected Block blockType;
++    protected boolean parentChunkUnloaded = false;
 +    public CustomTimingsHandler tickTimer = SpigotTimings.getTileEntityTimings(this); // Spigot
  
      public static void register(String id, Class <? extends TileEntity > clazz)
      {
-@@ -315,7 +321,7 @@
+@@ -315,7 +323,7 @@
       * @param net The NetworkManager the packet originated from
       * @param pkt The data packet
       */
@@ -33,7 +35,30 @@
      {
      }
  
-@@ -531,4 +537,12 @@
+@@ -336,8 +344,13 @@
+      */
+     public void onChunkUnload()
+     {
++        this.parentChunkUnloaded = true;
+     }
+ 
++    public void onChunkLoad(){
++        this.parentChunkUnloaded = false;
++    }
++
+     private boolean isVanilla = getClass().getName().startsWith("net.minecraft.");
+     /**
+      * Called from Chunk.setBlockIDWithMetadata and Chunk.fillChunk, determines if this tile entity should be re-created when the ID, or Metadata changes.
+@@ -356,7 +369,7 @@
+ 
+     public boolean shouldRenderInPass(int pass)
+     {
+-        return pass == 0;
++        return (parentChunkUnloaded ? false : pass == 0);
+     }
+ 
+     /**
+@@ -531,4 +544,12 @@
          register("shulker_box", TileEntityShulkerBox.class);
          register("bed", TileEntityBed.class);
      }

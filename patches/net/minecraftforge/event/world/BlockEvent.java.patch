@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraftforge/event/world/BlockEvent.java
 +++ ../src-work/minecraft/net/minecraftforge/event/world/BlockEvent.java
-@@ -19,29 +19,31 @@
+@@ -19,30 +19,38 @@
  
  package net.minecraftforge.event.world;
  
@@ -18,6 +18,7 @@
 -import net.minecraft.init.Enchantments;
 +import net.minecraft.entity.player.EntityPlayerMP;
  import net.minecraft.item.ItemStack;
++import net.minecraft.tileentity.TileEntity;
 +import net.minecraft.util.EnumFacing;
  import net.minecraft.util.EnumHand;
  import net.minecraft.util.math.BlockPos;
@@ -25,9 +26,12 @@
  import net.minecraft.world.World;
 -import net.minecraftforge.common.ForgeHooks;
  import net.minecraftforge.common.util.BlockSnapshot;
++import net.minecraftforge.common.util.FakePlayer;
  import net.minecraftforge.fml.common.eventhandler.Cancelable;
  import net.minecraftforge.fml.common.eventhandler.Event;
++import org.bukkit.Bukkit;
 +import org.bukkit.block.BlockState;
++import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 +import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlockState;
  
@@ -37,11 +41,23 @@
  import javax.annotation.Nullable;
 +import java.util.EnumSet;
 +import java.util.List;
-+import org.bukkit.event.block.BlockMultiPlaceEvent;
  
++import org.bukkit.entity.Player;
++import org.bukkit.event.block.BlockMultiPlaceEvent;
++
  public class BlockEvent extends Event
  {
-@@ -125,16 +127,17 @@
+     private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("forge.debugBlockEvent", "false"));
+@@ -117,7 +125,7 @@
+     public static class BreakEvent extends BlockEvent
+     {
+         /** Reference to the Player who broke the block. If no player is available, use a EntityFakePlayer */
+-        private final EntityPlayer player;
++        private EntityPlayer player;
+         private int exp;
+ 
+         public BreakEvent(World world, BlockPos pos, IBlockState state, EntityPlayer player)
+@@ -125,16 +133,23 @@
              super(world, pos, state);
              this.player = player;
  
@@ -49,12 +65,18 @@
 -                (state.getBlock().canSilkHarvest(world, pos, world.getBlockState(pos), player) && EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, player.getHeldItemMainhand()) > 0)) // If the block is being silk harvested, the exp dropped is 0
 -            {
 -                this.exp = 0;
++            if(player instanceof FakePlayer){
++                this.player = ((CraftPlayer) Bukkit.getPlayer(((FakePlayer) player).getAttachedBukkitPlayer())).getHandle();
+             }
++
++            Player p = (Player) world.getTileEntity(pos).getOwner().getInventory().getHolder();
++
 +            // Cauldron start - handle event on bukkit side
 +            org.bukkit.event.block.BlockBreakEvent bukkitEvent = CraftEventFactory.callBlockBreakEvent(world, pos, state, (EntityPlayerMP) player);
 +
 +            if(bukkitEvent.isCancelled()){
 +                this.setCanceled(true);
-             }
++            }
              else
              {
 -                int bonusLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, player.getHeldItemMainhand());
@@ -65,7 +87,7 @@
          }
  
          public EntityPlayer getPlayer()
-@@ -204,8 +207,7 @@
+@@ -204,8 +219,7 @@
       */
      @Cancelable
      @Deprecated // Remove in 1.13
@@ -75,12 +97,13 @@
          private final EntityPlayer player;
          private final EnumHand hand;
  
-@@ -213,17 +215,33 @@
+@@ -213,17 +227,43 @@
              super(blockSnapshot, placedAgainst, player);
              this.player = player;
              this.hand = hand;
 -            if (DEBUG)
 -            {
++
 +            if(!(this instanceof MultiPlaceEvent)){
 +                // Cauldron start - handle event on bukkit side
 +                CraftBlockState blockstate = new CraftBlockState(blockSnapshot);
@@ -88,8 +111,17 @@
 +                if (bukkitEvent.isCancelled() || !bukkitEvent.canBuild()) {
 +                    this.setCanceled(true);
 +                }
++                if(blockstate.getTileEntity() != null){
++                    TileEntity te = blockstate.getTileEntity();
++                    if(te.getOwner() != null){
++                        if(te.getOwner() instanceof FakePlayer){
++                            ((FakePlayer) te.getOwner()).setAttachedBukkitPlayer(player.getUniqueID());
++                        }
++                    }
++                }
 +                // Cauldron end
 +            }
++
 +            if (DEBUG) {
                  System.out.printf("Created PlaceEvent - [PlacedBlock: %s ][PlacedAgainst: %s ][ItemStack: %s ][Player: %s ][Hand: %s]\n", getPlacedBlock(), placedAgainst, player.getHeldItem(hand), player, hand);
              }
@@ -114,7 +146,7 @@
      }
  
      /**
-@@ -275,6 +293,12 @@
+@@ -275,6 +315,12 @@
          public MultiPlaceEvent(@Nonnull List<BlockSnapshot> blockSnapshots, @Nonnull IBlockState placedAgainst, @Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
              super(blockSnapshots.get(0), placedAgainst, player, hand);
              this.blockSnapshots = ImmutableList.copyOf(blockSnapshots);

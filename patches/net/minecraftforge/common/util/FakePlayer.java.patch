@@ -1,7 +1,30 @@
 --- ../src-base/minecraft/net/minecraftforge/common/util/FakePlayer.java
 +++ ../src-work/minecraft/net/minecraftforge/common/util/FakePlayer.java
-@@ -47,6 +47,7 @@
+@@ -37,16 +37,30 @@
+ import net.minecraft.world.World;
+ import net.minecraft.world.WorldServer;
  
++import java.util.UUID;
++
+ //Preliminary, simple Fake Player class
+ public class FakePlayer extends EntityPlayerMP
+ {
++
++    private UUID attachedBukkitPlayer;
++
+     public FakePlayer(WorldServer world, GameProfile name)
+     {
+         super(FMLCommonHandler.instance().getMinecraftServerInstance(), world, name, new PlayerInteractionManager(world));
+     }
+ 
++    public void setAttachedBukkitPlayer(UUID uuid){
++        this.attachedBukkitPlayer = uuid;
++    }
++
++    public UUID getAttachedBukkitPlayer(){
++        return attachedBukkitPlayer;
++    }
++
      @Override public Vec3d getPositionVector(){ return new Vec3d(0, 0, 0); }
      @Override public boolean canUseCommand(int i, String s){ return false; }
 +    @Override public boolean canUseCommand(int i, String s, String perm){ return false; }

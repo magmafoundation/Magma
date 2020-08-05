@@ -304,22 +304,33 @@
              return false;
          return type != null && type.equals(getHarvestTool(state));
      }
-@@ -2286,9 +2297,12 @@
+@@ -2286,23 +2297,15 @@
          return false;
      }
  
 -    /** @deprecated use {@link #getAiPathNodeType(IBlockState, IBlockAccess, BlockPos, net.minecraft.entity.EntityLiving)} */
-+    /**
-+     * Get the {@code PathNodeType} for this block. Return {@code null} for vanilla behavior.
-+     *
-+     * @return the PathNodeType
-+     */
-     @Nullable
+-    @Nullable
 -    @Deprecated // TODO: remove
-     public net.minecraft.pathfinding.PathNodeType getAiPathNodeType(IBlockState state, IBlockAccess world, BlockPos pos)
+-    public net.minecraft.pathfinding.PathNodeType getAiPathNodeType(IBlockState state, IBlockAccess world, BlockPos pos)
+-    {
+-        return isBurning(world, pos) ? net.minecraft.pathfinding.PathNodeType.DAMAGE_FIRE : null;
+-    }
+-
+     /**
+      * Get the {@code PathNodeType} for this block. Return {@code null} for vanilla behavior.
+      *
+      * @return the PathNodeType
+      */
+     @Nullable
+-    public net.minecraft.pathfinding.PathNodeType getAiPathNodeType(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable net.minecraft.entity.EntityLiving entity)
++    public net.minecraft.pathfinding.PathNodeType getAiPathNodeType(IBlockState state, IBlockAccess world, BlockPos pos)
      {
-         return isBurning(world, pos) ? net.minecraft.pathfinding.PathNodeType.DAMAGE_FIRE : null;
-@@ -2642,6 +2656,18 @@
+-        return getAiPathNodeType(state, world, pos);
++        return isBurning(world, pos) ? net.minecraft.pathfinding.PathNodeType.DAMAGE_FIRE : null;
+     }
+ 
+     /**
+@@ -2642,6 +2645,18 @@
          registerBlock(id, new ResourceLocation(textualID), block_);
      }
  
