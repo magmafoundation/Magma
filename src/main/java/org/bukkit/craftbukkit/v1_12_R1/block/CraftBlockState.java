@@ -128,7 +128,10 @@ public class CraftBlockState implements BlockState {
         return data;
     }
 
-    public void setType(final Material type) {
+    public void setType(Material type) {
+        if (type.getMaterialType() == Material.MaterialType.MOD_ITEM) {
+            type = Material.convertModItemMaterialToBlock(type); // Magma
+        }
         setTypeId(type.getId());
     }
 

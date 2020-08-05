@@ -9,6 +9,8 @@ import net.minecraft.server.MinecraftServer;
 
 import java.util.UUID;
 
+import java.util.UUID;
+
 /**
  * Magma
  *

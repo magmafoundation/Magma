@@ -408,7 +408,7 @@
 +                    Item item = entry.getValue();
 +                    if(!key.getResourceDomain().equals("minecraft")) {
 +                        String materialName = key.toString().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
-+                        Material material = Material.addMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE, Integer.TYPE}, new Object[]{Item.getIdFromItem(item), item.getItemStackLimit()}));
++                        Material material = Material.addMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE, Integer.TYPE, Material.MaterialType.class}, new Object[]{Item.getIdFromItem(item), item.getItemStackLimit(), Material.MaterialType.MOD_ITEM}));
 +                        if(magmaDebugPrint.getValues()){
 +                            if (material != null) {
 +                                MinecraftServer.LOGGER.info(String.format("Injected new Forge item material %s with ID %d.", material.name(), material.getId()));
@@ -427,7 +427,7 @@
 +                    Block block = entry.getValue();
 +                    if(!key.getResourceDomain().equals("minecraft")) {
 +                        String materialName = key.toString().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
-+                        Material material = Material.addBlockMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE}, new Object[]{Block.getIdFromBlock(block)}));
++                        Material material = Material.addBlockMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE, Material.MaterialType.class}, new Object[]{Block.getIdFromBlock(block), Material.MaterialType.MOD_BLOCK}));
 +                        if(magmaDebugPrint.getValues()){
 +                            if (material != null) {
 +                                MinecraftServer.LOGGER.info(String.format("Injected new Forge block material %s with ID %d.", material.name(), material.getId()));
@@ -1121,7 +1121,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,143 +876,175 @@
+@@ -684,143 +876,176 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1313,6 +1313,7 @@
  
          this.profiler.endStartSection("dim_unloading");
 -        net.minecraftforge.common.DimensionManager.unloadWorlds(worldTickTimes);
++        DimensionManager.unloadWorlds(worldTickTimes);
          this.profiler.endStartSection("connection");
 +        SpigotTimings.connectionTimer.startTiming(); // Spigot
          this.getNetworkSystem().networkTick();
@@ -1447,6 +1448,7 @@
                  }
              });
          }
+
 @@ -889,145 +1112,115 @@
          return report;
      }
@@ -1747,6 +1749,7 @@
                      ++l;
                  }
              }
+
 @@ -1117,228 +1305,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }

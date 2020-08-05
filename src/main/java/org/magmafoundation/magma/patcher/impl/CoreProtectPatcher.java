@@ -38,7 +38,9 @@ public class CoreProtectPatcher extends Patcher {
                 AbstractInsnNode nextNode = insnNodeListIterator.next();
                 if (nextNode instanceof MethodInsnNode) {
                     MethodInsnNode methodInsnNode = (MethodInsnNode) nextNode;
-                    if (methodInsnNode.owner.equals("org/bukkit/Material") && methodInsnNode.name.equals("getMaterial")) {
+                    if (methodInsnNode.owner.equals("org/bukkit/Material") && methodInsnNode.name.equals("getMaterial") && methodInsnNode.desc.equals("(Ljava/lang/String;)Lorg/bukkit/Material;")) {
+                        methodInsnNode.name = "getItemOrBlockMaterial";
+                    } else if (methodInsnNode.owner.equals("org/bukkit/Material") && methodInsnNode.name.equals("getMaterial") && methodInsnNode.desc.equals("(I)Lorg/bukkit/Material;")) {
                         methodInsnNode.name = "getBlockMaterial";
                     }
                 }

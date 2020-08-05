@@ -33,7 +33,11 @@ public class MagmaUpdater {
             JsonArray changeSetsItems = changeSetsItems = root.get("changeSets").getAsJsonArray();
             JsonObject changeSet;
             try {
-                changeSet = changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().get(0).getAsJsonObject();
+                if (changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().size() > 1) {
+                    changeSet = changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().get(changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().size()-1).getAsJsonObject(); // Fixed when multiple commits are in the request
+                }else{
+                    changeSet = changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().get(0).getAsJsonObject();
+                }
             } catch (IndexOutOfBoundsException e) {
                 System.out.println("Failed to retrieve latest version.");
                 return false;
