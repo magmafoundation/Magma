@@ -59,10 +59,7 @@ public class DownloadServerFiles {
                 FileOutputStream fos = new FileOutputStream(fileName);
                 fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
                 System.out.println("Extracting Zip");
-                String[] pathRaw = MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath().split("/");
-                String path = MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace(pathRaw[pathRaw.length-1], "");
-                System.out.println(path);
-                unzip(minecraftlibraries, path);
+                unzip(minecraftlibraries, "./");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -77,15 +74,7 @@ public class DownloadServerFiles {
      */
     public static boolean getLibrariesVersion() {
         String s = Magma.getLibraryVersion();
-        String path = DownloadServerFiles.class.getProtectionDomain().getCodeSource().getLocation()
-            .getFile();
-        try {
-            path = URLDecoder.decode(path, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        File jarDir = new File(path);
-        File lib = new File(jarDir.getParent() + "/libraries.version");
+        File lib = new File("./libraries.version");
         if (!lib.exists()) {
             return true;
         }
