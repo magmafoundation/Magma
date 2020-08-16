@@ -1,11 +1,13 @@
-package org.bukkit.craftbukkit.v1_12_R1.entity;
+package org.magmafoundation.magma.entity;
 
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.entity.EntityType;
 
 public class CraftCustomEntity extends CraftEntity {
+
     public Class<? extends Entity> entityClass;
     private String entityName;
 
@@ -13,8 +15,9 @@ public class CraftCustomEntity extends CraftEntity {
         super(server, entity);
         this.entityClass = entity.getClass();
         this.entityName = EntityRegistry.entityTypeMap.get(entityClass);
-        if (entityName == null)
+        if (entityName == null) {
             entityName = entity.getCommandSenderEntity().getName();
+        }
     }
 
     @Override
@@ -29,8 +32,10 @@ public class CraftCustomEntity extends CraftEntity {
 
     public EntityType getType() {
         EntityType type = EntityType.fromName(this.entityName);
-        if (type != null)
+        if (type != null) {
             return type;
-        else return EntityType.UNKNOWN;
+        } else {
+            return EntityType.UNKNOWN;
+        }
     }
 }

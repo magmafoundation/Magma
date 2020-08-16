@@ -1,14 +1,14 @@
-package org.bukkit.craftbukkit.v1_12_R1.entity;
+package org.magmafoundation.magma.entity;
 
 import com.mojang.authlib.GameProfile;
+import java.util.UUID;
 import net.minecraft.entity.Entity;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.entity.Projectile;
 import org.bukkit.projectiles.ProjectileSource;
 
-import java.util.UUID;
-
 public class CraftCustomProjectile extends CraftCustomEntity implements Projectile {
+
     private ProjectileSource shooter = null;
     private boolean doesBounce;
 
@@ -16,7 +16,7 @@ public class CraftCustomProjectile extends CraftCustomEntity implements Projecti
         super(server, entity);
     }
 
-    public static final GameProfile dropper =  new GameProfile(UUID.nameUUIDFromBytes("[Dropper]".getBytes()), "[Dropper]");
+    public static final GameProfile dropper = new GameProfile(UUID.nameUUIDFromBytes("[Dropper]".getBytes()), "[Dropper]");
 
     @Override
     public ProjectileSource getShooter() {

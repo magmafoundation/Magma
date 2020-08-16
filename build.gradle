@@ -264,6 +264,19 @@ String getServerClasspath(File file) {
     return out.toString()
 }
 
+def patcher_plugin = plugins.apply('net.minecraftforge.gradle.patcher')
+task genPluginJar(type: net.minecraftforge.gradle.patcher.TaskReobfuscate, dependsOn: reobfuscate) {
+    srg = patcher_plugin.delayedFile('{CACHE_DIR}/de/oceanlabs/mcp/mcp_{MAPPING_CHANNEL}/{MAPPING_VERSION}/{MC_VERSION}/srgs/mcp-srg.srg')
+    exc = reobfuscate.exc
+    preFFJar = reobfuscate.preFFJar
+    methodsCsv = reobfuscate.methodsCsv
+    fieldsCsv = reobfuscate.fieldsCsv
+    addLibs reobfuscate.libs
+    inJar = patcher_plugin.delayedFile('{BUILD_DIR}/localCache/Magma/recompiled.jar')
+    outJar = "build/Magma-${versioning.info.build}-plugin.jar"
+}
+
+
 githubRelease {
     if(System.getenv("GITHUB_TOKEN") != null){
         token System.getenv("GITHUB_TOKEN")

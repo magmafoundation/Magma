@@ -56,6 +56,23 @@ Magma 1.16.x is in development, but a usable release is not available yet. You c
   - Now go and get a drink this may take some time
   - Navigate to `build/distributions` directory of the compiled source code
   - Copy the Jar to a new server directory
+  
+### Plugin Development
+
+- Clone the Project
+  - You can use Git GUI (like GitHub Desktop/GitKraken) or clone using the terminal using:
+    - `git clone https://github.com/MagmaFoundation/Magma`
+  - Next, clone the submodules using:
+    - `git submodule update --init --recursive`
+- Building Jar
+  - First you want to run the plugin gen command
+    - `./gradlew genPluginJar`
+  - Now go and get a drink this may take some time
+  - Navigate to `build/distributions` directory
+  - You should have a jar like `Magma-xxxxxx-plugin.jar`
+  - Now create a plugin with that jar.
+  
+
 
 ## Contributing
 

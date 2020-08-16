@@ -173,19 +173,7 @@
      }
  
      /**
-@@ -354,6 +406,11 @@
-     {
-         WorldServer world = worlds.get(id);
-         if (world == null || !canUnloadWorld(world)) return;
-+        for (String dim1 : MagmaConfig.instance.autoUnloadDimensions) {
-+            if (dim1.equals("*") || (StringUtils.isNumeric(dim1) && Integer.valueOf(dim1).intValue() == id)) {
-+                return;
-+            }
-+        }
- 
-         if (unloadQueue.add(id))
-         {
-@@ -390,20 +447,7 @@
+@@ -390,20 +442,7 @@
                  FMLLog.log.debug("Aborting unload for dimension {} as status changed", id);
                  continue;
              }
@@ -207,7 +195,7 @@
          }
      }
  
-@@ -499,4 +543,100 @@
+@@ -499,4 +538,100 @@
              return null;
          }
      }
