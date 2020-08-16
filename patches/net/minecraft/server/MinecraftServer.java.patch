@@ -114,7 +114,6 @@
 +import org.bukkit.craftbukkit.v1_12_R1.Main;
 +import org.bukkit.craftbukkit.v1_12_R1.chunkio.ChunkIOExecutor;
 +import org.bukkit.craftbukkit.v1_12_R1.enchantments.CraftEnchantment;
-+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftCustomEntity;
 +import org.bukkit.craftbukkit.v1_12_R1.potion.CraftPotionEffectType;
 +import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboardManager;
 +import org.bukkit.craftbukkit.v1_12_R1.util.ServerShutdownThread;
@@ -126,6 +125,7 @@
 +import org.magmafoundation.magma.api.ServerAPI;
 +import org.magmafoundation.magma.configuration.MagmaConfig;
 +import org.magmafoundation.magma.configuration.value.values.BooleanValue;
++import org.magmafoundation.magma.entity.CraftCustomEntity;
 +import org.magmafoundation.magma.patcher.PatcherManager;
 +import org.spigotmc.CustomTimingsHandler;
 +import org.spigotmc.SlackActivityAccountant;
