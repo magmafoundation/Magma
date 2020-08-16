@@ -273,7 +273,7 @@ task genPluginJar(type: net.minecraftforge.gradle.patcher.TaskReobfuscate, depen
     fieldsCsv = reobfuscate.fieldsCsv
     addLibs reobfuscate.libs
     inJar = patcher_plugin.delayedFile('{BUILD_DIR}/localCache/Magma/recompiled.jar')
-    outJar = "build/Magma-${versioning.info.build}-plugin.jar"
+    outJar = "build/distributions/Magma-${versioning.info.build}-plugin.jar"
 }
 
 
