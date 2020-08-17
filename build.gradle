@@ -21,6 +21,7 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3+'
         classpath 'net.nemerosa:versioning:2.7.1'
         classpath "gradle.plugin.com.github.breadmoirai:github-release:2.2.9"
+        classpath "gradle.plugin.net.minecrell:licenser:0.4.1"
     }
 }
 
@@ -31,6 +32,7 @@ apply plugin: 'net.minecraftforge.gradle.patcher'
 apply plugin: 'net.minecraftforge.gradle.launch4j'
 apply plugin: 'net.nemerosa.versioning'
 apply plugin: "com.github.breadmoirai.github-release"
+apply plugin: "net.minecrell.licenser"
 
 group 'magmafoundation'
 version versioning.info.build
@@ -276,6 +278,20 @@ task genPluginJar(type: net.minecraftforge.gradle.patcher.TaskReobfuscate, depen
     outJar = "build/distributions/Magma-${versioning.info.build}-plugin.jar"
 }
 
+license {
+    header = file("$rootDir/LICENSE-header.txt")
+
+    include 'org/magmafoundation/'
+
+    tasks {
+        main {
+            files = files("$rootDir/src/main/java")
+        }
+        test {
+            files = files("$rootDir/src/test/java")
+        }
+    }
+}
 
 githubRelease {
     if(System.getenv("GITHUB_TOKEN") != null){
