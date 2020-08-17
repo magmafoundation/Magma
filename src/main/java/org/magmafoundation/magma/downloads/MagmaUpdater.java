@@ -4,6 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.CodeSource;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.configuration.MagmaConfig;
 
@@ -64,15 +68,16 @@ public class MagmaUpdater {
 
     public void downloadJar() {
         String url = "https://ci.hexeption.dev/job/Magma%20Foundation/job/Magma/job/master/lastSuccessfulBuild/artifact/build/distributions/Magma-" + newSha + "-server.jar";
-        String fileName = MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath().substring(1);
         try {
+            Path path = Paths.get(MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             System.out.println("Updating Magma Jar ...");
             URL website = new URL(url);
             ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-            FileOutputStream fos = new FileOutputStream(new File("./" + fileName));
+            FileOutputStream fos = new FileOutputStream(path.toFile());
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException | URISyntaxException e) {
+            System.out.println("Failed to download update! Starting old version.");
+            return;
         }
         System.out.println("Download Complete! Please restart the server.");
         System.exit(0);
