@@ -1,6 +1,7 @@
 package org.magmafoundation.magma.utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -13,19 +14,45 @@ import java.net.URLClassLoader;
  */
 public class JarLoader {
 
-    private URLClassLoader urlClassLoader;
+    /**
+     * Parameters of the method to add an URL to the System classes.
+     */
+    private static final Class<?>[] parameters = new Class[]{URL.class};
 
-    public JarLoader(URLClassLoader urlClassLoader) {
-        this.urlClassLoader = urlClassLoader;
+    /**
+     * Adds a file to the classpath.
+     *
+     * @param s a String pointing to the file
+     */
+    public static void addFile(String s) throws IOException {
+        File f = new File(s);
+        addFile(f);
     }
 
-    public void loadJar(URL url) throws Exception {
-        Method addURL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-        addURL.setAccessible(true);
-        addURL.invoke(urlClassLoader, url);
+    /**
+     * Adds a file to the classpath
+     *
+     * @param f the file to be added
+     */
+    public static void addFile(File f) throws IOException {
+        addURL(f.toURI().toURL());
     }
 
-    public static void loadjar(JarLoader jarLoader, File file) throws Exception {
-        jarLoader.loadJar(file.toURI().toURL());
+    /**
+     * Adds the content pointed by the URL to the classpath.
+     *
+     * @param u the URL pointing to the content to be added
+     */
+    public static void addURL(URL u) throws IOException {
+        URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+        Class<?> sysclass = URLClassLoader.class;
+        try {
+            Method method = sysclass.getDeclaredMethod("addURL", parameters);
+            method.setAccessible(true);
+            method.invoke(sysloader, new Object[]{u});
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw new IOException("Error, could not add URL to system classloader");
+        }
     }
 }

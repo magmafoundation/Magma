@@ -160,6 +160,16 @@
       "name": "net.sf.jopt-simple:jopt-simple:5.0.3",
       "repo": "https://repo.maven.apache.org/maven2",
       "md5": "0a5ec84e23df9d7cfb4063bc55f2744c"
+    },
+    {
+      "name": "net.java.dev.jna:jna:4.5.2",
+      "repo": "https://repo.maven.apache.org/maven2",
+      "md5": "7af79401c6b29460994545939be50bb5"
+    },
+    {
+      "name": "com.typesafe:config:1.2.1",
+      "repo": "https://repo.maven.apache.org/maven2",
+      "md5": "3aaf3c6e76a68e732c17d4a7e9877d81"
     }
   ]
 }

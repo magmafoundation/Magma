@@ -34,7 +34,7 @@ public class LibraryDownloader {
             Libary libary = craftLibary(name, repo, md5);
             try {
                 File file = downloadFile(libary);
-                JarLoader.loadjar(new JarLoader((URLClassLoader) ClassLoader.getSystemClassLoader()), file);
+                JarLoader.addFile(file);
 
             } catch (Exception e) {
                 e.printStackTrace();
