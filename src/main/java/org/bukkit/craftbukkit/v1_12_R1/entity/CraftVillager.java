@@ -2,12 +2,9 @@ package org.bukkit.craftbukkit.v1_12_R1.entity;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import javax.annotation.Nullable;
-
 import net.minecraft.entity.passive.EntityVillager;
-import net.minecraft.util.registry.IRegistry;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
