@@ -61,6 +61,7 @@ public class MagmaConfig extends ConfigBase {
     public final IntValue expMergeMaxValue = new IntValue(this, "experience-merge-max-value", -1,
         "Instructs the server put a maximum value on experience orbs, preventing them all from merging down into 1 single orb.");
     public List<Integer> autoUnloadDimensions = Lists.newArrayList(13371337);
+    public StringArrayValue disableForgeGenerateWorlds = new StringArrayValue(this, "forge.generateworldBlacklist","", "Allows users to specify worlds in which mods won't generate their structures");
 
     //=============================FakePlayer SETTINGS========================
     public final StringArrayValue fakePlayerPermissions = new StringArrayValue(this, "fakeplayer.permissions", "", "A list of permissions that fake players should have");
