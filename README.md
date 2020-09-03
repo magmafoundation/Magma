@@ -80,6 +80,8 @@ Please read the [CONTRIBUTING.md](https://github.com/magmafoundation/Magma/blob/
 
 You are welcome to visit Magma's Discord server [here](https://discord.gg/6rkqngA).
 
+You could also go to Magma's subreddit [here](https://www.reddit.com/r/Magma).
+
 ## Unstable/Test builds
 
 For unstable/test builds you can check the [__CI__](https://ci.hexeption.dev/job/Magma%20Foundation/)
