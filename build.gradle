@@ -185,6 +185,11 @@ launch4j {
     maxHeapPercent = 100
 }
 
+task launchServer(type: JavaExec, dependsOn: 'launch4j') {
+    main = "-jar"
+    args file("build/distributions/${project.name}-${project.version}-server.jar").canonicalPath
+}
+
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
