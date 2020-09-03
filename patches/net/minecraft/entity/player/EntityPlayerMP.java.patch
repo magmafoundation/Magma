@@ -285,7 +285,7 @@
          boolean flag = this.world.getGameRules().getBoolean("showDeathMessages");
          this.connection.sendPacket(new SPacketCombatEvent(this.getCombatTracker(), SPacketCombatEvent.Event.ENTITY_DIED, flag));
 +        java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<>(this.inventory.getSizeInventory());
-+        boolean keepInventory = this.world.getGameRules().getBoolean("keepInventory") || this.isSpectator();
++        boolean keepInventory = MinecraftServer.getServerInstance().getWorld(0).getGameRules().getBoolean("keepInventory") || this.isSpectator();
  
 -        if (flag)
 -        {
