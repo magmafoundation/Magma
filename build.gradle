@@ -223,7 +223,7 @@ outputJar {
             "Implementation-Version": version,
             "Main-Class": "net.minecraftforge.fml.relauncher.ServerLaunchWrapper",
             "TweakClass": "net.minecraftforge.fml.common.launcher.FMLTweaker",
-            "Class-Path": getServerClasspath(file("jsons/1.12.2-rel.json"))
+            "Class-Path": "minecraft_server.1.12.2.jar"
     ])
 }
 
@@ -249,26 +249,6 @@ genGradleProjects {
     addCompileDep "org.reflections:reflections:0.9.10"
     addCompileDep "javassist:javassist:3.12.1.GA"
     addRepo("MagmaFoundation", "https://repo.hexeption.dev/repository/magma/")
-}
-
-
-import groovy.json.JsonSlurper
-
-String getServerClasspath(File file) {
-    def node = new JsonSlurper().parse(file)
-    def out = new StringBuilder()
-    node.versionInfo.libraries.each { lib ->
-        if (lib.serverreq)
-        {
-            def split = lib.name.split(':')
-            def group = split[0].replace('.', '/')
-            def artifact = split[1]
-            def version = split[2]
-            out += "libraries/$group/$artifact/$version/$artifact-${version}.jar "
-        }
-    }
-    out += "minecraft_server.1.12.2.jar"
-    return out.toString()
 }
 
 def patcher_plugin = plugins.apply('net.minecraftforge.gradle.patcher')

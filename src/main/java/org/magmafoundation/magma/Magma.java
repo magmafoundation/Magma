@@ -38,7 +38,6 @@ public class Magma {
     private static final String VERSION = (Magma.class.getPackage().getImplementationVersion() != null) ? Magma.class.getPackage().getImplementationVersion() : "dev-env";
     private static final String BUKKIT_VERSION = "v1_12_R1";
     private static final String NMS_PREFIX = "net/minecraft/server/";
-    private static final String LIBRARY_VERSION = "3";
     private static Magma INSTANCE = new Magma();
     private PatcherManager patcherManager;
 
@@ -69,10 +68,6 @@ public class Magma {
 
     public static String getNmsPrefix() {
         return NMS_PREFIX;
-    }
-
-    public static String getLibraryVersion() {
-        return LIBRARY_VERSION;
     }
 
     public PatcherManager getPatcherManager() {
