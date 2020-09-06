@@ -113,6 +113,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import javax.annotation.Nullable;
 
+import org.magmafoundation.magma.entity.CraftFakePlayer;
 import org.spigotmc.AsyncCatcher;
 import org.spigotmc.SpigotConfig;
 
@@ -1751,4 +1752,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         return spigot;
     }
     // Spigot end
+
+    // Magma start
+    @Override
+    public boolean isFakePlayer() {
+        return (this instanceof CraftFakePlayer);
+    }
+    // Magma end
 }

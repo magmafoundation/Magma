@@ -185,6 +185,7 @@ public class CraftBlock implements Block {
 
     @Override
     public void setType(Material type, boolean applyPhysics) {
+        if (type.getMaterialType() == Material.MaterialType.MOD_ITEM) type = Material.convertModItemMaterialToBlock(type); // Magma
         setTypeId(type.getId(), applyPhysics);
     }
 

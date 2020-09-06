@@ -114,7 +114,6 @@
 +import org.bukkit.craftbukkit.v1_12_R1.Main;
 +import org.bukkit.craftbukkit.v1_12_R1.chunkio.ChunkIOExecutor;
 +import org.bukkit.craftbukkit.v1_12_R1.enchantments.CraftEnchantment;
-+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftCustomEntity;
 +import org.bukkit.craftbukkit.v1_12_R1.potion.CraftPotionEffectType;
 +import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboardManager;
 +import org.bukkit.craftbukkit.v1_12_R1.util.ServerShutdownThread;
@@ -126,6 +125,7 @@
 +import org.magmafoundation.magma.api.ServerAPI;
 +import org.magmafoundation.magma.configuration.MagmaConfig;
 +import org.magmafoundation.magma.configuration.value.values.BooleanValue;
++import org.magmafoundation.magma.entity.CraftCustomEntity;
 +import org.magmafoundation.magma.patcher.PatcherManager;
 +import org.spigotmc.CustomTimingsHandler;
 +import org.spigotmc.SlackActivityAccountant;
@@ -408,7 +408,7 @@
 +                    Item item = entry.getValue();
 +                    if(!key.getResourceDomain().equals("minecraft")) {
 +                        String materialName = key.toString().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
-+                        Material material = Material.addMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE, Integer.TYPE}, new Object[]{Item.getIdFromItem(item), item.getItemStackLimit()}));
++                        Material material = Material.addMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE, Integer.TYPE, Material.MaterialType.class}, new Object[]{Item.getIdFromItem(item), item.getItemStackLimit(), Material.MaterialType.MOD_ITEM}));
 +                        if(magmaDebugPrint.getValues()){
 +                            if (material != null) {
 +                                MinecraftServer.LOGGER.info(String.format("Injected new Forge item material %s with ID %d.", material.name(), material.getId()));
@@ -427,7 +427,7 @@
 +                    Block block = entry.getValue();
 +                    if(!key.getResourceDomain().equals("minecraft")) {
 +                        String materialName = key.toString().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
-+                        Material material = Material.addBlockMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE}, new Object[]{Block.getIdFromBlock(block)}));
++                        Material material = Material.addBlockMaterial(EnumHelper.addEnum(Material.class, materialName, new Class[]{Integer.TYPE, Material.MaterialType.class}, new Object[]{Block.getIdFromBlock(block), Material.MaterialType.MOD_BLOCK}));
 +                        if(magmaDebugPrint.getValues()){
 +                            if (material != null) {
 +                                MinecraftServer.LOGGER.info(String.format("Injected new Forge block material %s with ID %d.", material.name(), material.getId()));

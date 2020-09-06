@@ -1567,4 +1567,8 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
             throw new UnsupportedOperationException( "Not supported yet." );
         }
     }
+
+    // Magma start
+    public boolean isFakePlayer();
+    // Magma end
 }

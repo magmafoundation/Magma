@@ -21,6 +21,7 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3+'
         classpath 'net.nemerosa:versioning:2.7.1'
         classpath "gradle.plugin.com.github.breadmoirai:github-release:2.2.9"
+        classpath "gradle.plugin.net.minecrell:licenser:0.4.1"
     }
 }
 
@@ -31,6 +32,7 @@ apply plugin: 'net.minecraftforge.gradle.patcher'
 apply plugin: 'net.minecraftforge.gradle.launch4j'
 apply plugin: 'net.nemerosa.versioning'
 apply plugin: "com.github.breadmoirai.github-release"
+apply plugin: "net.minecrell.licenser"
 
 group 'magmafoundation'
 version versioning.info.build
@@ -183,6 +185,11 @@ launch4j {
     maxHeapPercent = 100
 }
 
+task launchServer(type: JavaExec, dependsOn: 'launch4j') {
+    main = "-jar"
+    args file("build/distributions/${project.name}-${project.version}-server.jar").canonicalPath
+}
+
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
@@ -242,6 +249,33 @@ genGradleProjects {
     addCompileDep "org.reflections:reflections:0.9.10"
     addCompileDep "javassist:javassist:3.12.1.GA"
     addRepo("MagmaFoundation", "https://repo.hexeption.dev/repository/magma/")
+}
+
+def patcher_plugin = plugins.apply('net.minecraftforge.gradle.patcher')
+task genPluginJar(type: net.minecraftforge.gradle.patcher.TaskReobfuscate, dependsOn: reobfuscate) {
+    srg = patcher_plugin.delayedFile('{CACHE_DIR}/de/oceanlabs/mcp/mcp_{MAPPING_CHANNEL}/{MAPPING_VERSION}/{MC_VERSION}/srgs/mcp-srg.srg')
+    exc = reobfuscate.exc
+    preFFJar = reobfuscate.preFFJar
+    methodsCsv = reobfuscate.methodsCsv
+    fieldsCsv = reobfuscate.fieldsCsv
+    addLibs reobfuscate.libs
+    inJar = patcher_plugin.delayedFile('{BUILD_DIR}/localCache/Magma/recompiled.jar')
+    outJar = "build/distributions/Magma-${versioning.info.build}-plugin.jar"
+}
+
+license {
+    header = file("$rootDir/LICENSE-header.txt")
+
+    include 'org/magmafoundation/'
+
+    tasks {
+        main {
+            files = files("$rootDir/src/main/java")
+        }
+        test {
+            files = files("$rootDir/src/test/java")
+        }
+    }
 }
 
 githubRelease {
