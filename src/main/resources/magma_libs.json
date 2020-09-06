@@ -97,8 +97,8 @@
       "md5": "a3e3c3186e41c4a1a3027ba2bb23cdc6"
     },
     {
-      "name": "java3d:vecmath:1.5.2",
-      "repo": "http://maven.geotoolkit.org/",
+      "name": "javax.vecmath:vecmath:1.5.2",
+      "repo": "https://repo.maven.apache.org/maven2",
       "md5": "61da15462a5dc94fe3e228f03d6d6f9e"
     },
     {
