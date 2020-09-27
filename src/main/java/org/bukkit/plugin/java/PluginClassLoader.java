@@ -20,6 +20,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.patcher.Patcher;
 import org.magmafoundation.magma.remapper.ClassLoaderContext;
+import org.magmafoundation.magma.remapper.mappingsModel.ClassMappings;
 import org.magmafoundation.magma.remapper.utils.RemappingUtils;
 
 /**
@@ -99,8 +100,11 @@ public final class PluginClassLoader extends URLClassLoader {
         Class<?> result;
         try {
             if (name.startsWith("net.minecraft.server." + Magma.getBukkitVersion())) {
-                String remappedClass = RemappingUtils.jarMapping.byNMSName.get(name).getMcpName();
-                return Class.forName(remappedClass);
+                ClassMappings remappedClass = RemappingUtils.jarMapping.byNMSName.get(name);
+                if (remappedClass == null) {
+                    throw new ClassNotFoundException(name);
+                }
+                return Class.forName(remappedClass.getMcpName());
             }
 
             if (name.startsWith("org.bukkit.")) {
