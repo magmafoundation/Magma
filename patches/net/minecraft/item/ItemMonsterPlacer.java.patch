@@ -1,6 +1,22 @@
 --- ../src-base/minecraft/net/minecraft/item/ItemMonsterPlacer.java
 +++ ../src-work/minecraft/net/minecraft/item/ItemMonsterPlacer.java
-@@ -220,6 +220,11 @@
+@@ -152,7 +152,14 @@
+ 
+                 NBTTagCompound nbttagcompound1 = targetEntity.writeToNBT(new NBTTagCompound());
+                 UUID uuid = targetEntity.getUniqueID();
+-                nbttagcompound1.merge(nbttagcompound.getCompoundTag("EntityTag"));
++                // Paper start - Filter out position and motion information
++                final NBTTagCompound entityTag = nbttagcompound.getCompoundTag("EntityTag");
++                if (entityWorld.paperConfig.filterNBTFromSpawnEgg) {
++                    entityTag.removeTag("Pos");
++                    entityTag.removeTag("Motion");
++                }
++                nbttagcompound1.merge(entityTag);
++                // Paper end
+                 targetEntity.setUniqueId(uuid);
+                 targetEntity.readFromNBT(nbttagcompound1);
+             }
+@@ -220,6 +227,11 @@
      @Nullable
      public static Entity spawnCreature(World worldIn, @Nullable ResourceLocation entityID, double x, double y, double z)
      {
@@ -12,7 +28,7 @@
          if (entityID != null && EntityList.ENTITY_EGGS.containsKey(entityID))
          {
              Entity entity = null;
-@@ -236,8 +241,15 @@
+@@ -236,8 +248,15 @@
                      entityliving.renderYawOffset = entityliving.rotationYaw;
                      if (net.minecraftforge.event.ForgeEventFactory.doSpecialSpawn(entityliving, worldIn, (float) x, (float) y, (float) z, null)) return null;
                      entityliving.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(entityliving)), (IEntityLivingData)null);

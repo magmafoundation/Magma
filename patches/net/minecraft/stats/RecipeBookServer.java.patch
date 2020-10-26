@@ -8,3 +8,29 @@
          net.minecraftforge.common.ForgeHooks.sendRecipeBook(player.connection, state, recipesIn, Collections.emptyList(), this.isGuiOpen, this.isFilteringCraftable);
      }
  
+@@ -67,7 +68,11 @@
+ 
+         for (IRecipe irecipe : this.getRecipes())
+         {
+-            nbttaglist.appendTag(new NBTTagString(((ResourceLocation)CraftingManager.REGISTRY.getNameForObject(irecipe)).toString()));
++            // Paper start - ignore missing recipes
++            ResourceLocation key = CraftingManager.REGISTRY.getNameForObject(irecipe);
++            if (key == null) continue;
++            nbttaglist.appendTag(new NBTTagString(key.toString()));
++            // Paper end
+         }
+ 
+         nbttagcompound.setTag("recipes", nbttaglist);
+@@ -75,7 +80,11 @@
+ 
+         for (IRecipe irecipe1 : this.getDisplayedRecipes())
+         {
+-            nbttaglist1.appendTag(new NBTTagString(((ResourceLocation)CraftingManager.REGISTRY.getNameForObject(irecipe1)).toString()));
++            // Paper start - ignore missing recipes
++            ResourceLocation key = CraftingManager.REGISTRY.getNameForObject(irecipe1);
++            if (key == null) continue;
++            nbttaglist1.appendTag(new NBTTagString(key.toString()));
++            // Paper end
+         }
+ 
+         nbttagcompound.setTag("toBeDisplayed", nbttaglist1);

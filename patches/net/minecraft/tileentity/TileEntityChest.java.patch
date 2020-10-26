@@ -1,26 +1,38 @@
 --- ../src-base/minecraft/net/minecraft/tileentity/TileEntityChest.java
 +++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityChest.java
-@@ -5,6 +5,7 @@
+@@ -3,8 +3,10 @@
+ import javax.annotation.Nullable;
+ import net.minecraft.block.Block;
  import net.minecraft.block.BlockChest;
++import net.minecraft.entity.Entity;
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.entity.player.InventoryPlayer;
 +import net.minecraft.init.Blocks;
  import net.minecraft.init.SoundEvents;
  import net.minecraft.inventory.Container;
  import net.minecraft.inventory.ContainerChest;
-@@ -23,6 +24,11 @@
+@@ -17,13 +19,19 @@
+ import net.minecraft.util.ITickable;
+ import net.minecraft.util.NonNullList;
+ import net.minecraft.util.SoundCategory;
++import net.minecraft.util.SoundEvent;
+ import net.minecraft.util.datafix.DataFixer;
+ import net.minecraft.util.datafix.FixTypes;
+ import net.minecraft.util.datafix.walkers.ItemStackDataLists;
  import net.minecraft.util.math.AxisAlignedBB;
  import net.minecraft.util.math.BlockPos;
  
+-public class TileEntityChest extends TileEntityLockableLoot implements ITickable
 +import java.util.List;
 +import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 +import org.bukkit.entity.HumanEntity;
 +import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +
- public class TileEntityChest extends TileEntityLockableLoot implements ITickable
++public class TileEntityChest extends TileEntityLockableLoot // Paper - Remove ITickable
  {
      private NonNullList<ItemStack> chestContents = NonNullList.<ItemStack>withSize(27, ItemStack.EMPTY);
-@@ -37,6 +43,8 @@
+     public boolean adjacentChestChecked;
+@@ -37,6 +45,8 @@
      private int ticksSinceSync;
      private BlockChest.Type cachedChestType;
  
@@ -29,7 +41,7 @@
      public TileEntityChest()
      {
      }
-@@ -45,7 +53,27 @@
+@@ -45,7 +55,27 @@
      {
          this.cachedChestType = typeIn;
      }
@@ -57,7 +69,7 @@
      public int getSizeInventory()
      {
          return 27;
-@@ -109,7 +137,7 @@
+@@ -109,7 +139,7 @@
  
      public int getInventoryStackLimit()
      {
@@ -66,13 +78,48 @@
      }
  
      public void updateContainingBlockInfo()
-@@ -325,8 +353,18 @@
+@@ -212,6 +242,8 @@
+ 
+     public void update()
+     {
++        // Paper - Disable all of this, just in case this does get ticked
++        /*
+         this.checkForAdjacentChests();
+         int i = this.pos.getX();
+         int j = this.pos.getY();
+@@ -301,6 +333,8 @@
+                 this.lidAngle = 0.0F;
+             }
+         }
++        */
++        // Paper end
+     }
+ 
+     public boolean receiveClientEvent(int id, int type)
+@@ -325,8 +359,35 @@
                  this.numPlayersUsing = 0;
              }
  
 +            int oldPower = Math.max(0, Math.min(15, this.numPlayersUsing)); // CraftBukkit - Get power before new viewer is added
 +
              ++this.numPlayersUsing;
++
++            // Paper start - Move chest open sound out of the tick loop
++            this.checkForAdjacentChests();
++            if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F && this.adjacentChestZNeg == null && this.adjacentChestXNeg == null) {
++                this.lidAngle = 0.7F;
++                double d0 = (double) this.pos.getZ() + 0.5D;
++                double d1 = (double) this.pos.getX() + 0.5D;
++                if (this.adjacentChestZPos != null) {
++                    d0 += 0.5D;
++                }
++                if (this.adjacentChestXPos != null) {
++                    d1 += 0.5D;
++                }
++                this.world.playSound((EntityPlayer) null, d1, (double) this.pos.getY() + 0.5D, d0, SoundEvents.BLOCK_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
++            }
++            // Paper end
++
 +            if (this.world == null) return;
              this.world.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing);
 +            if (this.getBlockType() == Blocks.TRAPPED_CHEST) {
@@ -85,12 +132,35 @@
              this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockType(), false);
  
              if (this.getChestType() == BlockChest.Type.TRAP)
-@@ -340,14 +378,21 @@
+@@ -340,14 +401,44 @@
      {
          if (!player.isSpectator() && this.getBlockType() instanceof BlockChest)
          {
 +            int oldPower = Math.max(0, Math.min(15, this.numPlayersUsing)); // CraftBukkit - Get power before new viewer is added
              --this.numPlayersUsing;
++
++            // Paper start - Move chest close sound out of the tick loop
++            if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F) {
++                float f = 0.1F;
++                if (this.prevLidAngle > 0) {
++                    this.lidAngle += f;
++                } else {
++                    this.lidAngle -= f;
++                }
++                double d0 = (double) this.getPos().getX() + 0.5D;
++                double d2 = (double) this.getPos().getZ() + 0.5D;
++                int yLoc = this.pos.getY();
++                if (this.adjacentChestZPos != null) {
++                    d2 += 0.5D;
++                }
++                if (this.adjacentChestXPos != null) {
++                    d0 += 0.5D;
++                }
++                this.world.playSound((EntityPlayer) null, d0, (double) yLoc + 0.5D, d2, SoundEvents.BLOCK_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
++                this.lidAngle = 0.0F;
++            }
++            // Paper end
++
              this.world.addBlockEvent(this.pos, this.getBlockType(), 1, this.numPlayersUsing);
              this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockType(), false);
  
@@ -107,7 +177,7 @@
          }
      }
  
-@@ -356,7 +401,7 @@
+@@ -356,7 +447,7 @@
      @SuppressWarnings("unchecked")
      @Override
      @Nullable

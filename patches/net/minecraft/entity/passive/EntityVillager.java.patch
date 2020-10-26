@@ -97,6 +97,15 @@
      {
          return false;
      }
+@@ -625,7 +657,7 @@
+ 
+         if (recipe.getRewardsExp())
+         {
+-            this.world.spawnEntity(new EntityXPOrb(this.world, this.posX, this.posY + 0.5D, this.posZ, i));
++            this.world.spawnEntity(new EntityXPOrb(this.world, this.posX, this.posY + 0.5D, this.posZ, i, org.bukkit.entity.ExperienceOrb.SpawnReason.VILLAGER_TRADE, buyingPlayer, this)); // Paper
+         }
+ 
+         if (this.buyingPlayer instanceof EntityPlayerMP)
 @@ -654,7 +686,7 @@
          return net.minecraftforge.event.ForgeEventFactory.listTradeOffers(this, player, buyingList);
      }
@@ -157,3 +166,13 @@
              this.setDead();
          }
      }
+@@ -1199,7 +1251,8 @@
+             {
+                 int i = this.value.getPrice(random);
+                 World world = merchant.getWorld();
+-                BlockPos blockpos = world.findNearestStructure(this.destination, merchant.getPos(), true);
++                if (!world.paperConfig.enableTreasureMaps) return; //Paper
++                BlockPos blockpos = world.findNearestStructure(this.destination, merchant.getPos(), world.paperConfig.treasureMapsAlreadyDiscovered); // Paper - pass false to return first structure, regardless of if its been discovered. true returns only undiscovered.
+ 
+                 if (blockpos != null)
+                 {

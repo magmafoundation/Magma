@@ -1,16 +1,18 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
+import com.destroystokyo.paper.entity.CraftSentientNPC;
 import net.minecraft.entity.EntityCreature;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 
-public class CraftCreature extends CraftLivingEntity implements Creature {
+public class CraftCreature extends CraftLivingEntity implements Creature, CraftSentientNPC { // Paper
     public CraftCreature(CraftServer server, EntityCreature entity) {
         super(server, entity);
     }
 
-    public void setTarget(LivingEntity target) {
+    // Paper start - move down to SentientNPC
+    /*public void setTarget(LivingEntity target) {
         EntityCreature entity = getHandle();
         if (target == null) {
             entity.setAttackTarget(null, null, false);
@@ -23,8 +25,8 @@ public class CraftCreature extends CraftLivingEntity implements Creature {
         if (getHandle().getAttackTarget() == null) return null;
 
         return (CraftLivingEntity) getHandle().getAttackTarget().getBukkitEntity();
-    }
-
+    }*/
+    // Paper end
     @Override
     public EntityCreature getHandle() {
         return (EntityCreature) entity;

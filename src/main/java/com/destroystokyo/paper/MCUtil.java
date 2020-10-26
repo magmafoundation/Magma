@@ -1,26 +1,31 @@
 package com.destroystokyo.paper;
 
+import com.destroystokyo.paper.profile.CraftPlayerProfile;
+import com.destroystokyo.paper.profile.PlayerProfile;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.mojang.authlib.GameProfile;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.function.Supplier;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.ChunkProviderServer;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.util.Waitable;
 import org.spigotmc.AsyncCatcher;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.function.Supplier;
 
 public final class MCUtil {
     private static final Executor asyncExecutor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("Paper Async Task Handler Thread - %1$d").build());
@@ -184,8 +189,23 @@ public final class MCUtil {
     }
 
     /**
+     * Gets a chunk without changing its boolean for should unload
+     */
+    @Nullable
+    public static Chunk getLoadedChunkWithoutMarkingActive(World world, int x, int z) {
+        return ((ChunkProviderServer) world.chunkProvider).id2ChunkMap.get(ChunkPos.asLong(x, z));
+    }
+
+    /**
+     * Gets a chunk without changing its boolean for should unload
+     */
+    @Nullable
+    public static Chunk getLoadedChunkWithoutMarkingActive(IChunkProvider provider, int x, int z) {
+        return ((ChunkProviderServer) provider).id2ChunkMap.get(ChunkPos.asLong(x, z));
+    }
+
+    /**
      * Posts a task to be executed asynchronously
-     * @param run
      */
     public static void scheduleAsyncTask(Runnable run) {
         asyncExecutor.execute(run);
@@ -210,5 +230,9 @@ public final class MCUtil {
 
     public static World getNMSWorld(@Nonnull org.bukkit.entity.Entity entity) {
         return getNMSWorld(entity.getWorld());
+    }
+
+    public static PlayerProfile toBukkit(GameProfile profile) {
+        return CraftPlayerProfile.asBukkitMirror(profile);
     }
 }

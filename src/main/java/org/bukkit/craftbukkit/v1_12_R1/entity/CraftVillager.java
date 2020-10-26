@@ -41,9 +41,6 @@ public class CraftVillager extends CraftAgeable implements Villager, InventoryHo
     }
 
     public Profession getProfession() {
-        Validate.isTrue(getHandle().getProfession() < Profession.HUSK.ordinal(),
-            "Invalid profession ID. Must be within range: " + Profession.NORMAL.ordinal() + "-" + Profession.HUSK.ordinal() + "!");
-
         return Profession.values()[getHandle().getProfession() + 1]; // Offset by 1 from the zombie types
     }
 

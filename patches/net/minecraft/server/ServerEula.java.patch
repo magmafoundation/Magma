@@ -1,0 +1,12 @@
+--- ../src-base/minecraft/net/minecraft/server/ServerEula.java
++++ ../src-work/minecraft/net/minecraft/server/ServerEula.java
+@@ -64,7 +64,8 @@
+             Properties properties = new Properties();
+             fileoutputstream = new FileOutputStream(this.eulaFile);
+             properties.setProperty("eula", "false");
+-            properties.store(fileoutputstream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (https://account.mojang.com/documents/minecraft_eula).");
++            properties.store(fileoutputstream, "By changing the setting below to TRUE you are indicating your agreement to our EULA (https://account.mojang.com/documents/minecraft_eula)." +
++                "\nand also agreeing that tacos are tasty.");  // Paper - fix lag
+         }
+         catch (Exception exception)
+         {

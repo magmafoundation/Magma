@@ -1,16 +1,27 @@
 --- ../src-base/minecraft/net/minecraft/entity/item/EntityTNTPrimed.java
 +++ ../src-work/minecraft/net/minecraft/entity/item/EntityTNTPrimed.java
-@@ -10,6 +10,9 @@
+@@ -3,13 +3,20 @@
+ import javax.annotation.Nullable;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLivingBase;
++import net.minecraft.entity.EntityTrackerEntry;
+ import net.minecraft.entity.MoverType;
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.network.datasync.DataParameter;
+ import net.minecraft.network.datasync.DataSerializers;
  import net.minecraft.network.datasync.EntityDataManager;
++import net.minecraft.network.play.server.SPacketEntityTeleport;
++import net.minecraft.network.play.server.SPacketEntityVelocity;
  import net.minecraft.util.EnumParticleTypes;
  import net.minecraft.world.World;
++import net.minecraft.world.WorldServer;
 +import org.bukkit.event.entity.ExplosionPrimeEvent;
 +import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 +import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
  
  public class EntityTNTPrimed extends Entity
  {
-@@ -18,6 +21,9 @@
+@@ -18,6 +25,9 @@
      private EntityLivingBase tntPlacedBy;
      private int fuse;
  
@@ -20,7 +31,7 @@
      public EntityTNTPrimed(World worldIn)
      {
          super(worldIn);
-@@ -59,6 +65,7 @@
+@@ -59,6 +69,7 @@
  
      public void onUpdate()
      {
@@ -28,7 +39,21 @@
          this.prevPosX = this.posX;
          this.prevPosY = this.posY;
          this.prevPosZ = this.posZ;
-@@ -84,12 +91,14 @@
+@@ -69,6 +80,13 @@
+         }
+ 
+         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
++
++        // Paper start - Configurable TNT entity height nerf
++        if (this.world.paperConfig.entityTNTHeightNerf != 0 && this.posX > this.world.paperConfig.entityTNTHeightNerf) {
++            this.setDead();
++        }
++        // Paper end
++
+         this.motionX *= 0.9800000190734863D;
+         this.motionY *= 0.9800000190734863D;
+         this.motionZ *= 0.9800000190734863D;
+@@ -84,12 +102,14 @@
  
          if (this.fuse <= 0)
          {
@@ -44,7 +69,7 @@
          }
          else
          {
-@@ -100,8 +109,15 @@
+@@ -100,8 +120,15 @@
  
      private void explode()
      {
@@ -62,3 +87,61 @@
      }
  
      protected void writeEntityToNBT(NBTTagCompound compound)
+@@ -111,6 +138,14 @@
+ 
+     protected void readEntityFromNBT(NBTTagCompound compound)
+     {
++        // Paper start - Try and load origin location from the old NBT tags for backwards compatibility
++        if (compound.hasKey("SourceLoc_x")) {
++            int srcX = compound.getInteger("SourceLoc_x");
++            int srcY = compound.getInteger("SourceLoc_y");
++            int srcZ = compound.getInteger("SourceLoc_z");
++            origin = new org.bukkit.Location(world.getWorld(), srcX, srcY, srcZ);
++        }
++        // Paper end
+         this.setFuse(compound.getShort("Fuse"));
+     }
+ 
+@@ -148,4 +183,42 @@
+     {
+         return this.fuse;
+     }
++
++    // Paper start - Optional prevent TNT from moving in water
++    @Override
++    public boolean pushedByWater() {
++        return !world.paperConfig.preventTntFromMovingInWater && super.pushedByWater();
++    }
++    /**
++     * Author: Jedediah Smith <jedediah@silencegreys.com>
++     */
++    @Override
++    public boolean doWaterMovement() {
++        if (!world.paperConfig.preventTntFromMovingInWater) return super.doWaterMovement();
++        // Preserve velocity while calling the super method
++        double oldMotX = this.motionX;
++        double oldMotY = this.motionY;
++        double oldMotZ = this.motionZ;
++        super.doWaterMovement();
++        this.motionX = oldMotX;
++        this.motionY = oldMotY;
++        this.motionZ = oldMotZ;
++        if (this.inWater) {
++            // Send position and velocity updates to nearby players on every tick while the TNT is in water.
++            // This does pretty well at keeping their clients in sync with the server.
++            EntityTrackerEntry ete = ((WorldServer) this.getEntityWorld()).getEntityTracker().trackedEntityHashTable.lookup(this.getEntityId());
++            if (ete != null) {
++                SPacketEntityVelocity velocityPacket = new SPacketEntityVelocity(this);
++                SPacketEntityTeleport positionPacket = new SPacketEntityTeleport(this);
++                ete.trackingPlayers.stream()
++                    .filter(viewer -> (viewer.posX - this.posX) * (viewer.posY - this.posY) * (viewer.posZ - this.posZ) < 16 * 16)
++                    .forEach(viewer -> {
++                        viewer.connection.sendPacket(velocityPacket);
++                        viewer.connection.sendPacket(positionPacket);
++                    });
++            }
++        }
++        return this.inWater;
++    }
++    // Paper end
+ }

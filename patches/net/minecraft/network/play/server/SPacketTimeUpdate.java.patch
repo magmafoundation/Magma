@@ -1,0 +1,26 @@
+--- ../src-base/minecraft/net/minecraft/network/play/server/SPacketTimeUpdate.java
++++ ../src-work/minecraft/net/minecraft/network/play/server/SPacketTimeUpdate.java
+@@ -9,7 +9,13 @@
+ 
+ public class SPacketTimeUpdate implements Packet<INetHandlerPlayClient>
+ {
++    // World Age in ticks
++    // Not changed by server commands
++    // World Age must not be negative
+     private long totalWorldTime;
++    // Time of Day in ticks
++    // If negative the sun will stop moving at the Math.abs of the time
++    // Displayed in the debug screen (F3)
+     private long worldTime;
+ 
+     public SPacketTimeUpdate()
+@@ -30,6 +36,9 @@
+                 this.worldTime = -1L;
+             }
+         }
++        // Paper start
++        this.totalWorldTime = this.totalWorldTime % 192000;
++        // Paper end
+     }
+ 
+     public void readPacketData(PacketBuffer buf) throws IOException

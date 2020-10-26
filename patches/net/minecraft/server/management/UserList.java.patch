@@ -1,6 +1,71 @@
 --- ../src-base/minecraft/net/minecraft/server/management/UserList.java
 +++ ../src-work/minecraft/net/minecraft/server/management/UserList.java
-@@ -156,6 +156,10 @@
+@@ -25,6 +25,7 @@
+ import java.util.Collection;
+ import java.util.List;
+ import java.util.Map;
++import java.util.Objects;
+ import net.minecraft.util.JsonUtils;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
+@@ -37,7 +38,8 @@
+     protected static final Logger LOGGER = LogManager.getLogger();
+     protected final Gson gson;
+     private final File saveFile;
+-    private final Map<String, V> values = Maps.<String, V>newHashMap();
++    // Paper - replace HashMap is ConcurrentHashMap
++    private final Map<String, V> values = Maps.<String, V>newConcurrentMap(); private final Map<String, V> getBackingMap() { return this.values; } // Paper - OBFHELPER
+     private boolean lanServer = true;
+     private static final ParameterizedType USER_LIST_ENTRY_TYPE = new ParameterizedType()
+     {
+@@ -89,8 +91,11 @@
+ 
+     public V getEntry(K obj)
+     {
+-        this.removeExpired();
+-        return (V)(this.values.get(this.getObjectKey(obj)));
++        // Paper start
++        //this.removeExpired();
++        //return (V)(this.values.get(this.getObjectKey(obj)));
++        return (V) this.getBackingMap().computeIfPresent(this.getMappingKey(obj), (s, v) -> v.hasBanExpired() ? null : v);
++        // Paper end
+     }
+ 
+     public void removeEntry(K entry)
+@@ -118,6 +123,7 @@
+         return (String[])this.values.keySet().toArray(new String[this.values.size()]);
+     }
+ 
++    protected final String getMappingKey(K k0) { return getObjectKey(k0); } // Paper - OBFHELPER
+     protected String getObjectKey(K obj)
+     {
+         return obj.toString();
+@@ -128,9 +134,11 @@
+         return this.values.containsKey(this.getObjectKey(entry));
+     }
+ 
++    private void removeStaleEntries() { removeExpired(); } // Paper - OBFHELPER
+     private void removeExpired()
+     {
+-        List<K> list = Lists.<K>newArrayList();
++        // Paper start
++        /*List<K> list = Lists.<K>newArrayList();
+ 
+         for (V v : this.values.values())
+         {
+@@ -143,7 +151,10 @@
+         for (K k : list)
+         {
+             this.values.remove(k);
+-        }
++        }*/
++
++        this.getBackingMap().values().removeIf((v) -> v.hasBanExpired());
++        // Paper end
+     }
+ 
+     protected UserListEntry<K> createEntry(JsonObject entryData)
+@@ -156,8 +167,14 @@
          return this.values;
      }
  
@@ -10,4 +75,18 @@
 +
      public void writeChanges() throws IOException
      {
++        this.removeStaleEntries(); // Paper - remove expired values before saving
++
          Collection<V> collection = this.values.values();
+         String s = this.gson.toJson(collection);
+         BufferedWriter bufferedwriter = null;
+@@ -176,7 +193,8 @@
+     @SideOnly(Side.SERVER)
+     public boolean isEmpty()
+     {
+-        return this.values.size() < 1;
++        // return this.values.size() < 1; // Paper
++        return this.getBackingMap().isEmpty();  // Paper - readability is the goal. As an aside, isEmpty() uses only sumCount() and a comparison. size() uses sumCount(), casts, and boolean logic
+     }
+ 
+     @SideOnly(Side.SERVER)

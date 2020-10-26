@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/server/network/NetHandlerHandshakeTCP.java
 +++ ../src-work/minecraft/net/minecraft/server/network/NetHandlerHandshakeTCP.java
-@@ -7,13 +7,21 @@
+@@ -7,13 +7,22 @@
  import net.minecraft.network.login.server.SPacketDisconnect;
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.util.text.ITextComponent;
@@ -14,6 +14,7 @@
  {
      private final MinecraftServer server;
      private final NetworkManager networkManager;
++    private NetworkManager getNetworkManager() { return networkManager; } // Paper - OBFHELPER
  
 +    private static final HashMap<InetAddress, Long> throttleTracker = new HashMap<InetAddress, Long>();
 +    private static int throttleCounter = 0;
@@ -22,7 +23,7 @@
      public NetHandlerHandshakeTCP(MinecraftServer serverIn, NetworkManager netManager)
      {
          this.server = serverIn;
-@@ -29,21 +37,101 @@
+@@ -29,21 +38,101 @@
              case LOGIN:
                  this.networkManager.setConnectionState(EnumConnectionState.LOGIN);
  
@@ -126,3 +127,14 @@
                  }
  
                  break;
+@@ -54,6 +143,10 @@
+             default:
+                 throw new UnsupportedOperationException("Invalid intention " + packetIn.getRequestedState());
+         }
++        // Paper start - NetworkClient implementation
++        this.getNetworkManager().protocolVersion = packetIn.getProtocolVersion();
++        this.getNetworkManager().virtualHost = com.destroystokyo.paper.network.PaperNetworkClient.prepareVirtualHost(packetIn.ip, packetIn.port);
++        // Paper end
+     }
+ 
+     public void onDisconnect(ITextComponent reason)

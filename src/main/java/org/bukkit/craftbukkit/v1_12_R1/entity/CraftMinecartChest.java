@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
+import com.destroystokyo.paper.loottable.CraftLootableEntityInventory;
 import net.minecraft.entity.item.EntityMinecartChest;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
@@ -8,7 +9,7 @@ import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.inventory.Inventory;
 
 @SuppressWarnings("deprecation")
-public class CraftMinecartChest extends CraftMinecart implements StorageMinecart {
+public class CraftMinecartChest extends CraftMinecart implements StorageMinecart, CraftLootableEntityInventory {
     private final CraftInventory inventory;
 
     public CraftMinecartChest(CraftServer server, EntityMinecartChest entity) {

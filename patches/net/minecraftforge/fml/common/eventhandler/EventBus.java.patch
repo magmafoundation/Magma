@@ -1,21 +1,46 @@
 --- ../src-base/minecraft/net/minecraftforge/fml/common/eventhandler/EventBus.java
 +++ ../src-work/minecraft/net/minecraftforge/fml/common/eventhandler/EventBus.java
-@@ -38,6 +38,8 @@
- import com.google.common.collect.MapMaker;
- import com.google.common.collect.Sets;
- import com.google.common.reflect.TypeToken;
+@@ -19,6 +19,11 @@
+ 
+ package net.minecraftforge.fml.common.eventhandler;
+ 
++import com.google.common.base.Preconditions;
++import com.google.common.base.Throwables;
++import com.google.common.collect.MapMaker;
++import com.google.common.collect.Sets;
++import com.google.common.reflect.TypeToken;
+ import java.lang.reflect.Constructor;
+ import java.lang.reflect.Method;
+ import java.lang.reflect.Modifier;
+@@ -26,19 +31,13 @@
+ import java.util.Map;
+ import java.util.Set;
+ import java.util.concurrent.ConcurrentHashMap;
+-
+ import javax.annotation.Nonnull;
+-
+ import net.minecraftforge.fml.common.FMLLog;
+ import net.minecraftforge.fml.common.Loader;
+ import net.minecraftforge.fml.common.ModContainer;
 +import org.bukkit.Bukkit;
 +import org.magmafoundation.magma.api.events.ForgeEvent;
  
+-import com.google.common.base.Preconditions;
+-import com.google.common.base.Throwables;
+-import com.google.common.collect.MapMaker;
+-import com.google.common.collect.Sets;
+-import com.google.common.reflect.TypeToken;
+-
  public class EventBus implements IEventExceptionHandler
  {
-@@ -173,6 +175,12 @@
+     private static int maxID = 0;
+@@ -173,6 +172,12 @@
      {
          if (shutdown) return false;
  
 +        // Magma start
-+        if (Bukkit.getServer() != null && ForgeEvent.getHandlerList().getRegisteredListeners().length > 0) {
-+            Bukkit.getPluginManager().callEvent(new ForgeEvent(event));
++        if (Bukkit.getServer() != null) {
++            org.bukkit.Bukkit.getPluginManager().callEvent(new ForgeEvent(event));
 +        }
 +        // Magma end
 +

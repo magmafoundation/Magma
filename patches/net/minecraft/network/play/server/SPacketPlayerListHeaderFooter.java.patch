@@ -1,0 +1,32 @@
+--- ../src-base/minecraft/net/minecraft/network/play/server/SPacketPlayerListHeaderFooter.java
++++ ../src-work/minecraft/net/minecraft/network/play/server/SPacketPlayerListHeaderFooter.java
+@@ -10,6 +10,8 @@
+ 
+ public class SPacketPlayerListHeaderFooter implements Packet<INetHandlerPlayClient>
+ {
++    public net.md_5.bungee.api.chat.BaseComponent[] headerPaper, footerPaper; // Paper
++
+     private ITextComponent header;
+     private ITextComponent footer;
+ 
+@@ -21,8 +23,18 @@
+ 
+     public void writePacketData(PacketBuffer buf) throws IOException
+     {
+-        buf.writeTextComponent(this.header);
+-        buf.writeTextComponent(this.footer);
++        // Paper start
++        if (this.headerPaper != null) {
++            buf.writeString(net.md_5.bungee.chat.ComponentSerializer.toString(this.headerPaper));
++        } else {
++            buf.writeTextComponent(this.header);
++        }
++        if (this.footerPaper != null) {
++            buf.writeString(net.md_5.bungee.chat.ComponentSerializer.toString(this.footerPaper));
++        } else {
++            buf.writeTextComponent(this.footer);
++        }
++        // Paper end
+     }
+ 
+     public void processPacket(INetHandlerPlayClient handler)

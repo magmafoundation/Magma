@@ -9,7 +9,7 @@
  
  public class EntityExpBottle extends EntityThrowable
  {
-@@ -40,9 +42,16 @@
+@@ -40,14 +42,21 @@
      {
          if (!this.world.isRemote)
          {
@@ -27,3 +27,9 @@
              while (i > 0)
              {
                  int j = EntityXPOrb.getXPSplit(i);
+                 i -= j;
+-                this.world.spawnEntity(new EntityXPOrb(this.world, this.posX, this.posY, this.posZ, j));
++                this.world.spawnEntity(new EntityXPOrb(this.world, this.posX, this.posY, this.posZ, j, org.bukkit.entity.ExperienceOrb.SpawnReason.EXP_BOTTLE, getThrower(), this)); // Paper
+             }
+ 
+             this.setDead();

@@ -44,7 +44,12 @@
  import net.minecraft.util.datafix.DataFixer;
  import net.minecraft.util.datafix.FixTypes;
  import net.minecraft.util.datafix.walkers.ItemStackDataLists;
-@@ -57,6 +44,13 @@
+@@ -53,10 +40,18 @@
+ import net.minecraft.world.EnumDifficulty;
+ import net.minecraft.world.World;
+ import net.minecraft.world.WorldServer;
++import net.minecraft.world.chunk.Chunk;
+ import net.minecraft.world.storage.loot.LootContext;
  import net.minecraft.world.storage.loot.LootTable;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
@@ -58,7 +63,7 @@
  
  public abstract class EntityLiving extends EntityLivingBase
  {
-@@ -68,16 +62,16 @@
+@@ -68,22 +63,22 @@
      protected EntityJumpHelper jumpHelper;
      private final EntityBodyHelper bodyHelper;
      protected PathNavigate navigator;
@@ -76,12 +81,18 @@
 -    private boolean canPickUpLoot;
 -    private boolean persistenceRequired;
 +    public float[] inventoryArmorDropChances = new float[4];
-+    private boolean canPickUpLoot_vanilla = false; // Magma - Compatible with Rough-Mobs-Revamped
 +    public boolean persistenceRequired;
      private final Map<PathNodeType, Float> mapPathPriority = Maps.newEnumMap(PathNodeType.class);
      private ResourceLocation deathLootTable;
      private long deathLootTableSeed;
-@@ -103,6 +97,10 @@
+     private boolean isLeashed;
+     private Entity leashHolder;
+     private NBTTagCompound leashNBTTag;
++    @Nullable public EntityAISwimming goalFloat; // Paper
+ 
+     public EntityLiving(World worldIn)
+     {
+@@ -103,6 +98,10 @@
          {
              this.initEntityAI();
          }
@@ -92,7 +103,7 @@
      }
  
      protected void initEntityAI()
-@@ -171,8 +169,37 @@
+@@ -171,8 +170,37 @@
      {
          this.attackTarget = entitylivingbaseIn;
          net.minecraftforge.common.ForgeHooks.onLivingSetAttackTarget(this, entitylivingbaseIn);
@@ -130,7 +141,7 @@
      public boolean canAttackClass(Class <? extends EntityLivingBase > cls)
      {
          return cls != EntityGhast.class;
-@@ -447,12 +474,21 @@
+@@ -447,12 +475,21 @@
      {
          super.readEntityFromNBT(compound);
  
@@ -154,7 +165,21 @@
  
          if (compound.hasKey("ArmorItems", 9))
          {
-@@ -653,8 +689,14 @@
+@@ -581,6 +618,13 @@
+         {
+             for (EntityItem entityitem : this.world.getEntitiesWithinAABB(EntityItem.class, this.getEntityBoundingBox().grow(1.0D, 0.0D, 1.0D)))
+             {
++
++                // Paper Start
++                if (!entityitem.canMobPickup) {
++                    continue;
++                }
++                // Paper End
++
+                 if (!entityitem.isDead && !entityitem.getItem().isEmpty() && !entityitem.cannotPickup())
+                 {
+                     this.updateEquipmentIfNeeded(entityitem);
+@@ -653,8 +697,14 @@
              }
          }
  
@@ -171,7 +196,7 @@
              double d0;
  
              switch (entityequipmentslot.getSlotType())
-@@ -696,7 +738,7 @@
+@@ -696,7 +746,7 @@
          return true;
      }
  
@@ -180,20 +205,60 @@
      {
          return true;
      }
-@@ -753,6 +795,12 @@
+@@ -721,26 +771,24 @@
+         }
+         else
+         {
+-            Entity entity = this.world.getClosestPlayerToEntity(this, -1.0D);
++            Chunk currentChunk = getChunkAtLocation(); // Paper
++            if (currentChunk != null && (currentChunk.isUnloading() || currentChunk.scheduledForUnload != null)) return; // Paper
++            EntityPlayer entity = this.world.getClosestPlayerToEntity(this, -1.0D);
+ 
+-            if (entity != null)
+-            {
++            if (entity != null && entity.affectsSpawning) { // Paper - Affects Spawning API
+                 double d0 = entity.posX - this.posX;
+                 double d1 = entity.posY - this.posY;
+                 double d2 = entity.posZ - this.posZ;
+                 double d3 = d0 * d0 + d1 * d1 + d2 * d2;
+ 
+-                if (this.canDespawn() && d3 > 16384.0D)
+-                {
++                if (d3 > world.paperConfig.hardDespawnDistance) { // CraftBukkit - remove isTypeNotPersistent() check // Paper - custom despawn distances
+                     this.setDead();
+                 }
+ 
+-                if (this.idleTime > 600 && this.rand.nextInt(800) == 0 && d3 > 1024.0D && this.canDespawn())
+-                {
++                if (this.idleTime > 600 && this.rand.nextInt(800) == 0 && d3 > world.paperConfig.softDespawnDistance) { // CraftBukkit - remove isTypeNotPersistent() check // Paper - custom despawn distances
+                     this.setDead();
+                 }
+-                else if (d3 < 1024.0D)
+-                {
++                else if (d3 < world.paperConfig.softDespawnDistance) { // Paper - custom despawn distances
+                     this.idleTime = 0;
+                 }
+             }
+@@ -753,6 +801,18 @@
          this.world.profiler.startSection("checkDespawn");
          this.despawnEntity();
          this.world.profiler.endSection();
 +        // Spigot Start
 +        if (this.fromMobSpawner)
 +        {
++            // Paper start - Allow nerfed mobs to jump and float
++            if (goalFloat != null) {
++                if (goalFloat.validConditions()) goalFloat.update();
++                this.getJumpHelper().jumpIfSet();
++            }
++            // Paper end
 +            return;
 +        }
 +        // Spigot End
          this.world.profiler.startSection("sensing");
          this.senses.clearSensingCache();
          this.world.profiler.endSection();
-@@ -1192,12 +1240,12 @@
+@@ -1192,12 +1252,12 @@
  
      public boolean canPickUpLoot()
      {
@@ -208,7 +273,7 @@
      }
  
      public boolean isNoDespawnRequired()
-@@ -1209,6 +1257,10 @@
+@@ -1209,6 +1269,10 @@
      {
          if (this.getLeashed() && this.getLeashHolder() == player)
          {
@@ -219,7 +284,7 @@
              this.clearLeashed(true, !player.capabilities.isCreativeMode);
              return true;
          }
-@@ -1218,6 +1270,10 @@
+@@ -1218,6 +1282,10 @@
  
              if (itemstack.getItem() == Items.LEAD && this.canBeLeashedTo(player))
              {
@@ -230,7 +295,7 @@
                  this.setLeashHolder(player, true);
                  itemstack.shrink(1);
                  return true;
-@@ -1245,11 +1301,13 @@
+@@ -1245,11 +1313,13 @@
          {
              if (!this.isEntityAlive())
              {
@@ -244,7 +309,7 @@
                  this.clearLeashed(true, true);
              }
          }
-@@ -1348,6 +1406,7 @@
+@@ -1348,6 +1418,7 @@
              }
              else
              {

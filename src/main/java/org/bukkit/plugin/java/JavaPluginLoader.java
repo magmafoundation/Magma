@@ -1,5 +1,6 @@
 package org.bukkit.plugin.java;
 
+import co.aikar.timings.TimedEventExecutor;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,7 +44,6 @@ public class JavaPluginLoader implements PluginLoader {
     private Pattern[] fileFilters = new Pattern[] { Pattern.compile("\\.jar$"), };
     private Map<String, Class<?>> classes = new java.util.concurrent.ConcurrentHashMap<String, Class<?>>(); // Spigot
     private List<PluginClassLoader> loaders = new CopyOnWriteArrayList<PluginClassLoader>();
-    public static final CustomTimingsHandler pluginParentTimer = new CustomTimingsHandler("** Plugins"); // Spigot
 
     /**
      * This class was not meant to be constructed explicitly
@@ -301,17 +301,12 @@ public class JavaPluginLoader implements PluginLoader {
                 }
             }
 
-            final CustomTimingsHandler timings = new CustomTimingsHandler("Plugin: " + plugin.getDescription().getFullName() + " Event: " + listener.getClass().getName() + "::" + method.getName()+"("+eventClass.getSimpleName()+")", pluginParentTimer); // Spigot
-            EventExecutor executor;
-                    try {
-                executor = EventExecutor.create(method, eventClass);
-                        }
-            catch (Exception e2) {
-                executor = new EventExecutor1(method, eventClass, timings);
-                    }
-            // Spigot // Paper - Use factory method `EventExecutor.create()`
+
+            EventExecutor executor = new co.aikar.timings.TimedEventExecutor(EventExecutor.create(method, eventClass), plugin, method, eventClass); // Spigot // Paper - Use factory method `EventExecutor.create()`
+            if (false) { // Spigot - RL handles useTimings check now
                 eventSet.add(new RegisteredListener(listener, executor, eh.priority(), plugin, eh.ignoreCancelled()));
             }
+        }
         return ret;
     }
 
@@ -369,6 +364,10 @@ public class JavaPluginLoader implements PluginLoader {
                 jPlugin.setEnabled(false);
             } catch (Throwable ex) {
                 server.getLogger().log(Level.SEVERE, "Error occurred while disabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
+                // Paper start - Disable plugins that fail to load
+                disablePlugin(jPlugin);
+                return;
+                // Paper end
             }
 
             if (cloader instanceof PluginClassLoader) {

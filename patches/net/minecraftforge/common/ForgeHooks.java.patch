@@ -63,9 +63,11 @@
  import net.minecraft.item.crafting.IRecipe;
  import net.minecraft.nbt.NBTTagCompound;
  import net.minecraft.nbt.NBTTagList;
-@@ -90,28 +73,17 @@
+@@ -89,29 +72,19 @@
+ import net.minecraft.potion.PotionUtils;
  import net.minecraft.stats.StatList;
  import net.minecraft.tileentity.TileEntity;
++import net.minecraft.tileentity.TileEntityLockableLoot;
  import net.minecraft.tileentity.TileEntityNote;
 -import net.minecraft.util.DamageSource;
 -import net.minecraft.util.EnumActionResult;
@@ -97,7 +99,7 @@
  import net.minecraft.world.storage.loot.LootEntry;
  import net.minecraft.world.storage.loot.LootTable;
  import net.minecraft.world.storage.loot.LootTableManager;
-@@ -119,52 +91,34 @@
+@@ -119,52 +92,34 @@
  import net.minecraftforge.common.crafting.CraftingHelper;
  import net.minecraftforge.common.crafting.JsonContext;
  import net.minecraftforge.common.util.BlockSnapshot;
@@ -161,7 +163,7 @@
  
  public class ForgeHooks
  {
-@@ -451,7 +405,7 @@
+@@ -451,7 +406,7 @@
                  }
                  else
                  {
@@ -170,7 +172,7 @@
  
                      if (resourcelocation == null || !EntityList.ENTITY_EGGS.containsKey(resourcelocation))
                      {
-@@ -473,7 +427,7 @@
+@@ -473,7 +428,7 @@
                  }
                  else if (this.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY)
                  {
@@ -179,7 +181,7 @@
                  }
  
                  LOGGER.warn("Picking on: [{}] {} gave null item", new Object[] {this.objectMouseOver.typeOfHit, s});
-@@ -817,27 +771,8 @@
+@@ -817,27 +772,8 @@
  
      public static int onBlockBreakEvent(World world, GameType gameType, EntityPlayerMP entityPlayer, BlockPos pos)
      {
@@ -208,7 +210,7 @@
          {
              SPacketBlockChange packet = new SPacketBlockChange(world, pos);
              packet.blockState = Blocks.AIR.getDefaultState();
-@@ -847,11 +782,11 @@
+@@ -847,11 +783,11 @@
          // Post the block break event
          IBlockState state = world.getBlockState(pos);
          BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, entityPlayer);
@@ -222,7 +224,7 @@
          {
              // Let the client know the block still exists
              entityPlayer.connection.sendPacket(new SPacketBlockChange(world, pos));
-@@ -866,6 +801,11 @@
+@@ -866,6 +802,11 @@
                      entityPlayer.connection.sendPacket(pkt);
                  }
              }
@@ -234,7 +236,7 @@
          }
          return event.isCanceled() ? -1 : event.getExpToDrop();
      }
-@@ -875,74 +815,94 @@
+@@ -875,74 +816,103 @@
          // handle all placement events here
          int meta = itemstack.getItemDamage();
          int size = itemstack.getCount();
@@ -327,6 +329,15 @@
 -            {
 +            if (placeEvent != null && placeEvent.isCanceled()) {
                  ret = EnumActionResult.FAIL; // cancel placement
++
++                // Paper start
++                for (Map.Entry<BlockPos, TileEntity> e : world.capturedTileEntities.entrySet()) {
++                    if (e.getValue() instanceof TileEntityLockableLoot) {
++                        ((TileEntityLockableLoot) e.getValue()).clearLootTable();
++                    }
++                }
++                // Paper end
++
                  // revert back all captured blocks
 -                for (BlockSnapshot blocksnapshot : Lists.reverse(blockSnapshots))
 -                {
@@ -355,7 +366,7 @@
                      int updateFlag = snap.getFlag();
                      IBlockState oldBlock = snap.getReplacedBlock();
                      IBlockState newBlock = world.getBlockState(snap.getPos());
-@@ -950,10 +910,32 @@
+@@ -950,10 +920,32 @@
                      {
                          newBlock.getBlock().onBlockAdded(world, snap.getPos(), newBlock);
                      }
@@ -390,7 +401,7 @@
              }
          }
          world.capturedBlockSnapshots.clear();
-@@ -961,6 +943,16 @@
+@@ -961,6 +953,16 @@
          return ret;
      }
  
@@ -407,7 +418,7 @@
      public static boolean onAnvilChange(ContainerRepair container, @Nonnull ItemStack left, @Nonnull ItemStack right, IInventory outputSlot, String name, int baseCost)
      {
          AnvilUpdateEvent e = new AnvilUpdateEvent(left, right, name, baseCost);
-@@ -993,7 +985,7 @@
+@@ -993,7 +995,7 @@
      }
  
      /**

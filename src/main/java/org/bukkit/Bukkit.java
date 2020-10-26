@@ -20,6 +20,7 @@ import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommand;
@@ -287,6 +288,25 @@ public final class Bukkit {
         return server.broadcastMessage(message);
     }
 
+    // Paper start
+    /**
+     * Sends the component to all online players.
+     *
+     * @param component the component to send
+     */
+    public static void broadcast(net.md_5.bungee.api.chat.BaseComponent component) {
+        server.broadcast(component);
+    }
+    /**
+     * Sends an array of components as a single message to all online players.
+     *
+     * @param components the components to send
+     */
+    public static void broadcast(net.md_5.bungee.api.chat.BaseComponent... components) {
+        server.broadcast(components);
+    }
+    // Paper end
+
     /**
      * Gets the name of the update folder. The update folder is used to safely
      * update plugins at the right moment on a plugin load.
@@ -416,10 +436,19 @@ public final class Bukkit {
         return server.getPlayer(id);
     }
 
+    // Paper start
+    /**
+     * Gets the unique ID of the player currently known as the specified player name
+     * In Offline Mode, will return an Offline UUID
+     *
+     * @param playerName the player name to look up the unique ID for
+     * @return A UUID, or null if that player name is not registered with Minecraft and the server is in online mode
+     */
     @Nullable
     public static UUID getPlayerUniqueId(String playerName) {
         return server.getPlayerUniqueId(playerName);
     }
+    // Paper end
 
     /**
      * Gets the plugin manager for interfacing with plugins.
@@ -1181,9 +1210,30 @@ public final class Bukkit {
         return server.getUnsafe();
     }
 
-    public static Server.Spigot spigot()
-    {
-        return server.spigot();
+    // Paper start
+    /**
+     * Gets the active {@link CommandMap}
+     *
+     * @return the active command map
+     */
+    public static CommandMap getCommandMap() {
+        return server.getCommandMap();
+    }
+
+    /**
+     * Reload the Permissions in permissions.yml
+     */
+    public static void reloadPermissions() {
+        server.reloadPermissions();
+    }
+
+    /**
+     * Reload the Command Aliases in commands.yml
+     *
+     * @return Whether the reload was successful
+     */
+    public static boolean reloadCommandAliases() {
+        return server.reloadCommandAliases();
     }
 
     /**
@@ -1194,6 +1244,11 @@ public final class Bukkit {
      */
     public static boolean suggestPlayerNamesWhenNullTabCompletions() {
         return server.suggestPlayerNamesWhenNullTabCompletions();
+    }
+
+    public static Server.Spigot spigot()
+    {
+        return server.spigot();
     }
 
     /**

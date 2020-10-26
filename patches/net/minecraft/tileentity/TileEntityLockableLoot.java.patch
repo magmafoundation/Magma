@@ -1,0 +1,122 @@
+--- ../src-base/minecraft/net/minecraft/tileentity/TileEntityLockableLoot.java
++++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityLockableLoot.java
+@@ -1,5 +1,9 @@
+ package net.minecraft.tileentity;
+ 
++import com.destroystokyo.paper.MCUtil;
++import com.destroystokyo.paper.loottable.CraftLootableInventory;
++import com.destroystokyo.paper.loottable.CraftLootableInventoryData;
++import com.destroystokyo.paper.loottable.LootableInventory;
+ import java.util.Random;
+ import javax.annotation.Nullable;
+ import net.minecraft.entity.player.EntityPlayer;
+@@ -8,24 +12,26 @@
+ import net.minecraft.nbt.NBTTagCompound;
+ import net.minecraft.util.NonNullList;
+ import net.minecraft.util.ResourceLocation;
++import net.minecraft.world.World;
+ import net.minecraft.world.WorldServer;
+ import net.minecraft.world.storage.loot.ILootContainer;
+ import net.minecraft.world.storage.loot.LootContext;
+ import net.minecraft.world.storage.loot.LootTable;
+ 
+-public abstract class TileEntityLockableLoot extends TileEntityLockable implements ILootContainer
++public abstract class TileEntityLockableLoot extends TileEntityLockable implements ILootContainer, CraftLootableInventory // Paper
+ {
+     protected ResourceLocation lootTable;
+-    protected long lootTableSeed;
++    protected long lootTableSeed; public long getLootTableSeed() { return lootTableSeed; } // Paper - OBFHELPER
+     protected String customName;
+ 
+     protected boolean checkLootAndRead(NBTTagCompound compound)
+     {
++        lootableData.loadNbt(compound); // Paper
+         if (compound.hasKey("LootTable", 8))
+         {
+             this.lootTable = new ResourceLocation(compound.getString("LootTable"));
+             this.lootTableSeed = compound.getLong("LootTableSeed");
+-            return true;
++            return false; // Paper - always load the items, table may still remain
+         }
+         else
+         {
+@@ -35,6 +41,7 @@
+ 
+     protected boolean checkLootAndWrite(NBTTagCompound compound)
+     {
++        lootableData.saveNbt(compound); // Paper
+         if (this.lootTable != null)
+         {
+             compound.setString("LootTable", this.lootTable.toString());
+@@ -44,7 +51,7 @@
+                 compound.setLong("LootTableSeed", this.lootTableSeed);
+             }
+ 
+-            return true;
++            return false; // Paper - always save the items, table may still remain
+         }
+         else
+         {
+@@ -54,10 +61,9 @@
+ 
+     public void fillWithLoot(@Nullable EntityPlayer player)
+     {
+-        if (this.lootTable != null)
+-        {
++        if (lootableData.shouldReplenish(player)) { // Paper
+             LootTable loottable = this.world.getLootTableManager().getLootTableFromLocation(this.lootTable);
+-            this.lootTable = null;
++            lootableData.processRefill(player); // Paper
+             Random random;
+ 
+             if (this.lootTableSeed == 0L)
+@@ -80,6 +86,7 @@
+         }
+     }
+ 
++    public ResourceLocation getLootTableKey() { return getLootTable(); } // Paper - OBFHELPER
+     public ResourceLocation getLootTable()
+     {
+         return this.lootTable;
+@@ -185,4 +192,41 @@
+     }
+ 
+     protected abstract NonNullList<ItemStack> getItems();
++
++    // Paper start - LootTable API
++    private final CraftLootableInventoryData lootableData = new CraftLootableInventoryData(this);
++
++    @Override
++    public CraftLootableInventoryData getLootableData() {
++        return lootableData;
++    }
++
++    @Override
++    public LootableInventory getAPILootableInventory() {
++        return (LootableInventory) getBukkitWorld().getBlockAt(MCUtil.toLocation(world, getPos())).getState();
++    }
++
++    @Override
++    public World getNMSWorld() {
++        return world;
++    }
++
++    public String getLootTableName() {
++        final ResourceLocation key = getLootTableKey();
++        return key != null ? key.toString() : null;
++    }
++
++    @Override
++    public String setLootTable(String name, long seed) {
++        String prev = getLootTableName();
++        setLootTable(new ResourceLocation(name), seed);
++        return prev;
++    }
++
++    @Override
++    public void clearLootTable() {
++        //noinspection RedundantCast
++        this.lootTable = (ResourceLocation) null;
++    }
++    // Paper end
+ }

@@ -1,16 +1,12 @@
 package org.bukkit;
 
-import com.google.common.collect.Maps;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Map;
-import javax.annotation.Nullable;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
+
+import net.minecraftforge.common.util.EnumHelper;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.map.MapView;
-import org.bukkit.material.Banner;
 import org.bukkit.material.Bed;
 import org.bukkit.material.Button;
 import org.bukkit.material.Cake;
@@ -39,7 +35,6 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.material.MonsterEggs;
 import org.bukkit.material.Mushroom;
 import org.bukkit.material.NetherWarts;
-import org.bukkit.material.Observer;
 import org.bukkit.material.PistonBaseMaterial;
 import org.bukkit.material.PistonExtensionMaterial;
 import org.bukkit.material.PoweredRail;
@@ -65,6 +60,13 @@ import org.bukkit.material.Vine;
 import org.bukkit.material.Wood;
 import org.bukkit.material.WoodenStep;
 import org.bukkit.material.Wool;
+
+import com.google.common.collect.Maps;
+
+import org.bukkit.material.Banner;
+import org.bukkit.material.Observer;
+
+import javax.annotation.Nullable;
 
 /**
  * An enum of all material IDs accepted by the official server and client
@@ -541,10 +543,7 @@ public enum Material {
     private static Material[] byId = new Material[32676];
     private static Material[] blockById = new Material[32676];
     private static Map<String, Material> BY_NAME = Maps.newHashMap(); // Magma - remove final
-    private final static Map<String, Material> BLOCK_BY_NAME = Maps.newHashMap();
-    private final MaterialType materialType; // Magma
 
-    // Magma start
     static {
         for (Material material : values()) {
             if (byId.length > material.id) {
@@ -583,12 +582,7 @@ public enum Material {
         this(id, stack, 0, data);
     }
 
-    private Material(final int id, final int stack, final int durability, final Class<? extends MaterialData> data) {
-        // Magma start
-        this(id, stack, durability, data, MaterialType.VANILLA);
-    }
-
-    private Material(final int id, final int stack, final int durability, final Class<? extends MaterialData> data, final MaterialType materialType) {
+    Material(final int id, final int stack, final int durability, final Class<? extends MaterialData> data) {
         this.id = id;
         this.durability = (short) durability;
         this.maxStack = stack;
@@ -598,17 +592,105 @@ public enum Material {
         } catch (NoSuchMethodException | SecurityException ex) {
             throw new AssertionError(ex);
         }
-        this.materialType = materialType;
     }
 
-    private Material(final int id, final MaterialType materialType) {
-        this(id, 64, 0, MaterialData.class, materialType);
+    /**
+     * Attempts to get the Material with the given ID
+     *
+     * @param id ID of the material to get
+     * @return Material if found, or null
+     * @deprecated Magic value
+     */
+
+    public static Material getMaterial(final int id) {
+        if (byId.length > id && id >= 0) {
+            return byId[id];
+        } else {
+            return null;
+        }
     }
 
-    private Material(final int id, final int stack, final MaterialType materialType) {
-        this(id, stack, 0, MaterialData.class, materialType);
+    /**
+     * Attempts to get the Material with the given name.
+     * <p>
+     * This is a normal lookup, names must be the precise name they are given
+     * in the enum.
+     *
+     * @param name Name of the material to get
+     * @return Material if found, or null
+     */
+    public static Material getMaterial(final String name) {
+        return BY_NAME.get(name);
     }
-    // Magma end
+
+    /**
+     * Attempts to match the Material with the given name.
+     * <p>
+     * This is a match lookup; names will be converted to uppercase, then
+     * stripped of special characters in an attempt to format it like the
+     * enum.
+     * <p>
+     * Using this for match by ID is deprecated.
+     *
+     * @param name Name of the material to get
+     * @return Material if found, or null
+     */
+    public static Material matchMaterial(final String name) {
+        Validate.notNull(name, "Name cannot be null");
+
+        Material result = null;
+
+        try {
+            result = getMaterial(Integer.parseInt(name));
+        } catch (NumberFormatException ex) {
+        }
+
+        if (result == null) {
+            // Cauldron start - extract to normalizeName()
+            String filtered = normalizeName(name);
+            result = BY_NAME.get(filtered);
+            // Cauldron end
+        }
+
+        return result;
+    }
+
+    // use a normalize() function to ensure it is accessible after a round-trip
+    public static String normalizeName(String name) {
+        return name.toUpperCase(java.util.Locale.ENGLISH).replaceAll("(:|\\s)", "_").replaceAll("\\W", "");
+    }
+
+    @Nullable
+    public static Material addMaterial(Material material) {
+        if (byId[material.id] == null) {
+            byId[material.id] = material;
+            BY_NAME.put(normalizeName(material.name()), material);
+            BY_NAME.put("X" + String.valueOf(material.id), material);
+            return material;
+        }
+        return null;
+    }
+
+    @Nullable
+    public static Material addBlockMaterial(Material material) {
+        if (blockById[material.id] == null) {
+            blockById[material.id] = material;
+            return material;
+        }
+        return null;
+    }
+
+    public static Material getBlockMaterial(final int id) {
+        if (blockById.length > id && id >= 0) {
+            return blockById[id];
+        } else {
+            return null;
+        }
+    }
+
+    public static Material getBlockMaterial(final String name) {
+        return BY_NAME.get(name);
+    }
 
     /**
      * Gets the item ID or block ID of this Material
@@ -723,76 +805,6 @@ public enum Material {
                 return true;
             default:
                 return false;
-        }
-    }
-
-    /**
-     * Attempts to get the Material with the given ID
-     *
-     * @param id ID of the material to get
-     * @return Material if found, or null
-     * @deprecated Magic value
-     */
-    @Deprecated
-    public static Material getMaterial(final int id) {
-        if (byId.length > id && id >= 0) {
-            return byId[id];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Attempts to get the Material with the given name.
-     * <p>
-     * This is a normal lookup, names must be the precise name they are given in the enum.
-     *
-     * @param name Name of the material to get
-     * @return Material if found, or null
-     */
-    public static Material getMaterial(final String name) {
-        return BY_NAME.get(name);
-    }
-
-    /**
-     * Attempts to match the Material with the given name.
-     * <p>
-     * This is a match lookup; names will be converted to uppercase, then stripped of special characters in an attempt to format it like the enum.
-     * <p>
-     * Using this for match by ID is deprecated.
-     *
-     * @param name Name of the material to get
-     * @return Material if found, or null
-     */
-    public static Material matchMaterial(final String name) {
-        Validate.notNull(name, "Name cannot be null");
-
-        Material result = null;
-
-        try {
-            result = getMaterial(Integer.parseInt(name));
-        } catch (NumberFormatException ex) {
-        }
-
-        if (result == null) {
-            String filtered = name.toUpperCase(java.util.Locale.ENGLISH);
-
-            filtered = filtered.replaceAll("\\s+", "_").replaceAll("\\W", "");
-            result = BY_NAME.get(filtered);
-        }
-
-        return result;
-    }
-
-    static {
-        for (Material material : values()) {
-            if (byId.length > material.id) {
-                byId[material.id] = material;
-            } else {
-                byId = Arrays.copyOfRange(byId, 0, material.id + 2);
-                byId[material.id] = material;
-            }
-            BY_NAME.put(material.name(), material);
         }
     }
 
@@ -1482,75 +1494,4 @@ public enum Material {
                 return true;
         }
     }
-
-    // Magma start
-    @Nullable
-    public static Material addMaterial(Material material) {
-        if (material.id > byId.length - 1) {
-            Material[] newById = new Material[(int) (byId.length / 0.75)];
-            System.arraycopy(byId, 0, newById, 0, byId.length);
-            byId = newById;
-        }
-        if (byId[material.id] == null) {
-            byId[material.id] = material;
-            BY_NAME.put(material.name().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", ""), material);
-            BY_NAME.put("X" + String.valueOf(material.id), material);
-            return material;
-        }
-        return null;
-    }
-
-    @Nullable
-    public static Material addBlockMaterial(Material material) {
-        if (material.id > blockById.length - 1) {
-            Material[] newBlockById = new Material[(int) (blockById.length / 0.75)];
-            System.arraycopy(blockById, 0, newBlockById, 0, blockById.length);
-            blockById = newBlockById;
-        }
-        if (blockById[material.id] == null) {
-            blockById[material.id] = material;
-            BLOCK_BY_NAME.put(material.name().toUpperCase().replaceAll("(:|\\s)", "_").replaceAll("\\W", ""), material);
-            BLOCK_BY_NAME.put("X" + String.valueOf(material.id), material);
-            return material;
-        }
-        return null;
-    }
-
-    public static Material getBlockMaterial(final int id) {
-        if (blockById.length > id && id >= 0) {
-            return blockById[id];
-        } else {
-            return null;
-        }
-    }
-
-    public static Material getBlockMaterial(final String name) {
-        return BLOCK_BY_NAME.get(name);
-    }
-
-    public static Material getItemOrBlockMaterial(final String name) {
-        return BY_NAME.getOrDefault(name, BLOCK_BY_NAME.get(name));
-    }
-
-    public MaterialType getMaterialType() {
-        return this.materialType;
-    }
-
-    public enum MaterialType {
-        VANILLA,
-        MOD_ITEM,
-        MOD_BLOCK
-    }
-
-    public static Material convertModItemMaterialToBlock(Material material) {
-        Item nmsItem = Item.getItemById(material.getId());
-        if (nmsItem instanceof ItemBlock) {
-            int blockID = Block.getIdFromBlock(((ItemBlock)nmsItem).getBlock());
-            if (blockID > 0) {
-                return Material.getBlockMaterial(blockID);
-            }
-        }
-        return material;
-    }
-    // Magma end
 }

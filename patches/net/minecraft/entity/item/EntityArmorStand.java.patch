@@ -1,6 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/entity/item/EntityArmorStand.java
 +++ ../src-work/minecraft/net/minecraft/entity/item/EntityArmorStand.java
-@@ -31,13 +31,19 @@
+@@ -8,6 +8,7 @@
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.EntityLivingBase;
++import net.minecraft.entity.MoverType;
+ import net.minecraft.entity.effect.EntityLightningBolt;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.entity.projectile.EntityArrow;
+@@ -31,13 +32,19 @@
  import net.minecraft.util.datafix.DataFixer;
  import net.minecraft.util.datafix.FixTypes;
  import net.minecraft.util.datafix.walkers.ItemStackDataLists;
@@ -21,7 +29,7 @@
  
  public class EntityArmorStand extends EntityLivingBase
  {
-@@ -67,12 +73,12 @@
+@@ -67,12 +74,14 @@
      public long punchCooldown;
      private int disabledSlots;
      private boolean wasMarker;
@@ -37,10 +45,20 @@
 +    public Rotations rightArmRotation;
 +    public Rotations leftLegRotation;
 +    public Rotations rightLegRotation;
++    public boolean canMove = true; // Paper
++    public boolean canTick = true; // Paper - armour stand ticking
  
      public EntityArmorStand(World worldIn)
      {
-@@ -95,6 +101,13 @@
+@@ -87,6 +96,7 @@
+         this.rightLegRotation = DEFAULT_RIGHTLEG_ROTATION;
+         this.noClip = this.hasNoGravity();
+         this.setSize(0.5F, 1.975F);
++        if (world != null) this.canTick = world.paperConfig.armorStandTick; // Paper - armour stand ticking
+     }
+ 
+     public EntityArmorStand(World worldIn, double posX, double posY, double posZ)
+@@ -95,6 +105,13 @@
          this.setPosition(posX, posY, posZ);
      }
  
@@ -54,7 +72,26 @@
      protected final void setSize(float width, float height)
      {
          double d0 = this.posX;
-@@ -457,6 +470,22 @@
+@@ -254,6 +271,7 @@
+         }
+ 
+         compound.setTag("Pose", this.readPoseFromNBT());
++        compound.setBoolean("Paper.CanTick", this.canTick); // Paper - persist no tick setting
+     }
+ 
+     public void readEntityFromNBT(NBTTagCompound compound)
+@@ -288,6 +306,10 @@
+         this.setMarker(compound.getBoolean("Marker"));
+         this.wasMarker = !this.hasMarker();
+         this.noClip = this.hasNoGravity();
++        // Paper - persist no tick
++        if (compound.hasKey("Paper.CanTick")) {
++            this.canTick = compound.getBoolean("Paper.CanTick");
++        }
+         NBTTagCompound nbttagcompound = compound.getCompoundTag("Pose");
+         this.writePoseToNBT(nbttagcompound);
+     }
+@@ -457,6 +479,22 @@
          {
              if (!itemstack.isEmpty() || (this.disabledSlots & 1 << p_184795_2_.getSlotIndex() + 16) == 0)
              {
@@ -77,7 +114,7 @@
                  if (player.capabilities.isCreativeMode && itemstack.isEmpty() && !p_184795_3_.isEmpty())
                  {
                      ItemStack itemstack2 = p_184795_3_.copy();
-@@ -484,11 +513,16 @@
+@@ -484,11 +522,16 @@
  
      public boolean attackEntityFrom(DamageSource source, float amount)
      {
@@ -95,7 +132,7 @@
                  return false;
              }
              else if (!this.isEntityInvulnerable(source) && !this.canInteract && !this.hasMarker())
-@@ -496,7 +530,7 @@
+@@ -496,7 +539,7 @@
                  if (source.isExplosion())
                  {
                      this.dropContents();
@@ -104,7 +141,7 @@
                      return false;
                  }
                  else if (DamageSource.IN_FIRE.equals(source))
-@@ -541,7 +575,7 @@
+@@ -541,7 +584,7 @@
                          {
                              this.playBrokenSound();
                              this.playParticles();
@@ -113,7 +150,7 @@
                              return false;
                          }
                          else
-@@ -557,7 +591,7 @@
+@@ -557,7 +600,7 @@
                              {
                                  this.dropBlock();
                                  this.playParticles();
@@ -122,7 +159,7 @@
                              }
  
                              return false;
-@@ -623,7 +657,7 @@
+@@ -623,7 +666,7 @@
          if (f <= 0.5F)
          {
              this.dropContents();
@@ -131,7 +168,7 @@
          }
          else
          {
-@@ -633,7 +667,8 @@
+@@ -633,7 +676,8 @@
  
      private void dropBlock()
      {
@@ -141,7 +178,7 @@
          this.dropContents();
      }
  
-@@ -647,7 +682,8 @@
+@@ -647,7 +691,8 @@
  
              if (!itemstack.isEmpty())
              {
@@ -151,7 +188,7 @@
                  this.handItems.set(i, ItemStack.EMPTY);
              }
          }
-@@ -658,7 +694,8 @@
+@@ -658,7 +703,8 @@
  
              if (!itemstack1.isEmpty())
              {
@@ -161,7 +198,15 @@
                  this.armorItems.set(j, ItemStack.EMPTY);
              }
          }
-@@ -791,6 +828,8 @@
+@@ -708,6 +754,7 @@
+ 
+     public void onUpdate()
+     {
++        if (!this.canTick) return;// Paper
+         super.onUpdate();
+         Rotations rotations = (Rotations)this.dataManager.get(HEAD_ROTATION);
+ 
+@@ -791,6 +838,8 @@
  
      public void onKillCommand()
      {
@@ -170,7 +215,7 @@
          this.setDead();
      }
  
-@@ -804,7 +843,7 @@
+@@ -804,7 +853,7 @@
          return this.hasMarker() ? EnumPushReaction.IGNORE : super.getPushReaction();
      }
  
@@ -179,7 +224,7 @@
      {
          this.dataManager.set(STATUS, Byte.valueOf(this.setBit(((Byte)this.dataManager.get(STATUS)).byteValue(), 1, small)));
          this.setSize(0.5F, 1.975F);
-@@ -815,7 +854,7 @@
+@@ -815,7 +864,7 @@
          return (((Byte)this.dataManager.get(STATUS)).byteValue() & 1) != 0;
      }
  
@@ -188,7 +233,7 @@
      {
          this.dataManager.set(STATUS, Byte.valueOf(this.setBit(((Byte)this.dataManager.get(STATUS)).byteValue(), 4, showArms)));
      }
-@@ -825,7 +864,7 @@
+@@ -825,7 +874,7 @@
          return (((Byte)this.dataManager.get(STATUS)).byteValue() & 4) != 0;
      }
  
@@ -197,7 +242,7 @@
      {
          this.dataManager.set(STATUS, Byte.valueOf(this.setBit(((Byte)this.dataManager.get(STATUS)).byteValue(), 8, noBasePlate)));
      }
-@@ -835,7 +874,7 @@
+@@ -835,7 +884,7 @@
          return (((Byte)this.dataManager.get(STATUS)).byteValue() & 8) != 0;
      }
  
@@ -206,7 +251,7 @@
      {
          this.dataManager.set(STATUS, Byte.valueOf(this.setBit(((Byte)this.dataManager.get(STATUS)).byteValue(), 16, marker)));
          this.setSize(0.5F, 1.975F);
-@@ -957,7 +996,7 @@
+@@ -957,7 +1006,7 @@
          return SoundEvents.ENTITY_ARMORSTAND_BREAK;
      }
  
@@ -215,3 +260,22 @@
      {
      }
  
+@@ -980,4 +1029,18 @@
+     {
+         return false;
+     }
++
++    // Paper start
++    @Override
++    public void move(MoverType moveType, double x, double y, double z) {
++        if (this.canMove) {
++            super.move(moveType, x, y, z);
++        }
++    }
++
++    @Override
++    public boolean canBreatheUnderwater() { // Skips a bit of damage handling code, probably a micro-optimization
++        return true;
++    }
++    // Paper end
+ }

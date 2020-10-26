@@ -138,6 +138,15 @@
              {
                  this.setAttackTarget((EntityLivingBase)null);
                  this.teleportRandomly();
+@@ -246,7 +265,7 @@
+         super.updateAITasks();
+     }
+ 
+-    protected boolean teleportRandomly()
++    public boolean teleportRandomly() // protected->public Paper
+     {
+         double d0 = this.posX + (this.rand.nextDouble() - 0.5D) * 64.0D;
+         double d1 = this.posY + (double)(this.rand.nextInt(64) - 32);
 @@ -331,7 +350,7 @@
          {
              return false;

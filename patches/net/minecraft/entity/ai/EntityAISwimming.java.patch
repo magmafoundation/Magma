@@ -1,0 +1,24 @@
+--- ../src-base/minecraft/net/minecraft/entity/ai/EntityAISwimming.java
++++ ../src-work/minecraft/net/minecraft/entity/ai/EntityAISwimming.java
+@@ -11,6 +11,7 @@
+     public EntityAISwimming(EntityLiving entityIn)
+     {
+         this.entity = entityIn;
++        if (entityIn.getEntityWorld().paperConfig.nerfedMobsShouldJump) entityIn.goalFloat = this; // Paper
+         this.setMutexBits(4);
+ 
+         if (entityIn.getNavigator() instanceof PathNavigateGround)
+@@ -23,11 +24,13 @@
+         }
+     }
+ 
++    public boolean validConditions() { return this.shouldExecute(); } // Paper - OBFHELPER
+     public boolean shouldExecute()
+     {
+         return this.entity.isInWater() || this.entity.isInLava();
+     }
+ 
++    public void update() { this.updateTask(); } // Paper - OBFHELPER
+     public void updateTask()
+     {
+         if (this.entity.getRNG().nextFloat() < 0.8F)

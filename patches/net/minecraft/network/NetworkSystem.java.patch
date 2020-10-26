@@ -1,28 +1,27 @@
 --- ../src-base/minecraft/net/minecraft/network/NetworkSystem.java
 +++ ../src-work/minecraft/net/minecraft/network/NetworkSystem.java
-@@ -24,9 +24,8 @@
- import java.io.IOException;
- import java.net.InetAddress;
- import java.net.SocketAddress;
--import java.util.Collections;
--import java.util.Iterator;
--import java.util.List;
-+import java.util.*;
+@@ -27,6 +27,8 @@
+ import java.util.Collections;
+ import java.util.Iterator;
+ import java.util.List;
++import java.util.Set;
 +import java.util.concurrent.ConcurrentHashMap;
  import net.minecraft.client.network.NetHandlerHandshakeMemory;
  import net.minecraft.crash.CrashReport;
  import net.minecraft.crash.CrashReportCategory;
-@@ -44,6 +43,7 @@
- 
- public class NetworkSystem
- {
-+    public static boolean fastWorkBenchCrash = false;
-     private static final Logger LOGGER = LogManager.getLogger();
-     public static final LazyLoadBase<NioEventLoopGroup> SERVER_NIO_EVENTLOOP = new LazyLoadBase<NioEventLoopGroup>()
-     {
-@@ -71,6 +71,9 @@
+@@ -70,7 +72,19 @@
+     public volatile boolean isAlive;
      private final List<ChannelFuture> endpoints = Collections.<ChannelFuture>synchronizedList(Lists.newArrayList());
      private final List<NetworkManager> networkManagers = Collections.<NetworkManager>synchronizedList(Lists.newArrayList());
++    // Paper start - prevent blocking on adding a new network manager while the server is ticking
++    private final List<NetworkManager> pending = Collections.synchronizedList(Lists.<NetworkManager>newArrayList());
++    private void addPending() {
++        synchronized (pending) {
++            this.networkManagers.addAll(pending); // Paper - OBFHELPER - List of network managers
++            pending.clear();
++        }
++    }
++    // Paper end
  
 +    private boolean processing = false; // Thermos (Robotia) -- syncy time!
 +    private final Set stack = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -30,17 +29,19 @@
      public NetworkSystem(MinecraftServer server)
      {
          this.mcServer = server;
-@@ -113,7 +116,8 @@
+@@ -113,7 +127,10 @@
  
                      p_initChannel_1_.pipeline().addLast("timeout", new ReadTimeoutHandler(net.minecraftforge.fml.common.network.internal.FMLNetworkHandler.READ_TIMEOUT)).addLast("legacy_query", new LegacyPingHandler(NetworkSystem.this)).addLast("splitter", new NettyVarint21FrameDecoder()).addLast("decoder", new NettyPacketDecoder(EnumPacketDirection.SERVERBOUND)).addLast("prepender", new NettyVarint21FrameEncoder()).addLast("encoder", new NettyPacketEncoder(EnumPacketDirection.CLIENTBOUND));
                      NetworkManager networkmanager = new NetworkManager(EnumPacketDirection.SERVERBOUND);
 -                    NetworkSystem.this.networkManagers.add(networkmanager);
 +                    if (processing) { stack.add(networkmanager); } // Thermos (Robotia) -- syncy time
-+                    else { NetworkSystem.this.networkManagers.add(networkmanager); }
++                    else {
++                        pending.add(networkmanager); // Paper
++                    }
                      p_initChannel_1_.pipeline().addLast("packet_handler", networkmanager);
                      networkmanager.setNetHandler(new NetHandlerHandshakeTCP(NetworkSystem.this.mcServer, networkmanager));
                  }
-@@ -134,7 +138,8 @@
+@@ -134,7 +151,8 @@
                  {
                      NetworkManager networkmanager = new NetworkManager(EnumPacketDirection.SERVERBOUND);
                      networkmanager.setNetHandler(new NetHandlerHandshakeMemory(NetworkSystem.this.mcServer, networkmanager));
@@ -50,7 +51,7 @@
                      p_initChannel_1_.pipeline().addLast("packet_handler", networkmanager);
                  }
              }).group(SERVER_NIO_EVENTLOOP.getValue()).localAddress(LocalAddress.ANY)).bind().syncUninterruptibly();
-@@ -163,8 +168,16 @@
+@@ -163,8 +181,17 @@
  
      public void networkTick()
      {
@@ -58,6 +59,7 @@
          synchronized (this.networkManagers)
          {
 +            // Spigot Start
++            addPending(); // Paper
 +            // This prevents players from 'gaming' the server, and strategically relogging to increase their position in the tick order
 +            if (org.spigotmc.SpigotConfig.playerShuffle > 0 && MinecraftServer.currentTick % org.spigotmc.SpigotConfig.playerShuffle == 0)
 +            {
@@ -67,36 +69,7 @@
              Iterator<NetworkManager> iterator = this.networkManagers.iterator();
  
              while (iterator.hasNext())
-@@ -195,13 +208,24 @@
-                                 throw new ReportedException(crashreport);
-                             }
- 
--                            LOGGER.warn("Failed to handle packet for {}", networkmanager.getRemoteAddress(), exception);
--                            final TextComponentString textcomponentstring = new TextComponentString("Internal server error");
--                            networkmanager.sendPacket(new SPacketDisconnect(textcomponentstring), new GenericFutureListener < Future <? super Void >> ()
-+                            String textcomponentstring = "Internal server error";
-+
-+                            if(Arrays.toString(exception.getStackTrace()).contains("shadows.fastbench.net")){
-+                                LOGGER.warn("Failed to handle packet for {}", networkmanager.getRemoteAddress(), "Fast Workbench Exception");
-+                                LOGGER.warn("[MagmaSanityChecker] You have been detected to be using Fastworkbench! There is a special config needed in order to use it with Magma. That config can be found on the discord: https://discord.gg/zdXjMNk in the #incompatible-mods channel.");
-+                                this.fastWorkBenchCrash = true;
-+                                textcomponentstring = "FastWorkbench Exception. Please use Magma's config for FastWorkbench!";
-+                            } else {
-+                                LOGGER.warn("Failed to handle packet for {}", networkmanager.getRemoteAddress(), exception);
-+                            }
-+
-+                            final TextComponentString tcs = new TextComponentString(textcomponentstring);
-+
-+                            networkmanager.sendPacket(new SPacketDisconnect(tcs), new GenericFutureListener < Future <? super Void >> ()
-                             {
-                                 public void operationComplete(Future <? super Void > p_operationComplete_1_) throws Exception
-                                 {
--                                    networkmanager.closeChannel(textcomponentstring);
-+                                    networkmanager.closeChannel(tcs);
-                                 }
-                             });
-                             networkmanager.disableAutoRead();
-@@ -209,12 +233,18 @@
+@@ -209,12 +236,18 @@
                      }
                      else
                      {

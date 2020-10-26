@@ -3,7 +3,6 @@ package org.bukkit.craftbukkit.v1_12_R1;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
@@ -30,8 +29,7 @@ public class CraftChunk implements Chunk {
     public CraftChunk(net.minecraft.world.chunk.Chunk chunk) {
         this.weakChunk = new WeakReference<net.minecraft.world.chunk.Chunk>(chunk);
 
-//        worldServer = (WorldServer) getHandle().getWorld();
-        worldServer = MinecraftServer.getServerInstance().getWorldServer(getHandle().getWorld().getWorldInfo().getDimension());
+        worldServer = (WorldServer) getHandle().getWorld();
         x = getHandle().x;
         z = getHandle().z;
     }

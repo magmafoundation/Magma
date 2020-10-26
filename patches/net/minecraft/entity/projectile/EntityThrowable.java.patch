@@ -1,6 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/entity/projectile/EntityThrowable.java
 +++ ../src-work/minecraft/net/minecraft/entity/projectile/EntityThrowable.java
-@@ -22,6 +22,7 @@
+@@ -7,6 +7,7 @@
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLivingBase;
+ import net.minecraft.entity.IProjectile;
++import net.minecraft.entity.item.EntityEnderPearl;
+ import net.minecraft.entity.player.EntityPlayer;
+ import net.minecraft.init.Blocks;
+ import net.minecraft.nbt.NBTTagCompound;
+@@ -22,6 +23,7 @@
  import net.minecraft.world.WorldServer;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
@@ -8,7 +16,7 @@
  
  public abstract class EntityThrowable extends Entity implements IProjectile
  {
-@@ -31,8 +32,8 @@
+@@ -31,8 +33,8 @@
      private Block inTile;
      protected boolean inGround;
      public int throwableShake;
@@ -19,7 +27,7 @@
      private int ticksInGround;
      private int ticksInAir;
      public Entity ignoreEntity;
-@@ -57,6 +58,7 @@
+@@ -57,6 +59,7 @@
      {
          this(worldIn, throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.10000000149011612D, throwerIn.posZ);
          this.thrower = throwerIn;
@@ -27,7 +35,7 @@
      }
  
      protected void entityInit()
-@@ -196,7 +198,7 @@
+@@ -196,7 +199,7 @@
                  {
                      flag = true;
                  }
@@ -36,7 +44,23 @@
                  {
                      this.ignoreEntity = entity1;
                      flag = true;
-@@ -247,6 +249,9 @@
+@@ -238,6 +241,15 @@
+             raytraceresult = new RayTraceResult(entity);
+         }
+ 
++        // Paper start - Call ProjectileCollideEvent
++        if (raytraceresult != null && raytraceresult.entityHit != null) {
++            com.destroystokyo.paper.event.entity.ProjectileCollideEvent event = org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory.callProjectileCollideEvent(this, raytraceresult);
++            if (event.isCancelled()) {
++                raytraceresult = null;
++            }
++        }
++        // Paper end
++
+         if (raytraceresult != null)
+         {
+             if (raytraceresult.typeOfHit == RayTraceResult.Type.BLOCK && this.world.getBlockState(raytraceresult.getBlockPos()).getBlock() == Blocks.PORTAL)
+@@ -247,6 +259,9 @@
              else if (!net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult))
              {
                  this.onImpact(raytraceresult);
@@ -46,3 +70,12 @@
              }
          }
  
+@@ -366,7 +381,7 @@
+     {
+         if (this.thrower == null && this.throwerName != null && !this.throwerName.isEmpty())
+         {
+-            this.thrower = this.world.getPlayerEntityByName(this.throwerName);
++            if (this instanceof EntityEnderPearl && this.world != null && this.world.paperConfig.disableEnderpearlExploit) { this.thrower = null; } // Paper - Don't store shooter name for pearls to block enderpearl travel exploit            this.thrower = this.world.getPlayerEntityByName(this.throwerName);
+ 
+             if (this.thrower == null && this.world instanceof WorldServer)
+             {

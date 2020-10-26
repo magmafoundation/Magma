@@ -28,7 +28,7 @@
          double d2 = target.posZ - this.posZ;
          double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
          entityarrow.shoot(d0, d1 + d3 * 0.20000000298023224D, d2, 1.6F, (float)(14 - this.world.getDifficulty().getDifficultyId() * 4));
-+        org.bukkit.event.entity.EntityShootBowEvent event = CraftEventFactory.callEntityShootBowEvent(this, this.getHeldItemMainhand(), entityarrow, 0.8F);
++        org.bukkit.event.entity.EntityShootBowEvent event = CraftEventFactory.callEntityShootBowEvent(this, this.getHeldItemMainhand(), this.getHeldItemOffhand() ,entityarrow, 0.8F); // Paper
 +        if (event.isCancelled()) {
 +            event.getProjectile().remove();
 +            return;

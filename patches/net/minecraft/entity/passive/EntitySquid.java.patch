@@ -5,16 +5,18 @@
          super(worldIn);
          this.setSize(0.8F, 0.8F);
 -        this.rand.setSeed((long)(1 + this.getEntityId()));
-+        this.rand.setSeed((long)(1 + this.getEntityId())); // Paper
++        //this.rand.setSeed((long)(1 + this.getEntityId())); // Paper
          this.rotationVelocity = 1.0F / (this.rand.nextFloat() + 1.0F) * 0.2F;
      }
  
-@@ -191,7 +191,7 @@
+@@ -191,7 +191,9 @@
  
      public boolean getCanSpawnHere()
      {
 -        return this.posY > 45.0D && this.posY < (double)this.world.getSeaLevel() && super.getCanSpawnHere();
-+        return this.posY > this.world.spigotConfig.squidSpawnRangeMin && this.posY < (double)this.world.getSeaLevel() && super.getCanSpawnHere();
++        // Paper - Make max spawn height configurable
++        final double maxHeight = world.paperConfig.squidMaxSpawnHeight > 0 ? world.paperConfig.squidMaxSpawnHeight : world.getSeaLevel();
++        return this.posY > this.world.spigotConfig.squidSpawnRangeMin && this.posY < maxHeight && super.getCanSpawnHere(); // Spigot
      }
  
      @SideOnly(Side.CLIENT)

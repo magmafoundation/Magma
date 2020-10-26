@@ -23,10 +23,11 @@
  import net.minecraft.world.World;
  import net.minecraft.world.WorldProviderEnd;
  import net.minecraft.world.end.DragonFightManager;
-@@ -49,6 +52,10 @@
+@@ -49,6 +52,11 @@
  import net.minecraftforge.fml.relauncher.SideOnly;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
++import org.bukkit.entity.ExperienceOrb.SpawnReason;
 +import org.bukkit.event.entity.EntityExplodeEvent;
 +import org.bukkit.event.entity.EntityRegainHealthEvent;
 +import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
@@ -34,7 +35,7 @@
  
  public class EntityDragon extends EntityLiving implements IEntityMultiPart, IMob
  {
-@@ -78,6 +85,8 @@
+@@ -78,6 +86,8 @@
      private final int[] neighbors = new int[24];
      private final PathHeap pathFindQueue = new PathHeap();
  
@@ -43,7 +44,7 @@
      public EntityDragon(World worldIn)
      {
          super(worldIn);
-@@ -241,7 +250,7 @@
+@@ -241,7 +251,7 @@
  
                      Vec3d vec3d = iphase.getTargetLocation();
  
@@ -52,7 +53,7 @@
                      {
                          double d6 = vec3d.x - this.posX;
                          double d7 = vec3d.y - this.posY;
-@@ -411,7 +420,15 @@
+@@ -411,7 +421,15 @@
              }
              else if (this.ticksExisted % 10 == 0 && this.getHealth() < this.getMaxHealth())
              {
@@ -69,7 +70,7 @@
              }
          }
  
-@@ -489,6 +506,11 @@
+@@ -489,6 +507,11 @@
          boolean flag = false;
          boolean flag1 = false;
  
@@ -81,7 +82,7 @@
          for (int k1 = i; k1 <= l; ++k1)
          {
              for (int l1 = j; l1 <= i1; ++l1)
-@@ -509,7 +531,11 @@
+@@ -509,7 +532,11 @@
                          {
                              if (block != Blocks.COMMAND_BLOCK && block != Blocks.REPEATING_COMMAND_BLOCK && block != Blocks.CHAIN_COMMAND_BLOCK && block != Blocks.IRON_BARS && block != Blocks.END_GATEWAY)
                              {
@@ -94,7 +95,7 @@
                              }
                              else
                              {
-@@ -525,6 +551,41 @@
+@@ -525,6 +552,41 @@
              }
          }
  
@@ -136,7 +137,7 @@
          if (flag1)
          {
              double d0 = p_70972_1_.minX + (p_70972_1_.maxX - p_70972_1_.minX) * (double)this.rand.nextFloat();
-@@ -638,8 +699,29 @@
+@@ -638,8 +700,29 @@
  
              if (this.deathTicks == 1)
              {
@@ -168,3 +169,12 @@
          }
  
          this.move(MoverType.SELF, 0.0D, 0.10000000149011612D, 0.0D);
+@@ -668,7 +751,7 @@
+         {
+             int i = EntityXPOrb.getXPSplit(p_184668_1_);
+             p_184668_1_ -= i;
+-            this.world.spawnEntity(new EntityXPOrb(this.world, this.posX, this.posY, this.posZ, i));
++            this.world.spawnEntity(new EntityXPOrb(this.world, this.posX, this.posY, this.posZ, i, SpawnReason.ENTITY_DEATH, this.attackingPlayer, this)); // Paper
+         }
+     }
+ 

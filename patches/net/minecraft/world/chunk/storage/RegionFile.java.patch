@@ -1,19 +1,20 @@
 --- ../src-base/minecraft/net/minecraft/world/chunk/storage/RegionFile.java
 +++ ../src-work/minecraft/net/minecraft/world/chunk/storage/RegionFile.java
-@@ -1,29 +1,28 @@
+@@ -1,5 +1,6 @@
  package net.minecraft.world.chunk.storage;
  
++import com.destroystokyo.paper.exception.ServerInternalException;
  import com.google.common.collect.Lists;
--import java.io.BufferedInputStream;
--import java.io.BufferedOutputStream;
--import java.io.ByteArrayInputStream;
--import java.io.ByteArrayOutputStream;
--import java.io.DataInputStream;
--import java.io.DataOutputStream;
--import java.io.File;
--import java.io.IOException;
--import java.io.RandomAccessFile;
-+import java.io.*;
+ import java.io.BufferedInputStream;
+ import java.io.BufferedOutputStream;
+@@ -7,23 +8,31 @@
+ import java.io.ByteArrayOutputStream;
+ import java.io.DataInputStream;
+ import java.io.DataOutputStream;
++import java.io.EOFException;
+ import java.io.File;
+ import java.io.IOException;
+ import java.io.RandomAccessFile;
 +import java.nio.ByteBuffer;
 +import java.nio.IntBuffer;
  import java.util.List;
@@ -40,7 +41,7 @@
      private RandomAccessFile dataFile;
      private final int[] offsets = new int[1024];
      private final int[] chunkTimestamps = new int[1024];
-@@ -45,7 +44,7 @@
+@@ -45,7 +54,7 @@
  
              this.dataFile = new RandomAccessFile(fileNameIn, "rw");
  
@@ -49,7 +50,7 @@
              {
                  this.dataFile.write(EMPTY_SECTOR);
                  this.dataFile.write(EMPTY_SECTOR);
-@@ -72,36 +71,54 @@
+@@ -72,41 +81,60 @@
              this.sectorFree.set(1, Boolean.valueOf(false));
              this.dataFile.seek(0L);
  
@@ -114,7 +115,13 @@
              }
          }
          catch (IOException ioexception)
-@@ -138,11 +155,13 @@
+         {
+             ioexception.printStackTrace();
++            ServerInternalException.reportInternalException(ioexception); // Paper
+         }
+     }
+ 
+@@ -138,11 +166,13 @@
                  {
                      int j = i >> 8;
                      int k = i & 255;
@@ -128,7 +135,7 @@
  
                      if (j + k > this.sectorFree.size())
                      {
-@@ -155,12 +174,10 @@
+@@ -155,12 +185,10 @@
  
                          if (l > 4096 * k)
                          {
@@ -141,7 +148,7 @@
                              return null;
                          }
                          else
-@@ -197,7 +214,7 @@
+@@ -197,7 +225,7 @@
      @Nullable
      public DataOutputStream getChunkDataOutputStream(int x, int z)
      {
@@ -150,7 +157,7 @@
      }
  
      protected synchronized void write(int x, int z, byte[] data, int length)
-@@ -207,17 +224,21 @@
+@@ -207,17 +235,21 @@
              int i = this.getOffset(x, z);
              int j = i >> 8;
              int k = i & 255;
@@ -174,7 +181,7 @@
              }
  
              if (j != 0 && k == l)
-@@ -265,7 +286,7 @@
+@@ -265,7 +297,7 @@
                  if (j1 >= l)
                  {
                      j = l1;
@@ -183,7 +190,7 @@
  
                      for (int j2 = 0; j2 < l; ++j2)
                      {
-@@ -287,7 +308,7 @@
+@@ -287,7 +319,7 @@
  
                      this.sizeDelta += 4096 * l;
                      this.write(j, data, length);
@@ -192,7 +199,7 @@
                  }
              }
  
-@@ -295,7 +316,7 @@
+@@ -295,7 +327,7 @@
          }
          catch (IOException ioexception)
          {
@@ -201,7 +208,7 @@
          }
      }
  
-@@ -344,6 +365,159 @@
+@@ -344,6 +376,159 @@
          }
      }
  
@@ -361,7 +368,7 @@
      class ChunkBuffer extends ByteArrayOutputStream
      {
          private final int chunkX;
-@@ -358,7 +532,34 @@
+@@ -358,7 +543,34 @@
  
          public void close() throws IOException
          {

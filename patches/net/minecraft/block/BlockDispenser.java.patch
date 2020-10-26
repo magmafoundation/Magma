@@ -1,6 +1,25 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockDispenser.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockDispenser.java
-@@ -120,7 +120,7 @@
+@@ -51,6 +51,9 @@
+         return 4;
+     }
+ 
++    // Paper start - Removed override of onPlace that was reversing placement direction when
++    // adjacent to another block, which was not consistent with single player block placement
++     /*
+     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
+     {
+         super.onBlockAdded(worldIn, pos, state);
+@@ -91,6 +94,8 @@
+             worldIn.setBlockState(pos, state.withProperty(FACING, enumfacing).withProperty(TRIGGERED, Boolean.valueOf(false)), 2);
+         }
+     }
++    */
++    // Paper end
+ 
+     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+     {
+@@ -120,7 +125,7 @@
          }
      }
  

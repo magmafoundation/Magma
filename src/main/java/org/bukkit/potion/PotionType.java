@@ -66,6 +66,7 @@ public enum PotionType {
     }
 
     /**
+     * @return Damage value associated with this PotionType, broken
      * @deprecated Non-functional
      */
     @Deprecated
@@ -78,6 +79,8 @@ public enum PotionType {
     }
 
     /**
+     * @param damage Damage value associated with a PotionType
+     * @return PotionType for given damage value, broken
      * @deprecated Non-functional
      */
     @Deprecated
@@ -86,6 +89,8 @@ public enum PotionType {
     }
 
     /**
+     * @param effectType EffectType
+     * @return Associated PotionType
      * @deprecated Misleading
      */
     @Deprecated

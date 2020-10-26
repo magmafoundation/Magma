@@ -1,0 +1,41 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockFrostedIce.java
++++ ../src-work/minecraft/net/minecraft/block/BlockFrostedIce.java
+@@ -32,13 +32,16 @@
+ 
+     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
+     {
++        if (!worldIn.paperConfig.frostedIceEnabled) return; // Paper - add ability to disable frosted ice
+         if ((rand.nextInt(3) == 0 || this.countNeighbors(worldIn, pos) < 4) && worldIn.getLightFromNeighbors(pos) > 11 - ((Integer)state.getValue(AGE)).intValue() - state.getLightOpacity())
+         {
+             this.slightlyMelt(worldIn, pos, state, rand, true);
+         }
+         else
+         {
+-            worldIn.scheduleUpdate(pos, this, MathHelper.getInt(rand, 20, 40));
++            // Paper start - use configurable min/max delay
++            worldIn.scheduleUpdate(pos, this, MathHelper.getInt(rand, worldIn.paperConfig.frostedIceDelayMin, worldIn.paperConfig.frostedIceDelayMax));
++            // Paper end
+         }
+     }
+ 
+@@ -61,7 +64,9 @@
+ 
+         for (EnumFacing enumfacing : EnumFacing.values())
+         {
+-            if (worldIn.getBlockState(pos.offset(enumfacing)).getBlock() == this)
++            IBlockState iblockdata1 = worldIn.getTypeIfLoaded(pos.offset(enumfacing)); // Paper - don't load chunks
++            if (iblockdata1 == null) continue; // Paper
++            if (iblockdata1.getBlock() == this) // Paper
+             {
+                 ++i;
+ 
+@@ -93,7 +98,8 @@
+                 for (EnumFacing enumfacing : EnumFacing.values())
+                 {
+                     BlockPos blockpos = pos.offset(enumfacing);
+-                    IBlockState iblockstate = worldIn.getBlockState(blockpos);
++                    IBlockState iblockstate = worldIn.getTypeIfLoaded(blockpos); // Paper - don't load chunks
++                    if (iblockstate == null) continue; // Paper
+ 
+                     if (iblockstate.getBlock() == this)
+                     {

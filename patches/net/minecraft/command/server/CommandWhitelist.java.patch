@@ -1,0 +1,83 @@
+--- ../src-base/minecraft/net/minecraft/command/server/CommandWhitelist.java
++++ ../src-work/minecraft/net/minecraft/command/server/CommandWhitelist.java
+@@ -61,6 +61,8 @@
+                     throw new WrongUsageException("commands.whitelist.add.usage", new Object[0]);
+                 }
+ 
++                // Paper start - Handle offline mode as well
++                /*
+                 GameProfile gameprofile = server.getPlayerProfileCache().getGameProfileForUsername(args[1]);
+ 
+                 if (gameprofile == null)
+@@ -69,6 +71,9 @@
+                 }
+ 
+                 server.getPlayerList().addWhitelistedPlayer(gameprofile);
++                 */
++                this.whitelist(server, args[1], true);
++                // Paper end
+                 notifyCommandListener(sender, this, "commands.whitelist.add.success", new Object[] {args[1]});
+             }
+             else if ("remove".equals(args[0]))
+@@ -78,6 +83,8 @@
+                     throw new WrongUsageException("commands.whitelist.remove.usage", new Object[0]);
+                 }
+ 
++                // Paper start - Handle offline mode as well
++                /*
+                 GameProfile gameprofile1 = server.getPlayerList().getWhitelistedPlayers().getByName(args[1]);
+ 
+                 if (gameprofile1 == null)
+@@ -86,6 +93,9 @@
+                 }
+ 
+                 server.getPlayerList().removePlayerFromWhitelist(gameprofile1);
++                */
++                this.whitelist(server, args[1], false);
++                // Paper end
+                 notifyCommandListener(sender, this, "commands.whitelist.remove.success", new Object[] {args[1]});
+             }
+             else if ("reload".equals(args[0]))
+@@ -120,4 +130,42 @@
+             return Collections.<String>emptyList();
+         }
+     }
++
++    // Paper start
++    /**
++     * Adds or removes a player from the game whitelist
++     *
++     * @param mcserver running instance of MinecraftServer
++     * @param playerName the player we're going to be whitelisting
++     * @param add whether we're adding or removing from the whitelist
++     */
++    private void whitelist(MinecraftServer mcserver, String playerName, boolean add) throws CommandException {
++        if (mcserver.isServerInOnlineMode()) {
++            // The reason we essentially copy/pasta NMS code here is because the NMS online-only version
++            // is capable of providing feedback to the person running the command based on whether or
++            // not the player is a real online-mode account
++            GameProfile gameprofile = mcserver.getPlayerProfileCache().getGameProfileForUsername(playerName);
++            if (gameprofile == null) {
++                if (add) {
++                    throw new CommandException("commands.whitelist.add.failed", new Object[] { playerName});
++                } else {
++                    throw new CommandException("commands.whitelist.remove.failed", new Object[] { playerName});
++                }
++            }
++            if (add) {
++                mcserver.getPlayerList().addWhitelistedPlayer(gameprofile);
++            } else {
++                mcserver.getPlayerList().removePlayerFromWhitelist(gameprofile);
++            }
++        } else {
++            // versus our offline version, which will always report success all of the time
++            org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(playerName);
++            if (add) {
++                offlinePlayer.setWhitelisted(true);
++            } else {
++                offlinePlayer.setWhitelisted(false);
++            }
++        }
++    }
++    // Paper end
+ }

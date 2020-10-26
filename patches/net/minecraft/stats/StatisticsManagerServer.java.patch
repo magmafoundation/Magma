@@ -23,3 +23,33 @@
          try
          {
              FileUtils.writeStringToFile(this.statsFile, dumpJson(this.statsData));
+@@ -93,6 +102,7 @@
+         {
+             JsonObject jsonobject = jsonelement.getAsJsonObject();
+             Map<StatBase, TupleIntJsonSerializable> map = Maps.<StatBase, TupleIntJsonSerializable>newHashMap();
++            java.util.List<String> invalidStats = com.google.common.collect.Lists.newArrayList(); // Paper
+ 
+             for (Entry<String, JsonElement> entry : jsonobject.entrySet())
+             {
+@@ -127,6 +137,7 @@
+                             catch (Throwable throwable)
+                             {
+                                 LOGGER.warn("Invalid statistic progress in {}", this.statsFile, throwable);
++                                if (com.destroystokyo.paper.PaperConfig.removeInvalidStatistics) invalidStats.add((String) entry.getKey()); // Paper
+                             }
+                         }
+                     }
+@@ -139,6 +150,13 @@
+                 }
+             }
+ 
++            // Paper start - Remove invalid statistics
++            for (String invalid : invalidStats) {
++                jsonobject.remove(invalid);
++                LOGGER.info("Removing invalid statistic: " + invalid);
++            }
++            // Paper end
++
+             return map;
+         }
+     }

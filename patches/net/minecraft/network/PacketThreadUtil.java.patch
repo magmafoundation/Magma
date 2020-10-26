@@ -1,0 +1,26 @@
+--- ../src-base/minecraft/net/minecraft/network/PacketThreadUtil.java
++++ ../src-work/minecraft/net/minecraft/network/PacketThreadUtil.java
+@@ -1,17 +1,17 @@
+ package net.minecraft.network;
+ 
++import co.aikar.timings.MinecraftTimings;
++import co.aikar.timings.Timing;
+ import net.minecraft.util.IThreadListener;
+ 
+ public class PacketThreadUtil
+ {
+     public static <T extends INetHandler> void checkThreadAndEnqueue(final Packet<T> packetIn, final T processor, IThreadListener scheduler) throws ThreadQuickExitException
+     {
+-        if (!scheduler.isCallingFromMinecraftThread())
+-        {
+-            scheduler.addScheduledTask(new Runnable()
+-            {
+-                public void run()
+-                {
++        if (!scheduler.isCallingFromMinecraftThread()) {
++            Timing timing = MinecraftTimings.getPacketTiming(packetIn); // Paper
++            scheduler.addScheduledTask(() -> {
++                try (Timing ignored = timing.startTiming()) {
+                     packetIn.processPacket(processor);
+                 }
+             });

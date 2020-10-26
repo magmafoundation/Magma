@@ -1,0 +1,10 @@
+--- ../src-base/minecraft/net/minecraft/enchantment/EnchantmentHelper.java
++++ ../src-work/minecraft/net/minecraft/enchantment/EnchantmentHelper.java
+@@ -282,6 +282,7 @@
+         return getEnchantmentLevel(Enchantments.VANISHING_CURSE, p_190939_0_) > 0;
+     }
+ 
++    public static ItemStack getRandomEquippedItemWithEnchant(Enchantment enchantment, EntityLivingBase entityliving) { return getEnchantedItem(enchantment, entityliving); } // Paper - OBFHELPER
+     public static ItemStack getEnchantedItem(Enchantment p_92099_0_, EntityLivingBase p_92099_1_)
+     {
+         List<ItemStack> list = p_92099_0_.getEntityEquipment(p_92099_1_);

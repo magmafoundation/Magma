@@ -1,0 +1,10 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/structure/MapGenStronghold.java
++++ ../src-work/minecraft/net/minecraft/world/gen/structure/MapGenStronghold.java
+@@ -72,6 +72,7 @@
+ 
+     public BlockPos getNearestStructurePos(World worldIn, BlockPos pos, boolean findUnexplored)
+     {
++        this.world = world; // Paper
+         if (!this.ranBiomeCheck)
+         {
+             this.generatePositions();

@@ -1,5 +1,6 @@
 package org.bukkit;
 
+import java.util.Date;
 import java.util.UUID;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -39,6 +40,53 @@ public interface OfflinePlayer extends ServerOperator, AnimalTamer, Configuratio
      * @return true if banned, otherwise false
      */
     public boolean isBanned();
+
+    // Paper start
+    /**
+     * Permanently Bans this player from the server
+     *
+     * @param reason Reason for Ban
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayer(String reason) {
+        return banPlayer(reason, null, null);
+    }
+    /**
+     * Permanently Bans this player from the server
+     * @param reason Reason for Ban
+     * @param source Source of the ban, or null for default
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayer(String reason, String source) {
+        return banPlayer(reason, null, source);
+    }
+    /**
+     * Bans this player from the server
+     * @param reason Reason for Ban
+     * @param expires When to expire the ban
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayer(String reason, Date expires) {
+        return banPlayer(reason, expires, null);
+    }
+    /**
+     * Bans this player from the server
+     * @param reason Reason for Ban
+     * @param expires When to expire the ban
+     * @param source Source of the ban or null for default
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayer(String reason, Date expires, String source) {
+        return banPlayer(reason, expires, source, true);
+    }
+    public default BanEntry banPlayer(String reason, Date expires, String source, boolean kickIfOnline) {
+        BanEntry banEntry = Bukkit.getServer().getBanList(BanList.Type.NAME).addBan(getName(), reason, expires, source);
+        if (kickIfOnline && isOnline()) {
+            getPlayer().kickPlayer(reason);
+        }
+        return banEntry;
+    }
+    // Paper end
 
     /**
      * Checks if this player is whitelisted or not

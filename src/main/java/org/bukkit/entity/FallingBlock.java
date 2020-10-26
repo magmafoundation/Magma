@@ -59,4 +59,15 @@ public interface FallingBlock extends Entity {
      * @param hurtEntities whether entities will be damaged by this block.
      */
     void setHurtEntities(boolean hurtEntities);
+
+    /**
+     * Gets the source block location of the FallingBlock
+     *
+     * @return the source block location the FallingBlock was spawned from
+     * @deprecated replaced by {@link Entity#getOrigin()}
+     */
+    @Deprecated
+    default org.bukkit.Location getSourceLoc() {
+        return this.getOrigin();
+    }
 }

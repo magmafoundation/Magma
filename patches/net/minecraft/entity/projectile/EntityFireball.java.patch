@@ -38,7 +38,19 @@
          accelX = accelX + this.rand.nextGaussian() * 0.4D;
          accelY = accelY + this.rand.nextGaussian() * 0.4D;
          accelZ = accelZ + this.rand.nextGaussian() * 0.4D;
-@@ -96,6 +107,11 @@
+@@ -93,9 +104,23 @@
+             ++this.ticksInAir;
+             RayTraceResult raytraceresult = ProjectileHelper.forwardsRaycast(this, true, this.ticksInAir >= 25, this.shootingEntity);
+ 
++            // Paper start - Call ProjectileCollideEvent
++            if (raytraceresult != null && raytraceresult.entityHit != null) {
++                com.destroystokyo.paper.event.entity.ProjectileCollideEvent event = CraftEventFactory.callProjectileCollideEvent(this, raytraceresult);
++                if (event.isCancelled()) {
++                    raytraceresult = null;
++                }
++            }
++            // Paper end
++
              if (raytraceresult != null && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult))
              {
                  this.onImpact(raytraceresult);
@@ -50,7 +62,7 @@
              }
  
              this.posX += this.motionX;
-@@ -209,6 +225,11 @@
+@@ -209,6 +234,11 @@
  
              if (source.getTrueSource() != null)
              {
@@ -62,7 +74,7 @@
                  Vec3d vec3d = source.getTrueSource().getLookVec();
  
                  if (vec3d != null)
-@@ -224,6 +245,7 @@
+@@ -224,6 +254,7 @@
                  if (source.getTrueSource() instanceof EntityLivingBase)
                  {
                      this.shootingEntity = (EntityLivingBase)source.getTrueSource();

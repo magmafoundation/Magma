@@ -96,7 +96,7 @@ public interface PluginManager {
      * @param plugin Plugin to disable
      * @param closeClassloader if the classloader for the Plugin should be closed
      */
-    void disablePlugin(Plugin plugin, boolean closeClassloader);
+    public void disablePlugin(Plugin plugin, boolean closeClassloader);
     // Paper end - close Classloader on disable
 
     /**

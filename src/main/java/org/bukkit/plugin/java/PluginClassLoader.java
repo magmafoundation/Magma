@@ -27,6 +27,7 @@ import org.magmafoundation.magma.remapper.utils.RemappingUtils;
  */
 public final class PluginClassLoader extends URLClassLoader {
 
+    public JavaPlugin getPlugin() { return plugin; } // Spigot
     final JavaPlugin plugin;
     private final JavaPluginLoader loader;
     private final Map<String, Class<?>> classes = new java.util.concurrent.ConcurrentHashMap<String, Class<?>>(); // Spigot
@@ -39,6 +40,7 @@ public final class PluginClassLoader extends URLClassLoader {
     private JavaPlugin pluginInit;
     private IllegalStateException pluginState;
     private Patcher patcher;
+    private java.util.logging.Logger logger; // Paper - add field
 
     static {
         try {
@@ -63,6 +65,8 @@ public final class PluginClassLoader extends URLClassLoader {
         this.jar = new JarFile(file);
         this.manifest = jar.getManifest();
         this.url = file.toURI().toURL();
+
+        this.logger = com.destroystokyo.paper.utils.PaperPluginLogger.getLogger(description); // Paper - Register logger early
 
         this.patcher = Magma.getInstance().getPatcherManager().getPatchByName(description.getName());
 
@@ -157,6 +161,7 @@ public final class PluginClassLoader extends URLClassLoader {
         pluginState = new IllegalStateException("Initial initialization");
         this.pluginInit = javaPlugin;
 
+        javaPlugin.logger = this.logger; // Paper - set logger
         javaPlugin.init(loader, loader.server, description, dataFolder, file, this);
     }
 

@@ -9,7 +9,7 @@
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.client.util.ITooltipFlag;
  import net.minecraft.enchantment.Enchantment;
-@@ -49,14 +49,17 @@
+@@ -49,17 +49,20 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
@@ -28,8 +28,35 @@
 +    public Item item;
      private NBTTagCompound stackTagCompound;
      private boolean isEmpty;
-     int itemDamage;
-@@ -119,23 +122,33 @@
+-    int itemDamage;
++    int itemDamage; public void setDamage(int i) { this.itemDamage = i; } // Paper - OBFHELPER
+     private EntityItemFrame itemFrame;
+     private Block canDestroyCacheBlock;
+     private boolean canDestroyCacheResult;
+@@ -70,6 +73,22 @@
+     private net.minecraftforge.common.capabilities.CapabilityDispatcher capabilities;
+     private NBTTagCompound capNBT;
+ 
++    // Paper start
++    private static final java.util.Comparator<NBTTagCompound> enchantSorter = java.util.Comparator.comparingInt(o -> o.getShort("id"));
++    private void processEnchantOrder(NBTTagCompound tag) {
++        if (tag == null || !tag.hasKey("ench", 9)) {
++            return;
++        }
++        NBTTagList list = tag.getTagList("ench", 10);
++        if (list.tagCount() < 2) {
++            return;
++        }
++        try {
++            list.sort(enchantSorter); // Paper
++        } catch (Exception ignored) {}
++    }
++    // Paper end
++
+     public ItemStack(Block blockIn)
+     {
+         this(blockIn, 1);
+@@ -119,23 +138,33 @@
  
      public ItemStack(NBTTagCompound compound)
      {
@@ -52,10 +79,11 @@
          if (compound.hasKey("tag", 10))
          {
 -            this.stackTagCompound = compound.getCompoundTag("tag");
+-
 +            // CraftBukkit start - make defensive copy as this data may be coming from the save thread
 +            // this.stackTagCompound = compound.getCompoundTag("tag");
 +            this.stackTagCompound = compound.getCompoundTag("tag").copy();
- 
++            processEnchantOrder(this.stackTagCompound); // Paper
              if (this.item != null)
              {
 -                this.item.updateItemStackNBT(compound);
@@ -69,7 +97,7 @@
      }
  
      public boolean isEmpty()
-@@ -160,6 +173,7 @@
+@@ -160,6 +189,7 @@
              return true;
          }
      }
@@ -77,7 +105,7 @@
  
      public static void registerFixes(DataFixer fixer)
      {
-@@ -185,11 +199,10 @@
+@@ -185,11 +215,10 @@
      {
          if (!worldIn.isRemote) return net.minecraftforge.common.ForgeHooks.onPlaceItemIntoWorld(this, playerIn, worldIn, pos, side, hitX, hitY, hitZ, hand);
          EnumActionResult enumactionresult = this.getItem().onItemUse(playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ);
@@ -91,7 +119,7 @@
  
          return enumactionresult;
      }
-@@ -231,7 +244,8 @@
+@@ -231,7 +260,8 @@
  
          if (this.stackTagCompound != null)
          {
@@ -101,7 +129,21 @@
          }
  
          if (this.capabilities != null)
-@@ -291,6 +305,26 @@
+@@ -274,11 +304,13 @@
+         return this.getItem().getHasSubtypes();
+     }
+ 
++    public boolean hasDamage() { return isItemDamaged(); } // Paper OBFHELPER
+     public boolean isItemDamaged()
+     {
+         return this.isItemStackDamageable() && getItem().isDamaged(this);
+     }
+ 
++    public int getDamage() { return getItemDamage(); } // Paper OBFHELPER
+     public int getItemDamage()
+     {
+         return getItem().getDamage(this);
+@@ -291,6 +323,26 @@
  
      public void setItemDamage(int meta)
      {
@@ -128,7 +170,7 @@
          getItem().setDamage(this, meta);
      }
  
-@@ -322,6 +356,19 @@
+@@ -322,6 +374,19 @@
  
                  amount -= j;
  
@@ -148,7 +190,7 @@
                  if (amount <= 0)
                  {
                      return false;
-@@ -347,6 +394,11 @@
+@@ -347,6 +412,11 @@
                  if (this.attemptDamageItem(amount, entityIn.getRNG(), entityIn instanceof EntityPlayerMP ? (EntityPlayerMP)entityIn : null))
                  {
                      entityIn.renderBrokenItemStack(this);
@@ -160,7 +202,46 @@
                      this.shrink(1);
  
                      if (entityIn instanceof EntityPlayer)
-@@ -983,6 +1035,14 @@
+@@ -533,6 +603,7 @@
+         this.getItem().onCreated(this, worldIn, playerIn);
+     }
+ 
++    public int getItemUseMaxDuration() { return getMaxItemUseDuration(); } // Paper - OBFHELPER
+     public int getMaxItemUseDuration()
+     {
+         return this.getItem().getMaxItemUseDuration(this);
+@@ -592,9 +663,22 @@
+         return this.stackTagCompound != null ? this.stackTagCompound.getTagList("ench", 10) : new NBTTagList();
+     }
+ 
++    // Paper start - (this is just a good no conflict location)
++    public org.bukkit.inventory.ItemStack asBukkitMirror() {
++        return CraftItemStack.asCraftMirror(this);
++    }
++    public org.bukkit.inventory.ItemStack asBukkitCopy() {
++        return CraftItemStack.asCraftMirror(this.copy());
++    }
++    public static ItemStack fromBukkitCopy(org.bukkit.inventory.ItemStack itemstack) {
++        return CraftItemStack.asNMSCopy(itemstack);
++    }
++    // Paper end
++
+     public void setTagCompound(@Nullable NBTTagCompound nbt)
+     {
+         this.stackTagCompound = nbt;
++        processEnchantOrder(this.stackTagCompound); // Paper
+     }
+ 
+     public String getDisplayName()
+@@ -931,6 +1015,7 @@
+         nbttagcompound.setShort("id", (short)Enchantment.getEnchantmentID(ench));
+         nbttagcompound.setShort("lvl", (short)((byte)level));
+         nbttaglist.appendTag(nbttagcompound);
++        processEnchantOrder(nbttagcompound); // Paper
+     }
+ 
+     public boolean isItemEnchanted()
+@@ -983,6 +1068,14 @@
  
      public void setRepairCost(int cost)
      {
@@ -175,7 +256,7 @@
          if (!this.hasTagCompound())
          {
              this.stackTagCompound = new NBTTagCompound();
-@@ -1043,6 +1103,14 @@
+@@ -1043,6 +1136,14 @@
          nbttaglist.appendTag(nbttagcompound);
      }
  
@@ -190,7 +271,7 @@
      public ITextComponent getTextComponent()
      {
          TextComponentString textcomponentstring = new TextComponentString(this.getDisplayName());
-@@ -1280,4 +1348,16 @@
+@@ -1280,4 +1381,16 @@
      {
          return this.isEmpty() || this.getItem().doesSneakBypassUse(this, world, pos, player);
      }

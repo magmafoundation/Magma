@@ -8,7 +8,17 @@
  
  public class BlockCrops extends BlockBush implements IGrowable
  {
-@@ -81,7 +82,8 @@
+@@ -71,8 +72,7 @@
+         super.updateTick(worldIn, pos, state, rand);
+ 
+         if (!worldIn.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
+-        if (worldIn.getLightFromNeighbors(pos.up()) >= 9)
+-        {
++        if (worldIn.isLightLevel(pos.up(), 9)) { // Paper
+             int i = this.getAge(state);
+ 
+             if (i < this.getMaxAge())
+@@ -81,7 +81,8 @@
  
                  if(net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, rand.nextInt((int)(25.0F / f) + 1) == 0))
                  {
@@ -18,7 +28,7 @@
                      net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state, worldIn.getBlockState(pos));
                  }
              }
-@@ -98,7 +100,8 @@
+@@ -98,7 +99,8 @@
              i = j;
          }
  

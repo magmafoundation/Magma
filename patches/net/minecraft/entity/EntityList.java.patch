@@ -1,6 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/entity/EntityList.java
 +++ ../src-work/minecraft/net/minecraft/entity/EntityList.java
-@@ -107,6 +107,12 @@
+@@ -104,9 +104,18 @@
+ 
+ public class EntityList
+ {
++    // Paper start
++    public static Map<Class<? extends Entity>, ResourceLocation> clsToKeyMap = new java.util.HashMap<>();
++    public static Map<Class<? extends Entity>, org.bukkit.entity.EntityType> clsToTypeMap = new java.util.HashMap<>();
++    // Paper end
++
      public static final ResourceLocation LIGHTNING_BOLT = new ResourceLocation("lightning_bolt");
      private static final ResourceLocation PLAYER = new ResourceLocation("player");
      private static final Logger LOGGER = LogManager.getLogger();
@@ -8,24 +16,15 @@
 +    public static final RegistryNamespaced< ResourceLocation, Class <? extends Entity >> REGISTRY = new RegistryNamespaced < ResourceLocation, Class <? extends Entity >> ();
 +    // Magma SilkSpawners Compatibility
 +    public static final List<String> OLD_NAMES = Lists.newArrayList();
-+    // Magma GadgetsMenu support
-+    public static final Set<ResourceLocation> KNOWN_TYPES = Sets.<ResourceLocation>newHashSet();
      public static final Map<ResourceLocation, EntityList.EntityEggInfo> ENTITY_EGGS = Maps.<ResourceLocation, EntityList.EntityEggInfo>newLinkedHashMap();
      private static final Set<ResourceLocation> EXTRA_NAMES = Sets.newHashSet();
  
-@@ -401,6 +407,7 @@
-         addSpawnInfo("zombie_pigman", 15373203, 5009705);
-         addSpawnInfo("zombie_villager", 5651507, 7969893);
-         EXTRA_NAMES.add(LIGHTNING_BOLT);
-+        KNOWN_TYPES.add(LIGHTNING_BOLT); // GadgetsMenu
-     }
- 
-     private static void register(int id, String name, Class <? extends Entity > clazz, String oldName)
-@@ -422,6 +429,7 @@
+@@ -422,6 +431,8 @@
          {
              ResourceLocation resourcelocation = new ResourceLocation(name);
              net.minecraftforge.registries.GameData.registerEntity(id, resourcelocation, clazz, oldName);
-+            KNOWN_TYPES.add(resourcelocation); // GadgetsMenu
++            clsToKeyMap.put(clazz, resourcelocation); // Paper
++            clsToTypeMap.put(clazz, org.bukkit.entity.EntityType.fromName(name)); // Paper
          }
      }
  

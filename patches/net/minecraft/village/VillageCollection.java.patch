@@ -1,0 +1,25 @@
+--- ../src-base/minecraft/net/minecraft/village/VillageCollection.java
++++ ../src-work/minecraft/net/minecraft/village/VillageCollection.java
+@@ -254,7 +254,12 @@
+ 
+     private boolean isWoodDoor(BlockPos doorPos)
+     {
+-        IBlockState iblockstate = this.world.getBlockState(doorPos);
++        // Paper start
++        IBlockState iblockstate = this.world.getTypeIfLoaded(doorPos);
++        if (iblockstate == null) {
++            return false;
++        }
++        // Paper end
+         Block block = iblockstate.getBlock();
+ 
+         if (block instanceof BlockDoor)
+@@ -275,7 +280,7 @@
+         for (int i = 0; i < nbttaglist.tagCount(); ++i)
+         {
+             NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
+-            Village village = new Village();
++            Village village = new Village(world); // Paper
+             village.readVillageDataFromNBT(nbttagcompound);
+             this.villageList.add(village);
+         }

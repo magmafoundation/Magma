@@ -9,7 +9,8 @@
  
  public class InventoryEnderChest extends InventoryBasic
  {
-     private TileEntityEnderChest associatedChest;
+-    private TileEntityEnderChest associatedChest;
++    private TileEntityEnderChest associatedChest; public TileEntityEnderChest getTileEntity() { return associatedChest; } // Paper - OBFHELPER
  
 -    public InventoryEnderChest()
 +    private final EntityPlayer owner;
@@ -21,7 +22,7 @@
      }
  
      public void setChestTileEntity(TileEntityEnderChest chestTileEntity)
-@@ -84,4 +89,14 @@
+@@ -84,4 +89,15 @@
          super.closeInventory(player);
          this.associatedChest = null;
      }
@@ -32,6 +33,7 @@
 +
 +    @Override
 +    public Location getLocation() {
++        if (getTileEntity() == null) return null; // Paper - return null if there is no TE bound (opened by plugin)
 +        return new Location(this.associatedChest.getWorld().getWorld(), this.associatedChest.getPos().getX(), this.associatedChest.getPos().getY(), this.associatedChest.getPos().getZ());
 +    }
 +

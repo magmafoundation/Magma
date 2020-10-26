@@ -258,4 +258,36 @@ public interface ArmorStand extends LivingEntity {
      * @param marker whether this is a marker
      */
     void setMarker(boolean marker);
+
+    // Paper start
+    /**
+     * Tests if this armor stand can move.
+     *
+     * <p>The default value is {@code true}.</p>
+     *
+     * @return {@code true} if this armour stand can move, {@code false} otherwise
+     */
+    boolean canMove();
+    /**
+     * Sets if this armor stand can move.
+     *
+     * @param move {@code true} if this armour stand can move, {@code false} otherwise
+     */
+    void setCanMove(boolean move);
+
+    /**
+     * Tests if this armor stand can tick.
+     *
+     * <p>The default value is defined in {@code paper.yml}.</p>
+     *
+     * @return {@code true} if this armour stand can tick, {@code false} otherwise
+     */
+    boolean canTick();
+    /**
+     * Sets if this armor stand can tick.
+     *
+     * @param tick {@code true} if this armour stand can tick, {@code false} otherwise
+     */
+    void setCanTick(final boolean tick);
+    // Paper end
 }

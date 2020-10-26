@@ -164,7 +164,7 @@
                  if (!this.isCreative() && flag1 && exp > 0)
                  {
 -                    iblockstate.getBlock().dropXpOnBlockBreak(world, pos, exp);
-+                    iblockstate.getBlock().dropXpOnBlockBreak(world, pos, exp, this.player);
++                    iblockstate.getBlock().dropXpOnBlockBreak(world, pos, exp, this.player); // Paper
                  }
                  return flag1;
              }

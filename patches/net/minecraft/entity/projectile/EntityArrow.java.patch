@@ -8,10 +8,11 @@
  import net.minecraft.entity.monster.EntityEnderman;
  import net.minecraft.entity.player.EntityPlayer;
  import net.minecraft.entity.player.EntityPlayerMP;
-@@ -36,6 +37,12 @@
+@@ -36,6 +37,13 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
++import org.bukkit.entity.Arrow.PickupStatus;
 +import org.bukkit.entity.LivingEntity;
 +import org.bukkit.event.entity.EntityCombustByEntityEvent;
 +import org.bukkit.event.entity.EntityCombustEvent;
@@ -21,7 +22,7 @@
  
  public abstract class EntityArrow extends Entity implements IProjectile
  {
-@@ -47,21 +54,33 @@
+@@ -47,21 +55,33 @@
          }
      });
      private static final DataParameter<Byte> CRITICAL = EntityDataManager.<Byte>createKey(EntityArrow.class, DataSerializers.BYTE);
@@ -61,7 +62,7 @@
      public EntityArrow(World worldIn)
      {
          super(worldIn);
-@@ -83,6 +102,7 @@
+@@ -83,6 +103,7 @@
      {
          this(worldIn, shooter.posX, shooter.posY + (double)shooter.getEyeHeight() - 0.10000000149011612D, shooter.posZ);
          this.shootingEntity = shooter;
@@ -69,16 +70,33 @@
  
          if (shooter instanceof EntityPlayer)
          {
-@@ -222,7 +242,7 @@
+@@ -222,8 +243,7 @@
              {
                  ++this.ticksInGround;
  
 -                if (this.ticksInGround >= 1200)
-+                if (this.ticksInGround >= world.spigotConfig.arrowDespawnRate) // Spigot - First int after shooter
-                 {
+-                {
++                if (this.ticksInGround >= (pickupStatus != PickupStatus.DISALLOWED ? world.spigotConfig.arrowDespawnRate : world.paperConfig.nonPlayerArrowDespawnRate)) { // Spigot - First int after shooter // Paper
                      this.setDead();
                  }
-@@ -339,7 +359,7 @@
+             }
+@@ -262,6 +282,15 @@
+                 }
+             }
+ 
++            // Paper start - Call ProjectileCollideEvent
++            if (raytraceresult != null && raytraceresult.entityHit != null) {
++                com.destroystokyo.paper.event.entity.ProjectileCollideEvent event = org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory.callProjectileCollideEvent(this, raytraceresult);
++                if (event.isCancelled()) {
++                    raytraceresult = null;
++                }
++            }
++            // Paper end
++
+             if (raytraceresult != null && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult))
+             {
+                 this.onHit(raytraceresult);
+@@ -339,7 +368,7 @@
      protected void onHit(RayTraceResult raytraceResultIn)
      {
          Entity entity = raytraceResultIn.entityHit;
@@ -87,7 +105,7 @@
          if (entity != null)
          {
              float f = MathHelper.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
-@@ -363,7 +383,12 @@
+@@ -363,7 +392,12 @@
  
              if (this.isBurning() && !(entity instanceof EntityEnderman))
              {
@@ -101,7 +119,7 @@
              }
  
              if (entity.attackEntityFrom(damagesource, (float)i))
-@@ -570,9 +595,20 @@
+@@ -570,9 +604,20 @@
      {
          if (!this.world.isRemote && this.inGround && this.arrowShake <= 0)
          {
@@ -124,7 +142,7 @@
              {
                  flag = false;
              }
-@@ -655,7 +691,13 @@
+@@ -655,7 +700,13 @@
  
          if (EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.FLAME, p_190547_1_) > 0)
          {

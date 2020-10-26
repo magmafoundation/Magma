@@ -23,6 +23,15 @@ public interface Chunk {
      */
     int getZ();
 
+    // Paper start
+    /**
+     * @return The Chunks X and Z coordinates packed into a long
+     */
+    default long getChunkKey() {
+        return (long) getX() & 0xffffffffL | ((long) getZ() & 0xffffffffL) << 32;
+    }
+    // Paper end
+
     /**
      * Gets the world containing this chunk
      *

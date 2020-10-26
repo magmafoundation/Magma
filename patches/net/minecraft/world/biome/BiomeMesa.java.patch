@@ -1,0 +1,20 @@
+--- ../src-base/minecraft/net/minecraft/world/biome/BiomeMesa.java
++++ ../src-work/minecraft/net/minecraft/world/biome/BiomeMesa.java
+@@ -121,8 +121,7 @@
+                 chunkPrimerIn.setBlockState(l1, j1, k1, STONE);
+             }
+ 
+-            if (j1 <= rand.nextInt(5))
+-            {
++            if (j1 <= (worldIn.paperConfig.generateFlatBedrock ? 0 : rand.nextInt(5))) { // Paper - Configurable flat bedrock
+                 chunkPrimerIn.setBlockState(l1, j1, k1, BEDROCK);
+             }
+             else if (i1 < 15 || this.brycePillars)
+@@ -336,6 +335,7 @@
+         protected void generateOres(World worldIn, Random random)
+         {
+             super.generateOres(worldIn, random);
++            if (worldIn.paperConfig.disableMesaAdditionalGold) return; // Paper
+             if (net.minecraftforge.event.terraingen.TerrainGen.generateOre(worldIn, random, goldGen, chunkPos, net.minecraftforge.event.terraingen.OreGenEvent.GenerateMinable.EventType.GOLD))
+             this.genStandardOre1(worldIn, random, 20, this.goldGen, 32, 80);
+         }

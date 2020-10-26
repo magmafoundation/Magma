@@ -1,11 +1,13 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
+import com.destroystokyo.paper.Title;
+import com.destroystokyo.paper.profile.CraftPlayerProfile;
+import com.destroystokyo.paper.profile.PlayerProfile;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.BaseEncoding;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
-
 import io.netty.util.internal.ConcurrentSet;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,13 +27,16 @@ import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
-
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.PlayerAdvancements;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityTracker;
+import net.minecraft.entity.EntityTrackerEntry;
 import net.minecraft.entity.ai.attributes.AttributeMap;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
@@ -41,9 +46,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Enchantments;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerRepair;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
@@ -55,49 +60,64 @@ import net.minecraft.network.play.server.SPacketEffect;
 import net.minecraft.network.play.server.SPacketEntityProperties;
 import net.minecraft.network.play.server.SPacketMaps;
 import net.minecraft.network.play.server.SPacketParticles;
+import net.minecraft.network.play.server.SPacketPlayerListHeaderFooter;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.network.play.server.SPacketRespawn;
+import net.minecraft.network.play.server.SPacketSetPassengers;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.network.play.server.SPacketSpawnPosition;
 import net.minecraft.network.play.server.SPacketTitle;
 import net.minecraft.network.play.server.SPacketUpdateHealth;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.MapDecoration;
 import net.minecraftforge.common.util.FakePlayer;
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.NotImplementedException;
-import org.bukkit.*;
+import org.apache.commons.lang3.Validate;
+import org.bukkit.Achievement;
 import org.bukkit.BanList;
-import org.bukkit.Statistic;
+import org.bukkit.Effect;
+import org.bukkit.GameMode;
+import org.bukkit.Instrument;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Note;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
+import org.bukkit.Statistic;
 import org.bukkit.Statistic.Type;
+import org.bukkit.WeatherType;
 import org.bukkit.World;
 import org.bukkit.configuration.serialization.DelegateDeserialization;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.conversations.ManuallyAbandonedConversationCanceller;
-import org.bukkit.craftbukkit.v1_12_R1.block.CraftSign;
-import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftChatMessage;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
-import org.bukkit.craftbukkit.v1_12_R1.CraftParticle;
-import org.bukkit.craftbukkit.v1_12_R1.conversations.ConversationTracker;
 import org.bukkit.craftbukkit.v1_12_R1.CraftEffect;
 import org.bukkit.craftbukkit.v1_12_R1.CraftOfflinePlayer;
+import org.bukkit.craftbukkit.v1_12_R1.CraftParticle;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.CraftSound;
 import org.bukkit.craftbukkit.v1_12_R1.CraftStatistic;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.advancement.CraftAdvancement;
 import org.bukkit.craftbukkit.v1_12_R1.advancement.CraftAdvancementProgress;
+import org.bukkit.craftbukkit.v1_12_R1.block.CraftSign;
+import org.bukkit.craftbukkit.v1_12_R1.conversations.ConversationTracker;
 import org.bukkit.craftbukkit.v1_12_R1.map.CraftMapView;
 import org.bukkit.craftbukkit.v1_12_R1.map.RenderData;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboard;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerRegisterChannelEvent;
@@ -110,10 +130,6 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.scoreboard.Scoreboard;
-
-import javax.annotation.Nullable;
-
-import org.magmafoundation.magma.entity.CraftFakePlayer;
 import org.spigotmc.AsyncCatcher;
 import org.spigotmc.SpigotConfig;
 
@@ -128,6 +144,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     private static final WeakHashMap<Plugin, WeakReference<Plugin>> pluginWeakReferences = new WeakHashMap<>();
     private int hash = 0;
     private double health = 20;
+
+    // Paper start
+    private org.bukkit.event.player.PlayerResourcePackStatusEvent.Status resourcePackStatus;
+    private String resourcePackHash;
+    private static final boolean DISABLE_CHANNEL_LIMIT = System.getProperty("paper.disableChannelLimit") != null; // Paper - add a flag to disable the channel limit
+    // Paper end
+
     // Spigot start
     private final Player.Spigot spigot = new Player.Spigot() {
 
@@ -200,7 +223,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
         @Override
         public String getLocale() {
-            return getHandle().language;
+            return CraftPlayer.this.getLocale();
         }
 
         @Override
@@ -311,6 +334,19 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         }
     }
 
+    // Paper start - Implement NetworkClient
+    @Override
+    public int getProtocolVersion() {
+        if (getHandle().connection == null) return -1;
+        return getHandle().connection.netManager.protocolVersion;
+    }
+    @Override
+    public InetSocketAddress getVirtualHost() {
+        if (getHandle().connection == null) return null;
+        return getHandle().connection.netManager.virtualHost;
+    }
+    // Paper end
+
     @Override
     public double getEyeHeight(boolean ignorePose) {
         if (ignorePose) {
@@ -344,6 +380,89 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             sendMessage(message);
         }
     }
+
+    // Paper start
+    @Override
+    public void sendActionBar(String message) {
+        if (getHandle().connection == null || message == null || message.isEmpty()) {
+            return;
+        }
+        getHandle().connection.sendPacket(new SPacketChat(new TextComponentString(message), ChatType.GAME_INFO));
+    }
+
+    @Override
+    public void sendActionBar(char alternateChar, String message) {
+        if (message == null || message.isEmpty()) {
+            return;
+        }
+        sendActionBar(org.bukkit.ChatColor.translateAlternateColorCodes(alternateChar, message));
+    }
+
+    @Override
+    public void setPlayerListHeaderFooter(BaseComponent[] header, BaseComponent[] footer) {
+        SPacketPlayerListHeaderFooter packet = new SPacketPlayerListHeaderFooter();
+        packet.headerPaper = header;
+        packet.footerPaper = footer;
+        getHandle().connection.sendPacket(packet);
+    }
+    @Override
+    public void setPlayerListHeaderFooter(BaseComponent header, BaseComponent footer) {
+        this.setPlayerListHeaderFooter(header == null ? null : new BaseComponent[]{header},
+            footer == null ? null : new BaseComponent[]{footer});
+    }
+    @Override
+    public void setTitleTimes(int fadeInTicks, int stayTicks, int fadeOutTicks) {
+        getHandle().connection.sendPacket(new SPacketTitle(SPacketTitle.Type.TIMES, (BaseComponent[]) null, fadeInTicks, stayTicks, fadeOutTicks));
+    }
+    @Override
+    public void setSubtitle(BaseComponent[] subtitle) {
+        getHandle().connection.sendPacket(new SPacketTitle(SPacketTitle.Type.SUBTITLE, subtitle, 0, 0, 0));
+    }
+    @Override
+    public void setSubtitle(BaseComponent subtitle) {
+        setSubtitle(new BaseComponent[]{subtitle});
+    }
+    @Override
+    public void showTitle(BaseComponent[] title) {
+        getHandle().connection.sendPacket(new SPacketTitle(SPacketTitle.Type.TITLE, title, 0, 0, 0));
+    }
+    @Override
+    public void showTitle(BaseComponent title) {
+        showTitle(new BaseComponent[]{title});
+    }
+    @Override
+    public void showTitle(BaseComponent[] title, BaseComponent[] subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks) {
+        setTitleTimes(fadeInTicks, stayTicks, fadeOutTicks);
+        setSubtitle(subtitle);
+        showTitle(title);
+    }
+    @Override
+    public void showTitle(BaseComponent title, BaseComponent subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks) {
+        setTitleTimes(fadeInTicks, stayTicks, fadeOutTicks);
+        setSubtitle(subtitle);
+        showTitle(title);
+    }
+    @Override
+    public void sendTitle(Title title) {
+        Preconditions.checkNotNull(title, "Title is null");
+        setTitleTimes(title.getFadeIn(), title.getStay(), title.getFadeOut());
+        setSubtitle(title.getSubtitle() == null ? new BaseComponent[0] : title.getSubtitle());
+        showTitle(title.getTitle());
+    }
+    @Override
+    public void updateTitle(Title title) {
+        Preconditions.checkNotNull(title, "Title is null");
+        setTitleTimes(title.getFadeIn(), title.getStay(), title.getFadeOut());
+        if (title.getSubtitle() != null) {
+            setSubtitle(title.getSubtitle());
+        }
+        showTitle(title.getTitle());
+    }
+    @Override
+    public void hideTitle() {
+        getHandle().connection.sendPacket(new SPacketTitle(SPacketTitle.Type.CLEAR, (BaseComponent[]) null, 0, 0, 0));
+    }
+    // Paper end
 
     @Override
     public String getDisplayName() {
@@ -715,17 +834,29 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
         // Close any foreign inventory
         if (getHandle().openContainer != getHandle().inventoryContainer) {
-            getHandle().closeScreen();
+            getHandle().closeInventory(org.bukkit.event.inventory.InventoryCloseEvent.Reason.TELEPORT); // Paper
         }
 
         // Check if the fromWorld and toWorld are the same.
         if (fromWorld == toWorld) {
             entity.connection.teleport(to);
         } else {
-            server.getHandle().moveToWorld(entity, toWorld.dimension, true, to, true);
+            // Paper - Configurable suffocation check
+            server.getHandle().moveToWorld(entity, toWorld.dimension, true, to, !toWorld.paperConfig.disableTeleportationSuffocationCheck);
         }
         return true;
     }
+
+    // Paper start - Ugly workaround for SPIGOT-1915 & GH-114
+    @Override
+    public boolean setPassenger(org.bukkit.entity.Entity passenger) {
+        boolean wasSet = super.setPassenger(passenger);
+        if (wasSet) {
+            this.getHandle().connection.sendPacket(new SPacketSetPassengers(this.getHandle()));
+        }
+        return wasSet;
+    }
+    // Paper end
 
     @Override
     public void setSneaking(boolean sneak) {
@@ -988,8 +1119,37 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         return GameMode.getByValue(getHandle().interactionManager.getGameType().getID());
     }
 
+    // Paper start
     @Override
-    public void giveExp(int exp) {
+    public int applyMending(int amount) {
+        EntityPlayer handle = getHandle();
+        // Logic copied from EntityExperienceOrb and remapped to unobfuscated methods/properties
+        ItemStack itemstack = EnchantmentHelper.getRandomEquippedItemWithEnchant(Enchantments.MENDING, handle);
+        if (!itemstack.isEmpty() && itemstack.hasDamage()) {
+            EntityXPOrb orb = new EntityXPOrb(handle.world);
+            orb.xpValue = amount;
+            orb.spawnReason = org.bukkit.entity.ExperienceOrb.SpawnReason.CUSTOM;
+            orb.posX = handle.posX;
+            orb.posY = handle.posY;
+            orb.posZ = handle.posZ;
+            int i = Math.min(orb.xpToDur(amount), itemstack.getDamage());
+            org.bukkit.event.player.PlayerItemMendEvent event = org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory.callPlayerItemMendEvent(handle, orb, itemstack, i);
+            i = event.getRepairAmount();
+            orb.isDead = true;
+            if (!event.isCancelled()) {
+                amount -= orb.durToXp(i);
+                itemstack.setDamage(itemstack.getDamage() - i);
+            }
+        }
+        return amount;
+    }
+
+    @Override
+    public void giveExp(int exp, boolean applyMending) {
+        if (applyMending) {
+            exp = this.applyMending(exp);
+        }
+        // Paper end
         getHandle().addExperience(exp);
     }
 
@@ -1121,8 +1281,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         hiddenPlayers.put(player.getUniqueId(), hidingPlugins);
 
         // Remove this player from the hidden player's EntityTrackerEntry
-        EntityTracker tracker = ((WorldServer) entity.world).entityTracker;
         EntityPlayerMP other = ((CraftPlayer) player).getHandle();
+        // Paper start
+        unregisterPlayer(other);
+    }
+
+    private void unregisterPlayer(EntityPlayerMP other) {
+        EntityTracker tracker = ((WorldServer) entity.world).entityTracker;
+        // Paper end
         EntityTrackerEntry entry = tracker.trackedEntityHashTable.lookup(other.getEntityId());
         if (entry != null) {
             entry.removeTrackedPlayerSymmetric(getHandle());
@@ -1163,8 +1329,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         }
         hiddenPlayers.remove(player.getUniqueId());
 
-        EntityTracker tracker = ((WorldServer) entity.world).entityTracker;
+        // Paper start
         EntityPlayerMP other = ((CraftPlayer) player).getHandle();
+        registerPlayer(other);
+    }
+
+    private void registerPlayer(EntityPlayerMP other) {
+        EntityTracker tracker = ((WorldServer) entity.world).entityTracker;
+        // Paper end
 
         getHandle().connection.sendPacket(new SPacketPlayerListItem(SPacketPlayerListItem.Action.ADD_PLAYER, other));
 
@@ -1173,6 +1345,45 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             entry.updatePlayerEntity(getHandle());
         }
     }
+
+    // Paper start
+    private void reregisterPlayer(EntityPlayerMP player) {
+        if (!hiddenPlayers.containsKey(player.getUniqueID())) {
+            unregisterPlayer(player);
+            registerPlayer(player);
+        }
+    }
+
+    public void setPlayerProfile(PlayerProfile profile) {
+        EntityPlayerMP self = getHandle();
+        self.setProfile(CraftPlayerProfile.asAuthlibCopy(profile));
+        List<EntityPlayerMP> players = server.getServer().getPlayerList().playerEntityList;
+        for (EntityPlayerMP player : players) {
+            player.getBukkitEntity().reregisterPlayer(self);
+        }
+        refreshPlayer();
+    }
+
+    public PlayerProfile getPlayerProfile() {
+        return new CraftPlayerProfile(this).clone();
+    }
+
+    private void refreshPlayer() {
+        EntityPlayerMP handle = getHandle();
+        Location loc = getLocation();
+        NetHandlerPlayServer connection = handle.connection;
+        reregisterPlayer(handle);
+        //Respawn the player then update their position and selected slot
+        connection.sendPacket(new SPacketRespawn(handle.dimension, handle.world.getDifficulty(), handle.world.getWorldInfo().getTerrainType(), handle.interactionManager.getGameType()));
+        handle.sendPlayerAbilities();
+        connection.sendPacket(new SPacketPlayerPosLook(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch(), new HashSet<>(), 0));
+        MinecraftServer.getServerInstance().getPlayerList().syncPlayerInventory(handle);
+        if (this.isOp()) {
+            this.setOp(false);
+            this.setOp(true);
+        }
+    }
+    // Paper end
 
     public void removeDisconnectingPlayer(Player player) {
         hiddenPlayers.remove(player.getUniqueId());
@@ -1323,6 +1534,32 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     @Override
+    public void setResourcePack(String url, String hash) {
+        Validate.notNull(url, "Resource pack URL cannot be null");
+        Validate.notNull(hash, "Hash cannot be null");
+        this.getHandle().loadResourcePack(url, hash);
+    }
+
+    @Override
+    public org.bukkit.event.player.PlayerResourcePackStatusEvent.Status getResourcePackStatus() {
+        return this.resourcePackStatus;
+    }
+
+    @Override
+    public String getResourcePackHash() {
+        return this.resourcePackHash;
+    }
+
+    @Override
+    public boolean hasResourcePack() {
+        return this.resourcePackStatus == org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED;
+    }
+
+    public void setResourcePackStatus(org.bukkit.event.player.PlayerResourcePackStatusEvent.Status status) {
+        this.resourcePackStatus = status;
+    }
+
+    @Override
     public void setTexturePack(String url) {
         setResourcePack(url);
     }
@@ -1344,7 +1581,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     public void addChannel(String channel) {
-        com.google.common.base.Preconditions.checkState( channels.size() < 128, "Too many channels registered" ); // Spigot
+        com.google.common.base.Preconditions.checkState( DISABLE_CHANNEL_LIMIT || channels.size() < 128, "Too many channels registered" ); // Spigot // Paper - flag to disable channel limit
         if (channels.add(channel)) {
             server.getPluginManager().callEvent(new PlayerRegisterChannelEvent(this, channel));
         }
@@ -1412,6 +1649,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         if (container.getBukkitView().getType() != prop.getType()) {
             return false;
         }
+        // Paper start
+        if (prop == Property.REPAIR_COST && container instanceof ContainerRepair) {
+            ((ContainerRepair) container).maximumCost = value;
+        }
+        // Paper end
         getHandle().sendWindowProperty(container, prop.getId(), value);
         return true;
     }
@@ -1428,12 +1670,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void setFlying(boolean value) {
+        boolean needsUpdate = getHandle().capabilities.isFlying != value; // Paper - Only refresh abilities if needed
         if (!getAllowFlight() && value) {
             throw new IllegalArgumentException("Cannot make player fly if getAllowFlight() is false");
         }
 
         getHandle().capabilities.isFlying = value;
-        getHandle().sendPlayerAbilities();
+        if (needsUpdate) getHandle().sendPlayerAbilities(); // Paper - Only refresh abilities if needed
     }
 
     @Override
@@ -1744,7 +1987,21 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public String getLocale() {
-        return getHandle().language;
+        // Paper start - Locale change event
+        final String locale = getHandle().language;
+        return locale != null ? locale : "en_us";
+        // Paper end
+    }
+
+
+    @Override
+    public boolean getAffectsSpawning() {
+        return this.getHandle().affectsSpawning;
+    }
+
+    @Override
+    public void setAffectsSpawning(boolean affects) {
+        this.getHandle().affectsSpawning = affects;
     }
 
     public Player.Spigot spigot()
@@ -1752,11 +2009,4 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         return spigot;
     }
     // Spigot end
-
-    // Magma start
-    @Override
-    public boolean isFakePlayer() {
-        return (this instanceof CraftFakePlayer);
-    }
-    // Magma end
 }

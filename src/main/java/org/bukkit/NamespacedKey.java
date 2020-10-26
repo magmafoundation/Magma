@@ -38,8 +38,8 @@ public final class NamespacedKey {
     /**
      * Create a key in a specific namespace.
      *
-     * @param namespace
-     * @param key
+     *  @param namespace String representing a grouping of keys
+     *  @param key Name for this specific key
      * @deprecated should never be used by plugins, for internal use only!!
      */
     @Deprecated

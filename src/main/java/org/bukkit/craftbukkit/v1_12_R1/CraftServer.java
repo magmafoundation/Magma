@@ -1,6 +1,7 @@
 package org.bukkit.craftbukkit.v1_12_R1;
 
-import com.destroystokyo.paper.PaperMCConfig;
+import com.destroystokyo.paper.MCUtil;
+import com.destroystokyo.paper.PaperConfig;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
@@ -13,8 +14,22 @@ import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.base64.Base64;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -41,11 +56,16 @@ import net.minecraft.server.dedicated.PendingCommand;
 import net.minecraft.server.dedicated.PropertyManager;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.server.management.UserListEntry;
+import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.RegistryNamespaced;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.EnumDifficulty;
+import net.minecraft.world.GameType;
+import net.minecraft.world.MinecraftException;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
-import net.minecraft.world.*;
 import net.minecraft.world.chunk.storage.RegionFile;
 import net.minecraft.world.chunk.storage.RegionFileCache;
 import net.minecraft.world.storage.MapData;
@@ -56,15 +76,29 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.bukkit.*;
-import org.bukkit.World;
+import org.bukkit.BanList;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
+import org.bukkit.UnsafeValues;
 import org.bukkit.Warning.WarningState;
+import org.bukkit.World;
 import org.bukkit.World.Environment;
+import org.bukkit.WorldCreator;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
-import org.bukkit.command.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -76,7 +110,14 @@ import org.bukkit.craftbukkit.v1_12_R1.command.VanillaCommandWrapper;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.generator.CraftChunkData;
 import org.bukkit.craftbukkit.v1_12_R1.help.SimpleHelpMap;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.*;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftFurnaceRecipe;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryCustom;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemFactory;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftMerchantCustom;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftRecipe;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapedRecipe;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftShapelessRecipe;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.RecipeIterator;
 import org.bukkit.craftbukkit.v1_12_R1.map.CraftMapView;
 import org.bukkit.craftbukkit.v1_12_R1.metadata.EntityMetadataStore;
 import org.bukkit.craftbukkit.v1_12_R1.metadata.PlayerMetadataStore;
@@ -84,7 +125,12 @@ import org.bukkit.craftbukkit.v1_12_R1.metadata.WorldMetadataStore;
 import org.bukkit.craftbukkit.v1_12_R1.potion.CraftPotionBrewer;
 import org.bukkit.craftbukkit.v1_12_R1.scheduler.CraftScheduler;
 import org.bukkit.craftbukkit.v1_12_R1.scoreboard.CraftScoreboardManager;
-import org.bukkit.craftbukkit.v1_12_R1.util.*;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftIconCache;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftNamespacedKey;
+import org.bukkit.craftbukkit.v1_12_R1.util.DatFileFilter;
+import org.bukkit.craftbukkit.v1_12_R1.util.Versioning;
+import org.bukkit.craftbukkit.v1_12_R1.util.Waitable;
 import org.bukkit.craftbukkit.v1_12_R1.util.permissions.CraftDefaultPermissions;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -97,10 +143,22 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.help.HelpMap;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.FurnaceRecipe;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Merchant;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
-import org.bukkit.plugin.*;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginLoadOrder;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.ServicesManager;
+import org.bukkit.plugin.SimplePluginManager;
+import org.bukkit.plugin.SimpleServicesManager;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.StandardMessenger;
@@ -168,7 +226,7 @@ public final class CraftServer implements Server {
         @Override
         public YamlConfiguration getPaperConfig()
         {
-            return PaperMCConfig.config;
+            return PaperConfig.config;
         }
 
         @Override
@@ -184,12 +242,18 @@ public final class CraftServer implements Server {
                 player.spigot().sendMessage(components);
             }
         }
+
+        @Override
+        public void restart() {
+            org.spigotmc.RestartCommand.restart();
+        }
     };
     public int chunkGCPeriod = -1;
     public int chunkGCLoadThresh = 0;
     public CraftScoreboardManager scoreboardManager;
     public boolean playerCommandState;
     public int reloadCount;
+    public static Exception excessiveVelEx; // Paper - Velocity warnings
     private YamlConfiguration configuration;
     private YamlConfiguration commandsConfiguration;
     private int monsterSpawn = -1;
@@ -202,6 +266,7 @@ public final class CraftServer implements Server {
     private CraftIconCache icon;
     private boolean overrideAllCommandBlockCommands = false;
     private boolean unrestrictedAdvancements;
+    private boolean unrestrictedSignCommands; // Paper
 
     public CraftServer(MinecraftServer console, PlayerList playerList) {
         this.console = console;
@@ -263,6 +328,12 @@ public final class CraftServer implements Server {
         saveCommandsConfig();
         overrideAllCommandBlockCommands = commandsConfiguration.getStringList("command-block-overrides").contains("*");
         unrestrictedAdvancements = commandsConfiguration.getBoolean("unrestricted-advancements");
+        // Paper start
+        unrestrictedSignCommands = commandsConfiguration.getBoolean("unrestricted-signs");
+        if (unrestrictedSignCommands) {
+            logger.warning("Warning: Commands are no longer restricted on signs. If you allow players to use Creative Mode, there may be risk of players bypassing permissions. Use this setting at your own risk!!!!");
+        }
+        // Paper end
         pluginManager.useTimings(configuration.getBoolean("settings.plugin-profiling"));
         monsterSpawn = configuration.getInt("spawn-limits.monsters");
         animalSpawn = configuration.getInt("spawn-limits.animals");
@@ -280,6 +351,7 @@ public final class CraftServer implements Server {
         while (listener instanceof CommandSenderWrapper) {
             listener = ((CommandSenderWrapper) listener).delegate;
         }
+        if (unrestrictedSignCommands && listener instanceof TileEntitySign.ISignCommandListener) return true; // Paper
         return unrestrictedAdvancements && listener instanceof AdvancementRewards.AdvancementCommandListener;
     }
 
@@ -339,7 +411,7 @@ public final class CraftServer implements Server {
         if (type == PluginLoadOrder.STARTUP) {
             helpMap.clear();
             helpMap.initializeGeneralTopics();
-            loadCustomPermissions(); // Paper
+            if (com.destroystokyo.paper.PaperConfig.loadPermsBeforePlugins) loadCustomPermissions(); // Paper
         }
 
         Plugin[] plugins = pluginManager.getPlugins();
@@ -357,17 +429,12 @@ public final class CraftServer implements Server {
             this.setVanillaCommands(false);
             // Spigot end
             commandMap.registerServerAliases();
-            loadCustomPermissions();
+            if (!com.destroystokyo.paper.PaperConfig.loadPermsBeforePlugins) loadCustomPermissions(); // Paper
             DefaultPermissions.registerCorePermissions();
             CraftDefaultPermissions.registerCorePermissions();
             helpMap.initializeCommands();
         }
 
-    }
-
-    @Override
-    public boolean suggestPlayerNamesWhenNullTabCompletions() {
-        return true;
     }
 
     public void disablePlugins() {
@@ -685,6 +752,29 @@ public final class CraftServer implements Server {
         Validate.notNull(sender, "Sender cannot be null");
         Validate.notNull(commandLine, "CommandLine cannot be null");
 
+        // Paper Start
+        if (!org.spigotmc.AsyncCatcher.shuttingDown && !Bukkit.isPrimaryThread()) {
+            final CommandSender fSender = sender;
+            final String fCommandLine = commandLine;
+            Bukkit.getLogger().log(Level.SEVERE, "Command Dispatched Async: " + commandLine);
+            Bukkit.getLogger().log(Level.SEVERE, "Please notify author of plugin causing this execution to fix this bug! see: http://bit.ly/1oSiM6C", new Throwable());
+            Waitable<Boolean> wait = new Waitable<Boolean>() {
+                @Override
+                protected Boolean evaluate() {
+                    return dispatchCommand(fSender, fCommandLine);
+                }
+            };
+            net.minecraft.server.MinecraftServer.getServerInstance().processQueue.add(wait);
+            try {
+                return wait.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // This is proper habit for java. If we aren't handling it, pass it on!
+            } catch (Exception e) {
+                throw new RuntimeException("Exception processing dispatch command", e.getCause());
+            }
+        }
+        // Paper End
+
         if (commandMap.dispatch(sender, commandLine)) {
             return true;
         }
@@ -754,6 +844,7 @@ public final class CraftServer implements Server {
         }
 
         SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
+        com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
         for (WorldServer world : console.worlds) {
             world.worldInfo.setDifficulty(difficulty);
             world.setAllowedSpawnTypes(monsters, animals);
@@ -769,13 +860,25 @@ public final class CraftServer implements Server {
                 world.ticksPerMonsterSpawns = this.getTicksPerMonsterSpawns();
             }
             world.spigotConfig.init(); // Spigot
+            world.paperConfig.init(); // Paper
         }
 
+        Plugin[] pluginClone = pluginManager.getPlugins().clone(); // Paper
         pluginManager.clearPlugins();
         commandMap.clearCommands();
+
+        // Paper start
+        for (Plugin plugin : pluginClone) {
+            entityMetadata.removeAll(plugin);
+            worldMetadata.removeAll(plugin);
+            playerMetadata.removeAll(plugin);
+        }
+        // Paper end
+
         resetRecipes();
         reloadData();
-        SpigotConfig.registerCommands();
+        SpigotConfig.registerCommands(); // Spigot
+        com.destroystokyo.paper.PaperConfig.registerCommands(); // Paper
         MagmaConfig.instance.registerCommands();
         overrideAllCommandBlockCommands = commandsConfiguration.getList("command-block-overrides").contains("*");
 
@@ -922,10 +1025,10 @@ public final class CraftServer implements Server {
         WorldServer internal = DimensionManager.initDimension(creator, worldSettings);
 
         pluginManager.callEvent(new WorldInitEvent(internal.getWorld()));
-        System.out.println("Preparing start region for level " + (console.worldServerList.size() - 1) + " (Seed: " + internal.getSeed() + ")");
+        logger.info("Preparing start region for level " + (console.worldServerList.size() - 1) + " (Dimension: " + internal.provider.getDimension() + ", Seed: " + internal.getSeed() + ")"); // Cauldron - log dimension
 
         if (internal.getWorld().getKeepSpawnInMemory()) {
-            short short1 = 196;
+            short short1 = internal.paperConfig.keepLoadedRange; // Paper
             long i = System.currentTimeMillis();
             for (int j = -short1; j <= short1; j += 16) {
                 for (int k = -short1; k <= short1; k += 16) {
@@ -939,7 +1042,7 @@ public final class CraftServer implements Server {
                         int i1 = (short1 * 2 + 1) * (short1 * 2 + 1);
                         int j1 = (j + short1) * (short1 * 2 + 1) + k + 1;
 
-                        System.out.println("Preparing spawn area for " + name + ", " + (j1 * 100 / i1) + "%");
+                        logger.info("Preparing spawn area for " + internal.getWorld().getName() + ", " + (j1 * 100 / i1) + "%");
                         i = l;
                     }
 
@@ -1066,9 +1169,13 @@ public final class CraftServer implements Server {
         return logger;
     }
 
+    // Paper start - JLine update
+    /*
     public ConsoleReader getReader() {
         return this.console.reader;
     }
+    */
+    // Paper end
 
     @Override
     public PluginCommand getPluginCommand(String name) {
@@ -1310,7 +1417,8 @@ public final class CraftServer implements Server {
             }
         GameProfile profile;
         // Only fetch an online UUID in online mode
-        if (MinecraftServer.getServerInst().isServerInOnlineMode() || (org.spigotmc.SpigotConfig.bungee)) {
+        if ( MinecraftServer.getServerInstance().isServerInOnlineMode() || (org.spigotmc.SpigotConfig.bungee && com.destroystokyo.paper.PaperConfig.bungeeOnlineMode)) // Paper - Handle via setting
+        {
             profile = console.getPlayerProfileCache().getGameProfileForUsername( name );
         } else {
             // Make an OfflinePlayer using an offline mode UUID since the name has no profile
@@ -1635,7 +1743,8 @@ public final class CraftServer implements Server {
             offers = tabCompleteChat(player, message);
         }
 
-        TabCompleteEvent tabEvent = new TabCompleteEvent(player, message, offers);
+        TabCompleteEvent tabEvent = new TabCompleteEvent(player, message, offers, message.startsWith("/") || forceCommand, pos != null ? MCUtil
+            .toLocation(((CraftWorld) player.getWorld()).getHandle(), pos) : null); // Paper
         getPluginManager().callEvent(tabEvent);
 
         return tabEvent.isCancelled() ? Collections.EMPTY_LIST : tabEvent.getCompletions();
@@ -1745,7 +1854,7 @@ public final class CraftServer implements Server {
         ImageIO.write(image, "PNG", new ByteBufOutputStream(bytebuf));
         ByteBuf bytebuf1 = Base64.encode(bytebuf);
 
-        return new CraftIconCache("data:image/png;base64," + bytebuf1.toString(Charsets.UTF_8));
+        return new CraftIconCache("data:image/png;base64," + bytebuf1.toString(Charsets.UTF_8).replace("\n", "")); // Paper - Fix encoding for 1.13+ clients, still compat w/ 1.12 clients
     }
 
     @Override
@@ -1829,5 +1938,69 @@ public final class CraftServer implements Server {
     private static final class BooleanWrapper {
         private boolean value = true;
     }
+    // Paper end
+
+    // Paper start
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static boolean dumpHeap(File file) {
+        try {
+            if (file.getParentFile() != null) {
+                file.getParentFile().mkdirs();
+            }
+            Class clazz = Class.forName("com.sun.management.HotSpotDiagnosticMXBean");
+            javax.management.MBeanServer server = java.lang.management.ManagementFactory.getPlatformMBeanServer();
+            Object hotspotMBean = java.lang.management.ManagementFactory.newPlatformMXBeanProxy(server, "com.sun.management:type=HotSpotDiagnostic", clazz);
+            java.lang.reflect.Method m = clazz.getMethod("dumpHeap", String.class, boolean.class);
+            m.invoke(hotspotMBean, file.getPath(), true);
+            return true;
+        } catch (Throwable t) {
+            Bukkit.getLogger().severe("Could not write heap to " + file);
+            t.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public void reloadPermissions() {
+        pluginManager.clearPermissions();
+        if (com.destroystokyo.paper.PaperConfig.loadPermsBeforePlugins) loadCustomPermissions();
+        for (Plugin plugin : pluginManager.getPlugins()) {
+            for (Permission perm : plugin.getDescription().getPermissions()) {
+                try {
+                    pluginManager.addPermission(perm);
+                } catch (IllegalArgumentException ex) {
+                    getLogger().log(Level.WARNING, "Plugin " + plugin.getDescription().getFullName() + " tried to register permission '" + perm.getName() + "' but it's already registered", ex);
+                }
+            }
+        }
+        if (!com.destroystokyo.paper.PaperConfig.loadPermsBeforePlugins) loadCustomPermissions();
+        DefaultPermissions.registerCorePermissions();
+        CraftDefaultPermissions.registerCorePermissions();
+    }
+
+    @Override
+    public boolean reloadCommandAliases() {
+        Set<String> removals = getCommandAliases().keySet().stream()
+            .map(key -> key.toLowerCase(java.util.Locale.ENGLISH))
+            .collect(java.util.stream.Collectors.toSet());
+        getCommandMap().getKnownCommands().keySet().removeIf(removals::contains);
+        File file = getCommandsConfigFile();
+        try {
+            commandsConfiguration.load(file);
+        } catch (FileNotFoundException ex) {
+            return false;
+        } catch (IOException | org.bukkit.configuration.InvalidConfigurationException ex) {
+            Bukkit.getLogger().log(Level.SEVERE, "Cannot load " + file, ex);
+            return false;
+        }
+        commandMap.registerServerAliases();
+        return true;
+    }
+
+    @Override
+    public boolean suggestPlayerNamesWhenNullTabCompletions() {
+        return com.destroystokyo.paper.PaperConfig.suggestPlayersWhenNullTabCompletions;
+    }
+
     // Paper end
 }

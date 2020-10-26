@@ -1,0 +1,274 @@
+--- ../src-base/minecraft/net/minecraft/util/math/BlockPos.java
++++ ../src-work/minecraft/net/minecraft/util/math/BlockPos.java
+@@ -74,72 +74,109 @@
+ 
+     public BlockPos up()
+     {
+-        return this.up(1);
++        return new BlockPos(this.getX(), this.getY() + 1, this.getZ()); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos up(int n)
+     {
+-        return this.offset(EnumFacing.UP, n);
++        return n == 0 ? this : new BlockPos(this.getX(), this.getY() + n, this.getZ()); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos down()
+     {
+-        return this.down(1);
++        return new BlockPos(this.getX(), this.getY() - 1, this.getZ()); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos down(int n)
+     {
+-        return this.offset(EnumFacing.DOWN, n);
++        return n == 0 ? this : new BlockPos(this.getX(), this.getY() - n, this.getZ()); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos north()
+     {
+-        return this.north(1);
++        return new BlockPos(this.getX(), this.getY(), this.getZ() - 1); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos north(int n)
+     {
+-        return this.offset(EnumFacing.NORTH, n);
++        return n == 0 ? this : new BlockPos(this.getX(), this.getY(), this.getZ() - n); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos south()
+     {
+-        return this.south(1);
++        return new BlockPos(this.getX(), this.getY(), this.getZ() + 1); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos south(int n)
+     {
+-        return this.offset(EnumFacing.SOUTH, n);
++        return n == 0 ? this : new BlockPos(this.getX(), this.getY(), this.getZ() + n); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos west()
+     {
+-        return this.west(1);
++        return new BlockPos(this.getX() - 1, this.getY(), this.getZ()); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos west(int n)
+     {
+-        return this.offset(EnumFacing.WEST, n);
++        return n == 0 ? this : new BlockPos(this.getX() - n, this.getY(), this.getZ()); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos east()
+     {
+-        return this.east(1);
++        return new BlockPos(this.getX() + 1, this.getY(), this.getZ()); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos east(int n)
+     {
+-        return this.offset(EnumFacing.EAST, n);
++        return n == 0 ? this : new BlockPos(this.getX() + n, this.getY(), this.getZ()); // Paper - Optimize BlockPosition
+     }
+ 
+     public BlockPos offset(EnumFacing facing)
+     {
+-        return this.offset(facing, 1);
++        // Paper Start - Optimize BlockPosition
++        switch(facing) {
++            case UP:
++                return new BlockPos(this.getX(), this.getY() + 1, this.getZ());
++            case DOWN:
++                return new BlockPos(this.getX(), this.getY() - 1, this.getZ());
++            case NORTH:
++                return new BlockPos(this.getX(), this.getY(), this.getZ() - 1);
++            case SOUTH:
++                return new BlockPos(this.getX(), this.getY(), this.getZ() + 1);
++            case WEST:
++                return new BlockPos(this.getX() - 1, this.getY(), this.getZ());
++            case EAST:
++                return new BlockPos(this.getX() + 1, this.getY(), this.getZ());
++            default:
++                return new BlockPos(this.getX() + facing.getFrontOffsetX(), this.getY() + facing.getFrontOffsetY(), this.getZ() + facing.getFrontOffsetZ());
++        }
++        // Paper End
+     }
+ 
+-    public BlockPos offset(EnumFacing facing, int n)
++    public BlockPos offset(EnumFacing facing, int i)
+     {
+-        return n == 0 ? this : new BlockPos(this.getX() + facing.getFrontOffsetX() * n, this.getY() + facing.getFrontOffsetY() * n, this.getZ() + facing.getFrontOffsetZ() * n);
++        // Paper Start - Optimize BlockPosition
++        if (i == 0) {
++            return this;
++        }
++        switch(facing) {
++            case UP:
++                return new BlockPos(this.getX(), this.getY() + i, this.getZ());
++            case DOWN:
++                return new BlockPos(this.getX(), this.getY() - i, this.getZ());
++            case NORTH:
++                return new BlockPos(this.getX(), this.getY(), this.getZ() - i);
++            case SOUTH:
++                return new BlockPos(this.getX(), this.getY(), this.getZ() + i);
++            case WEST:
++                return new BlockPos(this.getX() - i, this.getY(), this.getZ());
++            case EAST:
++                return new BlockPos(this.getX() + i, this.getY(), this.getZ());
++            default:
++                return new BlockPos(this.getX() + facing.getFrontOffsetX() * i, this.getY() + facing.getFrontOffsetY() * i, this.getZ() + facing.getFrontOffsetZ() * i);
++        }
++        // Paper End
+     }
+ 
+     public BlockPos rotate(Rotation rotationIn)
+@@ -259,27 +296,29 @@
+                             this.pos = new BlockPos.MutableBlockPos(x1, y1, z1);
+                             return this.pos;
+                         }
+-                        else if (this.pos.x == x2 && this.pos.y == y2 && this.pos.z == z2)
++                        // Paper start - Speedup BlockPos by fixing inlining
++                        else if (((Vec3i)this.pos).x == x2 && ((Vec3i)this.pos).y == y2 && ((Vec3i)this.pos).z == z2)
+                         {
+                             return (BlockPos.MutableBlockPos)this.endOfData();
+                         }
+                         else
+                         {
+-                            if (this.pos.x < x2)
++                            if (((Vec3i)this.pos).x < x2)
+                             {
+-                                ++this.pos.x;
++                                ++((Vec3i)this.pos).x;
+                             }
+-                            else if (this.pos.y < y2)
++                            else if (((Vec3i)this.pos).y < y2)
+                             {
+-                                this.pos.x = x1;
+-                                ++this.pos.y;
++                                ((Vec3i)this.pos).x = x1;
++                                ++((Vec3i)this.pos).y;
+                             }
+-                            else if (this.pos.z < z2)
++                            else if (((Vec3i)this.pos).z < z2)
+                             {
+-                                this.pos.x = x1;
+-                                this.pos.y = y1;
+-                                ++this.pos.z;
++                                ((Vec3i)this.pos).x = x1;
++                                ((Vec3i)this.pos).y = y1;
++                                ++((Vec3i)this.pos).z;
+                             }
++                            // Paper end
+ 
+                             return this.pos;
+                         }
+@@ -291,9 +330,22 @@
+ 
+     public static class MutableBlockPos extends BlockPos
+         {
++            // Paper start - Remove variables
++            /*
+             protected int x;
+             protected int y;
+             protected int z;
++            // Paper start
++            @Override
++            public boolean isValidLocation() {
++                return x >= -30000000 && z >= -30000000 && x < 30000000 && x < 30000000 && y >= 0 && y < 256;
++            }
++            @Override
++            public boolean isInvalidYLocation() {
++                return y < 0 || y >= 256;
++            }
++             */
++            // Paper end
+ 
+             public MutableBlockPos()
+             {
+@@ -308,9 +360,11 @@
+             public MutableBlockPos(int x_, int y_, int z_)
+             {
+                 super(0, 0, 0);
+-                this.x = x_;
+-                this.y = y_;
+-                this.z = z_;
++                // Paper start - Modify base position variables
++                ((Vec3i) this).x = x_;
++                ((Vec3i) this).y = y_;
++                ((Vec3i) this).z = z_;
++                // Paper end
+             }
+ 
+             public BlockPos add(double x, double y, double z)
+@@ -333,6 +387,8 @@
+                 return super.rotate(rotationIn).toImmutable();
+             }
+ 
++            // Paper start - Use superclass methods
++             /*
+             public int getX()
+             {
+                 return this.x;
+@@ -347,12 +403,15 @@
+             {
+                 return this.z;
+             }
+-
++            */
++            // Paper end
+             public BlockPos.MutableBlockPos setPos(int xIn, int yIn, int zIn)
+             {
+-                this.x = xIn;
+-                this.y = yIn;
+-                this.z = zIn;
++                // Paper start - Modify base position variables
++                ((Vec3i) this).x = xIn;
++                ((Vec3i) this).y = yIn;
++                ((Vec3i) this).z = zIn;
++                // Paper end
+                 return this;
+             }
+ 
+@@ -379,12 +438,12 @@
+ 
+             public BlockPos.MutableBlockPos move(EnumFacing facing, int n)
+             {
+-                return this.setPos(this.x + facing.getFrontOffsetX() * n, this.y + facing.getFrontOffsetY() * n, this.z + facing.getFrontOffsetZ() * n);
++                return this.setPos(this.getX() + facing.getFrontOffsetX() * n, this.getY() + facing.getFrontOffsetY() * n, this.getZ() + facing.getFrontOffsetZ() * n);  // Paper - USE THE BLEEPING GETTERS
+             }
+ 
+             public void setY(int yIn)
+             {
+-                this.y = yIn;
++                ((Vec3i) this).y = yIn; // Paper - Modify base variable
+             }
+ 
+             public BlockPos toImmutable()
+@@ -403,6 +462,7 @@
+                 super(xIn, yIn, zIn);
+             }
+ 
++            public static BlockPos.PooledMutableBlockPos aquire() { return retain(); } // Paper - OBFHELPER
+             public static BlockPos.PooledMutableBlockPos retain()
+             {
+                 return retain(0, 0, 0);
+@@ -439,6 +499,7 @@
+                 return new BlockPos.PooledMutableBlockPos(xIn, yIn, zIn);
+             }
+ 
++            public void free() { release(); } // Paper - OBFHELPER
+             public void release()
+             {
+                 synchronized (POOL)
+@@ -463,6 +524,8 @@
+                 return (BlockPos.PooledMutableBlockPos)super.setPos(xIn, yIn, zIn);
+             }
+ 
++            public void setValues(int x, int y, int z) { setPos(x, y, z); } // Paper - OBFHELPER
++
+             @SideOnly(Side.CLIENT)
+             public BlockPos.PooledMutableBlockPos setPos(Entity entityIn)
+             {

@@ -1,5 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/world/chunk/storage/ExtendedBlockStorage.java
 +++ ../src-work/minecraft/net/minecraft/world/chunk/storage/ExtendedBlockStorage.java
+@@ -11,7 +11,7 @@
+     private final int yBase;
+     private int blockRefCount;
+     private int tickRefCount;
+-    private final BlockStateContainer data;
++    public final BlockStateContainer data; // Paper - package
+     private NibbleArray blockLight;
+     private NibbleArray skyLight;
+ 
 @@ -27,6 +27,22 @@
          }
      }

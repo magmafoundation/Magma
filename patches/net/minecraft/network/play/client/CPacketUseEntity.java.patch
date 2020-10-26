@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraft/network/play/client/CPacketUseEntity.java
++++ ../src-work/minecraft/net/minecraft/network/play/client/CPacketUseEntity.java
+@@ -14,7 +14,7 @@
+ 
+ public class CPacketUseEntity implements Packet<INetHandlerPlayServer>
+ {
+-    private int entityId;
++    private int entityId; public int getEntityId() { return this.entityId; } // Paper - add accessor
+     private CPacketUseEntity.Action action;
+     private Vec3d hitVec;
+     private EnumHand hand;

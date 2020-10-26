@@ -1,0 +1,26 @@
+--- ../src-base/minecraft/net/minecraft/world/end/DragonFightManager.java
++++ ../src-work/minecraft/net/minecraft/world/end/DragonFightManager.java
+@@ -60,9 +60,12 @@
+     private int aliveCrystals;
+     private int ticksSinceCrystalsScanned;
+     private int ticksSinceLastPlayerScan;
++    private void setDragonKilled(boolean dragonKilled) { this.dragonKilled = dragonKilled; } // Paper - OBFHELPER
+     private boolean dragonKilled;
+     private boolean previouslyKilled;
+     private UUID dragonUniqueId;
++    private void setScanForLegacyFight(boolean scanForLegacyFight) { this.scanForLegacyFight = scanForLegacyFight; } // Paper - OBFHELPER
++    private boolean scanForLegacyFight() { return this.scanForLegacyFight; } // Paper - OBFHELPER
+     private boolean scanForLegacyFight = true;
+     private BlockPos exitPortalLocation;
+     private DragonSpawnManager respawnState;
+@@ -72,6 +75,10 @@
+     public DragonFightManager(WorldServer worldIn, NBTTagCompound compound)
+     {
+         this.world = worldIn;
++        // Paper start
++        setScanForLegacyFight(worldIn.paperConfig.scanForLegacyEnderDragon);
++        if (!scanForLegacyFight()) setDragonKilled(true);
++        // Paper end
+ 
+         if (compound.hasKey("DragonKilled", 99))
+         {

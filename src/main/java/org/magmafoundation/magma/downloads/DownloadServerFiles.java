@@ -1,21 +1,3 @@
-/*
- * Magma Server
- * Copyright (C) 2019-2020.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package org.magmafoundation.magma.downloads;
 
 import java.io.*;
@@ -77,7 +59,10 @@ public class DownloadServerFiles {
                 FileOutputStream fos = new FileOutputStream(fileName);
                 fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
                 System.out.println("Extracting Zip");
-                unzip(minecraftlibraries, "./");
+                String[] pathRaw = MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath().split("/");
+                String path = MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace(pathRaw[pathRaw.length-1], "");
+                System.out.println(path);
+                unzip(minecraftlibraries, path);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -92,7 +77,15 @@ public class DownloadServerFiles {
      */
     public static boolean getLibrariesVersion() {
         String s = Magma.getLibraryVersion();
-        File lib = new File("./libraries.version");
+        String path = DownloadServerFiles.class.getProtectionDomain().getCodeSource().getLocation()
+            .getFile();
+        try {
+            path = URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        File jarDir = new File(path);
+        File lib = new File(jarDir.getParent() + "/libraries.version");
         if (!lib.exists()) {
             return true;
         }

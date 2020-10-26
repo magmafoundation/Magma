@@ -1,0 +1,35 @@
+--- ../src-base/minecraft/net/minecraft/network/play/server/SPacketTitle.java
++++ ../src-work/minecraft/net/minecraft/network/play/server/SPacketTitle.java
+@@ -18,6 +18,17 @@
+     private int displayTime;
+     private int fadeOutTime;
+ 
++    // Paper start
++    public net.md_5.bungee.api.chat.BaseComponent[] components;
++    public SPacketTitle(SPacketTitle.Type type, net.md_5.bungee.api.chat.BaseComponent[] components, int fadeInTimeIn, int displayTimeIn, int fadeOutTimeIn) {
++        this.type = type;
++        this.components = components;
++        this.fadeInTime = fadeInTimeIn;
++        this.displayTime = displayTimeIn;
++        this.fadeInTime = fadeOutTimeIn;
++    }
++    // Paper end
++
+     public SPacketTitle()
+     {
+     }
+@@ -64,7 +75,13 @@
+ 
+         if (this.type == SPacketTitle.Type.TITLE || this.type == SPacketTitle.Type.SUBTITLE || this.type == SPacketTitle.Type.ACTIONBAR)
+         {
+-            buf.writeTextComponent(this.message);
++            // Paper start
++            if (this.components != null) {
++                buf.writeString(net.md_5.bungee.chat.ComponentSerializer.toString(components));
++            } else {
++                buf.writeTextComponent(this.message);
++            }
++            // Paper end
+         }
+ 
+         if (this.type == SPacketTitle.Type.TIMES)

@@ -230,6 +230,25 @@ public interface Server extends PluginMessageRecipient {
      */
     public int broadcastMessage(String message);
 
+    // Paper start
+    /**
+     * Sends the component to all online players.
+     *
+     * @param component the component to send
+     */
+    public default void broadcast(net.md_5.bungee.api.chat.BaseComponent component) {
+        spigot().broadcast(component);
+    }
+    /**
+     * Sends an array of components as a single message to all online players.
+     *
+     * @param components the components to send
+     */
+    public default void broadcast(net.md_5.bungee.api.chat.BaseComponent... components) {
+        spigot().broadcast(components);
+    }
+    // Paper end
+
     /**
      * Gets the name of the update folder. The update folder is used to safely
      * update plugins at the right moment on a plugin load.
@@ -341,8 +360,17 @@ public interface Server extends PluginMessageRecipient {
      */
     public Player getPlayer(UUID id);
 
+    // Paper start
+    /**
+     * Gets the unique ID of the player currently known as the specified player name
+     * In Offline Mode, will return an Offline UUID
+     *
+     * @param playerName the player name to look up the unique ID for
+     * @return A UUID, or null if that player name is not registered with Minecraft and the server is in online mode
+     */
     @Nullable
     public UUID getPlayerUniqueId(String playerName);
+    // Paper end
 
     /**
      * Gets the plugin manager for interfacing with plugins.
@@ -970,6 +998,11 @@ public interface Server extends PluginMessageRecipient {
 
     Spigot spigot();
 
+    void reloadPermissions(); // Paper
+
+    boolean reloadCommandAliases(); // Paper
+
+    // Paper start - allow preventing player name suggestions by default
     /**
      * Checks if player names should be suggested when a command returns {@code null} as
      * their tab completion result.
@@ -977,9 +1010,6 @@ public interface Server extends PluginMessageRecipient {
      * @return true if player names should be suggested
      */
     boolean suggestPlayerNamesWhenNullTabCompletions();
-    // Spigot end
-
-    // Paper start - allow preventing player name suggestions by default
 
     /**
      * Creates a PlayerProfile for the specified uuid, with name as null
@@ -1005,6 +1035,7 @@ public interface Server extends PluginMessageRecipient {
      * @return A PlayerProfile object
      */
     com.destroystokyo.paper.profile.PlayerProfile createProfile(@Nullable UUID uuid, @Nullable String name);
+    // Paper end
 
     // Spigot start
     public class Spigot {

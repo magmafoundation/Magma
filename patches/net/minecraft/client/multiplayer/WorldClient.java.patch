@@ -1,6 +1,14 @@
 --- ../src-base/minecraft/net/minecraft/client/multiplayer/WorldClient.java
 +++ ../src-work/minecraft/net/minecraft/client/multiplayer/WorldClient.java
-@@ -115,7 +115,7 @@
+@@ -32,7 +32,6 @@
+ import net.minecraft.util.math.ChunkPos;
+ import net.minecraft.util.math.MathHelper;
+ import net.minecraft.util.text.TextComponentString;
+-import net.minecraft.world.DimensionType;
+ import net.minecraft.world.EnumDifficulty;
+ import net.minecraft.world.EnumSkyBlock;
+ import net.minecraft.world.GameType;
+@@ -115,7 +114,7 @@
          return this.clientChunkProvider;
      }
  
@@ -9,3 +17,35 @@
      {
          return allowEmpty || !this.getChunkProvider().provideChunk(x, z).isEmpty();
      }
+@@ -365,23 +364,20 @@
+     {
+         this.loadedEntityList.removeAll(this.unloadedEntityList);
+ 
+-        for (int i = 0; i < this.unloadedEntityList.size(); ++i)
+-        {
+-            Entity entity = this.unloadedEntityList.get(i);
+-            int j = entity.chunkCoordX;
+-            int k = entity.chunkCoordZ;
++        for (Entity e : this.unloadedEntityList) {
++            int j = e.chunkCoordX;
++            int k = e.chunkCoordZ;
+ 
+-            if (entity.addedToChunk && this.isChunkLoaded(j, k, true))
+-            {
+-                this.getChunkFromChunkCoords(j, k).removeEntity(entity);
++            if (e.addedToChunk && this.isChunkLoaded(j, k, true)) {
++                this.getChunkFromChunkCoords(j, k).removeEntity(e);
+             }
+         }
+ 
+-        for (int i1 = 0; i1 < this.unloadedEntityList.size(); ++i1)
+-        {
+-            this.onEntityRemoved(this.unloadedEntityList.get(i1));
++        for (Entity e : this.unloadedEntityList) {
++            this.onEntityRemoved(e);
+         }
+ 
++
+         this.unloadedEntityList.clear();
+ 
+         for (int j1 = 0; j1 < this.loadedEntityList.size(); ++j1)

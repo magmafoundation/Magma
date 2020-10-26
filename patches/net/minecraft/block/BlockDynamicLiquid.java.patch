@@ -1,8 +1,10 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockDynamicLiquid.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockDynamicLiquid.java
-@@ -9,6 +9,10 @@
+@@ -8,7 +8,12 @@
+ import net.minecraft.init.Blocks;
  import net.minecraft.util.EnumFacing;
  import net.minecraft.util.math.BlockPos;
++import net.minecraft.world.IBlockAccess;
  import net.minecraft.world.World;
 +import org.bukkit.block.BlockFace;
 +import org.bukkit.event.block.BlockFromToEvent;
@@ -11,24 +13,45 @@
  
  public class BlockDynamicLiquid extends BlockLiquid
  {
-@@ -82,7 +86,7 @@
+@@ -35,7 +40,7 @@
+             j = 2;
+         }
+ 
+-        int k = this.tickRate(worldIn);
++        int k = this.getFlowSpeed(worldIn, pos); // Paper
+ 
+         if (i > 0)
+         {
+@@ -82,7 +87,7 @@
                  }
              }
  
 -            if (this.blockMaterial == Material.LAVA && i < 8 && i1 < 8 && i1 > i && rand.nextInt(4) != 0)
-+            if (this.blockMaterial == Material.LAVA && i < 8 && i1 < 8 && i1 > i && rand.nextInt(4) != 0) // Paper
++            if (!worldIn.paperConfig.fastDrainLava && this.blockMaterial == Material.LAVA && i < 8 && i1 < 8 && i1 > i && rand.nextInt(4) != 0) // Paper
              {
                  k *= 4;
              }
-@@ -113,14 +117,22 @@
+@@ -95,8 +100,7 @@
+             {
+                 i = i1;
+ 
+-                if (i1 < 0)
+-                {
++                if (i1 < 0 || canFastDrain(worldIn, pos)) { // Paper - Fast draining
+                     worldIn.setBlockToAir(pos);
+                 }
+                 else
+@@ -113,14 +117,24 @@
              this.placeStaticBlock(worldIn, pos, state);
          }
  
++        if (worldIn.getBlockState(pos).getBlock().getDefaultState().getMaterial() != blockMaterial) return; // Paper - Stop updating flowing block if material has changed
 +        org.bukkit.block.Block source = worldIn.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
          IBlockState iblockstate1 = worldIn.getBlockState(pos.down());
  
          if (this.canFlowInto(worldIn, pos.down(), iblockstate1))
          {
++            if (!canFlowTo(worldIn, source, BlockFace.DOWN)) { return; } // Paper
 +            BlockFromToEvent event = new BlockFromToEvent(source, BlockFace.DOWN);
 +            worldIn.getServer().getPluginManager().callEvent(event);
 +
@@ -45,12 +68,13 @@
                  return;
              }
  
-@@ -150,14 +162,20 @@
+@@ -150,14 +164,27 @@
  
              for (EnumFacing enumfacing1 : set)
              {
 -                this.tryFlowInto(worldIn, pos.offset(enumfacing1), worldIn.getBlockState(pos.offset(enumfacing1)), k1);
 +                // CraftBukkit start
++                if (!canFlowTo(worldIn, source, org.bukkit.craftbukkit.v1_12_R1.block.CraftBlock.notchToBlockFace(enumfacing1))) { continue; } // Paper
 +                BlockFromToEvent event = new BlockFromToEvent(source, CraftBlock.notchToBlockFace(enumfacing1));
 +                worldIn.getServer().getPluginManager().callEvent(event);
 +
@@ -61,6 +85,12 @@
          }
      }
  
++    // Paper start
++    private boolean canFlowTo(World world, org.bukkit.block.Block source, BlockFace face) {
++        return source.getWorld().isChunkLoaded((source.getX() + face.getModX()) >> 4, (source.getZ() + face.getModZ()) >> 4);
++    }
++    // Paper end
++
      private void tryFlowInto(World worldIn, BlockPos pos, IBlockState state, int level)
      {
 -        if (this.canFlowInto(worldIn, pos, state))
@@ -68,3 +98,81 @@
          {
              if (state.getMaterial() != Material.AIR)
              {
+@@ -303,7 +330,76 @@
+     {
+         if (!this.checkForMixing(worldIn, pos, state))
+         {
+-            worldIn.scheduleUpdate(pos, this, this.tickRate(worldIn));
++            worldIn.scheduleUpdate(pos, this, this.getFlowSpeed(worldIn, pos)); // Paper
+         }
+     }
++
++    // Paper start
++    /**
++     * Paper - Get flow speed. Throttle if its water and flowing adjacent to lava
++     */
++    public int getFlowSpeed(World world, BlockPos blockposition) {
++        if (this.blockMaterial == Material.LAVA) {
++            return world.provider.isNether() ? world.paperConfig.lavaFlowSpeedNether : world.paperConfig.lavaFlowSpeedNormal;
++        }
++        if (this.blockMaterial == Material.WATER && (
++            world.getBlockState(blockposition.north(1)).getBlock().blockMaterial == Material.LAVA ||
++                world.getBlockState(blockposition.south(1)).getBlock().blockMaterial == Material.LAVA ||
++                world.getBlockState(blockposition.west(1)).getBlock().blockMaterial == Material.LAVA ||
++                world.getBlockState(blockposition.east(1)).getBlock().blockMaterial == Material.LAVA)) {
++            return world.paperConfig.waterOverLavaFlowSpeed;
++        }
++        return super.tickRate(world);
++    }
++
++    private int getFluidLevel(IBlockAccess iblockaccess, BlockPos blockposition) {
++        return iblockaccess.getBlockState(blockposition).getMaterial() == this.blockMaterial ? iblockaccess.getBlockState(blockposition).getValue(LEVEL) : -1;
++    }
++    /**
++     * Paper - Data check method for fast draining
++     */
++    public int getData(World world, BlockPos position) {
++        int data = this.getFluidLevel((IBlockAccess) world, position);
++        return data < 8 ? data : 0;
++    }
++    /**
++     * Paper - Checks surrounding blocks to determine if block can be fast drained
++     */
++    public boolean canFastDrain(World world, BlockPos position) {
++        boolean result = false;
++        int data = getData(world, position);
++        if (this.blockMaterial == Material.WATER) {
++            if (world.paperConfig.fastDrainWater) {
++                result = true;
++                if (getData(world, position.down()) < 0) {
++                    result = false;
++                } else if (world.getBlockState(position.north()).getBlock().getDefaultState().getMaterial() == Material.WATER && getData(world, position.north()) < data) {
++                    result = false;
++                } else if (world.getBlockState(position.south()).getBlock().getDefaultState().getMaterial() == Material.WATER && getData(world, position.south()) < data) {
++                    result = false;
++                } else if (world.getBlockState(position.west()).getBlock().getDefaultState().getMaterial() == Material.WATER && getData(world, position.west()) < data) {
++                    result = false;
++                } else if (world.getBlockState(position.east()).getBlock().getDefaultState().getMaterial() == Material.WATER && getData(world, position.east()) < data) {
++                    result = false;
++                }
++            }
++        } else if (this.blockMaterial == Material.LAVA) {
++            if (world.paperConfig.fastDrainLava) {
++                result = true;
++                if (getData(world, position.down()) < 0 || world.getBlockState(position.up()).getBlock().getDefaultState().getMaterial() != Material.AIR) {
++                    result = false;
++                } else if (world.getBlockState(position.north()).getBlock().getDefaultState().getMaterial() == Material.LAVA && getData(world, position.north()) < data) {
++                    result = false;
++                } else if (world.getBlockState(position.south()).getBlock().getDefaultState().getMaterial() == Material.LAVA && getData(world, position.south()) < data) {
++                    result = false;
++                } else if (world.getBlockState(position.west()).getBlock().getDefaultState().getMaterial() == Material.LAVA && getData(world, position.west()) < data) {
++                    result = false;
++                } else if (world.getBlockState(position.east()).getBlock().getDefaultState().getMaterial() == Material.LAVA && getData(world, position.east()) < data) {
++                    result = false;
++                }
++            }
++        }
++        return result;
++    }
++    // Paper end
+ }

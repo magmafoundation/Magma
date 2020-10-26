@@ -6,15 +6,8 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityAreaEffectCloud;
-import net.minecraft.entity.EntityCreature;
-import net.minecraft.entity.EntityFlying;
-import net.minecraft.entity.EntityHanging;
-import net.minecraft.entity.EntityLeashKnot;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.IProjectile;
-import net.minecraft.entity.MultiPartEntityPart;
+
+import net.minecraft.entity.*;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.effect.EntityLightningBolt;
@@ -40,39 +33,7 @@ import net.minecraft.entity.item.EntityMinecartTNT;
 import net.minecraft.entity.item.EntityPainting;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.item.EntityXPOrb;
-import net.minecraft.entity.monster.AbstractIllager;
-import net.minecraft.entity.monster.AbstractSkeleton;
-import net.minecraft.entity.monster.EntityBlaze;
-import net.minecraft.entity.monster.EntityCaveSpider;
-import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntityElderGuardian;
-import net.minecraft.entity.monster.EntityEnderman;
-import net.minecraft.entity.monster.EntityEndermite;
-import net.minecraft.entity.monster.EntityEvoker;
-import net.minecraft.entity.monster.EntityGhast;
-import net.minecraft.entity.monster.EntityGiantZombie;
-import net.minecraft.entity.monster.EntityGolem;
-import net.minecraft.entity.monster.EntityGuardian;
-import net.minecraft.entity.monster.EntityHusk;
-import net.minecraft.entity.monster.EntityIllusionIllager;
-import net.minecraft.entity.monster.EntityIronGolem;
-import net.minecraft.entity.monster.EntityMagmaCube;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.monster.EntityPigZombie;
-import net.minecraft.entity.monster.EntityPolarBear;
-import net.minecraft.entity.monster.EntityShulker;
-import net.minecraft.entity.monster.EntitySilverfish;
-import net.minecraft.entity.monster.EntitySlime;
-import net.minecraft.entity.monster.EntitySnowman;
-import net.minecraft.entity.monster.EntitySpellcasterIllager;
-import net.minecraft.entity.monster.EntitySpider;
-import net.minecraft.entity.monster.EntityStray;
-import net.minecraft.entity.monster.EntityVex;
-import net.minecraft.entity.monster.EntityVindicator;
-import net.minecraft.entity.monster.EntityWitch;
-import net.minecraft.entity.monster.EntityWitherSkeleton;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.monster.EntityZombieVillager;
+import net.minecraft.entity.monster.*;
 import net.minecraft.entity.passive.AbstractChestHorse;
 import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.entity.passive.EntityAmbientCreature;
@@ -116,10 +77,11 @@ import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.entity.projectile.EntityWitherSkull;
 import net.minecraft.nbt.NBTTagCompound;
+
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
+import org.bukkit.Chunk;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -137,9 +99,6 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.permissions.ServerOperator;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
-import org.magmafoundation.magma.entity.CraftCustomEntity;
-import org.magmafoundation.magma.entity.CraftCustomProjectile;
-import org.magmafoundation.magma.entity.CraftFakePlayer;
 
 public abstract class CraftEntity implements org.bukkit.entity.Entity {
     private static PermissibleBase perm;
@@ -153,6 +112,12 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         this.entity = entity;
     }
 
+    @Override
+    public Chunk getChunk() {
+         net.minecraft.world.chunk.Chunk currentChunk = entity.getCurrentChunk();
+        return currentChunk != null ? currentChunk.bukkitChunk : getLocation().getChunk();
+    }
+
     public static CraftEntity getEntity(CraftServer server, Entity entity) {
         /**
          * Order is *EXTREMELY* important -- keep it right! =D
@@ -160,17 +125,10 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         if (entity instanceof EntityLivingBase) {
             // Players
             if (entity instanceof EntityPlayer) {
-                if (entity instanceof EntityPlayerMP) {
-                    // Magma start - Fake player
-                    if(entity instanceof FakePlayer){
-                        return new CraftFakePlayer(server, (FakePlayer) entity);
-                    }else{
-                        return new CraftPlayer(server, (EntityPlayerMP) entity);
-                    }
-                } else {
-                    return new CraftFakePlayer(server, FakePlayerFactory.get(DimensionManager.getWorld(entity.world.provider.getDimension()), ((EntityPlayer) entity).getGameProfile()));
+                if (entity instanceof EntityPlayerMP) { return new CraftPlayer(server, (EntityPlayerMP) entity); }
+                else {
+                    return new CraftPlayer(server, FakePlayerFactory.get(DimensionManager.getWorld(entity.world.provider.getDimension()), ((EntityPlayer) entity).getGameProfile()));
                 }
-                // Magma end
             }
             // Water Animals
             else if (entity instanceof EntityWaterMob) {
@@ -278,7 +236,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
                 else { return new CraftAmbient(server, (EntityAmbientCreature) entity); }
             }
             else if (entity instanceof EntityArmorStand) { return new CraftArmorStand(server, (EntityArmorStand) entity); }
-            else  { return new CraftLivingEntity(server, (EntityLivingBase) entity); }
+            else  { return new CraftLivingEntity(server, (EntityLiving) entity); }
         }
         else if (entity instanceof MultiPartEntityPart) {
             MultiPartEntityPart part = (MultiPartEntityPart) entity;
@@ -375,11 +333,41 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
     public void setVelocity(Vector velocity) {
         Preconditions.checkArgument(velocity != null, "velocity");
         velocity.checkFinite();
+
+        // Paper start - Warn server owners when plugins try to set super high velocities
+        if (!(this instanceof org.bukkit.entity.Projectile) && isUnsafeVelocity(velocity)) {
+            CraftServer.excessiveVelEx = new Exception("Excessive velocity set detected: tried to set velocity of entity " + entity.getName() + " id #" + getEntityId() + " to (" + velocity.getX() + "," + velocity.getY() + "," + velocity.getZ() + ").");
+        }
+        // Paper end
+
         entity.motionX = velocity.getX();
         entity.motionY = velocity.getY();
         entity.motionZ = velocity.getZ();
         entity.velocityChanged = true;
     }
+
+    // Paper start
+    /**
+     * Checks if the given velocity is not necessarily safe in all situations.
+     * This function returning true does not mean the velocity is dangerous or to be avoided, only that it may be
+     * a detriment to performance on the server.
+     *
+     * It is not to be used as a hard rule of any sort.
+     * Paper only uses it to warn server owners in watchdog crashes.
+     *
+     * @param vel incoming velocity to check
+     * @return if the velocity has the potential to be a performance detriment
+     */
+    private static boolean isUnsafeVelocity(Vector vel) {
+        final double x = vel.getX();
+        final double y = vel.getY();
+        final double z = vel.getZ();
+        if (x > 4 || x < -4 || y > 4 || y < -4 || z > 4 || z < -4) {
+            return true;
+        }
+        return false;
+    }
+    // Paper end
 
     @Override
     public double getHeight() {
@@ -598,14 +586,15 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
             return false;
         }
         final CraftEntity other = (CraftEntity) obj;
-        return (this.getEntityId() == other.getEntityId());
+        return (this.getHandle() == other.getHandle()); // Paper - while logically the same, this is clearer
     }
 
+    // Paper - Fix hashCode. entity ID's are not static.
+    // A CraftEntity can change reference to a new entity with a new ID, and hash codes should never change
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + this.getEntityId();
-        return hash;
+        return getUniqueId().hashCode();
+        // Paper end
     }
 
     public void setMetadata(String metadataKey, MetadataValue newMetadataValue) {
@@ -875,4 +864,17 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         return spigot;
     }
     // Spigot end
+
+    // Paper start
+    @Override
+    public Location getOrigin() {
+        Location origin = getHandle().origin;
+        return origin == null ? null : origin.clone();
+    }
+
+    @Override
+    public boolean fromMobSpawner() {
+        return getHandle().spawnedViaMobSpawner;
+    }
+    // Paper end
 }

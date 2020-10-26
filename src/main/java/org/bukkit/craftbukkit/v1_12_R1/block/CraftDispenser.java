@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1.block;
 
+import com.destroystokyo.paper.loottable.CraftLootableBlockInventory;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntityDispenser;
@@ -13,7 +14,7 @@ import org.bukkit.craftbukkit.v1_12_R1.projectiles.CraftBlockProjectileSource;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.projectiles.BlockProjectileSource;
 
-public class CraftDispenser extends CraftLootable<TileEntityDispenser> implements Dispenser {
+public class CraftDispenser extends CraftLootable<TileEntityDispenser> implements Dispenser, CraftLootableBlockInventory {
 
     public CraftDispenser(final Block block) {
         super(block, TileEntityDispenser.class);

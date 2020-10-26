@@ -1,5 +1,7 @@
 package org.spigotmc;
 
+import co.aikar.timings.MinecraftTimings;
+import com.destroystokyo.paper.MCUtil;
 import net.minecraft.entity.*;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.effect.EntityWeatherEffect;
@@ -12,6 +14,7 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.passive.EntityAmbientCreature;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityLlama;
 import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -53,7 +56,8 @@ public class ActivationRange
     /**
      * These entities are excluded from Activation range checks.
      *
-     * @param entity
+     * @param entity Entity to initialize
+     * @param config Spigot config to determine ranges
      * @return boolean If it should always tick.
      */
     public static boolean initializeEntityActivationState(Entity entity, SpigotWorldConfig config)
@@ -72,9 +76,9 @@ public class ActivationRange
             || entity instanceof MultiPartEntityPart
             || entity instanceof EntityWither
             || entity instanceof EntityFireball
-            || entity instanceof EntityFallingBlock
             || entity instanceof EntityWeatherEffect
             || entity instanceof EntityTNTPrimed
+            || entity instanceof EntityFallingBlock // Paper - Always tick falling blocks
             || entity instanceof EntityEnderCrystal
             || entity instanceof EntityFireworkRocket
             || (entity.getClass().getSuperclass() == Entity.class && !entity.isCreatureType(EnumCreatureType.CREATURE, false))
@@ -91,7 +95,7 @@ public class ActivationRange
      */
     public static void activateEntities(World world)
     {
-        SpigotTimings.entityActivationCheckTimer.startTiming(); // Spigot
+        MinecraftTimings.entityActivationCheckTimer.startTiming();
         final int miscActivationRange = world.spigotConfig.miscActivationRange;
         final int animalActivationRange = world.spigotConfig.animalActivationRange;
         final int monsterActivationRange = world.spigotConfig.monsterActivationRange;
@@ -100,6 +104,7 @@ public class ActivationRange
         maxRange = Math.max( maxRange, miscActivationRange );
         maxRange = Math.min( ( world.spigotConfig.viewDistance << 4 ) - 8, maxRange );
 
+        Chunk chunk; // Paper
         for ( EntityPlayer player : world.playerEntities )
         {
 
@@ -118,14 +123,14 @@ public class ActivationRange
             {
                 for ( int j1 = k; j1 <= l; ++j1 )
                 {
-                    if ( world.getWorld().isChunkLoaded( i1, j1 ) )
+                    if ( (chunk = MCUtil.getLoadedChunkWithoutMarkingActive(world, i1, j1 )) != null ) // Paper
                     {
-                        activateChunkEntities( world.getChunkFromChunkCoords( i1, j1 ) );
+                        activateChunkEntities( chunk ); // Paper
                     }
                 }
             }
         }
-        SpigotTimings.entityActivationCheckTimer.stopTiming(); // Spigot
+        MinecraftTimings.entityActivationCheckTimer.stopTiming();
     }
 
     /**
@@ -203,18 +208,30 @@ public class ActivationRange
         if ( entity instanceof EntityLiving)
         {
             EntityLiving living = (EntityLiving) entity;
-            if ( /*TODO: Missed mapping? living.attackTicks > 0 || */ living.hurtTime> 0 || living.activePotionsMap.size() > 0 )
+            if ( living.recentlyHit > 0 || living.hurtTime > 0 || living.activePotionsMap.size() > 0 ) // Paper
             {
                 return true;
             }
-            if ( entity instanceof EntityCreature && ( (EntityCreature) entity ).getAttackTarget() != null )
+//            if ( entity instanceof EntityCreature && ( (EntityCreature) entity ).getAttackTarget() != null )
+            if ( entity instanceof EntityCreature )
             {
-                return true;
+                // Paper start
+                EntityCreature creature = (EntityCreature) entity;
+                if (creature.getAttackTarget() != null || creature.getMovingTarget() != null) {
+                    return true;
+                }
+                // Paper end
             }
             if ( entity instanceof EntityVillager && ( (EntityVillager) entity ).isMating() )
             {
                 return true;
             }
+            // Paper start
+            if ( entity instanceof EntityLlama && ( (EntityLlama ) entity ).inCaravan() )
+            {
+                return true;
+            }
+            // Paper end
             if ( entity instanceof EntityAnimal)
             {
                 EntityAnimal animal = (EntityAnimal) entity;
@@ -242,11 +259,9 @@ public class ActivationRange
      */
     public static boolean checkIfActive(Entity entity)
     {
-        SpigotTimings.checkIfActiveTimer.startTiming(); // Spigot
         // Never safe to skip fireworks or entities not yet added to chunk
         // PAIL: inChunk - boolean under datawatchers
-        if ( !entity.addedToChunk || entity instanceof EntityFireworkRocket ) {
-            SpigotTimings.checkIfActiveTimer.stopTiming(); // Spigot
+        if ( !entity.isAddedToChunk() || entity instanceof EntityFireworkRocket ) { // Paper (use obf helper)
             return true;
         }
 
@@ -270,14 +285,18 @@ public class ActivationRange
         {
             isActive = false;
         }
-        int x = MathHelper.floor( entity.posX );
-        int z = MathHelper.floor( entity.posZ );
+        // int x = MathHelper.floor( entity.posX ); // Paper
+        // int z = MathHelper.floor( entity.posZ ); // Paper
         // Make sure not on edge of unloaded chunk
-        Chunk chunk = entity.world.getChunkIfLoaded( x >> 4, z >> 4 );
+        Chunk chunk = entity.getChunkAtLocation(); // Paper
         if ( isActive && !( chunk != null ) )
         {
             isActive = false;
         }
+        // Paper start - Skip ticking in chunks scheduled for unload
+        if(entity.world.paperConfig.skipEntityTickingInChunksScheduledForUnload && (chunk == null || chunk.isUnloading() || chunk.scheduledForUnload != null))
+            isActive = false;
+        // Paper end
         return isActive;
 
     }

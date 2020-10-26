@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraftforge/server/command/ChunkGenWorker.java
++++ ../src-work/minecraft/net/minecraftforge/server/command/ChunkGenWorker.java
+@@ -166,7 +166,7 @@
+                 };
+                 try
+                 {
+-                    world.getChunkProvider().chunkLoader.saveChunk(world, target);
++                    world.getChunkProvider().chunkLoader.saveChunk(world, target, true);
+                 }
+                 catch (IOException | MinecraftException e)
+                 {

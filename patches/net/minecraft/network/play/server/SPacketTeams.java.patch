@@ -1,0 +1,10 @@
+--- ../src-base/minecraft/net/minecraft/network/play/server/SPacketTeams.java
++++ ../src-work/minecraft/net/minecraft/network/play/server/SPacketTeams.java
+@@ -121,6 +121,7 @@
+             buf.writeByte(this.friendlyFlags);
+             buf.writeString(this.nameTagVisibility);
+             buf.writeString(this.collisionRule);
++            buf.writeString(!com.destroystokyo.paper.PaperConfig.enablePlayerCollisions ? "never" : this.collisionRule); // Paper
+             buf.writeByte(this.color);
+         }
+ 

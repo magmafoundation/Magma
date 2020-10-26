@@ -26,3 +26,36 @@
                  PacketBuffer packetbuffer = new PacketBuffer(p_encode_3_);
                  packetbuffer.writeVarInt(integer.intValue());
  
+@@ -54,7 +59,32 @@
+                 {
+                     throw throwable; // Forge: throw this instead of logging it, to prevent corrupt packets from being sent to the client where they are much harder to debug.
+                 }
++
++                // Paper start
++                int packetLength = p_encode_3_.readableBytes();
++                if (packetLength > MAX_PACKET_SIZE) {
++                    throw new PacketTooLargeException(p_encode_2_, packetLength);
++                }
++                // Paper end
++
+             }
+         }
++
++
+     }
++
++    // Paper start
++    private static int MAX_PACKET_SIZE = 2097152;
++    public static class PacketTooLargeException extends RuntimeException {
++        private final Packet<?> packet;
++        PacketTooLargeException(Packet<?> packet, int packetLength) {
++            super("PacketTooLarge - " + packet.getClass().getSimpleName() + " is " + packetLength +". Max is " + MAX_PACKET_SIZE);
++            this.packet = packet;
++        }
++
++        public Packet<?> getPacket() {
++            return packet;
++        }
++    }
++    // Paper end
+ }

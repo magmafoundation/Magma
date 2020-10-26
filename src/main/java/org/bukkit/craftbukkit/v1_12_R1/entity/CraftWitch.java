@@ -1,11 +1,13 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
+import com.destroystokyo.paper.entity.CraftRangedEntity;
 import net.minecraft.entity.monster.EntityWitch;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Witch;
 import org.bukkit.entity.EntityType;
 
-public class CraftWitch extends CraftMonster implements Witch {
+public class CraftWitch extends CraftMonster implements Witch, CraftRangedEntity<EntityWitch> { // Paper
     public CraftWitch(CraftServer server, EntityWitch entity) {
         super(server, entity);
     }
@@ -23,4 +25,5 @@ public class CraftWitch extends CraftMonster implements Witch {
     public EntityType getType() {
         return EntityType.WITCH;
     }
+
 }

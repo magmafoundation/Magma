@@ -1,0 +1,10 @@
+--- ../src-base/minecraft/net/minecraft/inventory/EntityEquipmentSlot.java
++++ ../src-work/minecraft/net/minecraft/inventory/EntityEquipmentSlot.java
+@@ -22,6 +22,7 @@
+         this.name = nameIn;
+     }
+ 
++    public EntityEquipmentSlot.Type getType() { return this.getSlotType(); } // Paper - OBFHELPER
+     public EntityEquipmentSlot.Type getSlotType()
+     {
+         return this.slotType;

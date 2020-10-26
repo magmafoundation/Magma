@@ -4,7 +4,7 @@
          for (ScorePlayerTeam scoreplayerteam : this.scoreboard.getTeams())
          {
              NBTTagCompound nbttagcompound = new NBTTagCompound();
-+            if (scoreplayerteam.getDisplayName().isEmpty()) continue; // Paper
++            if (!com.destroystokyo.paper.PaperConfig.saveEmptyScoreboardTeams && scoreplayerteam.getDisplayName().isEmpty()) continue; // Paper
              nbttagcompound.setString("Name", scoreplayerteam.getName());
              nbttagcompound.setString("DisplayName", scoreplayerteam.getDisplayName());
  

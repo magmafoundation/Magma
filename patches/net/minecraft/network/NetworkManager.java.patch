@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/network/NetworkManager.java
 +++ ../src-work/minecraft/net/minecraft/network/NetworkManager.java
-@@ -74,15 +74,25 @@
+@@ -74,15 +74,26 @@
          }
      };
      private final EnumPacketDirection direction;
@@ -24,12 +24,13 @@
 +    // Paper start - NetworkClient implementation
 +    public int protocolVersion;
 +    public java.net.InetSocketAddress virtualHost;
++    private static boolean enableExplicitFlush = Boolean.getBoolean("paper.explicit-flush");
 +    // Paper end
 +
      public NetworkManager(EnumPacketDirection packetDirection)
      {
          this.direction = packetDirection;
-@@ -98,6 +108,7 @@
+@@ -98,6 +109,7 @@
          super.channelActive(p_channelActive_1_);
          this.channel = p_channelActive_1_.channel();
          this.socketAddress = this.channel.remoteAddress();
@@ -37,7 +38,23 @@
  
          try
          {
-@@ -173,7 +184,7 @@
+@@ -123,6 +135,15 @@
+ 
+     public void exceptionCaught(ChannelHandlerContext p_exceptionCaught_1_, Throwable p_exceptionCaught_2_) throws Exception
+     {
++        // Paper start
++        if (p_exceptionCaught_2_ instanceof io.netty.handler.codec.EncoderException && p_exceptionCaught_2_.getCause() instanceof NettyPacketEncoder.PacketTooLargeException) {
++            if (((NettyPacketEncoder.PacketTooLargeException) p_exceptionCaught_2_.getCause()).getPacket().packetTooLarge(this)) {
++                return;
++            } else {
++                p_exceptionCaught_2_ = p_exceptionCaught_2_.getCause();
++            }
++        }
++        // Paper end
+         TextComponentTranslation textcomponenttranslation;
+ 
+         if (p_exceptionCaught_2_ instanceof TimeoutException)
+@@ -173,7 +194,7 @@
  
              try
              {
@@ -46,7 +63,7 @@
              }
              finally
              {
-@@ -195,7 +206,7 @@
+@@ -195,7 +216,7 @@
  
              try
              {
@@ -55,7 +72,7 @@
              }
              finally
              {
-@@ -265,7 +276,7 @@
+@@ -265,7 +286,7 @@
              {
                  while (!this.outboundPacketsQueue.isEmpty())
                  {
@@ -64,7 +81,16 @@
                      this.dispatchPacket(networkmanager$inboundhandlertuplepacketlistener.packet, networkmanager$inboundhandlertuplepacketlistener.futureListeners);
                  }
              }
-@@ -298,9 +309,12 @@
+@@ -287,7 +308,7 @@
+ 
+         if (this.channel != null)
+         {
+-            this.channel.flush();
++            if (enableExplicitFlush) this.channel.eventLoop().execute(() -> this.channel.flush()); // Paper - we don't need to explicit flush here, but allow opt in incase issues are found to a better version
+         }
+     }
+ 
+@@ -298,9 +319,12 @@
  
      public void closeChannel(ITextComponent message)
      {
@@ -78,7 +104,7 @@
              this.terminationReason = message;
          }
      }
-@@ -410,7 +424,7 @@
+@@ -410,7 +434,7 @@
              }
              else
              {
@@ -87,7 +113,7 @@
              }
  
              if (this.channel.pipeline().get("compress") instanceof NettyCompressionEncoder)
-@@ -476,4 +490,12 @@
+@@ -476,4 +500,12 @@
                  this.futureListeners = inFutureListeners;
              }
          }

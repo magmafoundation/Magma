@@ -1,8 +1,13 @@
 package org.bukkit.entity;
 
+import com.destroystokyo.paper.Title;
+import com.destroystokyo.paper.profile.PlayerProfile;
 import java.net.InetSocketAddress;
-
+import java.util.Date;
 import org.bukkit.Achievement;
+import org.bukkit.BanEntry;
+import org.bukkit.BanList;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.GameMode;
@@ -29,7 +34,7 @@ import org.bukkit.scoreboard.Scoreboard;
 /**
  * Represents a player, connected or not
  */
-public interface Player extends HumanEntity, Conversable, CommandSender, OfflinePlayer, PluginMessageRecipient {
+public interface Player extends HumanEntity, Conversable, CommandSender, OfflinePlayer, PluginMessageRecipient, com.destroystokyo.paper.network.NetworkClient { // Paper - Extend NetworkClient
 
     /**
      * Gets the "friendly" name to display of this player. This may include
@@ -387,16 +392,314 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
     public void sendSignChange(Location loc, String[] lines) throws IllegalArgumentException;
 
     /**
-     * Render a map and send it to the player in its entirety. This may be
-     * used when streaming the map in the normal manner is not desirable.
+     * Render a map and send it to the player in its entirety. This may be used when streaming the map in the normal manner is not desirable.
      *
      * @param map The map to be sent
      */
     public void sendMap(MapView map);
 
+    // Paper start
+    /**
+     * Permanently Bans the Profile and IP address currently used by the player.
+     *
+     * @param reason Reason for ban
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerFull(String reason) {
+        return banPlayerFull(reason, null, null);
+    }
+
+    /**
+     * Permanently Bans the Profile and IP address currently used by the player.
+     *
+     * @param reason Reason for ban
+     * @param source Source of ban, or null for default
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerFull(String reason, String source) {
+        return banPlayerFull(reason, null, source);
+    }
+
+    /**
+     * Bans the Profile and IP address currently used by the player.
+     *
+     * @param reason Reason for Ban
+     * @param expires When to expire the ban
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerFull(String reason, Date expires) {
+        return banPlayerFull(reason, expires, null);
+    }
+
+    /**
+     * Bans the Profile and IP address currently used by the player.
+     *
+     * @param reason Reason for Ban
+     * @param expires When to expire the ban
+     * @param source Source of the ban, or null for default
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerFull(String reason, Date expires, String source) {
+        banPlayer(reason, expires, source);
+        return banPlayerIP(reason, expires, source, true);
+    }
+
+    /**
+     * Permanently Bans the IP address currently used by the player.
+     * Does not ban the Profile, use {@link #banPlayerFull(String, Date, String)}
+     *
+     * @param reason Reason for ban
+     * @param kickPlayer Whether or not to kick the player afterwards
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerIP(String reason, boolean kickPlayer) {
+        return banPlayerIP(reason, null, null, kickPlayer);
+    }
+
+    /**
+     * Permanently Bans the IP address currently used by the player.
+     * Does not ban the Profile, use {@link #banPlayerFull(String, Date, String)}
+     * @param reason Reason for ban
+     * @param source Source of ban, or null for default
+     * @param kickPlayer Whether or not to kick the player afterwards
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerIP(String reason, String source, boolean kickPlayer) {
+        return banPlayerIP(reason, null, source, kickPlayer);
+    }
+
+    /**
+     * Bans the IP address currently used by the player.
+     * Does not ban the Profile, use {@link #banPlayerFull(String, Date, String)}
+     * @param reason Reason for Ban
+     * @param expires When to expire the ban
+     * @param kickPlayer Whether or not to kick the player afterwards
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerIP(String reason, Date expires, boolean kickPlayer) {
+        return banPlayerIP(reason, expires, null, kickPlayer);
+    }
+
+    /**
+     * Permanently Bans the IP address currently used by the player.
+     * Does not ban the Profile, use {@link #banPlayerFull(String, Date, String)}
+     *
+     * @param reason Reason for ban
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerIP(String reason) {
+        return banPlayerIP(reason, null, null);
+    }
+
+    /**
+     * Permanently Bans the IP address currently used by the player.
+     * Does not ban the Profile, use {@link #banPlayerFull(String, Date, String)}
+     * @param reason Reason for ban
+     * @param source Source of ban, or null for default
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerIP(String reason, String source) {
+        return banPlayerIP(reason, null, source);
+    }
+
+    /**
+     * Bans the IP address currently used by the player.
+     * Does not ban the Profile, use {@link #banPlayerFull(String, Date, String)}
+     * @param reason Reason for Ban
+     * @param expires When to expire the ban
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerIP(String reason, Date expires) {
+        return banPlayerIP(reason, expires, null);
+    }
+
+    /**
+     * Bans the IP address currently used by the player.
+     * Does not ban the Profile, use {@link #banPlayerFull(String, Date, String)}
+     * @param reason Reason for Ban
+     * @param expires When to expire the ban
+     * @param source Source of the banm or null for default
+     * @return Ban Entry
+     */
+    public default BanEntry banPlayerIP(String reason, Date expires, String source) {
+        return banPlayerIP(reason, expires, source, true);
+    }
+    public default BanEntry banPlayerIP(String reason, Date expires, String source, boolean kickPlayer) {
+        BanEntry banEntry = Bukkit.getServer().getBanList(BanList.Type.IP).addBan(getAddress().getAddress().getHostAddress(), reason, expires, source);
+        if (kickPlayer && isOnline()) {
+            getPlayer().kickPlayer(reason);
+        }
+
+        return banEntry;
+    }
+
+    /**
+     * Sends an Action Bar message to the client.
+     *
+     * Use Section symbols for legacy color codes to send formatting.
+     *
+     * @param message The message to send
+     */
+    public void sendActionBar(String message);
+    /**
+     * Sends an Action Bar message to the client.
+     *
+     * Use supplied alternative character to the section symbol to represent legacy color codes.
+     *
+     * @param alternateChar Alternate symbol such as '&amp;'
+     * @param message The message to send
+     */
+    public void sendActionBar(char alternateChar, String message);
+
+    /**
+     * Sends the component to the player
+     *
+     * @param component the components to send
+     */
+    @Override
+    public default void sendMessage(net.md_5.bungee.api.chat.BaseComponent component) {
+        spigot().sendMessage(component);
+    }
+
+    /**
+     * Sends an array of components as a single message to the player
+     *
+     * @param components the components to send
+     */
+    @Override
+    public default void sendMessage(net.md_5.bungee.api.chat.BaseComponent... components) {
+        spigot().sendMessage(components);
+    }
+
+    /**
+     * Sends an array of components as a single message to the specified screen position of this player
+     *
+     * @deprecated This is unlikely the API you want to use. See {@link #sendActionBar(String)} for a more proper Action Bar API. This deprecated API may send unsafe items to the client.
+     * @param position the screen position
+     * @param components the components to send
+     */
+    @Deprecated
+    public default void sendMessage(net.md_5.bungee.api.ChatMessageType position, net.md_5.bungee.api.chat.BaseComponent... components) {
+        spigot().sendMessage(position, components);
+    }
+
+    /**
+     * Set the text displayed in the player list header and footer for this player
+     *
+     * @param header content for the top of the player list
+     * @param footer content for the bottom of the player list
+     */
+    public void setPlayerListHeaderFooter(net.md_5.bungee.api.chat.BaseComponent[] header, net.md_5.bungee.api.chat.BaseComponent[] footer);
+
+    /**
+     * Set the text displayed in the player list header and footer for this player
+     *
+     * @param header content for the top of the player list
+     * @param footer content for the bottom of the player list
+     */
+    public void setPlayerListHeaderFooter(net.md_5.bungee.api.chat.BaseComponent header, net.md_5.bungee.api.chat.BaseComponent footer);
+
+    /**
+     * Update the times for titles displayed to the player
+     *
+     * @param fadeInTicks ticks to fade-in
+     * @param stayTicks ticks to stay visible
+     * @param fadeOutTicks ticks to fade-out
+     * @deprecated Use {@link #updateTitle(Title)}
+     */
+    @Deprecated
+    public void setTitleTimes(int fadeInTicks, int stayTicks, int fadeOutTicks);
+
+    /**
+     * Update the subtitle of titles displayed to the player
+     *
+     * @param subtitle Subtitle to set
+     * @deprecated Use {@link #updateTitle(Title)}
+     */
+    @Deprecated
+    public void setSubtitle(net.md_5.bungee.api.chat.BaseComponent[] subtitle);
+
+    /**
+     * Update the subtitle of titles displayed to the player
+     *
+     * @param subtitle Subtitle to set
+     * @deprecated Use {@link #updateTitle(Title)}
+     */
+    @Deprecated
+    public void setSubtitle(net.md_5.bungee.api.chat.BaseComponent subtitle);
+
+    /**
+     * Show the given title to the player, along with the last subtitle set, using the last set times
+     *
+     * @param title Title to set
+     * @deprecated Use {@link #sendTitle(Title)} or {@link #updateTitle(Title)}
+     */
+    @Deprecated
+    public void showTitle(net.md_5.bungee.api.chat.BaseComponent[] title);
+
+    /**
+     * Show the given title to the player, along with the last subtitle set, using the last set times
+     *
+     * @param title Title to set
+     * @deprecated Use {@link #sendTitle(Title)} or {@link #updateTitle(Title)}
+     */
+    @Deprecated
+    public void showTitle(net.md_5.bungee.api.chat.BaseComponent title);
+
+    /**
+     * Show the given title and subtitle to the player using the given times
+     *
+     * @param title big text
+     * @param subtitle little text under it
+     * @param fadeInTicks ticks to fade-in
+     * @param stayTicks ticks to stay visible
+     * @param fadeOutTicks ticks to fade-out
+     * @deprecated Use {@link #sendTitle(Title)} or {@link #updateTitle(Title)}
+     */
+    @Deprecated
+    public void showTitle(net.md_5.bungee.api.chat.BaseComponent[] title, net.md_5.bungee.api.chat.BaseComponent[] subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks);
+
+    /**
+     * Show the given title and subtitle to the player using the given times
+     *
+     * @param title big text
+     * @param subtitle little text under it
+     * @param fadeInTicks ticks to fade-in
+     * @param stayTicks ticks to stay visible
+     * @param fadeOutTicks ticks to fade-out
+     * @deprecated Use {@link #sendTitle(Title)} or {@link #updateTitle(Title)}
+     */
+    @Deprecated
+    public void showTitle(net.md_5.bungee.api.chat.BaseComponent title, net.md_5.bungee.api.chat.BaseComponent subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks);
+
+    /**
+     * Show the title to the player, overriding any previously displayed title.
+     *
+     * <p>This method overrides any previous title, use {@link #updateTitle(Title)} to change the existing one.</p>
+     *
+     * @param title the title to send
+     * @throws NullPointerException if the title is null
+     */
+    void sendTitle(Title title);
+
+    /**
+     * Show the title to the player, overriding any previously displayed title.
+     *
+     * <p>This method doesn't override previous titles, but changes their values.</p>
+     *
+     * @param title the title to send
+     * @throws NullPointerException if title is null
+     */
+    void updateTitle(Title title);
+
+    /**
+     * Hide any title that is currently visible to the player
+     */
+    public void hideTitle();
+    // Paper end
+
     /**
      * Forces an update of the player's entire inventory.
-     *
      */
     //@Deprecated // Spigot - undeprecate
     public void updateInventory();
@@ -749,12 +1052,33 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      */
     public void resetPlayerWeather();
 
+    // Paper start
     /**
      * Gives the player the amount of experience specified.
      *
      * @param amount Exp amount to give
      */
-    public void giveExp(int amount);
+    public default void giveExp(int amount) {
+        giveExp(amount, false);
+    }
+    /**
+     * Gives the player the amount of experience specified.
+     *
+     * @param amount Exp amount to give
+     * @param applyMending Mend players items with mending, with same behavior as picking up orbs. calls {@link #applyMending(int)}
+     */
+    public void giveExp(int amount, boolean applyMending);
+
+    /**
+     * Applies the mending effect to any items just as picking up an orb would.
+     *
+     * Can also be called with {@link #giveExp(int, boolean)} by passing true to applyMending
+     *
+     * @param amount Exp to apply
+     * @return the remaining experience
+     */
+    public int applyMending(int amount);
+    // Paper end
 
     /**
      * Gives the player the amount of experience levels specified. Levels can
@@ -1065,6 +1389,7 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      * @throws IllegalArgumentException Thrown if the URL is null.
      * @throws IllegalArgumentException Thrown if the URL is too long. The
      *     length restriction is an implementation specific arbitrary value.
+     * @deprecated use {@link #setResourcePack(String, String)}
      */
     public void setResourcePack(String url);
 
@@ -1255,6 +1580,7 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      * @param count the number of particles
      * @param data the data to use for the particle or null,
      *             the type of this depends on {@link Particle#getDataType()}
+     * @param <T> Type
      */
     public <T> void spawnParticle(Particle particle, Location location, int count, T data);
 
@@ -1270,6 +1596,7 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      * @param count the number of particles
      * @param data the data to use for the particle or null,
      *             the type of this depends on {@link Particle#getDataType()}
+     * @param <T> Type
      */
     public <T> void spawnParticle(Particle particle, double x, double y, double z, int count, T data);
 
@@ -1319,6 +1646,7 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      * @param offsetZ the maximum random offset on the Z axis
      * @param data the data to use for the particle or null,
      *             the type of this depends on {@link Particle#getDataType()}
+     * @param <T> Type
      */
     public <T> void spawnParticle(Particle particle, Location location, int count, double offsetX, double offsetY, double offsetZ, T data);
 
@@ -1338,6 +1666,7 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      * @param offsetZ the maximum random offset on the Z axis
      * @param data the data to use for the particle or null,
      *             the type of this depends on {@link Particle#getDataType()}
+     * @param <T> Type
      */
     public <T> void spawnParticle(Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, T data);
 
@@ -1393,6 +1722,7 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      *              particle used (normally speed)
      * @param data the data to use for the particle or null,
      *             the type of this depends on {@link Particle#getDataType()}
+     * @param <T> Type
      */
     public <T> void spawnParticle(Particle particle, Location location, int count, double offsetX, double offsetY, double offsetZ, double extra, T data);
 
@@ -1414,6 +1744,7 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      *              particle used (normally speed)
      * @param data the data to use for the particle or null,
      *             the type of this depends on {@link Particle#getDataType()}
+     * @param <T> Type
      */
     public <T> void spawnParticle(Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra, T data);
 
@@ -1438,6 +1769,19 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      */
     public String getLocale();
 
+    /**
+     * Get whether the player can affect mob spawning
+     *
+     * @return if the player can affect mob spawning
+     */
+    public boolean getAffectsSpawning();
+    /**
+     * Set whether the player can affect mob spawning
+     *
+     * @param affects Whether the player can affect mob spawning
+     */
+    public void setAffectsSpawning(boolean affects);
+
     @Override
     Spigot spigot();
 
@@ -1455,6 +1799,66 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
      * @param viewDistance the player's view distance
      */
     public void setViewDistance(int viewDistance);
+
+    // Paper start
+    /**
+     * Request that the player's client download and switch resource packs.
+     * <p>
+     * The player's client will download the new resource pack asynchronously
+     * in the background, and will automatically switch to it once the
+     * download is complete. If the client has downloaded and cached the same
+     * resource pack in the past, it will perform a quick timestamp check
+     * over the network to determine if the resource pack has changed and
+     * needs to be downloaded again. When this request is sent for the very
+     * first time from a given server, the client will first display a
+     * confirmation GUI to the player before proceeding with the download.
+     * <p>
+     * Notes:
+     * <ul>
+     * <li>Players can disable server resources on their client, in which
+     *     case this method will have no affect on them.
+     * <li>There is no concept of resetting resource packs back to default
+     *     within Minecraft, so players will have to relog to do so.
+     * </ul>
+     *
+     * @param url The URL from which the client will download the resource
+     *     pack. The string must contain only US-ASCII characters and should
+     *     be encoded as per RFC 1738.
+     * @param hash A 40 character hexadecimal and lowercase SHA-1 digest of
+     *     the resource pack file.
+     * @throws IllegalArgumentException Thrown if the URL is null.
+     * @throws IllegalArgumentException Thrown if the URL is too long. The
+     *     length restriction is an implementation specific arbitrary value.
+     */
+    void setResourcePack(String url, String hash);
+    /**
+     * @return the most recent resource pack status received from the player,
+     *         or null if no status has ever been received from this player.
+     */
+    org.bukkit.event.player.PlayerResourcePackStatusEvent.Status getResourcePackStatus();
+    /**
+     * @return the most recent resource pack hash received from the player,
+     *         or null if no hash has ever been received from this player.
+     */
+    String getResourcePackHash();
+    /**
+     * @return true if the last resource pack status received from this player
+     *         was {@link org.bukkit.event.player.PlayerResourcePackStatusEvent.Status#SUCCESSFULLY_LOADED}
+     */
+    boolean hasResourcePack();
+
+    /**
+     * Gets a copy of this players profile
+     * @return The players profile object
+     */
+    PlayerProfile getPlayerProfile();
+    /**
+     * Changes the PlayerProfile for this player. This will cause this player
+     * to be reregistered to all clients that can currently see this player
+     * @param profile The new profile to use
+     */
+    void setPlayerProfile(PlayerProfile profile);
+    // Paper end
 
     // Spigot start
     public class Spigot extends Entity.Spigot
@@ -1545,9 +1949,11 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
         /**
          * Sends the component to the specified screen position of this player
          *
+         * @deprecated This is unlikely the API you want to use. See {@link #sendActionBar(String)} for a more proper Action Bar API. This deprecated API may send unsafe items to the client.
          * @param position the screen position
          * @param component the components to send
          */
+        @Deprecated
         public void sendMessage(net.md_5.bungee.api.ChatMessageType position, net.md_5.bungee.api.chat.BaseComponent component) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
@@ -1555,9 +1961,11 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
         /**
          * Sends an array of components as a single message to the specified screen position of this player
          *
+         * @deprecated This is unlikely the API you want to use. See {@link #sendActionBar(String)} for a more proper Action Bar API. This deprecated API may send unsafe items to the client.
          * @param position the screen position
          * @param components the components to send
          */
+        @Deprecated
         public void sendMessage(net.md_5.bungee.api.ChatMessageType position, net.md_5.bungee.api.chat.BaseComponent... components) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
@@ -1567,8 +1975,4 @@ public interface Player extends HumanEntity, Conversable, CommandSender, Offline
             throw new UnsupportedOperationException( "Not supported yet." );
         }
     }
-
-    // Magma start
-    public boolean isFakePlayer();
-    // Magma end
 }
