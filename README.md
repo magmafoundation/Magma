@@ -21,7 +21,7 @@ Magma at the moment **is not** using all of the API/Patches with this update we 
 
 We can't wait to have this finished and shared with all for a better/faster server software.
 
-All work is being done on the [feature/full-paper-support](https://github.com/magmafoundation/Magma/tree/feature/full-paper-support) branch if you would like to check it out.
+All work is being done on the [paper](https://github.com/magmafoundation/Magma/tree/paper) branch if you would like to check it out.
 
 ## 1.15
 
