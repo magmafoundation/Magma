@@ -1,14 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/tileentity/TileEntitySign.java
 +++ ../src-work/minecraft/net/minecraft/tileentity/TileEntitySign.java
-@@ -3,6 +3,7 @@
- import javax.annotation.Nullable;
- import net.minecraft.command.CommandException;
- import net.minecraft.command.CommandResultStats;
-+import net.minecraft.command.ICommandListener;
- import net.minecraft.command.ICommandSender;
- import net.minecraft.entity.Entity;
- import net.minecraft.entity.player.EntityPlayer;
-@@ -19,14 +20,19 @@
+@@ -19,14 +19,19 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
@@ -29,7 +21,7 @@
  
      public NBTTagCompound writeToNBT(NBTTagCompound compound)
      {
-@@ -38,6 +44,10 @@
+@@ -38,6 +43,10 @@
              compound.setString("Text" + (i + 1), s);
          }
  
@@ -40,16 +32,7 @@
          this.stats.writeStatsToNBT(compound);
          return compound;
      }
-@@ -51,7 +61,7 @@
-     {
-         this.isEditable = false;
-         super.readFromNBT(compound);
--        ICommandSender icommandsender = new ICommandSender()
-+        ICommandSender icommandsender = new ISignCommandListener() // Paper
-         {
-             public String getName()
-             {
-@@ -61,6 +71,10 @@
+@@ -61,6 +70,10 @@
              {
                  return permLevel <= 2; //Forge: Fixes  MC-75630 - Exploit with signs and command blocks
              }
@@ -60,7 +43,7 @@
              public BlockPos getPosition()
              {
                  return TileEntitySign.this.pos;
-@@ -79,19 +93,38 @@
+@@ -79,19 +92,38 @@
              }
          };
  
@@ -82,14 +65,14 @@
              try
              {
 -                this.signText[i] = TextComponentUtils.processComponent(icommandsender, itextcomponent, (Entity)null);
-+                // ITextComponent ichatbasecomponent = ITextComponent.Serializer.jsonToComponent(s);  // Paper - move down - the old format might throw a json error
++                ITextComponent ichatbasecomponent = ITextComponent.Serializer.jsonToComponent(s);
 +
-+                if (oldSign && !isLoadingStructure ){ // Paper - saved structures will be in the new format, but will not have isConverted
++                if (oldSign) {
 +                    signText[i] = CraftChatMessage.fromString(s)[0];
 +                    continue;
 +                }
 +                // CraftBukkit end
-+                ITextComponent ichatbasecomponent = ITextComponent.Serializer.jsonToComponent(s);  // Paper - after old sign
++
 +                try {
 +                    this.signText[i] = TextComponentUtils.processComponent(icommandsender, ichatbasecomponent, (Entity) null);
 +                } catch (CommandException commandexception) {
@@ -105,7 +88,7 @@
          }
  
          this.stats.readStatsFromNBT(compound);
-@@ -131,7 +164,10 @@
+@@ -131,7 +163,10 @@
  
      public void setPlayer(EntityPlayer playerIn)
      {
@@ -117,16 +100,7 @@
      }
  
      public EntityPlayer getPlayer()
-@@ -141,7 +177,7 @@
- 
-     public boolean executeCommand(final EntityPlayer playerIn)
-     {
--        ICommandSender icommandsender = new ICommandSender()
-+        ICommandSender icommandsender = new ISignCommandListener() // Paper
-         {
-             public String getName()
-             {
-@@ -158,6 +194,11 @@
+@@ -158,6 +193,11 @@
              {
                  return permLevel <= 2;
              }
@@ -138,16 +112,7 @@
              public BlockPos getPosition()
              {
                  return TileEntitySign.this.pos;
-@@ -187,7 +228,7 @@
-             }
-             public MinecraftServer getServer()
-             {
--                return playerIn.getServer();
-+                return MinecraftServer.getServerInstance(); // Paper - world maybe null
-             }
-         };
- 
-@@ -201,7 +242,12 @@
+@@ -201,7 +241,12 @@
  
                  if (clickevent.getAction() == ClickEvent.Action.RUN_COMMAND)
                  {
@@ -161,9 +126,3 @@
                  }
              }
          }
-@@ -213,4 +259,5 @@
-     {
-         return this.stats;
-     }
-+    public interface ISignCommandListener extends ICommandSender {} // Paper
- }

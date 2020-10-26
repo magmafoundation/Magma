@@ -1,4 +1,3 @@
-
 package com.destroystokyo.paper.inventory.meta;
 
 import org.bukkit.inventory.meta.ItemMeta;

@@ -32,8 +32,7 @@
 -    private NetHandlerLoginServer.LoginState currentLoginState = NetHandlerLoginServer.LoginState.HELLO;
 +    private LoginState currentLoginState = LoginState.HELLO;
      private int connectionTimer;
--    private GameProfile loginGameProfile;
-+    private GameProfile loginGameProfile; private void setGameProfile(GameProfile profile) { loginGameProfile = profile; } private GameProfile getGameProfile() { return loginGameProfile; } // Paper - OBFHELPER
+     private GameProfile loginGameProfile;
      private final String serverId = "";
      private SecretKey secretKey;
      private EntityPlayerMP player;
@@ -43,17 +42,11 @@
      public NetHandlerLoginServer(MinecraftServer serverIn, NetworkManager networkManagerIn)
      {
          this.server = serverIn;
-@@ -58,17 +68,27 @@
+@@ -58,17 +68,21 @@
  
      public void update()
      {
 -        if (this.currentLoginState == NetHandlerLoginServer.LoginState.READY_TO_ACCEPT)
-+        // Paper start - Do not allow logins while the server is shutting down
-+        if (!MinecraftServer.getServerInstance().isServerRunning()) {
-+            this.disconnect(new TextComponentTranslation(org.spigotmc.SpigotConfig.restartMessage));
-+            return;
-+        }
-+        // Paper end
 +        if (this.currentLoginState == LoginState.READY_TO_ACCEPT)
          {
 +            // Paper start - prevent logins to be processed even though disconnect was called
@@ -74,7 +67,7 @@
                  net.minecraftforge.fml.common.network.internal.FMLNetworkHandler.fmlServerHandshake(this.server.getPlayerList(), this.networkManager, this.player);
                  this.player = null;
              }
-@@ -80,6 +100,19 @@
+@@ -80,6 +94,19 @@
          }
      }
  
@@ -94,16 +87,10 @@
      public void disconnect(ITextComponent reason)
      {
          try
-@@ -94,22 +127,58 @@
+@@ -94,22 +121,52 @@
          }
      }
  
-+    // Paper start - Cache authenticator threads
-+    private static final AtomicInteger threadId = new AtomicInteger(0);
-+    private static final java.util.concurrent.ExecutorService authenticatorPool = java.util.concurrent.Executors.newCachedThreadPool(
-+        r -> new Thread(r, "User Authenticator #" + threadId.incrementAndGet())
-+    );
-+    // Paper end
 +    // Spigot start
 +    public void initUUID()
 +    {
@@ -157,7 +144,7 @@
  
              if (this.server.getNetworkCompressionThreshold() >= 0 && !this.networkManager.isLocalChannel())
              {
-@@ -127,12 +196,12 @@
+@@ -127,12 +184,12 @@
  
              if (entityplayermp != null)
              {
@@ -173,7 +160,7 @@
              }
          }
      }
-@@ -149,23 +218,42 @@
+@@ -149,23 +206,42 @@
  
      public void processLoginStart(CPacketLoginStart packetIn)
      {
@@ -191,8 +178,9 @@
          {
 -            this.currentLoginState = NetHandlerLoginServer.LoginState.READY_TO_ACCEPT;
 +            // Spigot start
-+            // Paper start - Cache authenticator threads
-+            authenticatorPool.execute(new Runnable() {
++            new Thread(net.minecraftforge.fml.common.thread.SidedThreadGroups.SERVER,"User Authenticator #" + NetHandlerLoginServer.AUTHENTICATOR_THREAD_ID.incrementAndGet())
++            {
++
 +                @Override
 +                public void run()
 +                {
@@ -207,8 +195,7 @@
 +                        server.server.getLogger().log(java.util.logging.Level.WARNING, "Exception verifying " + loginGameProfile.getName(), ex);
 +                    }
 +                }
-+            });
-+            // Paper end
++            }.start();
 +            // Spigot end
          }
      }
@@ -220,21 +207,16 @@
          PrivateKey privatekey = this.server.getKeyPair().getPrivate();
  
          if (!Arrays.equals(this.verifyToken, packetIn.getVerifyToken(privatekey)))
-@@ -175,10 +263,10 @@
+@@ -175,7 +251,7 @@
          else
          {
              this.secretKey = packetIn.getSecretKey(privatekey);
 -            this.currentLoginState = NetHandlerLoginServer.LoginState.AUTHENTICATING;
 +            this.currentLoginState = LoginState.AUTHENTICATING;
              this.networkManager.enableEncryption(this.secretKey);
--            (new Thread(net.minecraftforge.fml.common.thread.SidedThreadGroups.SERVER, "User Authenticator #" + AUTHENTICATOR_THREAD_ID.incrementAndGet())
--            {
-+            // Paper start - Cache authenticator threads
-+            authenticatorPool.execute(new Runnable() {
-                 public void run()
-                 {
-                     GameProfile gameprofile = NetHandlerLoginServer.this.loginGameProfile;
-@@ -190,14 +278,18 @@
+             (new Thread(net.minecraftforge.fml.common.thread.SidedThreadGroups.SERVER, "User Authenticator #" + AUTHENTICATOR_THREAD_ID.incrementAndGet())
+             {
+@@ -190,14 +266,18 @@
  
                          if (NetHandlerLoginServer.this.loginGameProfile != null)
                          {
@@ -256,7 +238,7 @@
                          }
                          else
                          {
-@@ -211,13 +303,23 @@
+@@ -211,13 +291,19 @@
                          {
                              NetHandlerLoginServer.LOGGER.warn("Authentication servers are down but will let them in anyway!");
                              NetHandlerLoginServer.this.loginGameProfile = NetHandlerLoginServer.this.getOfflineProfile(gameprofile);
@@ -265,10 +247,6 @@
                          }
                          else
                          {
-+                            // Paper start
-+                            if (com.destroystokyo.paper.PaperConfig.authenticationServersDownKickMessage != null) {
-+                                NetHandlerLoginServer.this.disconnect(new TextComponentTranslation(com.destroystokyo.paper.PaperConfig.authenticationServersDownKickMessage));
-+                            } else // Paper end
                              NetHandlerLoginServer.this.disconnect(new TextComponentTranslation("multiplayer.disconnect.authservers_down", new Object[0]));
                              NetHandlerLoginServer.LOGGER.error("Couldn't verify username because servers are unavailable");
 +
@@ -281,13 +259,7 @@
                      }
                  }
                  @Nullable
-@@ -226,10 +328,59 @@
-                     SocketAddress socketaddress = NetHandlerLoginServer.this.networkManager.getRemoteAddress();
-                     return NetHandlerLoginServer.this.server.getPreventProxyConnections() && socketaddress instanceof InetSocketAddress ? ((InetSocketAddress)socketaddress).getAddress() : null;
-                 }
--            }).start();
-+            });
-+            // Paper end
+@@ -230,6 +316,54 @@
          }
      }
  
@@ -300,12 +272,12 @@
 +            final CraftServer server = NetHandlerLoginServer.this.server.server;
 +
 +            // Paper start
-+            PlayerProfile profile = CraftPlayerProfile.asBukkitMirror(getGameProfile());
++            PlayerProfile profile = CraftPlayerProfile.asBukkitMirror(loginGameProfile);
 +            AsyncPlayerPreLoginEvent asyncEvent = new AsyncPlayerPreLoginEvent(playerName, address, uniqueId, profile);
 +            server.getPluginManager().callEvent(asyncEvent);
 +            profile = asyncEvent.getPlayerProfile();
 +            profile.complete(true);
-+            setGameProfile(CraftPlayerProfile.asAuthlib(profile));
++            loginGameProfile = CraftPlayerProfile.asAuthlibCopy(profile);
 +            playerName = loginGameProfile.getName();
 +            uniqueId = loginGameProfile.getId();
 +            // Paper end

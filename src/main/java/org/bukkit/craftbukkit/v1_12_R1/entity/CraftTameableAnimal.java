@@ -18,10 +18,6 @@ public class CraftTameableAnimal extends CraftAnimals implements Tameable, Creat
         return (EntityTameable)super.getHandle();
     }
 
-    public UUID getOwnerUniqueId() {
-        return getOwnerUUID();
-    }
-
     public UUID getOwnerUUID() {
         try {
             return getHandle().getOwnerId();
@@ -35,13 +31,13 @@ public class CraftTameableAnimal extends CraftAnimals implements Tameable, Creat
     }
 
     public AnimalTamer getOwner() {
-        if (getOwnerUniqueId() == null) {
+        if (getOwnerUUID() == null) {
             return null;
         }
 
-        AnimalTamer owner = getServer().getPlayer(getOwnerUniqueId());
+        AnimalTamer owner = getServer().getPlayer(getOwnerUUID());
         if (owner == null) {
-            owner = getServer().getOfflinePlayer(getOwnerUniqueId());
+            owner = getServer().getOfflinePlayer(getOwnerUUID());
         }
 
         return owner;

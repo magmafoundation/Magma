@@ -1,8 +1,5 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
-import java.util.UUID;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityFireworkRocket;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -11,7 +8,6 @@ import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.meta.FireworkMeta;
 
 import java.util.Random;
@@ -72,16 +68,5 @@ public class CraftFirework extends CraftEntity implements Firework {
     @Override
     public void detonate() {
         getHandle().lifetime = 0;
-    }
-
-    @Override
-    public UUID getSpawningEntity() {
-        return getHandle().spawningEntity;
-    }
-
-    @Override
-    public LivingEntity getBoostedEntity() {
-        EntityLivingBase boostedEntity = getHandle().getBoostedEntity();
-        return boostedEntity != null ? (LivingEntity) boostedEntity.getBukkitEntity() : null;
     }
 }

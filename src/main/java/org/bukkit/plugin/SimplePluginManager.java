@@ -1,8 +1,5 @@
 package org.bukkit.plugin;
 
-import com.destroystokyo.paper.event.server.ServerExceptionEvent;
-import com.destroystokyo.paper.exception.ServerEventException;
-import com.destroystokyo.paper.exception.ServerPluginEnableDisableException;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -298,6 +295,7 @@ public final class SimplePluginManager implements PluginManager {
             }
         }
 
+        org.bukkit.command.defaults.TimingsCommand.timingStart = System.nanoTime(); // Spigot
         return result.toArray(new Plugin[result.size()]);
     }
 
@@ -334,7 +332,7 @@ public final class SimplePluginManager implements PluginManager {
 
         if (result != null) {
             plugins.add(result);
-            lookupNames.put(result.getDescription().getName().toLowerCase(java.util.Locale.ENGLISH), result); // Spigot
+            lookupNames.put(result.getDescription().getName(), result);
         }
 
         return result;
@@ -360,7 +358,7 @@ public final class SimplePluginManager implements PluginManager {
      * @return Plugin if it exists, otherwise null
      */
     public synchronized Plugin getPlugin(String name) {
-        return lookupNames.get(name.replace(' ', '_').toLowerCase(java.util.Locale.ENGLISH)); // Spigot
+        return lookupNames.get(name.replace(' ', '_'));
     }
 
     public synchronized Plugin[] getPlugins() {
@@ -408,7 +406,7 @@ public final class SimplePluginManager implements PluginManager {
             try {
                 plugin.getPluginLoader().enablePlugin(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while enabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin);
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while enabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             HandlerList.bakeAll();
@@ -442,42 +440,35 @@ public final class SimplePluginManager implements PluginManager {
             try {
                 plugin.getPluginLoader().disablePlugin(plugin, closeClassloader); // Paper - close Classloader on disable
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while disabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin); // Paper
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while disabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             try {
                 server.getScheduler().cancelTasks(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while cancelling tasks for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin); // Paper
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while cancelling tasks for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             try {
                 server.getServicesManager().unregisterAll(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while unregistering services for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin); // Paper
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while unregistering services for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             try {
                 HandlerList.unregisterAll(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while unregistering events for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin); // Paper
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while unregistering events for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
 
             try {
                 server.getMessenger().unregisterIncomingPluginChannel(plugin);
                 server.getMessenger().unregisterOutgoingPluginChannel(plugin);
             } catch (Throwable ex) {
-                handlePluginException("Error occurred (in the plugin loader) while unregistering plugin channels for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex, plugin); // Paper
+                server.getLogger().log(Level.SEVERE, "Error occurred (in the plugin loader) while unregistering plugin channels for " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
             }
         }
     }
-
-    // Paper start
-    private void handlePluginException(String msg, Throwable ex, Plugin plugin) {
-        server.getLogger().log(Level.SEVERE, msg, ex);
-        callEvent(new ServerExceptionEvent(new ServerPluginEnableDisableException(msg, ex, plugin)));
-    }
-    // Paper end
 
     public void clearPlugins() {
         synchronized (this) {
@@ -528,13 +519,7 @@ public final class SimplePluginManager implements PluginManager {
                             ));
                 }
             } catch (Throwable ex) {
-                // Paper start - error reporting
-                String msg = "Could not pass event " + event.getEventName() + " to " + registration.getPlugin().getDescription().getFullName();
-                server.getLogger().log(Level.SEVERE, msg, ex);
-                if (!(event instanceof ServerExceptionEvent)) { // We don't want to cause an endless event loop
-                    callEvent(new ServerExceptionEvent(new ServerEventException(msg, ex, registration.getPlugin(), registration.getListener(), event)));
-                }
-                // Paper end
+                server.getLogger().log(Level.SEVERE, "Could not pass event " + event.getEventName() + " to " + registration.getPlugin().getDescription().getFullName(), ex);
             }
         }
     }
@@ -576,8 +561,7 @@ public final class SimplePluginManager implements PluginManager {
             throw new IllegalPluginAccessException("Plugin attempted to register " + event + " while not enabled");
         }
 
-        executor = new co.aikar.timings.TimedEventExecutor(executor, plugin, null, event); // Spigot
-        if (false) { // Spigot - RL handles useTimings check now
+        if (useTimings) {
             getEventListeners(event).register(new TimedRegisteredListener(listener, executor, priority, plugin, ignoreCancelled));
         } else {
             getEventListeners(event).register(new RegisteredListener(listener, executor, priority, plugin, ignoreCancelled));
@@ -620,12 +604,11 @@ public final class SimplePluginManager implements PluginManager {
     public void addPermission(Permission perm, boolean dirty) {
         String name = perm.getName().toLowerCase(java.util.Locale.ENGLISH);
 
-        if (permissions.containsKey(name)) {
-            throw new IllegalArgumentException("The permission " + name + " is already defined!");
+        if (!permissions.containsKey(name)) {
+            permissions.put(name, perm);
+            calculatePermissionDefault(perm, dirty);
         }
 
-        permissions.put(name, perm);
-        calculatePermissionDefault(perm, dirty);
     }
 
     public Set<Permission> getDefaultPermissions(boolean op) {
@@ -752,7 +735,7 @@ public final class SimplePluginManager implements PluginManager {
     }
 
     public boolean useTimings() {
-        return co.aikar.timings.Timings.isTimingsEnabled(); // Spigot
+        return useTimings;
     }
 
     /**
@@ -761,14 +744,6 @@ public final class SimplePluginManager implements PluginManager {
      * @param use True if per event timing code should be used
      */
     public void useTimings(boolean use) {
-        co.aikar.timings.Timings.setTimingsEnabled(use); // Spigot
+        useTimings = use;
     }
-
-    // Paper start
-    public void clearPermissions() {
-        permissions.clear();
-        defaultPerms.get(true).clear();
-        defaultPerms.get(false).clear();
-    }
-    // Paper end
 }

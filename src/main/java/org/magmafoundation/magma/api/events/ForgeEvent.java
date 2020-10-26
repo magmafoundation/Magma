@@ -51,7 +51,5 @@ public class ForgeEvent extends org.bukkit.event.Event {
         return forgeEvent;
     }
 
-    public String getEventName() {
-        return forgeEvent.getClass().getSimpleName();
-    }
+    public String getEventName() { return forgeEvent.getClass().getSimpleName(); }
 }

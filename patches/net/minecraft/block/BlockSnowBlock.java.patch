@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockSnowBlock.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockSnowBlock.java
-@@ -4,18 +4,20 @@
+@@ -4,11 +4,13 @@
  import net.minecraft.block.material.Material;
  import net.minecraft.block.state.IBlockState;
  import net.minecraft.creativetab.CreativeTabs;
@@ -14,21 +14,7 @@
  
  public class BlockSnowBlock extends Block
  {
-     protected BlockSnowBlock()
-     {
-         super(Material.CRAFTED_SNOW);
--        this.setTickRandomly(true);
-+        // this.setTickRandomly(true); // Paper - snow blocks don't need to tick
-         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
-     }
- 
-@@ -29,12 +31,19 @@
-         return 4;
-     }
- 
-+    // Paper start - snow blocks don't need to tick
-+     /*
-     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
+@@ -33,6 +35,9 @@
      {
          if (worldIn.getLightFor(EnumSkyBlock.BLOCK, pos) > 11)
          {
@@ -38,7 +24,3 @@
              this.dropBlockAsItem(worldIn, pos, worldIn.getBlockState(pos), 0);
              worldIn.setBlockToAir(pos);
          }
-     }
-+    */
-+    // Paper end
- }

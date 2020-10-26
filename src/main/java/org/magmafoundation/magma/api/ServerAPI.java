@@ -36,6 +36,7 @@ public class ServerAPI {
 
     public static Map<String, Integer> mods = new ConcurrentHashMap<>();
     public static Set<String> modList = new ConcurrentSet<>();
+    public static Map<String, String> commands = new ConcurrentHashMap<>();
 
     /**
      * How many mods are loaded.

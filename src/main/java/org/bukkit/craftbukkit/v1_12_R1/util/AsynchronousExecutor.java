@@ -351,10 +351,4 @@ public final class AsynchronousExecutor<P, T, C, E extends Throwable> {
     public void setActiveThreads(final int coreSize) {
         pool.setCorePoolSize(coreSize);
     }
-
-    // Paper start
-    public boolean hasTask(P parameter) throws IllegalStateException {
-        return tasks.get(parameter) != null;
-    }
-    // Paper end
 }

@@ -1,6 +1,5 @@
 package org.bukkit.craftbukkit.v1_12_R1.block;
 
-import com.destroystokyo.paper.loottable.CraftLootableBlockInventory;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.math.BlockPos;
 import org.bukkit.Material;
@@ -11,7 +10,7 @@ import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryDoubleChest;
 import org.bukkit.inventory.Inventory;
 
-public class CraftChest extends CraftLootable<TileEntityChest> implements Chest, CraftLootableBlockInventory { // Paper
+public class CraftChest extends CraftLootable<TileEntityChest> implements Chest {
 
     public CraftChest(final Block block) {
         super(block, TileEntityChest.class);

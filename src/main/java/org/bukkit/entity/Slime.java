@@ -3,7 +3,7 @@ package org.bukkit.entity;
 /**
  * Represents a Slime.
  */
-public interface Slime extends LivingEntity, com.destroystokyo.paper.entity.SentientNPC { // Paper
+public interface Slime extends LivingEntity {
 
     /**
      * @return The size of the slime

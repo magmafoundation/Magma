@@ -39,31 +39,31 @@ public class SpigotWorldConfig
         config.set( "world-settings.default." + path, val );
     }
 
-    public boolean getBoolean(String path, boolean def)
+    private boolean getBoolean(String path, boolean def)
     {
         config.addDefault( "world-settings.default." + path, def );
         return config.getBoolean( "world-settings." + worldName + "." + path, config.getBoolean( "world-settings.default." + path ) );
     }
 
-    public double getDouble(String path, double def)
+    private double getDouble(String path, double def)
     {
         config.addDefault( "world-settings.default." + path, def );
         return config.getDouble( "world-settings." + worldName + "." + path, config.getDouble( "world-settings.default." + path ) );
     }
 
-    public int getInt(String path, int def)
+    private int getInt(String path, int def)
     {
         config.addDefault( "world-settings.default." + path, def );
         return config.getInt( "world-settings." + worldName + "." + path, config.getInt( "world-settings.default." + path ) );
     }
 
-    public <T> List getList(String path, T def)
+    private <T> List getList(String path, T def)
     {
         config.addDefault( "world-settings.default." + path, def );
         return (List<T>) config.getList( "world-settings." + worldName + "." + path, config.getList( "world-settings.default." + path ) );
     }
 
-    public String getString(String path, String def)
+    private String getString(String path, String def)
     {
         config.addDefault( "world-settings.default." + path, def );
         return config.getString( "world-settings." + worldName + "." + path, config.getString( "world-settings.default." + path ) );

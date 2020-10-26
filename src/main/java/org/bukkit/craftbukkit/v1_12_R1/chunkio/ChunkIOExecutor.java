@@ -1,7 +1,5 @@
 package org.bukkit.craftbukkit.v1_12_R1.chunkio;
 
-import com.destroystokyo.paper.MCUtil;
-import com.destroystokyo.paper.PaperConfig;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.AnvilChunkLoader;
@@ -9,13 +7,13 @@ import net.minecraft.world.gen.ChunkProviderServer;
 import org.bukkit.craftbukkit.v1_12_R1.util.AsynchronousExecutor;
 
 public class ChunkIOExecutor {
-    static final int BASE_THREADS = PaperConfig.minChunkLoadThreads; // Paper
+    static final int BASE_THREADS = 1;
     static final int PLAYERS_PER_THREAD = 50;
 
     private static final AsynchronousExecutor<QueuedChunk, Chunk, Runnable, RuntimeException> instance = new AsynchronousExecutor<QueuedChunk, Chunk, Runnable, RuntimeException>(new ChunkIOProvider(), BASE_THREADS);
 
     public static Chunk syncChunkLoad(World world, AnvilChunkLoader loader, ChunkProviderServer provider, int x, int z) {
-        return MCUtil.ensureMain("Async Chunk Load", () -> instance.getSkipQueue(new QueuedChunk(x, z, loader, world, provider))); // Paper
+        return instance.getSkipQueue(new QueuedChunk(x, z, loader, world, provider));
     }
 
     public static void queueChunkLoad(World world, AnvilChunkLoader loader, ChunkProviderServer provider, int x, int z, Runnable runnable) {
@@ -35,10 +33,4 @@ public class ChunkIOExecutor {
     public static void tick() {
         instance.finishActive();
     }
-
-    // Paper start
-    public static boolean hasQueuedChunkLoad(World world, int x, int z) {
-        return instance.hasTask(new QueuedChunk(x, z, null, world, null));
-    }
-    // Paper end
 }

@@ -1,12 +1,11 @@
 package org.bukkit.inventory;
 
 import org.bukkit.entity.Llama;
-import org.bukkit.event.inventory.SaddledHorseInventory;
 
 /**
  * An interface to the inventory of a {@link Llama}.
  */
-public interface LlamaInventory extends SaddledHorseInventory {
+public interface LlamaInventory extends AbstractHorseInventory {
 
     /*
      * Gets the item in the llama's decor slot.

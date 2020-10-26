@@ -1,13 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/server/management/PreYggdrasilConverter.java
 +++ ../src-work/minecraft/net/minecraft/server/management/PreYggdrasilConverter.java
-@@ -1,5 +1,6 @@
- package net.minecraft.server.management;
- 
-+import com.destroystokyo.paper.exception.ServerInternalException;
- import com.google.common.base.Predicate;
- import com.google.common.collect.Iterators;
- import com.google.common.collect.Lists;
-@@ -10,7 +11,6 @@
+@@ -10,7 +10,6 @@
  import com.mojang.authlib.ProfileLookupCallback;
  import com.mojang.authlib.yggdrasil.ProfileNotFoundException;
  import java.io.File;
@@ -15,7 +8,7 @@
  import java.io.IOException;
  import java.nio.charset.StandardCharsets;
  import java.text.ParseException;
-@@ -22,6 +22,8 @@
+@@ -22,6 +21,8 @@
  import java.util.UUID;
  import javax.annotation.Nullable;
  import net.minecraft.entity.player.EntityPlayer;
@@ -24,18 +17,16 @@
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.server.dedicated.DedicatedServer;
  import net.minecraft.server.dedicated.PropertyManager;
-@@ -49,8 +51,8 @@
+@@ -49,7 +50,7 @@
              }
          }), String.class);
  
 -        if (server.isServerInOnlineMode())
--        {
-+
-+        if (server.isServerInOnlineMode() || (org.spigotmc.SpigotConfig.bungee && com.destroystokyo.paper.PaperConfig.bungeeOnlineMode)) { // Spigot: bungee = online mode, for now.  // Paper - Handle via setting
++        if (server.isServerInOnlineMode() || org.spigotmc.SpigotConfig.bungee) // Spigot: bungee = online mode, for now.
+         {
              server.getGameProfileRepository().findProfilesByNames(astring, Agent.MINECRAFT, callback);
          }
-         else
-@@ -135,9 +137,10 @@
+@@ -135,9 +136,10 @@
                  {
                      userlistbans.readSavedFile();
                  }
@@ -48,7 +39,7 @@
                  }
              }
  
-@@ -155,7 +158,7 @@
+@@ -155,7 +157,7 @@
                          if (astring == null)
                          {
                              PreYggdrasilConverter.LOGGER.warn("Could not convert user banlist entry for {}", (Object)p_onProfileLookupSucceeded_1_.getName());
@@ -57,7 +48,7 @@
                          }
                          else
                          {
-@@ -172,7 +175,7 @@
+@@ -172,7 +174,7 @@
  
                          if (!(p_onProfileLookupFailed_2_ instanceof ProfileNotFoundException))
                          {
@@ -66,7 +57,7 @@
                          }
                      }
                  };
-@@ -186,7 +189,7 @@
+@@ -186,7 +188,7 @@
                  LOGGER.warn("Could not read old user banlist to convert it!", (Throwable)ioexception);
                  return false;
              }
@@ -75,7 +66,7 @@
              {
                  LOGGER.error("Conversion failed, please try again later", (Throwable)preyggdrasilconverter$conversionerror);
                  return false;
-@@ -211,9 +214,10 @@
+@@ -211,9 +213,10 @@
                  {
                      userlistipbans.readSavedFile();
                  }
@@ -88,7 +79,7 @@
                  }
              }
  
-@@ -261,9 +265,10 @@
+@@ -261,9 +264,10 @@
                  {
                      userlistops.readSavedFile();
                  }
@@ -101,7 +92,7 @@
                  }
              }
  
-@@ -283,7 +288,7 @@
+@@ -283,7 +287,7 @@
  
                          if (!(p_onProfileLookupFailed_2_ instanceof ProfileNotFoundException))
                          {
@@ -110,7 +101,7 @@
                          }
                      }
                  };
-@@ -297,7 +302,7 @@
+@@ -297,7 +301,7 @@
                  LOGGER.warn("Could not read old oplist to convert it!", (Throwable)ioexception);
                  return false;
              }
@@ -119,7 +110,7 @@
              {
                  LOGGER.error("Conversion failed, please try again later", (Throwable)preyggdrasilconverter$conversionerror);
                  return false;
-@@ -322,9 +327,10 @@
+@@ -322,9 +326,10 @@
                  {
                      userlistwhitelist.readSavedFile();
                  }
@@ -132,7 +123,7 @@
                  }
              }
  
-@@ -344,7 +350,7 @@
+@@ -344,7 +349,7 @@
  
                          if (!(p_onProfileLookupFailed_2_ instanceof ProfileNotFoundException))
                          {
@@ -141,7 +132,7 @@
                          }
                      }
                  };
-@@ -358,7 +364,7 @@
+@@ -358,7 +363,7 @@
                  LOGGER.warn("Could not read old whitelist to convert it!", (Throwable)ioexception);
                  return false;
              }
@@ -150,7 +141,7 @@
              {
                  LOGGER.error("Conversion failed, please try again later", (Throwable)preyggdrasilconverter$conversionerror);
                  return false;
-@@ -409,7 +415,7 @@
+@@ -409,7 +414,7 @@
  
                          if (uuid == null)
                          {
@@ -159,7 +150,7 @@
                          }
                          else
                          {
-@@ -427,18 +433,43 @@
+@@ -427,18 +432,41 @@
                          }
                          else
                          {
@@ -178,7 +169,6 @@
 +                            root = CompressedStreamTools.readCompressed(new java.io.FileInputStream(file1));
 +                        } catch (Exception exception) {
 +                            exception.printStackTrace();
-+                            ServerInternalException.reportInternalException(exception); // Paper
 +                        }
 +
 +                        if (root != null) {
@@ -192,7 +182,6 @@
 +                                CompressedStreamTools.writeCompressed(root, new java.io.FileOutputStream(file2));
 +                            } catch (Exception exception) {
 +                                exception.printStackTrace();
-+                                ServerInternalException.reportInternalException(exception); // Paper
 +                            }
 +                        }
 +                        // CraftBukkit end
@@ -205,7 +194,7 @@
                          }
                      }
                      private String getFileNameForProfile(GameProfile p_152744_1_)
-@@ -456,7 +487,7 @@
+@@ -456,7 +484,7 @@
  
                          if (s2 == null)
                          {
@@ -214,7 +203,7 @@
                          }
                          else
                          {
-@@ -467,7 +498,7 @@
+@@ -467,7 +495,7 @@
                  lookupNames(server, Lists.newArrayList(astring), profilelookupcallback);
                  return true;
              }
@@ -223,7 +212,7 @@
              {
                  LOGGER.error("Conversion failed, please try again later", (Throwable)preyggdrasilconverter$conversionerror);
                  return false;
-@@ -486,12 +517,12 @@
+@@ -486,12 +514,12 @@
          {
              if (!dir.isDirectory())
              {
@@ -238,7 +227,7 @@
          }
      }
  
-@@ -589,7 +620,7 @@
+@@ -589,7 +617,7 @@
      private static File getPlayersDirectory(PropertyManager properties)
      {
          String s = properties.getStringProperty("level-name", "world");

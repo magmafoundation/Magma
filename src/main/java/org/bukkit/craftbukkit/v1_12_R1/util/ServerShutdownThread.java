@@ -13,16 +13,14 @@ public class ServerShutdownThread extends Thread {
     @Override
     public void run() {
         try {
-            org.spigotmc.AsyncCatcher.enabled = false; // Spigot
-            org.spigotmc.AsyncCatcher.shuttingDown = true; // Paper
             server.stopServer();
         } catch (MinecraftException ex) {
             ex.printStackTrace();
-        } finally {
+        } /*finally {
             try {
-                net.minecrell.terminalconsole.TerminalConsoleAppender.close(); // Paper - Use TerminalConsoleAppender
+                server.reader.getTerminal().restore();
             } catch (Exception e) {
             }
-        }
+        }*/
     }
 }

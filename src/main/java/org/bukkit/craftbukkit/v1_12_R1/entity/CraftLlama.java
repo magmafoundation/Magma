@@ -1,17 +1,15 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
-import com.destroystokyo.paper.entity.CraftRangedEntity;
 import com.google.common.base.Preconditions;
 import net.minecraft.entity.passive.EntityLlama;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryLlama;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Horse;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Llama;
 import org.bukkit.inventory.LlamaInventory;
 
-public class CraftLlama extends CraftChestedHorse implements Llama, CraftRangedEntity<EntityLlama> { // Paper
+public class CraftLlama extends CraftChestedHorse implements Llama {
 
     public CraftLlama(CraftServer server, EntityLlama entity) {
         super(server, entity);
@@ -66,5 +64,4 @@ public class CraftLlama extends CraftChestedHorse implements Llama, CraftRangedE
     public EntityType getType() {
         return EntityType.LLAMA;
     }
-
 }

@@ -18,7 +18,13 @@
 
 package org.magmafoundation.magma;
 
+import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
+import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.patcher.PatcherManager;
+
+import java.util.UUID;
 
 /**
  * Magma
@@ -48,6 +54,7 @@ public class Magma {
     }
 
     public static String getName() {
+        if(MagmaConfig.instance.overrideServerBrand.getValues()) return MagmaConfig.instance.serverBrand.getValues();
         return NAME;
     }
 

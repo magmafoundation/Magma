@@ -25,13 +25,11 @@
  public class NetHandlerStatusServer implements INetHandlerStatusServer
  {
      private static final ITextComponent EXIT_MESSAGE = new TextComponentString("Status request has been handled.");
-@@ -36,8 +46,107 @@
+@@ -36,8 +46,102 @@
          else
          {
              this.handled = true;
 -            this.networkManager.sendPacket(new SPacketServerInfo(this.server.getServerStatusResponse()));
-+            // Paper start - Replace everything
-+            /*
 +            // CraftBukkit start
 +            // this.networkManager.sendPacket(new SPacketServerInfo(this.server.getServerStatusResponse()));
 +            final Object[] players = server.getPlayerList().getPlayers().toArray();
@@ -126,9 +124,6 @@
 +            ping.setVersion(new ServerStatusResponse.Version(server.getMinecraftVersion(), version));
 +
 +            this.networkManager.sendPacket(new SPacketServerInfo(ping));
-+            */
-+            com.destroystokyo.paper.network.StandardPaperServerListPingEventImpl.processRequest(this.server, this.networkManager);
-+            // Paper end
          }
 +        // CraftBukkit end
      }

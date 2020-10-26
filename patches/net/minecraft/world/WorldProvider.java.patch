@@ -67,12 +67,9 @@
      }
  
      public boolean canDoLightning(net.minecraft.world.chunk.Chunk chunk)
-@@ -601,6 +614,12 @@
- 
-     public boolean canDropChunk(int x, int z)
+@@ -603,4 +616,10 @@
      {
--        return true;
-+        return !this.world.isSpawnChunk(x,z); // Paper - Use isSpawnChunk check for all worlds
+         return true;
      }
 +
 +    // Magma start

@@ -1,6 +1,5 @@
 package org.bukkit.entity;
 
-import java.util.UUID;
 import org.bukkit.inventory.meta.FireworkMeta;
 
 public interface Firework extends Entity {
@@ -24,13 +23,4 @@ public interface Firework extends Entity {
      * remaining fuse.
      */
     void detonate();
-
-    // Paper start
-    public UUID getSpawningEntity();
-    /**
-     * If this firework is boosting an entity, return it
-     * @return The entity being boosted
-     */
-    public LivingEntity getBoostedEntity();
-    // Paper end
 }

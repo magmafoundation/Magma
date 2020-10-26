@@ -18,7 +18,13 @@
 
 package org.magmafoundation.magma.commands;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.ForgeVersion;
 import org.bukkit.Bukkit;

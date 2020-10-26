@@ -1,13 +1,11 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
-import com.destroystokyo.paper.entity.CraftRangedEntity;
 import net.minecraft.entity.monster.EntitySnowman;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Snowman;
 
-public class CraftSnowman extends CraftGolem implements Snowman, CraftRangedEntity<EntitySnowman> { // Paper
+public class CraftSnowman extends CraftGolem implements Snowman {
     public CraftSnowman(CraftServer server, EntitySnowman entity) {
         super(server, entity);
     }
@@ -35,5 +33,4 @@ public class CraftSnowman extends CraftGolem implements Snowman, CraftRangedEnti
     public EntityType getType() {
         return EntityType.SNOWMAN;
     }
-
 }
