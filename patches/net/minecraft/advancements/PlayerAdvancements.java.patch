@@ -51,7 +51,19 @@
          Map<ResourceLocation, AdvancementProgress> map = Maps.<ResourceLocation, AdvancementProgress>newHashMap();
  
          for (Entry<Advancement, AdvancementProgress> entry : this.progress.entrySet())
-@@ -211,6 +221,7 @@
+@@ -205,12 +215,19 @@
+ 
+         if (advancementprogress.grantCriterion(p_192750_2_))
+         {
++            // Paper start
++            if (!new com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent(this.player.getBukkitEntity(), p_192750_1_.bukkit, p_192750_2_).callEvent()) {
++                advancementprogress.revokeCriterion(p_192750_2_);
++                return false;
++            }
++            // Paper end
+             this.unregisterListeners(p_192750_1_);
+             this.progressChanged.add(p_192750_1_);
+             flag = true;
  
              if (!flag1 && advancementprogress.isDone())
              {

@@ -1,0 +1,12 @@
+--- ../src-base/minecraft/net/minecraft/entity/item/EntityMinecartChest.java
++++ ../src-work/minecraft/net/minecraft/entity/item/EntityMinecartChest.java
+@@ -70,4 +70,9 @@
+         this.addLoot(playerIn);
+         return new ContainerChest(playerInventory, this, playerIn);
+     }
++
++    @Override
++    public World getWorld() {
++        return world;
++    }
+ }

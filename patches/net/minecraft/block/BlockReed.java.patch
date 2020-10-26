@@ -8,17 +8,53 @@
  
  public class BlockReed extends Block implements net.minecraftforge.common.IPlantable
  {
-@@ -57,9 +58,11 @@
+@@ -42,32 +43,30 @@
+     {
+         if (worldIn.getBlockState(pos.down()).getBlock() == Blocks.REEDS || this.checkForDrop(worldIn, pos, state))
+         {
+-            if (worldIn.isAirBlock(pos.up()))
+-            {
++            if (worldIn.isAirBlock(pos.up())) {
+                 int i;
  
-                     if(net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, true))
+-                for (i = 1; worldIn.getBlockState(pos.down(i)).getBlock() == this; ++i)
+-                {
++                for (i = 1; worldIn.getBlockState(pos.down(i)).getBlock() == this; ++i) {
+                     ;
+                 }
+ 
+-                if (i < 3)
+-                {
+-                    int j = ((Integer)state.getValue(AGE)).intValue();
+-
+-                    if(net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, true))
++                if (i < worldIn.paperConfig.reedMaxHeight) { // Paper - Configurable growth height
                      {
 -                    if (j == 15)
-+                    if (j >= (byte)Block.range(3.0f, 100.0f / worldIn.spigotConfig.caneModifier * 15.0f + 0.5f, 15.0f)) // Spigot
-                     {
+-                    {
 -                        worldIn.setBlockState(pos.up(), this.getDefaultState());
-+//                        worldIn.setBlockState(pos.up(), this.getDefaultState());
-+                        BlockPos upPos = pos.up();
-+                        CraftEventFactory.handleBlockGrowEvent(worldIn, upPos.getX(), upPos.getY(), upPos.getZ(), this, 0);
-                         worldIn.setBlockState(pos, state.withProperty(AGE, Integer.valueOf(0)), 4);
+-                        worldIn.setBlockState(pos, state.withProperty(AGE, Integer.valueOf(0)), 4);
++                        int j = ((Integer) state.getValue(AGE)).intValue();
++
++                        if (net.minecraftforge.common.ForgeHooks.onCropsGrowPre(worldIn, pos, state, true)) {
++                            if (j >= (byte) Block.range(3.0f, 100.0f / worldIn.spigotConfig.caneModifier * 15.0f + 0.5f, 15.0f)) // Spigot
++                            {
++                                //                        worldIn.setBlockState(pos.up(), this.getDefaultState());
++                                BlockPos upPos = pos.up();
++                                CraftEventFactory.handleBlockGrowEvent(worldIn, upPos.getX(), upPos.getY(), upPos.getZ(), this, 0);
++                                worldIn.setBlockState(pos, state.withProperty(AGE, Integer.valueOf(0)), 4);
++                            } else {
++                                worldIn.setBlockState(pos, state.withProperty(AGE, Integer.valueOf(j + 1)), 4);
++                            }
++                            net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state, worldIn.getBlockState(pos));
++                        }
                      }
-                     else
+-                    else
+-                    {
+-                        worldIn.setBlockState(pos, state.withProperty(AGE, Integer.valueOf(j + 1)), 4);
+-                    }
+-                    net.minecraftforge.common.ForgeHooks.onCropsGrowPost(worldIn, pos, state, worldIn.getBlockState(pos));
+-                    }
+                 }
+             }
+         }

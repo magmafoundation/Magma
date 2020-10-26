@@ -1,0 +1,15 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockFalling.java
++++ ../src-work/minecraft/net/minecraft/block/BlockFalling.java
+@@ -95,6 +95,12 @@
+         return block == Blocks.FIRE || material == Material.AIR || material == Material.WATER || material == Material.LAVA;
+     }
+ 
++    // Paper start - OBFHELPER
++    public static boolean canMoveThrough(IBlockState blockdata) {
++        return BlockFalling.canFallThrough(blockdata);
++    }
++    // Paper end
++
+     public void onEndFalling(World worldIn, BlockPos pos, IBlockState p_176502_3_, IBlockState p_176502_4_)
+     {
+     }

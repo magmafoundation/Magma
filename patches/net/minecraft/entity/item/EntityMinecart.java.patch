@@ -84,16 +84,27 @@
          if (this.getRollingAmplitude() > 0)
          {
              this.setRollingAmplitude(this.getRollingAmplitude() - 1);
-@@ -243,6 +292,8 @@
+@@ -238,11 +287,19 @@
+             this.setDamage(this.getDamage() - 1.0F);
+         }
+ 
++        // Paper start - Configurable nether ceiling damage
++        // Extracted to own function
++        /*
+         if (this.posY < -64.0D)
+         {
              this.outOfWorld();
          }
++        */
++        this.checkAndDoHeightDamage();
++        // Paper end
  
 +        // CraftBukkit - handled in postTick
 +        /*
          if (!this.world.isRemote && this.world instanceof WorldServer)
          {
              this.world.profiler.startSection("portal");
-@@ -294,6 +345,7 @@
+@@ -294,6 +351,7 @@
  
              this.world.profiler.endSection();
          }
@@ -101,7 +112,7 @@
  
          if (this.world.isRemote)
          {
-@@ -381,6 +433,19 @@
+@@ -381,6 +439,19 @@
              if (getCollisionHandler() != null) box = getCollisionHandler().getMinecartCollisionBox(this);
              else                               box = this.getEntityBoundingBox().grow(0.20000000298023224D, 0.0D, 0.20000000298023224D);
  
@@ -121,7 +132,7 @@
              if (canBeRidden() && this.motionX * this.motionX + this.motionZ * this.motionZ > 0.01D)
              {
                  List<Entity> list = this.world.getEntitiesInAABBexcluding(this, box, EntitySelectors.getTeamCollisionPredicate(this));
-@@ -393,10 +458,26 @@
+@@ -393,10 +464,26 @@
  
                          if (!(entity1 instanceof EntityPlayer) && !(entity1 instanceof EntityIronGolem) && !(entity1 instanceof EntityMinecart) && !this.isBeingRidden() && !entity1.isRiding())
                          {
@@ -148,7 +159,7 @@
                              entity1.applyEntityCollision(this);
                          }
                      }
-@@ -408,6 +489,12 @@
+@@ -408,6 +495,12 @@
                  {
                      if (!this.isPassenger(entity) && entity.canBePushed() && entity instanceof EntityMinecart)
                      {
@@ -161,7 +172,7 @@
                          entity.applyEntityCollision(this);
                      }
                  }
-@@ -420,7 +507,7 @@
+@@ -420,7 +513,7 @@
  
      protected double getMaximumSpeed()
      {
@@ -170,7 +181,7 @@
      }
  
      public void onActivatorRailPass(int x, int y, int z, boolean receivingPower)
-@@ -446,18 +533,28 @@
+@@ -446,18 +539,28 @@
  
          if (this.onGround)
          {
@@ -205,7 +216,7 @@
          }
      }
  
-@@ -668,7 +765,7 @@
+@@ -668,7 +771,7 @@
  
      protected void applyDrag()
      {
@@ -214,7 +225,7 @@
          {
              this.motionX *= 0.996999979019165D;
              this.motionY *= 0.0D;
-@@ -868,6 +965,14 @@
+@@ -868,6 +971,14 @@
              {
                  if (!this.isPassenger(entityIn))
                  {
@@ -229,7 +240,7 @@
                      double d0 = entityIn.posX - this.posX;
                      double d1 = entityIn.posZ - this.posZ;
                      double d2 = d0 * d0 + d1 * d1;
-@@ -1260,6 +1365,9 @@
+@@ -1260,6 +1371,9 @@
      public void setDragAir(double value)
      {
          dragAir = value;
@@ -239,7 +250,7 @@
      }
  
      public double getSlopeAdjustment()
-@@ -1322,4 +1430,26 @@
+@@ -1322,4 +1436,26 @@
              }
          }
      }

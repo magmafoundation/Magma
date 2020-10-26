@@ -1,0 +1,10 @@
+--- ../src-base/minecraft/net/minecraft/util/math/ChunkPos.java
++++ ../src-work/minecraft/net/minecraft/util/math/ChunkPos.java
+@@ -19,6 +19,7 @@
+         this.z = pos.getZ() >> 4;
+     }
+ 
++    public static long asLong(final BlockPos pos) { return asLong(pos.getX() >> 4, pos.getZ() >> 4); } // Paper - OBFHELPER
+     public static long asLong(int x, int z)
+     {
+         return (long)x & 4294967295L | ((long)z & 4294967295L) << 32;

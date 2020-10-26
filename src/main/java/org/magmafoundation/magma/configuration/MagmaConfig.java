@@ -1,28 +1,10 @@
-/*
- * Magma Server
- * Copyright (C) 2019-2020.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package org.magmafoundation.magma.configuration;
 
-import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import net.minecraft.server.MinecraftServer;
@@ -32,6 +14,7 @@ import org.magmafoundation.magma.commands.MagmaCommand;
 import org.magmafoundation.magma.commands.TPSCommand;
 import org.magmafoundation.magma.commands.VersionCommand;
 import org.magmafoundation.magma.configuration.value.Value;
+import org.magmafoundation.magma.configuration.value.values.ArrayValue;
 import org.magmafoundation.magma.configuration.value.values.BooleanValue;
 import org.magmafoundation.magma.configuration.value.values.IntValue;
 import org.magmafoundation.magma.configuration.value.values.StringArrayValue;
@@ -60,18 +43,12 @@ public class MagmaConfig extends ConfigBase {
     //=============================WORLD SETTINGS=============================
     public final IntValue expMergeMaxValue = new IntValue(this, "experience-merge-max-value", -1,
         "Instructs the server put a maximum value on experience orbs, preventing them all from merging down into 1 single orb.");
-    public List<Integer> autoUnloadDimensions = Lists.newArrayList(13371337);
+    public List<String> autoUnloadDimensions = new ArrayList();
 
-    //=============================FakePlayer SETTINGS========================
-    public final StringArrayValue fakePlayerPermissions = new StringArrayValue(this, "fakeplayer.permissions", "", "A list of permissions that fake players should have");
-
-    //=============================Misc SETTINGS==============================
+    //=============================Misc SETTINGS=============================
     public final BooleanValue forgeBukkitPermissionHandlerEnable = new BooleanValue(this, "forge.bukkitPermissionHandler.enable", true, "Let's Bukkit permission plugins handle forge/modded commands");
     public final BooleanValue magmaAutoUpdater = new BooleanValue(this, "magma.auto-update", true, "Auto updates the Magma jar");
-    public final BooleanValue overrideServerBrand = new BooleanValue(this, "magma.advanced.override-brand", false, "Enables overriding the brand string");
-    public final StringValue serverBrand = new StringValue(this, "magma.advanced.override-brand-name", "Spigot", "Value to use for new brand string");
-
-    public final StringValue serverBrandType = new StringValue(this, "magma.advanced.server-type", "FML", "Set to FML to show forge icon or BUKKIT to show bukkit icon (FML is default)");
+    public final StringValue magmaAutoUpdaterPath = new StringValue(this, "magma.auto-update-path", "", "Path to place new jar");
 
     private final String HEADER = "This is the main configuration file for Magma.\n" +
         "\n" +
@@ -150,9 +127,8 @@ public class MagmaConfig extends ConfigBase {
             }
             version = getInt("config-version", 2);
             set("config-version", 2);
-
-            config.addDefault("forge.autoUnloadDimensions", new int[]{-1});
-            this.autoUnloadDimensions = config.getIntegerList("forge.autoUnloadDimensions");
+            config.addDefault("forge.autoUnloadDimensions", new String[]{"0", "1", "-1"});
+            this.autoUnloadDimensions = config.getStringList("forge.autoUnloadDimensions");
 
             config.options().header(header.toString());
             config.options().copyDefaults(true);

@@ -1,6 +1,18 @@
 --- ../src-base/minecraft/net/minecraft/village/VillageSiege.java
 +++ ../src-work/minecraft/net/minecraft/village/VillageSiege.java
-@@ -182,7 +182,7 @@
+@@ -1,5 +1,6 @@
+ package net.minecraft.village;
+ 
++import com.destroystokyo.paper.exception.ServerInternalException;
+ import java.util.Iterator;
+ import java.util.List;
+ import javax.annotation.Nullable;
+@@ -178,11 +179,12 @@
+             catch (Exception exception)
+             {
+                 exception.printStackTrace();
++                ServerInternalException.reportInternalException(exception); // Paper
+                 return false;
              }
  
              entityzombie.setLocationAndAngles(vec3d.x, vec3d.y, vec3d.z, this.world.rand.nextFloat() * 360.0F, 0.0F);

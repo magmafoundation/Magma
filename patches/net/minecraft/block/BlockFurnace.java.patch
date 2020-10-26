@@ -1,0 +1,21 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockFurnace.java
++++ ../src-work/minecraft/net/minecraft/block/BlockFurnace.java
+@@ -47,6 +47,9 @@
+         return Item.getItemFromBlock(Blocks.FURNACE);
+     }
+ 
++    // Paper start - Removed override of onPlace that was reversing placement direction when
++    // adjacent to another block, which was not consistent with single player block placement
++    /*
+     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
+     {
+         this.setDefaultFacing(worldIn, pos, state);
+@@ -82,6 +85,8 @@
+             worldIn.setBlockState(pos, state.withProperty(FACING, enumfacing), 2);
+         }
+     }
++    */
++    // Paper end
+ 
+     @SideOnly(Side.CLIENT)
+     @SuppressWarnings("incomplete-switch")

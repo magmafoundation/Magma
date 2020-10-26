@@ -17,3 +17,12 @@
      }
  
      public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos)
+@@ -839,6 +840,8 @@
+         return region.regionMatches(true, 0, original, 0, original.length());
+     }
+ 
++    public static List<String> getListMatchingLast(String[] args, String... matches) { return getListOfStringsMatchingLastWord(args, matches); } // Paper - OBFHELPER
++
+     public static List<String> getListOfStringsMatchingLastWord(String[] args, String... possibilities)
+     {
+         return getListOfStringsMatchingLastWord(args, Arrays.asList(possibilities));

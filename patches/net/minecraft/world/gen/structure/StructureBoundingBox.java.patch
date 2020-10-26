@@ -1,0 +1,31 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/structure/StructureBoundingBox.java
++++ ../src-work/minecraft/net/minecraft/world/gen/structure/StructureBoundingBox.java
+@@ -7,12 +7,14 @@
+ 
+ public class StructureBoundingBox
+ {
+-    public int minX;
+-    public int minY;
+-    public int minZ;
+-    public int maxX;
+-    public int maxY;
+-    public int maxZ;
++    public int minX; // Paper - If changes, verify low/high getters
++    public int minY; // Paper - If changes, verify low/high getters
++    public int minZ; // Paper - If changes, verify low/high getters
++    public int maxX; // Paper - If changes, verify low/high getters
++    public int maxY; // Paper - If changes, verify low/high getters
++    public int maxZ; // Paper - If changes, verify low/high getters
++    public Vec3i getLowPosition() { return new Vec3i(minX, minY, minZ); } // Paper
++    public Vec3i getHighPosition() { return new Vec3i(maxX, maxY, maxZ); } // Paper
+ 
+     public StructureBoundingBox()
+     {
+@@ -128,6 +130,7 @@
+         this.maxZ += z;
+     }
+ 
++    public boolean contains(Vec3i vec) { return isVecInside(vec); } // Paper - OBFHELPER
+     public boolean isVecInside(Vec3i vec)
+     {
+         return vec.getX() >= this.minX && vec.getX() <= this.maxX && vec.getZ() >= this.minZ && vec.getZ() <= this.maxZ && vec.getY() >= this.minY && vec.getY() <= this.maxY;

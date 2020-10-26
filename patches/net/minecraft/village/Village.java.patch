@@ -1,6 +1,36 @@
 --- ../src-base/minecraft/net/minecraft/village/Village.java
 +++ ../src-work/minecraft/net/minecraft/village/Village.java
-@@ -83,7 +83,7 @@
+@@ -25,6 +25,7 @@
+ import net.minecraft.util.math.MathHelper;
+ import net.minecraft.util.math.Vec3d;
+ import net.minecraft.world.World;
++import net.minecraft.world.chunk.Chunk;
+ 
+ public class Village implements net.minecraftforge.common.capabilities.ICapabilitySerializable<NBTTagCompound>
+ {
+@@ -41,7 +42,7 @@
+     private final List<Village.VillageAggressor> villageAgressors = Lists.<Village.VillageAggressor>newArrayList();
+     private int numIronGolems;
+ 
+-    public Village()
++    private Village() // Paper - Nothing should call this - world needs to be set.
+     {
+         this.capabilities = net.minecraftforge.event.ForgeEventFactory.gatherCapabilities(this);
+     }
+@@ -59,6 +60,12 @@
+ 
+     public void tick(int tickCounterIn)
+     {
++        // Paper - don't tick village if chunk isn't loaded
++        Chunk chunk = this.world.getChunkIfLoaded(getCenter());
++        if (chunk == null || !chunk.areNeighborsLoaded(1)) {
++            return;
++        }
++        // Paper end
+         this.tickCounter = tickCounterIn;
+         this.removeDeadAndOutOfRangeDoors();
+         this.removeDeadAndOldAgressors();
+@@ -83,7 +90,7 @@
              {
                  EntityIronGolem entityirongolem = new EntityIronGolem(this.world);
                  entityirongolem.setPosition(vec3d.x, vec3d.y, vec3d.z);
@@ -9,3 +39,30 @@
                  ++this.numIronGolems;
              }
          }
+@@ -358,6 +365,12 @@
+         while (iterator.hasNext())
+         {
+             VillageDoorInfo villagedoorinfo = iterator.next();
++            // Paper start- don't remove doors from unloaded chunks
++            if (!this.world.isBlockLoaded(villagedoorinfo.getDoorBlockPos())) {
++                villagedoorinfo.setLastActivityTimestamp(villagedoorinfo.getLastActivityTimestamp() + 1);
++                continue;
++            }
++            // Paper end
+ 
+             if (flag1)
+             {
+@@ -382,7 +395,12 @@
+ 
+     private boolean isWoodDoor(BlockPos pos)
+     {
+-        IBlockState iblockstate = this.world.getBlockState(pos);
++        // Paper start
++        IBlockState iblockstate = this.world.getTypeIfLoaded(pos);
++        if (iblockstate == null) {
++            return false;
++        }
++        // Paper end
+         Block block = iblockstate.getBlock();
+ 
+         if (block instanceof BlockDoor)

@@ -29,14 +29,31 @@
      public SaveHandler(File p_i46648_1_, String saveDirectoryNameIn, boolean p_i46648_3_, DataFixer dataFixerIn)
      {
          this.dataFixer = dataFixerIn;
-@@ -208,11 +214,28 @@
+@@ -179,6 +185,7 @@
+ 
+     public void writePlayerData(EntityPlayer player)
+     {
++        if(!com.destroystokyo.paper.PaperConfig.savePlayerData) return; // Paper - Make player data saving configurable
+         try
+         {
+             NBTTagCompound nbttagcompound = player.writeToNBT(new NBTTagCompound());
+@@ -196,7 +203,7 @@
+         }
+         catch (Exception var5)
+         {
+-            LOGGER.warn("Failed to save player data for {}", (Object)player.getName());
++            LOGGER.error("Failed to save player data for {}", (Object)player.getName(), var5); // Paper
+         }
+     }
+ 
+@@ -208,11 +215,28 @@
          try
          {
              File file1 = new File(this.playersDirectory, player.getCachedUniqueIdString() + ".dat");
 -
 +            // Spigot Start
 +            boolean usingWrongFile = false;
-+            if ( !file1.exists() )
++            if ( org.bukkit.Bukkit.getOnlineMode() && !file1.exists() ) // Paper - Check online mode first
 +            {
 +                file1 = new File( this.playersDirectory, UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + player.getName() ).getBytes( "UTF-8" ) ).toString() + ".dat");
 +                if (file1.exists())
@@ -59,7 +76,7 @@
          }
          catch (Exception var4)
          {
-@@ -221,6 +244,14 @@
+@@ -221,6 +245,14 @@
  
          if (nbttagcompound != null)
          {
@@ -74,7 +91,7 @@
              player.readFromNBT(this.dataFixer.process(FixTypes.PLAYER, nbttagcompound));
          }
  
-@@ -228,6 +259,20 @@
+@@ -228,6 +260,20 @@
          return nbttagcompound;
      }
  
@@ -95,7 +112,7 @@
      public IPlayerFileData getPlayerNBTManager()
      {
          return this;
-@@ -284,4 +329,48 @@
+@@ -284,4 +330,48 @@
          }
          return null;
      }

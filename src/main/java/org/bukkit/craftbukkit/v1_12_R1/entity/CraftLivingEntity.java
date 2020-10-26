@@ -262,6 +262,16 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
         return getHandle().attackingPlayer == null ? null : (Player) getHandle().attackingPlayer.getBukkitEntity();
     }
 
+    // Paper start
+    @Override
+    public void setKiller(Player killer) {
+        EntityPlayerMP entityPlayer = killer == null ? null : ((CraftPlayer) killer).getHandle();
+        getHandle().attackingPlayer = entityPlayer;
+        getHandle().revengeTarget = entityPlayer;
+        getHandle().revengeTimer = entityPlayer == null ? 0 : 100; // 100 value taken from EntityLiving#damageEntity
+    }
+    // Paper end
+
     public boolean addPotionEffect(PotionEffect effect) {
         return addPotionEffect(effect, false);
     }
@@ -513,4 +523,41 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     public void setCollidable(boolean collidable) {
         getHandle().collides = collidable;
     }
+
+    // Paper start
+    @Override
+    public int getArrowsStuck() {
+        return getHandle().getArrowCountInEntity();
+    }
+    @Override
+    public void setArrowsStuck(int arrows) {
+        getHandle().setArrowCountInEntity(arrows);
+    }
+
+    @Override
+    public int getShieldBlockingDelay() {
+        return getHandle().getShieldBlockingDelay();
+    }
+    @Override
+    public void setShieldBlockingDelay(int delay) {
+        getHandle().setShieldBlockingDelay(delay);
+    }
+
+    @Override
+    public ItemStack getActiveItem() {
+        return getHandle().getActiveItem().asBukkitMirror();
+    }
+    @Override
+    public int getItemUseRemainingTime() {
+        return getHandle().getItemUseRemainingTime();
+    }
+    @Override
+    public int getHandRaisedTime() {
+        return getHandle().getHandRaisedTime();
+    }
+    @Override
+    public boolean isHandRaised() {
+        return getHandle().isHandActive();
+    }
+    // Paper end
 }

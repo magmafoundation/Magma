@@ -110,9 +110,9 @@
          }
      }
  
-+    // Atom: Create a new method, instead of the method modification above for sanity
 +    private void tryCatchFire(World worldIn, BlockPos pos, int chance, Random random, int age, EnumFacing face, BlockPos sourcePos)
 +    {
++        // Paper start
 +        final IBlockState iblockstate = worldIn.getBlockState(pos);
 +        if (iblockstate == null) return;
 +        int i = worldIn.getBlockState(pos).getBlock().getFlammability(worldIn, pos, face);

@@ -1,0 +1,49 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/ChunkGeneratorFlat.java
++++ ../src-work/minecraft/net/minecraft/world/gen/ChunkGeneratorFlat.java
+@@ -46,8 +46,7 @@
+         {
+             Map<String, Map<String, String>> map = this.flatWorldGenInfo.getWorldFeatures();
+ 
+-            if (map.containsKey("village"))
+-            {
++            if (map.containsKey("village") && world.paperConfig.generateVillage) { // Paper
+                 Map<String, String> map1 = (Map)map.get("village");
+ 
+                 if (!map1.containsKey("size"))
+@@ -58,23 +57,19 @@
+                 this.structureGenerators.put("Village", new MapGenVillage(map1));
+             }
+ 
+-            if (map.containsKey("biome_1"))
+-            {
++            if (map.containsKey("biome_1") && world.paperConfig.generateTemple) { // Paper
+                 this.structureGenerators.put("Temple", new MapGenScatteredFeature(map.get("biome_1")));
+             }
+ 
+-            if (map.containsKey("mineshaft"))
+-            {
++            if (map.containsKey("mineshaft") && world.paperConfig.generateMineshaft) { // Paper
+                 this.structureGenerators.put("Mineshaft", new MapGenMineshaft(map.get("mineshaft")));
+             }
+ 
+-            if (map.containsKey("stronghold"))
+-            {
++            if (map.containsKey("stronghold") && world.paperConfig.generateStronghold) { // Paper
+                 this.structureGenerators.put("Stronghold", new MapGenStronghold(map.get("stronghold")));
+             }
+ 
+-            if (map.containsKey("oceanmonument"))
+-            {
++            if (map.containsKey("oceanmonument") && world.paperConfig.generateMonument) { // Paper
+                 this.structureGenerators.put("Monument", new StructureOceanMonument(map.get("oceanmonument")));
+             }
+         }
+@@ -89,7 +84,7 @@
+             this.lavaLakeGenerator = new WorldGenLakes(Blocks.LAVA);
+         }
+ 
+-        this.hasDungeons = this.flatWorldGenInfo.getWorldFeatures().containsKey("dungeon");
++        this.hasDungeons = world.paperConfig.generateDungeon && this.flatWorldGenInfo.getWorldFeatures().containsKey("dungeon");  // Paper
+         int j = 0;
+         int k = 0;
+         boolean flag = true;

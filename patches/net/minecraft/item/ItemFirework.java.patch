@@ -1,0 +1,19 @@
+--- ../src-base/minecraft/net/minecraft/item/ItemFirework.java
++++ ../src-work/minecraft/net/minecraft/item/ItemFirework.java
+@@ -26,6 +26,7 @@
+         {
+             ItemStack itemstack = player.getHeldItem(hand);
+             EntityFireworkRocket entityfireworkrocket = new EntityFireworkRocket(worldIn, (double)((float)pos.getX() + hitX), (double)((float)pos.getY() + hitY), (double)((float)pos.getZ() + hitZ), itemstack);
++            entityfireworkrocket.spawningEntity = player.getUniqueID(); // Paper
+             worldIn.spawnEntity(entityfireworkrocket);
+ 
+             if (!player.capabilities.isCreativeMode)
+@@ -46,6 +47,8 @@
+             if (!worldIn.isRemote)
+             {
+                 EntityFireworkRocket entityfireworkrocket = new EntityFireworkRocket(worldIn, itemstack, playerIn);
++                entityfireworkrocket.spawningEntity = playerIn.getUniqueID(); // Paper
++
+                 worldIn.spawnEntity(entityfireworkrocket);
+ 
+                 if (!playerIn.capabilities.isCreativeMode)

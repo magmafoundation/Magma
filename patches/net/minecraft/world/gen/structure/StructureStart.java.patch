@@ -1,0 +1,18 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/structure/StructureStart.java
++++ ../src-work/minecraft/net/minecraft/world/gen/structure/StructureStart.java
+@@ -31,6 +31,7 @@
+         return this.boundingBox;
+     }
+ 
++    public List<StructureComponent> getStructurePieces() { return getComponents(); } // Paper - OBFHELPER
+     public List<StructureComponent> getComponents()
+     {
+         return this.components;
+@@ -155,6 +156,7 @@
+         }
+     }
+ 
++    public boolean isSizeable() { return isSizeableStructure(); } // Paper - OBFHELPER
+     public boolean isSizeableStructure()
+     {
+         return true;

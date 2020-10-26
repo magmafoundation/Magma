@@ -1,5 +1,6 @@
 package org.bukkit.event.player;
 
+import javax.annotation.Nullable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -9,12 +10,30 @@ import org.bukkit.event.HandlerList;
  */
 public class PlayerExpChangeEvent extends PlayerEvent {
     private static final HandlerList handlers = new HandlerList();
+    // Paper start
+    @Nullable
+    private final Entity source;
     private int exp;
 
     public PlayerExpChangeEvent(final Player player, final int expAmount) {
+        this(player, null, expAmount);
+    }
+    public PlayerExpChangeEvent(final Player player, @Nullable final Entity sourceEntity, final int expAmount) {
         super(player);
+        source = sourceEntity;
         exp = expAmount;
     }
+
+    /**
+     * Get the source that provided the experience.
+     *
+     * @return The source of the experience
+     */
+    @Nullable
+    public Entity getSource() {
+        return source;
+    }
+    // Paper end
 
     /**
      * Get the amount of experience the player will receive

@@ -1,0 +1,27 @@
+--- ../src-base/minecraft/net/minecraft/network/play/server/SPacketWindowItems.java
++++ ../src-work/minecraft/net/minecraft/network/play/server/SPacketWindowItems.java
+@@ -3,6 +3,7 @@
+ import java.io.IOException;
+ import java.util.List;
+ import net.minecraft.item.ItemStack;
++import net.minecraft.network.NetworkManager;
+ import net.minecraft.network.Packet;
+ import net.minecraft.network.PacketBuffer;
+ import net.minecraft.network.play.INetHandlerPlayClient;
+@@ -31,6 +32,16 @@
+         }
+     }
+ 
++    //Paper start
++    @Override
++    public boolean packetTooLarge(NetworkManager manager) {
++        for (int i = 0 ; i < this.itemStacks.size() ; i++) {
++            manager.sendPacket(new SPacketSetSlot(this.windowId, i, this.itemStacks.get(i)));
++        }
++        return true;
++    }
++    // Paper end
++
+     public void readPacketData(PacketBuffer buf) throws IOException
+     {
+         this.windowId = buf.readUnsignedByte();

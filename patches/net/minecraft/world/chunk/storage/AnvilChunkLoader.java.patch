@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/world/chunk/storage/AnvilChunkLoader.java
 +++ ../src-work/minecraft/net/minecraft/world/chunk/storage/AnvilChunkLoader.java
-@@ -1,8 +1,6 @@
+@@ -1,21 +1,19 @@
  package net.minecraft.world.chunk.storage;
  
  import com.google.common.collect.Maps;
@@ -8,49 +8,400 @@
 -import java.io.DataOutputStream;
  import java.io.File;
  import java.io.IOException;
- import java.util.Collections;
-@@ -13,7 +11,6 @@
+-import java.util.Collections;
+ import java.util.List;
+ import java.util.Map;
+-import java.util.Set;
++import java.util.concurrent.ConcurrentLinkedQueue;
++import java.util.function.Supplier;
+ import javax.annotation.Nullable;
  import net.minecraft.block.Block;
  import net.minecraft.entity.Entity;
  import net.minecraft.entity.EntityList;
 -import net.minecraft.nbt.CompressedStreamTools;
  import net.minecraft.nbt.NBTTagCompound;
  import net.minecraft.nbt.NBTTagList;
++import net.minecraft.server.MinecraftServer;
  import net.minecraft.tileentity.TileEntity;
-@@ -79,15 +76,14 @@
+ import net.minecraft.util.ResourceLocation;
+ import net.minecraft.util.datafix.DataFixer;
+@@ -33,15 +31,21 @@
+ import net.minecraft.world.storage.ThreadedFileIOBase;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import org.spigotmc.SupplierUtils;
+ 
+ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
+ {
++    private ConcurrentLinkedQueue<QueuedChunk> queue = new ConcurrentLinkedQueue<>(); // Paper - Chunk queue improvements
++    private final Object lock = new Object(); // Paper - Chunk queue improvements
+     private static final Logger LOGGER = LogManager.getLogger();
+-    private final Map<ChunkPos, NBTTagCompound> chunksToSave = Maps.<ChunkPos, NBTTagCompound>newConcurrentMap();
+-    private final Set<ChunkPos> chunksBeingSaved = Collections.<ChunkPos>newSetFromMap(Maps.newConcurrentMap());
++    private final Map<ChunkPos, Supplier<NBTTagCompound>> chunksToSave = Maps.newConcurrentMap(); // Spigot
++    // CraftBukkit
++    // private final Set<ChunkPos> chunksBeingSaved = Collections.<ChunkPos>newSetFromMap(Maps.newConcurrentMap());
+     public final File chunkSaveLocation;
+     private final DataFixer fixer;
+-    private boolean flushing;
++    // private boolean flushing;
++    // CraftBukkit
++    private static final double SAVE_QUEUE_TARGET_SIZE = 625; // Spigot
+ 
+     public AnvilChunkLoader(File chunkSaveLocationIn, DataFixer dataFixerIn)
+     {
+@@ -55,6 +59,15 @@
+         return isChunkGeneratedAt(x, z);
+     }
+ 
++    // Paper start
++    private long queuedSaves = 0;
++    private final java.util.concurrent.atomic.AtomicLong processedSaves = new java.util.concurrent.atomic.AtomicLong(0L);
++    public int getQueueSize() { return queue.size(); }
++    public long getQueuedSaves() { return queuedSaves; }
++    public long getProcessedSaves() { return processedSaves.longValue(); }
++    // Paper end
++
++    // CraftBukkit start - Add async variant, provide compatibility
+     @Nullable
+     public Chunk loadChunk(World worldIn, int x, int z) throws IOException
+     {
+@@ -74,20 +87,22 @@
+     @Nullable
+     public Object[] loadChunk__Async(World worldIn, int x, int z) throws IOException
+     {
++        // CraftBukkit end
+         ChunkPos chunkpos = new ChunkPos(x, z);
+-        NBTTagCompound nbttagcompound = this.chunksToSave.get(chunkpos);
++        NBTTagCompound nbttagcompound = SupplierUtils.getIfExists(this.chunksToSave.get(chunkpos)); // Spigot
  
          if (nbttagcompound == null)
          {
 -            DataInputStream datainputstream = RegionFileCache.getChunkInputStream(this.chunkSaveLocation, x, z);
-+            NBTTagCompound nbtTagCompound = RegionFileCache.getChunkInputStreamCB(this.chunkSaveLocation, x, z);
++            // CraftBukkit start
++            nbttagcompound = RegionFileCache.getChunkInputStreamCB(this.chunkSaveLocation, x, z);
  
 -            if (datainputstream == null)
-+            if (nbtTagCompound == null)
++            if (nbttagcompound == null)
              {
                  return null;
              }
  
 -            nbttagcompound = this.fixer.process(FixTypes.CHUNK, CompressedStreamTools.read(datainputstream));
 -            datainputstream.close(); // Forge: close stream after use
-+            nbttagcompound = this.fixer.process(FixTypes.CHUNK, nbtTagCompound);
++            nbttagcompound = this.fixer.process(FixTypes.CHUNK, nbttagcompound);
++            // CraftBukkit end
          }
  
          return this.checkedReadChunkFromNBT__Async(worldIn, x, z, nbttagcompound);
-@@ -238,9 +234,10 @@
+@@ -96,7 +111,7 @@
+     public boolean isChunkGeneratedAt(int x, int z)
+     {
+         ChunkPos chunkpos = new ChunkPos(x, z);
+-        NBTTagCompound nbttagcompound = this.chunksToSave.get(chunkpos);
++        Supplier<NBTTagCompound> nbttagcompound = this.chunksToSave.get(chunkpos); // Spigot
+         return nbttagcompound != null ? true : RegionFileCache.chunkExists(this.chunkSaveLocation, x, z);
+     }
+ 
+@@ -107,9 +122,23 @@
+         return data != null ? (Chunk)data[0] : null;
+     }
+ 
++    // Paper start
++    private static final int CURRENT_DATA_VERSION = 1343; // Paper
++    private static final boolean JUST_CORRUPT_IT = Boolean.valueOf("Paper.ignoreWorldDataVersion");
++    // Paper end
++
+     @Nullable
+-    protected Object[] checkedReadChunkFromNBT__Async(World worldIn, int x, int z, NBTTagCompound compound)
++    protected Object[] checkedReadChunkFromNBT__Async(World worldIn, int x, int z, NBTTagCompound compound)  // CraftBukkit - return Chunk -> Object[]
+     {
++        // Paper start - Do NOT attempt to load chunks saved with newer versions
++        if (compound.hasKey("DataVersion", 3)) {
++            int dataVersion = compound.getInteger("DataVersion");
++            if (!JUST_CORRUPT_IT && dataVersion > CURRENT_DATA_VERSION) {
++                new RuntimeException("Server attempted to load chunk saved with newer version of minecraft! " + dataVersion + " > " + CURRENT_DATA_VERSION).printStackTrace();
++                System.exit(1);
++            }
++        }
++        // Paper end
+         if (!compound.hasKey("Level", 10))
+         {
+             LOGGER.error("Chunk file at {},{} is missing level data, skipping", Integer.valueOf(x), Integer.valueOf(z));
+@@ -134,7 +163,7 @@
+                     nbttagcompound.setInteger("xPos", x);
+                     nbttagcompound.setInteger("zPos", z);
+ 
+-                    // Have to move tile entities since we don't load them at this stage
++                    // CraftBukkit start - Have to move tile entities since we don't load them at this stage
+                     NBTTagList _tileEntities = nbttagcompound.getTagList("TileEntities", 10);
+ 
+                     if (_tileEntities != null)
+@@ -146,21 +175,24 @@
+                             _nbt.setInteger("z", z * 16 + (_nbt.getInteger("z") - chunk.z * 16));
+                         }
+                     }
++                    // CraftBukkit end
+ 
+                     chunk = this.readChunkFromNBT(worldIn, nbttagcompound);
+                 }
+ 
++                // CraftBukkit start
+                 Object[] data = new Object[2];
+                 data[0] = chunk;
+                 data[1] = compound;
+                 // event is fired in ChunkIOProvider.callStage2 since it must be fired after TE's load.
+                 // MinecraftForge.EVENT_BUS.post(new ChunkDataEvent.Load(chunk, par4NBTTagCompound));
+                 return data;
++                // CraftBukkit end
+             }
+         }
+     }
+ 
+-    public void saveChunk(World worldIn, Chunk chunkIn) throws MinecraftException, IOException
++    public void saveChunk(World worldIn, Chunk chunkIn, boolean unloaded) throws MinecraftException, IOException  // Spigot
+     {
+         worldIn.checkSessionLock();
+ 
+@@ -171,10 +203,24 @@
+             nbttagcompound.setTag("Level", nbttagcompound1);
+             nbttagcompound.setInteger("DataVersion", 1343);
+             net.minecraftforge.fml.common.FMLCommonHandler.instance().getDataFixer().writeVersionData(nbttagcompound);
+-            this.writeChunkToNBT(chunkIn, worldIn, nbttagcompound1);
++//            this.writeChunkToNBT(chunkIn, worldIn, nbttagcompound1);
+             net.minecraftforge.common.ForgeChunkManager.storeChunkNBT(chunkIn, nbttagcompound1);
+             net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.ChunkDataEvent.Save(chunkIn, nbttagcompound));
+-            this.addChunkToPending(chunkIn.getPos(), nbttagcompound);
++//            this.addChunkToPending(chunkIn.getPos(), nbttagcompound);
++
++            // Spigot start
++            final long worldTime = worldIn.getTotalWorldTime();
++            final boolean worldHasSkyLight = worldIn.provider.hasSkyLight();
++            saveEntities(nbttagcompound1, chunkIn, worldIn);
++            Supplier<NBTTagCompound> completion = new Supplier<NBTTagCompound>() {
++                public NBTTagCompound get() {
++                    writeChunkToNBT(nbttagcompound1, chunkIn, worldTime, worldHasSkyLight);
++                    return nbttagcompound;
++                }
++            };
++            this.addChunkToPending(chunkIn.getPos(), SupplierUtils.createUnivaluedSupplier(completion, unloaded && this.queue.size() < SAVE_QUEUE_TARGET_SIZE));
++            // Spigot end
++
+         }
+         catch (Exception exception)
+         {
+@@ -182,22 +228,34 @@
+         }
+     }
+ 
+-    protected void addChunkToPending(ChunkPos pos, NBTTagCompound compound)
++    protected void addChunkToPending(ChunkPos pos, Supplier<NBTTagCompound> compound) // Spigot
+     {
+-        if (!this.chunksBeingSaved.contains(pos))
++        // CraftBukkit
++        //if (!this.chunksBeingSaved.contains(pos)) {
+         {
+-            this.chunksToSave.put(pos, compound);
++            synchronized (lock) {  // Paper - Chunk queue improvements
++                this.chunksToSave.put(pos, compound);
++            }
+         }
++        queuedSaves++; // Paper
++        queue.add(new QueuedChunk(pos, compound)); // Paper - Chunk queue improvements
+ 
+         ThreadedFileIOBase.getThreadedIOInstance().queueIO(this);
+     }
+ 
+     public boolean writeNextIO()
+     {
+-        if (this.chunksToSave.isEmpty())
+-        {
+-            if (this.flushing)
+-            {
++        // CraftBukkit start
++        return this.processSaveQueueEntry(false);
++    }
++    private synchronized boolean processSaveQueueEntry(boolean logCompletion) {
++        // CraftBukkit start
++        // Paper start - Chunk queue improvements
++        QueuedChunk chunk = queue.poll();
++        if (chunk == null) {
++            // Paper - end
++            if (logCompletion) {
++                // CraftBukkit end
+                 LOGGER.info("ThreadedAnvilChunkStorage ({}): All chunks are saved", (Object)this.chunkSaveLocation.getName());
+             }
+ 
+@@ -206,30 +264,40 @@
+         else
+         {
+             ChunkPos chunkpos = this.chunksToSave.keySet().iterator().next();
++
++            ChunkPos chunkcoordintpair = chunk.coords; // Paper - Chunk queue improvements
++            processedSaves.incrementAndGet(); // Paper
++
+             boolean lvt_3_1_;
+ 
+             try
+             {
+-                this.chunksBeingSaved.add(chunkpos);
+-                NBTTagCompound nbttagcompound = this.chunksToSave.remove(chunkpos);
++                //this.chunksBeingSaved.add(chunkpos);
++                NBTTagCompound nbttagcompound = SupplierUtils.getIfExists(chunk.compoundSupplier); // Spigot // Paper
++                // CraftBukkit
+ 
+                 if (nbttagcompound != null)
+                 {
++                    int attempts = 0; Exception laste = null; while (attempts++ < 5) { // Paper
+                     try
+                     {
+                         this.writeChunkData(chunkpos, nbttagcompound);
+                     }
+                     catch (Exception exception)
+                     {
+-                        LOGGER.error("Failed to save chunk", (Throwable)exception);
++                        // LOGGER.error("Failed to save chunk", (Throwable)exception); // Paper
++                        laste = exception; // Paper
+                     }
++                    try {Thread.sleep(10);} catch (InterruptedException e) {e.printStackTrace();} } // Paper
++                    if (laste != null) { com.destroystokyo.paper.exception.ServerInternalException.reportInternalException(laste); MinecraftServer.LOGGER.error("Failed to save chunk", laste); } // Paper
+                 }
++                synchronized (lock) { if (this.chunksToSave.get(chunkcoordintpair) == chunk.compoundSupplier) { this.chunksToSave.remove(chunkcoordintpair); } }// Paper - This will not equal if a newer version is still pending
+ 
+                 lvt_3_1_ = true;
+             }
+             finally
+             {
+-                this.chunksBeingSaved.remove(chunkpos);
++                // this.chunksToSave.remove(chunkpos, value); // CraftBukkit // Spigot // Paper
+             }
+ 
+             return lvt_3_1_;
+@@ -238,9 +306,9 @@
  
      private void writeChunkData(ChunkPos pos, NBTTagCompound compound) throws IOException
      {
 -        DataOutputStream dataoutputstream = RegionFileCache.getChunkOutputStream(this.chunkSaveLocation, pos.x, pos.z);
 -        CompressedStreamTools.write(compound, dataoutputstream);
 -        dataoutputstream.close();
-+        // DataOutputStream dataoutputstream = RegionFileCache.getChunkOutputStream(this.chunkSaveLocation, pos.x, pos.z);
-+        // CompressedStreamTools.write(compound, dataoutputstream);
-+        // dataoutputstream.close();
++        // CraftBukkit start
 +        RegionFileCache.getChunkOutputStream(this.chunkSaveLocation, pos.x, pos.z, compound);
++        // CraftBukkit end
      }
  
      public void saveExtraChunkData(World worldIn, Chunk chunkIn) throws IOException
-@@ -609,8 +606,11 @@
+@@ -255,13 +323,18 @@
+     {
+         try
+         {
+-            this.flushing = true;
++            // this.flushing = true; // CraftBukkit
+ 
+-            while (this.writeNextIO());
++           while (true){
++               if(this.processSaveQueueEntry(true)) { // CraftBukkit
++                   continue;
++               }
++               break; // CraftBukkit - Fix infinite loop when saving chunks
++           }
+         }
+         finally
+         {
+-            this.flushing = false;
++            // this.flushing = false; // CraftBukkit
+         }
+     }
+ 
+@@ -301,18 +374,17 @@
+         });
+     }
+ 
+-    private void writeChunkToNBT(Chunk chunkIn, World worldIn, NBTTagCompound compound)
+-    {
++    private static void writeChunkToNBT(NBTTagCompound compound, Chunk chunkIn, long worldTime, boolean worldHasSkyLight) { // Spigot
+         compound.setInteger("xPos", chunkIn.x);
+         compound.setInteger("zPos", chunkIn.z);
+-        compound.setLong("LastUpdate", worldIn.getTotalWorldTime());
++        compound.setLong("LastUpdate", worldTime);
+         compound.setIntArray("HeightMap", chunkIn.getHeightMap());
+         compound.setBoolean("TerrainPopulated", chunkIn.isTerrainPopulated());
+         compound.setBoolean("LightPopulated", chunkIn.isLightPopulated());
+         compound.setLong("InhabitedTime", chunkIn.getInhabitedTime());
+         ExtendedBlockStorage[] aextendedblockstorage = chunkIn.getBlockStorageArray();
+         NBTTagList nbttaglist = new NBTTagList();
+-        boolean flag = worldIn.provider.hasSkyLight();
++        boolean flag = worldHasSkyLight;
+ 
+         for (ExtendedBlockStorage extendedblockstorage : aextendedblockstorage)
+         {
+@@ -348,13 +420,30 @@
+ 
+         compound.setTag("Sections", nbttaglist);
+         compound.setByteArray("Biomes", chunkIn.getBiomeArray());
++        // Spigot start - End this method here and split off entity saving to another method
++    }
++
++    private static void saveEntities(NBTTagCompound compound, Chunk chunkIn, World worldIn) {
++        // Spigot end
+         chunkIn.setHasEntities(false);
+         NBTTagList nbttaglist1 = new NBTTagList();
+ 
++        List<Entity> toUpdate = new java.util.ArrayList<>(); // Paper
+         for (int i = 0; i < chunkIn.getEntityLists().length; ++i)
+         {
+             for (Entity entity : chunkIn.getEntityLists()[i])
+             {
++                // Paper start
++                if ((int)Math.floor(entity.getX()) >> 4 != chunkIn.x || (int)Math.floor(entity.getZ()) >> 4 != chunkIn.z) {
++                    LogManager.getLogger().warn(entity + " is not in this chunk, skipping save. This a bug fix to a vanilla bug. Do not report this to PaperMC please.");
++                    toUpdate.add(entity);
++                    continue;
++                }
++                if (entity.isDead) {
++                    continue;
++                }
++                // Paper end
++
+                 NBTTagCompound nbttagcompound2 = new NBTTagCompound();
+ 
+                 try
+@@ -372,6 +461,11 @@
+                 }
+             }
+         }
++        // Paper start - move entities to the correct chunk
++        for (Entity entity : toUpdate) {
++            worldIn.updateEntityWithOptionalForce(entity, false);
++        }
++        // Paper end
+ 
+         compound.setTag("Entities", nbttaglist1);
+         NBTTagList nbttaglist2 = new NBTTagList();
+@@ -472,12 +566,14 @@
+             chunk.getCapabilities().deserializeNBT(compound.getCompoundTag("ForgeCaps"));
+         }
+ 
+-        // End this method here and split off entity loading to another method
++        // CraftBukkit start - End this method here and split off entity loading to another method
+         return chunk;
+     }
+ 
+     public void loadEntities(World worldIn, NBTTagCompound compound, Chunk chunk)
+     {
++        // CraftBukkit end
++        worldIn.timings.syncChunkLoadNBTTimer.startTiming(); // Spigot
+         NBTTagList nbttaglist1 = compound.getTagList("Entities", 10);
+ 
+         for (int j1 = 0; j1 < nbttaglist1.tagCount(); ++j1)
+@@ -521,6 +617,7 @@
+                 worldIn.scheduleBlockUpdate(new BlockPos(nbttagcompound3.getInteger("x"), nbttagcompound3.getInteger("y"), nbttagcompound3.getInteger("z")), block, nbttagcompound3.getInteger("t"), nbttagcompound3.getInteger("p"));
+             }
+         }
++        worldIn.timings.syncChunkLoadNBTTimer.stopTiming(); // Spigot
+     }
+ 
+     @Nullable
+@@ -609,8 +706,11 @@
  
      public static void spawnEntity(Entity entityIn, World worldIn)
      {
@@ -60,7 +411,23 @@
 +    }
 +
 +    public static void spawnEntity(Entity entityIn, World worldIn, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason) {
-+        if (worldIn.spawnEntity(entityIn, reason) && entityIn.isBeingRidden()) {
++        if (!entityIn.valid && worldIn.addEntity(entityIn, reason) && entityIn.isBeingRidden()) { // Paper
              for (Entity entity : entityIn.getPassengers())
              {
                  spawnEntity(entity, worldIn);
+@@ -656,4 +756,15 @@
+     {
+         return this.chunksToSave.size();
+     }
++
++    // Paper start - Chunk queue improvements
++    private static class QueuedChunk {
++        public ChunkPos coords;
++        public Supplier<NBTTagCompound> compoundSupplier;
++        public QueuedChunk(ChunkPos coords, Supplier<NBTTagCompound> compoundSupplier) {
++            this.coords = coords;
++            this.compoundSupplier = compoundSupplier;
++        }
++    }
++    // Paper end
+ }

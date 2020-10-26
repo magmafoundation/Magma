@@ -1,6 +1,13 @@
 --- ../src-base/minecraft/net/minecraft/block/BlockGrass.java
 +++ ../src-work/minecraft/net/minecraft/block/BlockGrass.java
-@@ -15,6 +15,11 @@
+@@ -9,12 +9,18 @@
+ import net.minecraft.creativetab.CreativeTabs;
+ import net.minecraft.init.Blocks;
+ import net.minecraft.item.Item;
++import net.minecraft.server.MinecraftServer;
+ import net.minecraft.util.BlockRenderLayer;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.world.IBlockAccess;
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
@@ -12,16 +19,19 @@
  
  public class BlockGrass extends Block implements IGrowable
  {
-@@ -38,30 +43,58 @@
+@@ -36,32 +42,60 @@
+ 
+     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
      {
++        if (worldIn.paperConfig.grassUpdateRate != 1 && (worldIn.paperConfig.grassUpdateRate < 1 || (MinecraftServer.currentTick + state.hashCode()) % worldIn.paperConfig.grassUpdateRate != 0)) { return; } // Paper
          if (!worldIn.isRemote)
          {
 +            int lightLevel = -1; // Paper
              if (!worldIn.isAreaLoaded(pos, 3)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light and spreading
 -            if (worldIn.getLightFromNeighbors(pos.up()) < 4 && worldIn.getBlockState(pos.up()).getLightOpacity(worldIn, pos.up()) > 2)
-+            if (worldIn.getBlockState(pos.up()).getLightOpacity(worldIn, pos.up()) > 2 && (lightLevel = worldIn.getLightFromNeighbors(pos.up())) < 4 )
-             {
+-            {
 -                worldIn.setBlockState(pos, Blocks.DIRT.getDefaultState());
++            if (worldIn.getBlockState(pos.up()).getLightOpacity(worldIn, pos.up()) > 2 && (lightLevel = worldIn.getLightFromNeighbors(pos.up())) < 4) { // Paper - move light check to end to avoid unneeded light lookups
 +                org.bukkit.World bworld = worldIn.getWorld();
 +                BlockState blockState = bworld.getBlockAt(pos.getX(), pos.getY(), pos.getZ()).getState();
 +                blockState.setType(CraftMagicNumbers.getMaterial(Blocks.DIRT));
@@ -78,7 +88,7 @@
                          }
                      }
                  }
-@@ -109,7 +142,8 @@
+@@ -109,7 +143,8 @@
  
                              if (Blocks.TALLGRASS.canBlockStay(worldIn, blockpos1, iblockstate1))
                              {

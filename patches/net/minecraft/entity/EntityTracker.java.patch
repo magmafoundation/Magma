@@ -49,3 +49,29 @@
              }
  
              EntityTrackerEntry entitytrackerentry = new EntityTrackerEntry(entityIn, trackingRange, this.maxTrackingDistanceThreshold, updateFrequency, sendVelocityUpdates);
+@@ -287,6 +291,7 @@
+     {
+         List<EntityPlayerMP> list = Lists.<EntityPlayerMP>newArrayList();
+ 
++        world.timings.tracker1.startTiming(); // Spigot
+         for (EntityTrackerEntry entitytrackerentry : this.entries)
+         {
+             entitytrackerentry.updatePlayerList(this.world.playerEntities);
+@@ -301,7 +306,9 @@
+                 }
+             }
+         }
++        world.timings.tracker1.stopTiming(); // Spigot
+ 
++        world.timings.tracker2.startTiming(); // Spigot
+         for (int i = 0; i < list.size(); ++i)
+         {
+             EntityPlayerMP entityplayermp = list.get(i);
+@@ -314,6 +321,7 @@
+                 }
+             }
+         }
++        world.timings.tracker2.stopTiming(); // Spigot
+     }
+ 
+     public void updateVisibility(EntityPlayerMP player)

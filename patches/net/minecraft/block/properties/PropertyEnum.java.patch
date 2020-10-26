@@ -1,0 +1,57 @@
+--- ../src-base/minecraft/net/minecraft/block/properties/PropertyEnum.java
++++ ../src-work/minecraft/net/minecraft/block/properties/PropertyEnum.java
+@@ -16,6 +16,11 @@
+     private final ImmutableSet<T> allowedValues;
+     private final Map<String, T> nameToValue = Maps.<String, T>newHashMap();
+ 
++    // Paper start - PropertyEnum is a singleton, so we can use our own hashCode
++    private static int hashId = 0;
++    private int hashCode;
++    // Paper end
++
+     protected PropertyEnum(String name, Class<T> valueClass, Collection<T> allowedValues)
+     {
+         super(name, valueClass);
+@@ -32,6 +37,7 @@
+ 
+             this.nameToValue.put(s, t);
+         }
++        this.hashCode = hashId++; // Paper
+     }
+ 
+     public Collection<T> getAllowedValues()
+@@ -49,29 +55,15 @@
+         return ((IStringSerializable)value).getName();
+     }
+ 
++    @Override // Paper - override equals as BlockStateEnum is a singleton
+     public boolean equals(Object p_equals_1_)
+     {
+-        if (this == p_equals_1_)
+-        {
+-            return true;
+-        }
+-        else if (p_equals_1_ instanceof PropertyEnum && super.equals(p_equals_1_))
+-        {
+-            PropertyEnum<?> propertyenum = (PropertyEnum)p_equals_1_;
+-            return this.allowedValues.equals(propertyenum.allowedValues) && this.nameToValue.equals(propertyenum.nameToValue);
+-        }
+-        else
+-        {
+-            return false;
+-        }
++        return this == p_equals_1_;
+     }
+ 
+-    public int hashCode()
+-    {
+-        int i = super.hashCode();
+-        i = 31 * i + this.allowedValues.hashCode();
+-        i = 31 * i + this.nameToValue.hashCode();
+-        return i;
++    @Override // Paper - override equals as BlockStateEnum is a singleton
++    public int hashCode() {
++        return hashCode;
+     }
+ 
+     public static <T extends Enum<T> & IStringSerializable> PropertyEnum<T> create(String name, Class<T> clazz)

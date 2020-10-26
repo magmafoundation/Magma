@@ -141,6 +141,15 @@
      }
  
      public boolean enchantItem(EntityPlayer playerIn, int id)
+@@ -160,7 +250,7 @@
+             }
+             else if (this.dragEvent == 1)
+             {
+-                Slot slot7 = this.inventorySlots.get(slotId);
++                Slot slot7 = slotId < this.inventorySlots.size() ? this.inventorySlots.get(slotId) : null; // Paper - Ensure drag in bounds
+                 ItemStack itemstack12 = inventoryplayer.getItemStack();
+ 
+                 if (slot7 != null && canAddItemToSlot(slot7, itemstack12, true) && slot7.isItemValid(itemstack12) && (this.dragMode == 2 || itemstack12.getCount() > this.dragSlots.size()) && this.canDragIntoSlot(slot7))
 @@ -174,7 +264,7 @@
                  {
                      ItemStack itemstack9 = inventoryplayer.getItemStack().copy();

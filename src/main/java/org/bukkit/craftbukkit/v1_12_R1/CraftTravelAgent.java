@@ -10,7 +10,7 @@ public class CraftTravelAgent extends Teleporter implements TravelAgent {
 
     public static TravelAgent DEFAULT = null;
 
-    private int searchRadius = 128;
+    private int searchRadius = world.paperConfig.portalSearchRadius; // Paper - Configurable search radius
     private int creationRadius = 16;
     private boolean canCreatePortal = true;
 

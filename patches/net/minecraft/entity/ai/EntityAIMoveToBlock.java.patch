@@ -1,0 +1,35 @@
+--- ../src-base/minecraft/net/minecraft/entity/ai/EntityAIMoveToBlock.java
++++ ../src-work/minecraft/net/minecraft/entity/ai/EntityAIMoveToBlock.java
+@@ -6,12 +6,21 @@
+ 
+ public abstract class EntityAIMoveToBlock extends EntityAIBase
+ {
+-    private final EntityCreature creature;
++    private final EntityCreature creature; public EntityCreature getEntity() { return creature; } // Paper - OBFHELPER
+     private final double movementSpeed;
+     protected int runDelay;
+     private int timeoutCounter;
+     private int maxStayTicks;
+-    protected BlockPos destinationBlock = BlockPos.ORIGIN;
++    protected BlockPos destinationBlock = BlockPos.ORIGIN; public BlockPos getTarget() { return destinationBlock; } public void setTarget(BlockPos pos) { this.destinationBlock = pos; getEntity().movingTarget = pos != BlockPos.ORIGIN ? pos : null; } // Paper - OBFHELPER
++
++    // Paper start
++    @Override
++    public void onTaskReset() {
++        super.onTaskReset();
++        setTarget(BlockPos.ORIGIN);
++    }
++    // Paper end
++
+     private boolean isAboveDestination;
+     private final int searchLength;
+ 
+@@ -91,7 +100,7 @@
+ 
+                         if (this.creature.isWithinHomeDistanceFromPosition(blockpos1) && this.shouldMoveTo(this.creature.world, blockpos1))
+                         {
+-                            this.destinationBlock = blockpos1;
++                            setTarget(blockpos1); // Paper
+                             return true;
+                         }
+                     }

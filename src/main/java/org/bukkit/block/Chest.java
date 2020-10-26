@@ -1,12 +1,13 @@
 package org.bukkit.block;
 
+import com.destroystokyo.paper.loottable.LootableInventory;
 import org.bukkit.Nameable;
 import org.bukkit.inventory.Inventory;
 
 /**
  * Represents a captured state of a chest.
  */
-public interface Chest extends Container, Nameable {
+public interface Chest extends Container, Nameable, LootableInventory { // Paper
 
     /**
      * Gets the inventory of the chest block represented by this block state.

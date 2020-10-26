@@ -1,8 +1,9 @@
 --- ../src-base/minecraft/net/minecraft/world/chunk/storage/RegionFileCache.java
 +++ ../src-work/minecraft/net/minecraft/world/chunk/storage/RegionFileCache.java
-@@ -1,15 +1,24 @@
+@@ -1,15 +1,25 @@
  package net.minecraft.world.chunk.storage;
  
++import com.destroystokyo.paper.PaperConfig;
  import com.google.common.collect.Maps;
 +import java.util.Iterator;
 +import java.util.LinkedHashMap;
@@ -22,27 +23,30 @@
  public class RegionFileCache
  {
 -    private static final Map<File, RegionFile> REGIONS_BY_FILE = Maps.<File, RegionFile>newHashMap();
-+    public static final Map<File, RegionFile> REGIONS_BY_FILE = new LinkedHashMap<>(256, 0.75f, true); // Spigot - private -> public, Paper - HashMap -> LinkedHashMap
++    public static final Map<File, RegionFile> REGIONS_BY_FILE = new LinkedHashMap<>(PaperConfig.regionFileCacheSize, 0.75f, true); // Spigot - private -> public, Paper - HashMap -> LinkedHashMap
  
      public static synchronized RegionFile createOrLoadRegionFile(File worldDir, int chunkX, int chunkZ)
      {
-@@ -30,7 +39,7 @@
+@@ -28,9 +38,9 @@
+                 file1.mkdirs();
+             }
  
-             if (REGIONS_BY_FILE.size() >= 256)
+-            if (REGIONS_BY_FILE.size() >= 256)
++            if (REGIONS_BY_FILE.size() >= PaperConfig.regionFileCacheSize) // Paper
              {
 -                clearRegionFileReferences();
 +			 	trimCache(); // Paper
              }
  
              RegionFile regionfile1 = new RegionFile(file2);
-@@ -38,7 +47,154 @@
+@@ -38,7 +48,154 @@
              return regionfile1;
          }
      }
 +    // Paper Start
 +    private static synchronized void trimCache() {
 +        Iterator<Entry<File, RegionFile>> itr = RegionFileCache.REGIONS_BY_FILE.entrySet().iterator();
-+        int count = RegionFileCache.REGIONS_BY_FILE.size() - 256;
++        int count = RegionFileCache.REGIONS_BY_FILE.size() - PaperConfig.regionFileCacheSize;
 +        while (count-- >= 0 && itr.hasNext()) {
 +            try {
 +                itr.next().getValue().close();
@@ -190,7 +194,7 @@
      public static synchronized RegionFile getRegionFileIfExists(File worldDir, int chunkX, int chunkZ)
      {
          File file1 = new File(worldDir, "region");
-@@ -92,14 +248,38 @@
+@@ -92,14 +249,38 @@
          return regionfile.getChunkDataInputStream(chunkX & 31, chunkZ & 31);
      }
  

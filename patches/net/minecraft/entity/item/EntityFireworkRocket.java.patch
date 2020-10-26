@@ -1,6 +1,13 @@
 --- ../src-base/minecraft/net/minecraft/entity/item/EntityFireworkRocket.java
 +++ ../src-work/minecraft/net/minecraft/entity/item/EntityFireworkRocket.java
-@@ -23,13 +23,14 @@
+@@ -1,5 +1,6 @@
+ package net.minecraft.entity.item;
+ 
++import java.util.UUID;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.EntityLivingBase;
+ import net.minecraft.entity.MoverType;
+@@ -23,14 +24,16 @@
  import net.minecraft.world.World;
  import net.minecraftforge.fml.relauncher.Side;
  import net.minecraftforge.fml.relauncher.SideOnly;
@@ -13,11 +20,14 @@
      private static final DataParameter<Integer> BOOSTED_ENTITY_ID = EntityDataManager.<Integer>createKey(EntityFireworkRocket.class, DataSerializers.VARINT);
      private int fireworkAge;
 -    private int lifetime;
+-    private EntityLivingBase boostedEntity;
 +    public int lifetime;
-     private EntityLivingBase boostedEntity;
++    public UUID spawningEntity; // Paper
++    private EntityLivingBase boostedEntity; public EntityLivingBase getBoostedEntity() { return boostedEntity; } // Paper - OBFHELPER
  
      public EntityFireworkRocket(World worldIn)
-@@ -38,6 +39,14 @@
+     {
+@@ -38,6 +41,14 @@
          this.setSize(0.25F, 0.25F);
      }
  
@@ -32,7 +42,7 @@
      protected void entityInit()
      {
          this.dataManager.register(FIREWORK_ITEM, ItemStack.EMPTY);
-@@ -187,8 +196,10 @@
+@@ -187,8 +198,10 @@
  
          if (!this.world.isRemote && this.fireworkAge > this.lifetime)
          {
@@ -45,7 +55,7 @@
              this.setDead();
          }
      }
-@@ -209,7 +220,9 @@
+@@ -209,7 +222,9 @@
          {
              if (this.boostedEntity != null)
              {
@@ -55,7 +65,7 @@
              }
  
              double d0 = 5.0D;
-@@ -235,7 +248,9 @@
+@@ -235,7 +250,9 @@
                      if (flag)
                      {
                          float f1 = f * (float)Math.sqrt((5.0D - (double)this.getDistance(entitylivingbase)) / 5.0D);
@@ -65,3 +75,27 @@
                      }
                  }
              }
+@@ -275,6 +292,11 @@
+         {
+             compound.setTag("FireworksItem", itemstack.writeToNBT(new NBTTagCompound()));
+         }
++        // Paper start
++        if (spawningEntity != null) {
++            compound.setUUID("SpawningEntity", spawningEntity);
++        }
++        // Paper end
+     }
+ 
+     public void readEntityFromNBT(NBTTagCompound compound)
+@@ -292,6 +314,11 @@
+                 this.dataManager.set(FIREWORK_ITEM, itemstack);
+             }
+         }
++        // Paper start
++        if (nbttagcompound.hasUniqueId("SpawningEntity")) {
++            spawningEntity = nbttagcompound.getUUID("SpawningEntity");
++        }
++        // Paper end
+     }
+ 
+     public boolean canBeAttackedWithItem()

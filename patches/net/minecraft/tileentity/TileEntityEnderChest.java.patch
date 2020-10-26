@@ -1,0 +1,62 @@
+--- ../src-base/minecraft/net/minecraft/tileentity/TileEntityEnderChest.java
++++ ../src-work/minecraft/net/minecraft/tileentity/TileEntityEnderChest.java
+@@ -6,7 +6,7 @@
+ import net.minecraft.util.ITickable;
+ import net.minecraft.util.SoundCategory;
+ 
+-public class TileEntityEnderChest extends TileEntity implements ITickable
++public class TileEntityEnderChest extends TileEntity // Paper - Remove ITickable
+ {
+     public float lidAngle;
+     public float prevLidAngle;
+@@ -15,6 +15,8 @@
+ 
+     public void update()
+     {
++        // Paper start - Disable all of this, just in case this does get ticked
++        /*
+         if (++this.ticksSinceSync % 20 * 4 == 0)
+         {
+             this.world.addBlockEvent(this.pos, Blocks.ENDER_CHEST, 1, this.numPlayersUsing);
+@@ -65,6 +67,8 @@
+                 this.lidAngle = 0.0F;
+             }
+         }
++         */
++        // Paper end
+     }
+ 
+     public boolean receiveClientEvent(int id, int type)
+@@ -89,12 +93,32 @@
+     public void openChest()
+     {
+         ++this.numPlayersUsing;
++
++        // Paper start - Move enderchest open sounds out of the tick loop
++        if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F) {
++            this.lidAngle = 0.7F;
++            double d1 = (double) this.getPos().getX() + 0.5D;
++            double d0 = (double) this.getPos().getZ() + 0.5D;
++            this.world.playSound((EntityPlayer) null, d1, (double) this.getPos().getY() + 0.5D, d0, SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
++        }
++        // Paper end
++
+         this.world.addBlockEvent(this.pos, Blocks.ENDER_CHEST, 1, this.numPlayersUsing);
+     }
+ 
+     public void closeChest()
+     {
+         --this.numPlayersUsing;
++
++        // Paper start - Move enderchest close sounds out of the tick loop
++        if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F) {
++            double d0 = (double) this.getPos().getX() + 0.5D;
++            double d2 = (double) this.getPos().getZ() + 0.5D;
++            this.world.playSound((EntityPlayer) null, d0, (double) this.getPos().getY() + 0.5D, d2, SoundEvents.BLOCK_ENDERCHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
++            this.lidAngle = 0.0F;
++        }
++        // Paper end
++
+         this.world.addBlockEvent(this.pos, Blocks.ENDER_CHEST, 1, this.numPlayersUsing);
+     }
+ 

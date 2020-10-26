@@ -62,7 +62,7 @@
      public static void registerFixesHopper(DataFixer fixer)
      {
          fixer.registerWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileEntityHopper.class, new String[] {"Items"}));
-@@ -106,7 +141,7 @@
+@@ -106,11 +141,12 @@
  
      public int getInventoryStackLimit()
      {
@@ -71,7 +71,18 @@
      }
  
      public void update()
-@@ -144,7 +179,7 @@
+     {
++        mayAcceptItems = false; // Paper - at the beginning of a tick, assume we can't accept items
+         if (this.world != null && !this.world.isRemote)
+         {
+             --this.transferCooldown;
+@@ -139,12 +175,13 @@
+ 
+                 if (!this.isFull())
+                 {
++                    mayAcceptItems = true; // Paper - flag this hopper to be able to accept items
+                     flag = pullItems(this) || flag;
+                 }
  
                  if (flag)
                  {
@@ -80,7 +91,167 @@
                      this.markDirty();
                      return true;
                  }
-@@ -213,11 +248,36 @@
+@@ -158,6 +195,13 @@
+         }
+     }
+ 
++    // Paper start
++    private boolean mayAcceptItems = false;
++    public boolean canAcceptItems() {
++        return mayAcceptItems;
++    }
++    // Paper end
++
+     private boolean isInventoryEmpty()
+     {
+         for (ItemStack itemstack : this.inventory)
+@@ -189,6 +233,139 @@
+         return true;
+     }
+ 
++    // Paper start - Optimize Hoppers
++    private static boolean skipPullModeEventFire = false;
++    private static boolean skipPushModeEventFire = false;
++    public static boolean skipHopperEvents = false;
++    private boolean hopperPush(IInventory iinventory, EnumFacing enumdirection) {
++        skipPushModeEventFire = skipHopperEvents;
++        boolean foundItem = false;
++        for (int i = 0; i < this.getSizeInventory(); ++i) {
++            if (!this.getStackInSlot(i).isEmpty()) {
++                foundItem = true;
++                ItemStack origItemStack = this.getStackInSlot(i);
++                ItemStack itemstack = origItemStack;
++                final int origCount = origItemStack.getCount();
++                final int moved = Math.min(world.spigotConfig.hopperAmount, origCount);
++                origItemStack.setCount(moved);
++                // We only need to fire the event once to give protection plugins a chance to cancel this event
++                // Because nothing uses getItem, every event call should end up the same result.
++                if (!skipPushModeEventFire) {
++                    itemstack = callPushMoveEvent(iinventory, itemstack);
++                    if (itemstack == null) { // cancelled
++                        origItemStack.setCount(origCount);
++                        return false;
++                    }
++                }
++                final ItemStack itemstack2 = putStackInInventoryAllSlots(this, iinventory, itemstack, enumdirection);
++                final int remaining = itemstack2.getCount();
++                if (remaining != moved) {
++                    origItemStack = origItemStack.copy();
++                    origItemStack.setCount(origCount - moved + remaining);
++                    this.setInventorySlotContents(i, origItemStack);
++                    iinventory.markDirty();
++                    return true;
++                }
++                origItemStack.setCount(origCount);
++            }
++        }
++        if (foundItem && world.paperConfig.cooldownHopperWhenFull) { // Inventory was full - cooldown
++            this.setTransferCooldown(world.spigotConfig.hopperTransfer);
++        }
++        return false;
++    }
++    private static boolean hopperPull(IHopper ihopper, IInventory iinventory, int i) {
++        ItemStack origItemStack = iinventory.getStackInSlot(i);
++        ItemStack itemstack = origItemStack;
++        final int origCount = origItemStack.getCount();
++        final World world = ihopper.getWorld();
++        final int moved = Math.min(world.spigotConfig.hopperAmount, origCount);
++        itemstack.setCount(moved);
++        if (!skipPullModeEventFire) {
++            itemstack = callPullMoveEvent(ihopper, iinventory, itemstack);
++            if (itemstack == null) { // cancelled
++                origItemStack.setCount(origCount);
++                // Drastically improve performance by returning true.
++                // No plugin could of relied on the behavior of false as the other call
++                // site for IMIE did not exhibit the same behavior
++                return true;
++            }
++        }
++        final ItemStack itemstack2 = putStackInInventoryAllSlots(iinventory, ihopper, itemstack, null);
++        final int remaining = itemstack2.getCount();
++        if (remaining != moved) {
++            origItemStack = origItemStack.copy();
++            origItemStack.setCount(origCount - moved + remaining);
++            IGNORE_TILE_UPDATES = true;
++            iinventory.setInventorySlotContents(i, origItemStack);
++            IGNORE_TILE_UPDATES = false;
++            iinventory.markDirty();
++            return true;
++        }
++        origItemStack.setCount(origCount);
++        if (world.paperConfig.cooldownHopperWhenFull) {
++            cooldownHopper(ihopper);
++        }
++        return false;
++    }
++    private ItemStack callPushMoveEvent(IInventory iinventory, ItemStack itemstack) {
++        Inventory destinationInventory = getInventory(iinventory);
++        InventoryMoveItemEvent event = new InventoryMoveItemEvent(this.getOwner(false).getInventory(),
++            CraftItemStack.asCraftMirror(itemstack), destinationInventory, true);
++        boolean result = event.callEvent();
++        if (!event.calledGetItem && !event.calledSetItem) {
++            skipPushModeEventFire = true;
++        }
++        if (!result) {
++            cooldownHopper(this);
++            return null;
++        }
++        if (event.calledSetItem) {
++            return CraftItemStack.asNMSCopy(event.getItem());
++        } else {
++            return itemstack;
++        }
++    }
++    private static ItemStack callPullMoveEvent(IHopper hopper, IInventory iinventory, ItemStack itemstack) {
++        Inventory sourceInventory = getInventory(iinventory);
++        Inventory destination = getInventory(hopper);
++        InventoryMoveItemEvent event = new InventoryMoveItemEvent(sourceInventory,
++            // Mirror is safe as we no plugins ever use this item
++            CraftItemStack.asCraftMirror(itemstack), destination, false);
++        boolean result = event.callEvent();
++        if (!event.calledGetItem && !event.calledSetItem) {
++            skipPullModeEventFire = true;
++        }
++        if (!result) {
++            cooldownHopper(hopper);
++            return null;
++        }
++        if (event.calledSetItem) {
++            return CraftItemStack.asNMSCopy(event.getItem());
++        } else {
++            return itemstack;
++        }
++    }
++    private static Inventory getInventory(IInventory iinventory) {
++        Inventory sourceInventory;// Have to special case large chests as they work oddly
++        if (iinventory instanceof InventoryLargeChest) {
++            sourceInventory = new org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryDoubleChest((InventoryLargeChest) iinventory);
++        } else if (iinventory instanceof TileEntity) {
++            sourceInventory = ((TileEntity) iinventory).getOwner(false).getInventory();
++        } else {
++            sourceInventory = iinventory.getOwner().getInventory();
++        }
++        return sourceInventory;
++    }
++    private static void cooldownHopper(IHopper hopper) {
++        if (hopper instanceof TileEntityHopper) {
++            ((TileEntityHopper) hopper).setTransferCooldown(hopper.getWorld().spigotConfig.hopperTransfer);
++        } else if (hopper instanceof EntityMinecartHopper) {
++            ((EntityMinecartHopper) hopper).setTransferTicker(hopper.getWorld().spigotConfig.hopperTransfer / 2);
++        }
++    }
++    // Paper end
++
+     private boolean transferItemsOut()
+     {
+         if (net.minecraftforge.items.VanillaInventoryCodeHooks.insertHook(this)) { return true; }
+@@ -208,16 +385,42 @@
+             }
+             else
+             {
++                return hopperPush(iinventory, enumfacing); /* // Paper - disable rest
+                 for (int i = 0; i < this.getSizeInventory(); ++i)
+                 {
                      if (!this.getStackInSlot(i).isEmpty())
                      {
                          ItemStack itemstack = this.getStackInSlot(i).copy();
@@ -119,9 +290,64 @@
                              return true;
                          }
  
-@@ -358,14 +418,47 @@
+@@ -225,7 +428,7 @@
+                     }
+                 }
+ 
+-                return false;
++                return false;*/ // Paper - end commenting out replaced block for Hopper Optimizations
+             }
+         }
+     }
+@@ -296,12 +499,17 @@
+         return true;
+     }
+ 
++    // Paper start - split methods, and only do entity lookup if in pull mode
+     public static boolean pullItems(IHopper hopper)
+     {
+         Boolean ret = net.minecraftforge.items.VanillaInventoryCodeHooks.extractHook(hopper);
+         if (ret != null) return ret;
+-        IInventory iinventory = getSourceInventory(hopper);
++        IInventory iinventory = getInventory(hopper, !(hopper instanceof TileEntityHopper) || !hopper.getWorld().paperConfig.isHopperPushBased);
++        return acceptItem(hopper, iinventory);
++    }
+ 
++    public static boolean acceptItem(IHopper hopper, IInventory iinventory) {
++        // Paper end
+         if (iinventory != null)
+         {
+             EnumFacing enumfacing = EnumFacing.DOWN;
+@@ -310,6 +518,7 @@
+             {
+                 return false;
+             }
++            skipPullModeEventFire = skipHopperEvents; // Paper
+ 
+             if (iinventory instanceof ISidedInventory)
+             {
+@@ -336,13 +545,9 @@
+                     }
+                 }
+             }
+-        }
+-        else
+-        {
+-            for (EntityItem entityitem : getCaptureItems(hopper.getWorld(), hopper.getXPos(), hopper.getYPos(), hopper.getZPos()))
+-            {
+-                if (putDropInInventoryAllSlots((IInventory)null, hopper, entityitem))
+-                {
++        } else if (!hopper.getWorld().paperConfig.isHopperPushBased || !(hopper instanceof TileEntityHopper)) { // Paper - only search for entities in 'pull mode'
++            for (EntityItem entityitem : getCaptureItems(hopper.getWorld(), hopper.getXPos(), hopper.getYPos(), hopper.getZPos())) {
++                if (putDropInInventoryAllSlots((IInventory) null, hopper, entityitem)) {
+                     return true;
+                 }
+             }
+@@ -357,21 +562,56 @@
+ 
          if (!itemstack.isEmpty() && canExtractItemFromSlot(inventoryIn, itemstack, index, direction))
          {
++            return hopperPull(hopper, inventoryIn, index); /* // Paper - disable rest
              ItemStack itemstack1 = itemstack.copy();
 -            ItemStack itemstack2 = putStackInInventoryAllSlots(inventoryIn, hopper, inventoryIn.decrStackSize(index, 1), (EnumFacing)null);
 +            // ItemStack itemstack2 = putStackInInventoryAllSlots(inventoryIn, hopper, inventoryIn.decrStackSize(index, 1), (EnumFacing)null);
@@ -166,23 +392,44 @@
                  return true;
              }
 -
+-            inventoryIn.setInventorySlotContents(index, itemstack1);
 +			itemstack1.shrink(origCount - itemstack2.getCount());
-             inventoryIn.setInventorySlotContents(index, itemstack1);
++            inventoryIn.setInventorySlotContents(index, itemstack1); */ // Paper - end commenting out replaced block for Hopper Optimizations
          }
  
-@@ -382,6 +475,11 @@
+         return false;
+     }
+ 
++    public static boolean putDropInInventory(IInventory iinventory, IInventory iinventory1, EntityItem entityitem) { return putDropInInventoryAllSlots(iinventory, iinventory1, entityitem); } // Paper - OBFHELPER
+     public static boolean putDropInInventoryAllSlots(IInventory source, IInventory destination, EntityItem entity)
+     {
+         boolean flag = false;
+@@ -382,6 +622,14 @@
          }
          else
          {
++            // CraftBukkit start
 +            InventoryPickupItemEvent event = new InventoryPickupItemEvent(destination.getOwner().getInventory(), (org.bukkit.entity.Item) entity.getBukkitEntity());
 +            entity.world.getServer().getPluginManager().callEvent(event);
 +            if (event.isCancelled()) {
 +                return false;
 +            }
++            // CraftBukkit end
++
              ItemStack itemstack = entity.getItem().copy();
              ItemStack itemstack1 = putStackInInventoryAllSlots(source, destination, itemstack, (EnumFacing)null);
  
-@@ -491,7 +589,7 @@
+@@ -458,7 +706,9 @@
+ 
+             if (itemstack.isEmpty())
+             {
++                IGNORE_TILE_UPDATES = true; // Paper
+                 destination.setInventorySlotContents(index, stack);
++                IGNORE_TILE_UPDATES = false; // Paper
+                 stack = ItemStack.EMPTY;
+                 flag = true;
+             }
+@@ -491,7 +741,7 @@
                              }
                          }
  
@@ -191,11 +438,69 @@
                      }
                  }
  
-@@ -525,6 +623,7 @@
+@@ -505,26 +755,52 @@
+     private IInventory getInventoryForHopperTransfer()
+     {
+         EnumFacing enumfacing = BlockHopper.getFacing(this.getBlockMetadata());
+-        return getInventoryAtPosition(this.getWorld(), this.getXPos() + (double)enumfacing.getFrontOffsetX(), this.getYPos() + (double)enumfacing.getFrontOffsetY(), this.getZPos() + (double)enumfacing.getFrontOffsetZ());
++        // Paper start - don't search for entities in push mode
++        World world = getWorld();
++        return getInventory(world, this.getXPos() + (double)enumfacing.getFrontOffsetX(), this.getYPos() + (double)enumfacing.getFrontOffsetY(), this.getZPos() + (double)enumfacing.getFrontOffsetZ(), !world.paperConfig.isHopperPushBased);
++        // Paper end
+     }
+ 
++    // Paper start - add option to search for entities
+     public static IInventory getSourceInventory(IHopper hopper)
+     {
+-        return getInventoryAtPosition(hopper.getWorld(), hopper.getXPos(), hopper.getYPos() + 1.0D, hopper.getZPos());
++        return getInventory(hopper, true);
+     }
+ 
++    public static IInventory getInventory(IHopper hopper, boolean searchForEntities) {
++        return getInventory(hopper.getWorld(), hopper.getXPos(), hopper.getYPos() + 1.0D, hopper.getZPos(), searchForEntities);
++        // Paper end
++    }
++
+     public static List<EntityItem> getCaptureItems(World worldIn, double p_184292_1_, double p_184292_3_, double p_184292_5_)
+     {
+         return worldIn.<EntityItem>getEntitiesWithinAABB(EntityItem.class, new AxisAlignedBB(p_184292_1_ - 0.5D, p_184292_3_, p_184292_5_ - 0.5D, p_184292_1_ + 0.5D, p_184292_3_ + 1.5D, p_184292_5_ + 0.5D), EntitySelectors.IS_ALIVE);
+     }
+ 
+-    public static IInventory getInventoryAtPosition(World worldIn, double x, double y, double z)
+-    {
++    // Paper start
++    public AxisAlignedBB getHopperLookupBoundingBox() {
++        return getHopperLookupBoundingBox(this.getX(), this.getY(), this.getZ());
++    }
++
++    private static AxisAlignedBB getHopperLookupBoundingBox(double d0, double d1, double d2) {
++        // Change this if a(World, double, double, double) above ever changes
++        return new AxisAlignedBB(d0 - 0.5D, d1, d2 - 0.5D, d0 + 0.5D, d1 + 1.5D, d2 + 0.5D);
++    }
++
++    // Paper end
++    // Paper start - add option to searchForEntities
++    public static IInventory getInventoryAtPosition(World world, double d0, double d1, double d2) {
++        return getInventory(world, d0, d1, d2, true);
++    }
++
++    public static IInventory getInventory(World worldIn, double x, double y, double z, boolean searchForEntities) {
++        // Paper end
+         IInventory iinventory = null;
+         int i = MathHelper.floor(x);
          int j = MathHelper.floor(y);
          int k = MathHelper.floor(z);
          BlockPos blockpos = new BlockPos(i, j, k);
 +		if (!worldIn.isBlockLoaded(blockpos)) return null; // Spigot
          net.minecraft.block.state.IBlockState state = worldIn.getBlockState(blockpos);
          Block block = state.getBlock();
+ 
+@@ -543,7 +819,7 @@
+             }
+         }
+ 
+-        if (iinventory == null)
++        if (iinventory == null && searchForEntities) // Paper - only if searchForEntities
+         {
+             List<Entity> list = worldIn.getEntitiesInAABBexcluding((Entity)null, new AxisAlignedBB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D), EntitySelectors.HAS_INVENTORY);
  

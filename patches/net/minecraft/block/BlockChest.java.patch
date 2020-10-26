@@ -1,0 +1,31 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockChest.java
++++ ../src-work/minecraft/net/minecraft/block/BlockChest.java
+@@ -466,8 +466,15 @@
+                 for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
+                 {
+                     BlockPos blockpos = pos.offset(enumfacing);
+-                    Block block = worldIn.getBlockState(blockpos).getBlock();
+ 
++                    // Paper start - don't load chunks if the other side of the chest is in unloaded chunk
++                    final IBlockState type = worldIn.getTypeIfLoaded(blockpos); // Paper
++                    if (type ==  null) {
++                        continue;
++                    }
++                    Block block = type.getBlock();
++                    // Paper end
++
+                     if (block == this)
+                     {
+                         if (!allowBlocking && this.isBlocked(worldIn, blockpos)) // Forge: fix MC-99321
+@@ -543,6 +550,11 @@
+ 
+     private boolean isOcelotSittingOnChest(World worldIn, BlockPos pos)
+     {
++        // Paper start - Option to disable chest cat detection
++        if (worldIn.paperConfig.disableChestCatDetection) {
++            return false;
++        }
++        // Paper end
+         for (Entity entity : worldIn.getEntitiesWithinAABB(EntityOcelot.class, new AxisAlignedBB((double)pos.getX(), (double)(pos.getY() + 1), (double)pos.getZ(), (double)(pos.getX() + 1), (double)(pos.getY() + 2), (double)(pos.getZ() + 1))))
+         {
+             EntityOcelot entityocelot = (EntityOcelot)entity;

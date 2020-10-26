@@ -28,6 +28,7 @@ import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraft.tileentity.TileEntityLockable;
 import net.minecraft.tileentity.TileEntityShulkerBox;
+import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.CooldownTracker;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.BlockPos;
@@ -36,6 +37,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
+import org.bukkit.event.inventory.InventoryCloseEvent.Reason;
 import org.bukkit.inventory.MainHand;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.Material;
@@ -436,8 +438,15 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
     }
 
     public void closeInventory() {
-        getHandle().closeScreen();
+        // Paper start
+        getHandle().closeInventory(Reason.PLUGIN);
     }
+
+    @Override
+    public void closeInventory(Reason reason) {
+        getHandle().closeInventory(reason);
+    }
+    // Paper end
 
     public boolean isBlocking() {
         return getHandle().isActiveItemStackBlocking();
@@ -479,6 +488,29 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
         getHandle().getCooldownTracker().setCooldown(CraftMagicNumbers.getItem(material), ticks);
     }
 
+    // Paper start
+    @Override
+    public org.bukkit.entity.Entity releaseLeftShoulderEntity() {
+        if (!getHandle().getLeftShoulderEntity().hasNoTags()) {
+            Entity entity = getHandle().releaseLeftShoulderEntity();
+            if (entity != null) {
+                return entity.getBukkitEntity();
+            }
+        }
+        return null;
+    }
+    @Override
+    public org.bukkit.entity.Entity releaseRightShoulderEntity() {
+        if (!getHandle().getRightShoulderEntity().hasNoTags()) {
+            Entity entity = getHandle().releaseRightShoulderEntity();
+            if (entity != null) {
+                return entity.getBukkitEntity();
+            }
+        }
+        return null;
+    }
+    // Paper end
+
     @Override
     public org.bukkit.entity.Entity getShoulderEntityLeft() {
         if (!getHandle().getLeftShoulderEntity().hasNoTags()) {
@@ -516,4 +548,16 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
             entity.remove();
         }
     }
+
+    // Paper start - Add method to open already placed sign
+    @Override
+    public void openSign(org.bukkit.block.Sign sign) {
+        org.apache.commons.lang.Validate.isTrue(sign.getWorld().equals(this.getWorld()), "Sign must be in the same world as player is in");
+        org.bukkit.craftbukkit.v1_12_R1.block.CraftSign craftSign = (org.bukkit.craftbukkit.v1_12_R1.block.CraftSign) sign;
+        TileEntitySign teSign = craftSign.getTileEntity();
+        // Make sign editable temporarily, will be set back to false in PlayerConnection later
+        teSign.isEditable = true;
+        getHandle().openEditSign(teSign);
+    }
+    // Paper end
 }

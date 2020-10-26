@@ -1,11 +1,12 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
+import com.destroystokyo.paper.entity.CraftSentientNPC;
 import net.minecraft.entity.passive.EntityAmbientCreature;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.entity.Ambient;
 import org.bukkit.entity.EntityType;
 
-public class CraftAmbient extends CraftLivingEntity implements Ambient {
+public class CraftAmbient extends CraftLivingEntity implements Ambient, CraftSentientNPC { // Paper
     public CraftAmbient(CraftServer server, EntityAmbientCreature entity) {
         super(server, entity);
     }

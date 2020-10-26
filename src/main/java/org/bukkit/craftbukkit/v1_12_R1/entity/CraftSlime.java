@@ -1,12 +1,13 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
+import com.destroystokyo.paper.entity.CraftSentientNPC;
 import net.minecraft.entity.monster.EntitySlime;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Slime;
 
-public class CraftSlime extends CraftLivingEntity implements Slime {
+public class CraftSlime extends CraftLivingEntity implements Slime, CraftSentientNPC { // Paper
 
     public CraftSlime(CraftServer server, EntitySlime entity) {
         super(server, entity);

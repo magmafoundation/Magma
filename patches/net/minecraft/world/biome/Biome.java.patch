@@ -26,7 +26,17 @@
                  return this.modSpawnableLists.get(creatureType);
          }
      }
-@@ -475,7 +476,8 @@
+@@ -251,8 +252,7 @@
+ 
+         for (int j1 = 255; j1 >= 0; --j1)
+         {
+-            if (j1 <= rand.nextInt(5))
+-            {
++            if (j1 <= (worldIn.paperConfig.generateFlatBedrock ? 0 : rand.nextInt(5))) { // Paper - Configurable flat bedrock
+                 chunkPrimerIn.setBlockState(i1, j1, l, BEDROCK);
+             }
+             else
+@@ -475,7 +475,8 @@
              return;
          }
  

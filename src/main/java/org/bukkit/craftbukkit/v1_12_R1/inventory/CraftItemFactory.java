@@ -98,6 +98,8 @@ public final class CraftItemFactory implements ItemFactory {
             return meta instanceof CraftMetaSpawnEgg ? meta : new CraftMetaSpawnEgg(meta);
         case KNOWLEDGE_BOOK:
             return meta instanceof CraftMetaKnowledgeBook ? meta : new CraftMetaKnowledgeBook(meta);
+        case ARMOR_STAND:
+            return meta instanceof CraftMetaArmorStand ? meta : new CraftMetaArmorStand(meta); // Paper
         case FURNACE:
         case CHEST:
         case TRAPPED_CHEST:
@@ -196,4 +198,24 @@ public final class CraftItemFactory implements ItemFactory {
     public Color getDefaultLeatherColor() {
         return DEFAULT_LEATHER_COLOR;
     }
+
+    // Paper start
+    @Override
+    public ItemStack ensureServerConversions(ItemStack item) {
+        return CraftItemStack.asCraftMirror(CraftItemStack.asNMSCopy(item));
+    }
+
+    @Override
+    public String getI18NDisplayName(ItemStack item) {
+        net.minecraft.item.ItemStack nms = null;
+        if (item instanceof CraftItemStack) {
+            nms = ((CraftItemStack) item).handle;
+        }
+        if (nms == null) {
+            nms = CraftItemStack.asNMSCopy(item);
+        }
+        return nms != null ? nms.getDisplayName() : null;
+    }
+
+    // Paper end
 }

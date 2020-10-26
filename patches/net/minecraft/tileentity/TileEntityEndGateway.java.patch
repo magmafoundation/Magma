@@ -61,7 +61,7 @@
 +                location.setPitch(player.getLocation().getPitch());
 +                location.setYaw(player.getLocation().getYaw());
 +
-+                com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent event = new com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent(player, player.getLocation(), location, new CraftEndGateway(MCUtil.toLocation(world, this.getPos()).getBlock()));
++                com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent event = new com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent(player, player.getLocation(), location, new CraftEndGateway(MCUtil.toLocation(world, this.getPos()).getBlock())); // Paper
 +                if(!event.callEvent()){
 +                    return;
 +                }

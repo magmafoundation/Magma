@@ -35,6 +35,7 @@ public class CraftMetaBook extends CraftMetaItem implements BookMeta {
     static final int MAX_PAGES = 50;
     static final int MAX_PAGE_LENGTH = 320; // 256 limit + 64 characters to allow for psuedo colour codes
     static final int MAX_TITLE_LENGTH = 32;
+    private static final boolean OVERRIDE_CHECKS = Boolean.getBoolean("disable.book-limits"); // Paper - Add override
 
     protected String title;
     protected String author;
@@ -191,7 +192,7 @@ public class CraftMetaBook extends CraftMetaItem implements BookMeta {
         if (title == null) {
             this.title = null;
             return true;
-        } else if (title.length() > MAX_TITLE_LENGTH) {
+        } else if (title.length() > MAX_TITLE_LENGTH && !OVERRIDE_CHECKS) { // Paper - Add override
             return false;
         }
 
@@ -227,7 +228,7 @@ public class CraftMetaBook extends CraftMetaItem implements BookMeta {
             throw new IllegalArgumentException("Invalid page number " + page + "/" + pages.size());
         }
 
-        String newText = text == null ? "" : text.length() > MAX_PAGE_LENGTH ? text.substring(0, MAX_PAGE_LENGTH) : text;
+        String newText = text == null ? "" : text.length() > MAX_PAGE_LENGTH && !OVERRIDE_CHECKS ? text.substring(0, MAX_PAGE_LENGTH) : text;
         pages.set(page - 1, CraftChatMessage.fromString(newText, true)[0]);
     }
 
@@ -239,13 +240,13 @@ public class CraftMetaBook extends CraftMetaItem implements BookMeta {
 
     public void addPage(final String... pages) {
         for (String page : pages) {
-            if (this.pages.size() >= MAX_PAGES) {
+            if (this.pages.size() >= MAX_PAGES && !OVERRIDE_CHECKS) {
                 return;
             }
 
             if (page == null) {
                 page = "";
-            } else if (page.length() > MAX_PAGE_LENGTH) {
+            } else if (page.length() > MAX_PAGE_LENGTH && !OVERRIDE_CHECKS) { // Paper - Add override
                 page = page.substring(0, MAX_PAGE_LENGTH);
             }
 

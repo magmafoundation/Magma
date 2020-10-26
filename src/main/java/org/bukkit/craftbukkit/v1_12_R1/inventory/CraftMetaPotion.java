@@ -1,11 +1,10 @@
 package org.bukkit.craftbukkit.v1_12_R1.inventory;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap.Builder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.apache.commons.lang3.Validate;
@@ -19,6 +18,9 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap.Builder;
 
 @DelegateDeserialization(CraftMetaItem.SerializableMeta.class)
 class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
@@ -37,9 +39,6 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
     private List<PotionEffect> customEffects;
     private Color color;
 
-    // Magma - Modded Potions
-    private String moddedType = null;
-
     CraftMetaPotion(CraftMetaItem meta) {
         super(meta);
         if (!(meta instanceof CraftMetaPotion)) {
@@ -47,7 +46,6 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
         }
         CraftMetaPotion potionMeta = (CraftMetaPotion) meta;
         this.type = potionMeta.type;
-        this.moddedType = potionMeta.moddedType; // Magma - Modded Potions
         this.color = potionMeta.color;
         if (potionMeta.hasCustomEffects()) {
             this.customEffects = new ArrayList<PotionEffect>(potionMeta.customEffects);
@@ -58,12 +56,6 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
         super(tag);
         if (tag.hasKey(DEFAULT_POTION.NBT)) {
             type = CraftPotionUtil.toBukkit(tag.getString(DEFAULT_POTION.NBT));
-
-            // Magma start - Modded Potions
-            if (type.getType() == PotionType.UNCRAFTABLE) {
-                moddedType = tag.getString(DEFAULT_POTION.NBT);
-            }
-            // Magma end
         }
         if (tag.hasKey(POTION_COLOR.NBT)) {
             color = Color.fromRGB(tag.getInteger(POTION_COLOR.NBT));
@@ -88,11 +80,6 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
     CraftMetaPotion(Map<String, Object> map) {
         super(map);
         type = CraftPotionUtil.toBukkit(SerializableMeta.getString(map, DEFAULT_POTION.BUKKIT, true));
-        // Magma start - Modded Potions
-        if (type.getType() == PotionType.UNCRAFTABLE) {
-            moddedType = SerializableMeta.getString(map, DEFAULT_POTION.BUKKIT + "-modded", true);
-        }
-        // Magma end
 
         Color color = SerializableMeta.getObject(Color.class, map, POTION_COLOR.BUKKIT, true);
         if (color != null) {
@@ -116,7 +103,7 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
     void applyToItem(NBTTagCompound tag) {
         super.applyToItem(tag);
 
-        tag.setString(DEFAULT_POTION.NBT, type.getType() == PotionType.UNCRAFTABLE && moddedType != null ? moddedType : CraftPotionUtil.fromBukkit(type)); // Magma - Add Forge Potions
+        tag.setString(DEFAULT_POTION.NBT, CraftPotionUtil.fromBukkit(type));
 
         if (hasColor()) {
             tag.setInteger(POTION_COLOR.NBT, color.asRGB());
@@ -144,7 +131,7 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
     }
 
     boolean isPotionEmpty() {
-        return (type.getType() == PotionType.UNCRAFTABLE) && !(hasCustomEffects() || hasColor()) && moddedType == null; // Magma - Forge Potions
+        return (type.getType() == PotionType.UNCRAFTABLE) && !(hasCustomEffects() || hasColor());
     }
 
     @Override
@@ -296,8 +283,6 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
         int hash = original = super.applyHash();
         if (type.getType() != PotionType.UNCRAFTABLE) {
             hash = 73 * hash + type.hashCode();
-        } else if (moddedType != null) { // Magma Modded
-            hash = 73 * hash + moddedType.hashCode();
         }
         if (hasColor()) {
             hash = 73 * hash + color.hashCode();
@@ -333,8 +318,6 @@ class CraftMetaPotion extends CraftMetaItem implements PotionMeta {
         super.serialize(builder);
         if (type.getType() != PotionType.UNCRAFTABLE) {
             builder.put(DEFAULT_POTION.BUKKIT, CraftPotionUtil.fromBukkit(type));
-        } else if (moddedType != null) { // Magma - Modded Potions
-            builder.put(DEFAULT_POTION.BUKKIT + "-modded", moddedType);
         }
 
         if (hasColor()) {

@@ -1,13 +1,25 @@
 --- ../src-base/minecraft/net/minecraft/entity/item/EntityMinecartContainer.java
 +++ ../src-work/minecraft/net/minecraft/entity/item/EntityMinecartContainer.java
-@@ -1,5 +1,6 @@
+@@ -1,5 +1,10 @@
  package net.minecraft.entity.item;
  
++import com.destroystokyo.paper.HopperPusher;
++import com.destroystokyo.paper.loottable.CraftLootableInventory;
++import com.destroystokyo.paper.loottable.CraftLootableInventoryData;
++import com.destroystokyo.paper.loottable.LootableInventory;
 +import java.util.List;
  import java.util.Random;
  import javax.annotation.Nullable;
  import net.minecraft.entity.Entity;
-@@ -23,14 +24,33 @@
+@@ -9,6 +14,7 @@
+ import net.minecraft.inventory.ItemStackHelper;
+ import net.minecraft.item.ItemStack;
+ import net.minecraft.nbt.NBTTagCompound;
++import net.minecraft.tileentity.TileEntityHopper;
+ import net.minecraft.util.DamageSource;
+ import net.minecraft.util.EnumHand;
+ import net.minecraft.util.NonNullList;
+@@ -23,14 +29,52 @@
  import net.minecraft.world.storage.loot.ILootContainer;
  import net.minecraft.world.storage.loot.LootContext;
  import net.minecraft.world.storage.loot.LootTable;
@@ -16,13 +28,35 @@
 +import org.bukkit.entity.HumanEntity;
 +import org.bukkit.inventory.InventoryHolder;
  
- public abstract class EntityMinecartContainer extends EntityMinecart implements ILockableContainer, ILootContainer
- {
+-public abstract class EntityMinecartContainer extends EntityMinecart implements ILockableContainer, ILootContainer
+-{
 -    private NonNullList<ItemStack> minecartContainerItems = NonNullList.<ItemStack>withSize(36, ItemStack.EMPTY);
++// Paper start - push into hoppers
++public abstract class EntityMinecartContainer extends EntityMinecart implements ILockableContainer, ILootContainer, CraftLootableInventory, HopperPusher {
++
++    @Override
++    public boolean acceptItem(TileEntityHopper hopper) {
++        return TileEntityHopper.acceptItem(hopper, this);
++    }
++
++    @Override
++    public void onUpdate() {
++        super.onUpdate();
++        tryPutInHopper();
++    }
++
++    @Override
++    public void inactiveTick() {
++        super.inactiveTick();
++        tryPutInHopper();
++    }
++    // Paper end
++
 +    private NonNullList<ItemStack> minecartContainerItems = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY); // CraftBukkit - SPIGOT-3513
      public boolean dropContentsWhenDead = true;
      private ResourceLocation lootTable;
-     private long lootTableSeed;
+-    private long lootTableSeed;
++    private long lootTableSeed; public long getLootTableSeed() { return lootTableSeed; } // Paper - OBFHELPER
 +    private int maxStack = MAX_STACK; // CraftBukkit
  
 +    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
@@ -42,7 +76,7 @@
      public EntityMinecartContainer(World worldIn)
      {
          super(worldIn);
-@@ -41,6 +61,27 @@
+@@ -41,6 +85,27 @@
          super(worldIn, x, y, z);
      }
  
@@ -70,7 +104,7 @@
      public void killMinecart(DamageSource source)
      {
          super.killMinecart(source);
-@@ -134,7 +175,7 @@
+@@ -134,7 +199,7 @@
  
      public int getInventoryStackLimit()
      {
@@ -79,3 +113,96 @@
      }
  
      @Nullable
+@@ -168,7 +233,7 @@
+     protected void writeEntityToNBT(NBTTagCompound compound)
+     {
+         super.writeEntityToNBT(compound);
+-
++        lootableData.saveNbt(compound); // Paper
+         if (this.lootTable != null)
+         {
+             compound.setString("LootTable", this.lootTable.toString());
+@@ -177,9 +242,7 @@
+             {
+                 compound.setLong("LootTableSeed", this.lootTableSeed);
+             }
+-        }
+-        else
+-        {
++        } if (true) { // Paper - Always save the items, Table may stick around
+             ItemStackHelper.saveAllItems(compound, this.minecartContainerItems);
+         }
+     }
+@@ -187,6 +250,7 @@
+     protected void readEntityFromNBT(NBTTagCompound compound)
+     {
+         super.readEntityFromNBT(compound);
++        lootableData.loadNbt(compound); // Paper
+         this.minecartContainerItems = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
+ 
+         if (compound.hasKey("LootTable", 8))
+@@ -194,8 +258,7 @@
+             this.lootTable = new ResourceLocation(compound.getString("LootTable"));
+             this.lootTableSeed = compound.getLong("LootTableSeed");
+         }
+-        else
+-        {
++        if (true) { // Paper - always load the items, table may still remain
+             ItemStackHelper.loadAllItems(compound, this.minecartContainerItems);
+         }
+     }
+@@ -256,10 +319,9 @@
+ 
+     public void addLoot(@Nullable EntityPlayer player)
+     {
+-        if (this.lootTable != null)
+-        {
++        if (lootableData.shouldReplenish(player)) { // Paper
+             LootTable loottable = this.world.getLootTableManager().getLootTableFromLocation(this.lootTable);
+-            this.lootTable = null;
++            lootableData.processRefill(player); // Paper
+             Random random;
+ 
+             if (this.lootTableSeed == 0L)
+@@ -314,8 +376,41 @@
+         this.lootTableSeed = lootTableSeedIn;
+     }
+ 
++    public ResourceLocation getLootTableKey() { return getLootTable(); } // Paper - OBFHELPER
+     public ResourceLocation getLootTable()
+     {
+         return this.lootTable;
+     }
++
++    // Paper start
++    private final CraftLootableInventoryData lootableData = new CraftLootableInventoryData(this);
++    @Override
++    public CraftLootableInventoryData getLootableData() {
++        return lootableData;
++    }
++    @Override
++    public LootableInventory getAPILootableInventory() {
++        return (LootableInventory) this.getBukkitEntity();
++    }
++    @Override
++    public World getNMSWorld() {
++        return this.world;
++    }
++    public String getLootTableName() {
++        final ResourceLocation key = getLootTableKey();
++        return key != null ? key.toString() : null;
++    }
++    @Override
++    public String setLootTable(String name, long seed) {
++        String prev = getLootTableName();
++        setLootTable(new ResourceLocation(name), seed);
++        return prev;
++    }
++    @Override
++    public void clearLootTable() {
++        //noinspection RedundantCast
++        this.lootTable = (ResourceLocation) null;
++    }
++    // Paper end
++
+ }

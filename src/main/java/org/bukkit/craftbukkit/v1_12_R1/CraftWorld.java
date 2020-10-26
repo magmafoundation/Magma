@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1;
 
+import com.destroystokyo.paper.MCUtil;
 import com.google.common.base.Preconditions;
 import java.io.File;
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-
 import net.minecraft.block.BlockChorusFlower;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockOldLeaf;
@@ -109,9 +109,11 @@ import net.minecraft.entity.projectile.EntitySpectralArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.entity.projectile.EntityWitherSkull;
 import net.minecraft.init.Blocks;
-
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.*;
+import net.minecraft.network.play.server.SPacketCustomSound;
+import net.minecraft.network.play.server.SPacketEffect;
+import net.minecraft.network.play.server.SPacketParticles;
+import net.minecraft.network.play.server.SPacketTimeUpdate;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -159,12 +161,105 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftItem;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLightningStrike;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.metadata.BlockMetadataStore;
 import org.bukkit.craftbukkit.v1_12_R1.potion.CraftPotionUtil;
-import org.bukkit.entity.*;
+import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
+import org.bukkit.entity.AbstractHorse;
+import org.bukkit.entity.Ambient;
+import org.bukkit.entity.AreaEffectCloud;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Bat;
+import org.bukkit.entity.Blaze;
+import org.bukkit.entity.Boat;
+import org.bukkit.entity.CaveSpider;
+import org.bukkit.entity.ChestedHorse;
+import org.bukkit.entity.Chicken;
+import org.bukkit.entity.ComplexLivingEntity;
+import org.bukkit.entity.Cow;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Donkey;
+import org.bukkit.entity.DragonFireball;
+import org.bukkit.entity.Egg;
+import org.bukkit.entity.ElderGuardian;
+import org.bukkit.entity.EnderCrystal;
+import org.bukkit.entity.EnderDragon;
+import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.EnderSignal;
+import org.bukkit.entity.Enderman;
+import org.bukkit.entity.Endermite;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Evoker;
+import org.bukkit.entity.EvokerFangs;
+import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.Ghast;
+import org.bukkit.entity.Giant;
+import org.bukkit.entity.Golem;
+import org.bukkit.entity.Guardian;
+import org.bukkit.entity.Hanging;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Husk;
+import org.bukkit.entity.Illager;
+import org.bukkit.entity.Illusioner;
+import org.bukkit.entity.IronGolem;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.LeashHitch;
+import org.bukkit.entity.LightningStrike;
+import org.bukkit.entity.LingeringPotion;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Llama;
+import org.bukkit.entity.LlamaSpit;
+import org.bukkit.entity.MagmaCube;
+import org.bukkit.entity.Minecart;
+import org.bukkit.entity.Mule;
+import org.bukkit.entity.MushroomCow;
+import org.bukkit.entity.Ocelot;
+import org.bukkit.entity.Painting;
+import org.bukkit.entity.Parrot;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.PigZombie;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.PolarBear;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Rabbit;
+import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Shulker;
+import org.bukkit.entity.ShulkerBullet;
+import org.bukkit.entity.Silverfish;
+import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.SkeletonHorse;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.SmallFireball;
+import org.bukkit.entity.Snowball;
+import org.bukkit.entity.Snowman;
+import org.bukkit.entity.SpectralArrow;
+import org.bukkit.entity.Spellcaster;
+import org.bukkit.entity.Spider;
+import org.bukkit.entity.Squid;
+import org.bukkit.entity.Stray;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.ThrownExpBottle;
+import org.bukkit.entity.ThrownPotion;
+import org.bukkit.entity.TippedArrow;
+import org.bukkit.entity.Vex;
+import org.bukkit.entity.Villager;
+import org.bukkit.entity.Vindicator;
+import org.bukkit.entity.Weather;
+import org.bukkit.entity.Witch;
+import org.bukkit.entity.Wither;
+import org.bukkit.entity.WitherSkeleton;
+import org.bukkit.entity.WitherSkull;
+import org.bukkit.entity.Wolf;
+import org.bukkit.entity.Zombie;
+import org.bukkit.entity.ZombieHorse;
+import org.bukkit.entity.ZombieVillager;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.entity.minecart.ExplosiveMinecart;
 import org.bukkit.entity.minecart.HopperMinecart;
@@ -305,6 +400,32 @@ public class CraftWorld implements World {
         }
     }
 
+    // Paper start - Provide fast information methods
+    public int getEntityCount() {
+        return world.loadedEntityList.size();
+    }
+    public int getTileEntityCount() {
+
+        // We don't use the full world tile entity list, so we must iterate chunks
+        int size = 0;
+        for (net.minecraft.world.chunk.Chunk chunk : ((ChunkProviderServer) world.getChunkProvider()).id2ChunkMap.values()) {
+            size += chunk.tileEntities.size();
+
+        }
+        return size;
+    }
+    public int getTickableTileEntityCount() {
+
+        return world.tickableTileEntities.size();
+    }
+    public int getChunkCount() {
+        return world.getChunkProvider().id2ChunkMap.size();
+
+    }
+    public int getPlayerCount() {
+        return world.playerEntities.size();
+    }
+
     public Block getBlockAt(int x, int y, int z) {
         Chunk chunk = getChunkAt(x >> 4, z >> 4);
         return chunk == null ? null : chunk.getBlock(x & 0xF, y & 0xFF, z & 0xF);
@@ -349,6 +470,24 @@ public class CraftWorld implements World {
         }
     }
 
+    // Paper start - Async chunk load API
+    public void getChunkAtAsync(final int x, final int z, final ChunkLoadCallback callback) {
+        final ChunkProviderServer cps = this.world.getChunkProvider();
+        cps.loadChunk(x, z, new Runnable() {
+            @Override
+            public void run() {
+                callback.onLoad(cps.provideChunk(x, z).bukkitChunk);
+            }
+        });
+    }
+    public void getChunkAtAsync(Block block, ChunkLoadCallback callback) {
+        getChunkAtAsync(block.getX() >> 4, block.getZ() >> 4, callback);
+    }
+    public void getChunkAtAsync(Location location, ChunkLoadCallback callback) {
+        getChunkAtAsync(location.getBlockX() >> 4, location.getBlockZ() >> 4, callback);
+    }
+    // Paper end
+
     public Chunk getChunkAt(int x, int z) {
         net.minecraft.world.chunk.Chunk chunk = this.world.getChunkProvider().provideChunk(x, z);
         return chunk == null ? null : chunk.bukkitChunk;
@@ -357,6 +496,12 @@ public class CraftWorld implements World {
     public Chunk getChunkAt(Block block) {
         return getChunkAt(block.getX() >> 4, block.getZ() >> 4);
     }
+
+    // Paper start
+    public boolean isChunkGenerated(int x, int z) {
+        return this.getHandle().getChunkProvider().isChunkGenerated(x, z);
+    }
+    // Paper end
 
     public boolean isChunkLoaded(int x, int z) {
         return world.getChunkProvider().chunkExists(x, z);
@@ -416,6 +561,7 @@ public class CraftWorld implements World {
     }
 
     private boolean unloadChunk0(int x, int z, boolean save) {
+        Boolean result = MCUtil.ensureMain("Unload Chunk", () -> { // Paper - Ensure never async
         net.minecraft.world.chunk.Chunk chunk = world.getChunkProvider().getChunkIfLoaded(x, z);
         if (chunk == null) {
             return true;
@@ -423,6 +569,7 @@ public class CraftWorld implements World {
 
         // If chunk had previously been queued to save, must do save to avoid loss of that data
         return world.getChunkProvider().unloadChunk(chunk, chunk.mustSave || save);
+        }); return result != null ? result : false; // Paper - Ensure never async
     }
 
     public boolean regenerateChunk(int x, int z) {
@@ -748,12 +895,12 @@ public class CraftWorld implements World {
     public boolean createExplosion(double x, double y, double z, float power, boolean setFire, boolean breakBlocks) {
         return !world.newExplosion(null, x, y, z, power, setFire, breakBlocks).wasCanceled;
     }
-    // Paper end
 
     // Paper start
     public boolean createExplosion(Entity source, Location loc, float power, boolean setFire, boolean breakBlocks) {
         return !world.newExplosion(source != null ? ((CraftEntity) source).getHandle() : null, loc.getX(), loc.getY(), loc.getZ(), power, setFire, breakBlocks).wasCanceled;
     }
+    // Paper end
 
     public boolean createExplosion(Location loc, float power) {
         return createExplosion(loc, power, false);
@@ -844,6 +991,7 @@ public class CraftWorld implements World {
         for (Object o : world.loadedEntityList) {
             if (o instanceof net.minecraft.entity.Entity) {
                 net.minecraft.entity.Entity mcEnt = (net.minecraft.entity.Entity) o;
+                if (mcEnt.shouldBeRemoved) continue; // Paper
                 Entity bukkitEntity = mcEnt.getBukkitEntity();
 
                 // Assuming that bukkitEntity isn't null
@@ -862,6 +1010,7 @@ public class CraftWorld implements World {
         for (Object o : world.loadedEntityList) {
             if (o instanceof net.minecraft.entity.Entity) {
                 net.minecraft.entity.Entity mcEnt = (net.minecraft.entity.Entity) o;
+                if (mcEnt.shouldBeRemoved) continue; // Paper
                 Entity bukkitEntity = mcEnt.getBukkitEntity();
 
                 // Assuming that bukkitEntity isn't null
@@ -886,6 +1035,7 @@ public class CraftWorld implements World {
 
         for (Object entity: world.loadedEntityList) {
             if (entity instanceof net.minecraft.entity.Entity) {
+                if (((net.minecraft.entity.Entity) entity).shouldBeRemoved) continue; // Paper
                 Entity bukkitEntity = ((net.minecraft.entity.Entity) entity).getBukkitEntity();
 
                 if (bukkitEntity == null) {
@@ -908,6 +1058,7 @@ public class CraftWorld implements World {
 
         for (Object entity: world.loadedEntityList) {
             if (entity instanceof net.minecraft.entity.Entity) {
+                if (((net.minecraft.entity.Entity) entity).shouldBeRemoved) continue; // Paper
                 Entity bukkitEntity = ((net.minecraft.entity.Entity) entity).getBukkitEntity();
 
                 if (bukkitEntity == null) {
@@ -964,14 +1115,20 @@ public class CraftWorld implements World {
         net.minecraft.entity.Entity entity = world.getEntityFromUuid(uuid);
         return entity == null ? null : entity.getBukkitEntity();
     }
+    // Paper end
 
     public void save() {
+        // Spigot start
+        save(true);
+    }
+    public void save(boolean forceSave) {
+        // Spigot end
         this.server.checkSaveState();
         try {
             boolean oldSave = world.disableLevelSaving;
 
             world.disableLevelSaving = false;
-            world.saveAllChunks(true, null);
+            world.saveAllChunks(forceSave, null); // Spigot
 
             world.disableLevelSaving = oldSave;
         } catch (MinecraftException ex) {
@@ -1127,6 +1284,10 @@ public class CraftWorld implements World {
         if (Boat.class.isAssignableFrom(clazz)) {
             entity = new EntityBoat(world, x, y, z);
             entity.setLocationAndAngles(x, y, z, yaw, pitch);
+            // Paper start
+        } else if (org.bukkit.entity.Item.class.isAssignableFrom(clazz)) {
+            entity = new EntityItem(world, x, y, z, new net.minecraft.item.ItemStack(net.minecraft.item.Item.getItemFromBlock(Blocks.DIRT)));
+            // Paper end
         } else if (FallingBlock.class.isAssignableFrom(clazz)) {
             entity = new EntityFallingBlock(world, x, y, z, world.getBlockState(new BlockPos(x, y, z)));
         } else if (Projectile.class.isAssignableFrom(clazz)) {
@@ -1392,7 +1553,7 @@ public class CraftWorld implements World {
         } else if (TNTPrimed.class.isAssignableFrom(clazz)) {
             entity = new EntityTNTPrimed(world, x, y, z, null);
         } else if (ExperienceOrb.class.isAssignableFrom(clazz)) {
-            entity = new EntityXPOrb(world, x, y, z, 0);
+            entity = new EntityXPOrb(world, x, y, z, 0, org.bukkit.entity.ExperienceOrb.SpawnReason.CUSTOM, null, null); // Paper
         } else if (Weather.class.isAssignableFrom(clazz)) {
             // not sure what this can do
             if (LightningStrike.class.isAssignableFrom(clazz)) {
@@ -1482,8 +1643,9 @@ public class CraftWorld implements World {
         int chunkCoordX = chunkcoordinates.getX() >> 4;
         int chunkCoordZ = chunkcoordinates.getZ() >> 4;
         // Cycle through the 25x25 Chunks around it to load/unload the chunks.
-        for (int x = -12; x <= 12; x++) {
-            for (int z = -12; z <= 12; z++) {
+        int radius = world.paperConfig.keepLoadedRange / 16; // Paper
+        for (int x = -radius; x <= radius; x++) { // Paper
+            for (int z = -radius; z <= radius; z++) { // Paper
                 if (keepLoaded) {
                     loadChunk(chunkCoordX + x, chunkCoordZ + z);
                 } else {
@@ -1749,15 +1911,18 @@ public class CraftWorld implements World {
         spawnParticle(particle, location.getX(), location.getY(), location.getZ(), count, offsetX, offsetY, offsetZ, extra, data);
     }
 
+    // Paper start - Particle API Expansion
     @Override
-    public <T> void spawnParticle(Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra, T data) {
+    public <T> void spawnParticle(Particle particle, List<Player> receivers, Player sender, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra, T data, boolean force) {
+        // Paper end
         if (data != null && !particle.getDataType().isInstance(data)) {
             throw new IllegalArgumentException("data should be " + particle.getDataType() + " got " + data.getClass());
         }
         getHandle().sendParticles(
-                null, // Sender
+                receivers == null ? getHandle().playerEntities : receivers.stream().map(player -> ((CraftPlayer) player).getHandle()).collect(java.util.stream.Collectors.toList()), // Paper -  Particle API Expansion
+                sender != null ? ((CraftPlayer) sender).getHandle() : null, // Sender // Paper - Particle API Expansion
                 CraftParticle.toNMS(particle), // Particle
-                true, // Extended range
+                force , // Extended range // Paper - Particle API Expansion
                 x, y, z, // Position
                 count,  // Count
                 offsetX, offsetY, offsetZ, // Random offset
@@ -1782,7 +1947,7 @@ public class CraftWorld implements World {
         ChunkProviderServer cps = world.getChunkProvider();
         for (net.minecraft.world.chunk.Chunk chunk : cps.id2ChunkMap.values()) {
             // If in use, skip it
-            if (isChunkInUse(chunk.x, chunk.z)) {
+            if (isChunkInUse(chunk.x, chunk.z) || chunk.scheduledForUnload != null) { // Paper - delayed chunk unloads
                 continue;
             }
 

@@ -13,7 +13,7 @@
  import net.minecraft.world.World;
  import net.minecraftforge.common.util.FakePlayer;
  import net.minecraftforge.fml.common.FMLCommonHandler;
-@@ -58,6 +61,12 @@
+@@ -58,6 +61,11 @@
  import com.google.gson.JsonArray;
  import com.google.gson.JsonObject;
  import org.apache.commons.lang3.tuple.Pair;
@@ -22,11 +22,10 @@
 +import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
 +import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
 +import org.bukkit.event.inventory.InventoryType;
-+import org.magmafoundation.magma.configuration.MagmaConfig;
  
  import javax.annotation.Nullable;
  
-@@ -88,6 +97,20 @@
+@@ -88,6 +96,20 @@
              Container remoteGuiContainer = NetworkRegistry.INSTANCE.getRemoteGuiContainer(mc, entityPlayerMP, modGuiId, world, x, y, z);
              if (remoteGuiContainer != null)
              {
@@ -47,12 +46,12 @@
                  entityPlayerMP.getNextWindowId();
                  entityPlayerMP.closeContainer();
                  int windowId = entityPlayerMP.currentWindowId;
-@@ -210,7 +233,7 @@
+@@ -210,7 +232,7 @@
      public static void enhanceStatusQuery(JsonObject jsonobject)
      {
          JsonObject fmlData = new JsonObject();
 -        fmlData.addProperty("type", "FML");
-+        fmlData.addProperty("type", MagmaConfig.instance.serverBrandType.getValues());
++        fmlData.addProperty("type", "BUKKIT"); // Show the Bukkit icon in server list.
          JsonArray modList = new JsonArray();
          for (ModContainer mc : Loader.instance().getActiveModList())
          {

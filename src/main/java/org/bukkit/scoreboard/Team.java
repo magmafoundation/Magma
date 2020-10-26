@@ -84,7 +84,7 @@ public interface Team {
      * names are handled by prefixes / suffixes.
      *
      * @return team color, defaults to {@link ChatColor#RESET}
-     * @throws IllegalStateException
+     * @throws IllegalStateException if this team has been unregistered
      */
     ChatColor getColor() throws IllegalStateException;
 

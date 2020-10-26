@@ -36,6 +36,15 @@
      public AbstractHorse(World worldIn)
      {
          super(worldIn);
+@@ -177,7 +181,7 @@
+ 
+     public boolean canBeLeashedTo(EntityPlayer player)
+     {
+-        return super.canBeLeashedTo(player) && this.getCreatureAttribute() != EnumCreatureAttribute.UNDEAD;
++        return  world.paperConfig.allowLeashingUndeadHorse ? super.canBeLeashedTo(player) : super.canBeLeashedTo(player) && this.getCreatureAttribute() != EnumCreatureAttribute.UNDEAD;  // Paper
+     }
+ 
+     protected void onLeashDistance(float p_142017_1_)
 @@ -288,10 +292,10 @@
          return 2;
      }

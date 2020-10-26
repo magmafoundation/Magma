@@ -1,0 +1,47 @@
+--- ../src-base/minecraft/net/minecraft/world/biome/BiomeHills.java
++++ ../src-work/minecraft/net/minecraft/world/biome/BiomeHills.java
+@@ -40,20 +40,32 @@
+     {
+         super.decorate(worldIn, rand, pos);
+ 
+-        net.minecraftforge.common.MinecraftForge.ORE_GEN_BUS.post(new net.minecraftforge.event.terraingen.OreGenEvent.Pre(worldIn, rand, pos));
+-        WorldGenerator emeralds = new EmeraldGenerator();
+-        if (net.minecraftforge.event.terraingen.TerrainGen.generateOre(worldIn, rand, emeralds, pos, net.minecraftforge.event.terraingen.OreGenEvent.GenerateMinable.EventType.EMERALD))
+-            emeralds.generate(worldIn, rand, pos);
++        // Paper start - Disable extreme hills emeralds
++        if (!worldIn.paperConfig.disableExtremeHillsEmeralds) {
++            net.minecraftforge.common.MinecraftForge.ORE_GEN_BUS.post(new net.minecraftforge.event.terraingen.OreGenEvent.Pre(worldIn, rand, pos));
++            WorldGenerator emeralds = new EmeraldGenerator();
++            if (net.minecraftforge.event.terraingen.TerrainGen.generateOre(worldIn, rand, emeralds, pos, net.minecraftforge.event.terraingen.OreGenEvent.GenerateMinable.EventType.EMERALD))
++                emeralds.generate(worldIn, rand, pos);
++        }
++        // Paper end block
+ 
+-        for (int j1 = 0; j1 < 7; ++j1)
+-        {
+-            int k1 = rand.nextInt(16);
+-            int l1 = rand.nextInt(64);
+-            int i2 = rand.nextInt(16);
+-            if (net.minecraftforge.event.terraingen.TerrainGen.generateOre(worldIn, rand, silverfishSpawner, pos.add(j1, k1, l1), net.minecraftforge.event.terraingen.OreGenEvent.GenerateMinable.EventType.SILVERFISH))
+-            this.silverfishSpawner.generate(worldIn, rand, pos.add(k1, l1, i2));
++        // Paper start - Disable extreme hills monster eggs
++        if (!worldIn.paperConfig.disableExtremeHillsMonsterEggs) {
++            for (int j1 = 0; j1 < 7; ++j1)
++            {
++                int k1 = rand.nextInt(16);
++                int l1 = rand.nextInt(64);
++                int i2 = rand.nextInt(16);
++                if (net.minecraftforge.event.terraingen.TerrainGen.generateOre(worldIn, rand, silverfishSpawner, pos.add(j1, k1, l1), net.minecraftforge.event.terraingen.OreGenEvent.GenerateMinable.EventType.SILVERFISH))
++                this.silverfishSpawner.generate(worldIn, rand, pos.add(k1, l1, i2));
++            }
+         }
+-        net.minecraftforge.common.MinecraftForge.ORE_GEN_BUS.post(new net.minecraftforge.event.terraingen.OreGenEvent.Post(worldIn, rand, pos));
++        // Paper end block
++        // Paper start - Disable extreme hills emeralds
++        if (!worldIn.paperConfig.disableExtremeHillsEmeralds) {
++            net.minecraftforge.common.MinecraftForge.ORE_GEN_BUS.post(new net.minecraftforge.event.terraingen.OreGenEvent.Post(worldIn, rand, pos));
++        }
++        // Paper end block
+     }
+ 
+     public void genTerrainBlocks(World worldIn, Random rand, ChunkPrimer chunkPrimerIn, int x, int z, double noiseVal)

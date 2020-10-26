@@ -1,6 +1,35 @@
 --- ../src-base/minecraft/net/minecraft/entity/passive/EntityWaterMob.java
 +++ ../src-work/minecraft/net/minecraft/entity/passive/EntityWaterMob.java
-@@ -32,7 +32,7 @@
+@@ -1,8 +1,12 @@
+ package net.minecraft.entity.passive;
+ 
++import net.minecraft.block.Block;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.player.EntityPlayer;
++import net.minecraft.init.Blocks;
+ import net.minecraft.util.DamageSource;
++import net.minecraft.util.math.BlockPos;
++import net.minecraft.util.math.MathHelper;
+ import net.minecraft.world.World;
+ 
+ public abstract class EntityWaterMob extends EntityLiving implements IAnimals
+@@ -19,7 +23,14 @@
+ 
+     public boolean getCanSpawnHere()
+     {
+-        return true;
++        // Paper start - Don't let water mobs spawn in non-water blocks
++        // Based around EntityAnimal's implementation
++        int i = MathHelper.floor(this.posX);
++        int j = MathHelper.floor(this.getEntityBoundingBox().minY); // minY of bounding box
++        int k = MathHelper.floor(this.posZ);
++        Block block = this.world.getBlockState(new BlockPos(i, j, k)).getBlock();
++        return block == Blocks.WATER || block == Blocks.FLOWING_WATER;
++        // Paper end
+     }
+ 
+     public boolean isNotColliding()
+@@ -32,7 +43,7 @@
          return 120;
      }
  

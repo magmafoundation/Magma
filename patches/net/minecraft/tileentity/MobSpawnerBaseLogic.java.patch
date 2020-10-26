@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/tileentity/MobSpawnerBaseLogic.java
 +++ ../src-work/minecraft/net/minecraft/tileentity/MobSpawnerBaseLogic.java
-@@ -1,42 +1,44 @@
+@@ -1,42 +1,45 @@
  package net.minecraft.tileentity;
  
 +import com.destroystokyo.paper.MCUtil;
@@ -53,6 +53,7 @@
 +    public int maxNearbyEntities = 6; // CraftBukkit private -> public
 +    public int activatingRangeFromPlayer = 16; // CraftBukkit private -> public
 +    public int spawnRange = 4; // CraftBukkit private -> public
++    private int tickDelay = 0; // Paper
  
      @Nullable
 -    private ResourceLocation getEntityId()
@@ -60,7 +61,7 @@
      {
          String s = this.spawnData.getNbt().getString("id");
          return StringUtils.isNullOrEmpty(s) ? null : new ResourceLocation(s);
-@@ -47,6 +49,7 @@
+@@ -47,6 +50,7 @@
          if (id != null)
          {
              this.spawnData.getNbt().setString("id", id.toString());
@@ -68,12 +69,52 @@
          }
      }
  
-@@ -106,6 +109,22 @@
+@@ -58,6 +62,10 @@
+ 
+     public void updateSpawner()
+     {
++        // Paper start - Configurable mob spawner tick rate
++        if (spawnDelay > 0 && --tickDelay > 0) return;
++        tickDelay = this.getSpawnerWorld().paperConfig.mobSpawnerTickRate;
++        // Paper end
+         if (!this.isActivated())
+         {
+             this.prevMobRotation = this.mobRotation;
+@@ -76,7 +84,7 @@
+ 
+                 if (this.spawnDelay > 0)
+                 {
+-                    --this.spawnDelay;
++                    this.spawnDelay -= tickDelay; // Paper
+                 }
+ 
+                 this.prevMobRotation = this.mobRotation;
+@@ -84,14 +92,13 @@
+             }
+             else
+             {
+-                if (this.spawnDelay == -1)
+-                {
++                if (this.spawnDelay < -tickDelay) { // Paper
+                     this.resetTimer();
+                 }
+ 
+                 if (this.spawnDelay > 0)
+                 {
+-                    --this.spawnDelay;
++                    this.spawnDelay -= tickDelay; // Paper
+                     return;
+                 }
+ 
+@@ -106,6 +113,25 @@
                      double d0 = j >= 1 ? nbttaglist.getDoubleAt(0) : (double)blockpos.getX() + (world.rand.nextDouble() - world.rand.nextDouble()) * (double)this.spawnRange + 0.5D;
                      double d1 = j >= 2 ? nbttaglist.getDoubleAt(1) : (double)(blockpos.getY() + world.rand.nextInt(3) - 1);
                      double d2 = j >= 3 ? nbttaglist.getDoubleAt(2) : (double)blockpos.getZ() + (world.rand.nextDouble() - world.rand.nextDouble()) * (double)this.spawnRange + 0.5D;
 +
 +                    // Paper start
++                    if (this.getEntityId() == null) {
++                        return;
++                    }
 +                    String key = this.getEntityId().getResourcePath();
 +                    EntityType type = EntityType.fromName(key);
 +                    if (type != null) {
@@ -91,13 +132,14 @@
                      Entity entity = AnvilChunkLoader.readWorldEntityPos(nbttagcompound, world, d0, d1, d2, false);
  
                      if (entity == null)
-@@ -132,7 +151,15 @@
+@@ -131,8 +157,16 @@
+                             if (!net.minecraftforge.event.ForgeEventFactory.doSpecialSpawn(entityliving, this.getSpawnerWorld(), (float)entity.posX, (float)entity.posY, (float)entity.posZ, this))
                              ((EntityLiving)entity).onInitialSpawn(world.getDifficultyForLocation(new BlockPos(entity)), (IEntityLivingData)null);
                          }
++                        entity.spawnedViaMobSpawner = true; // Paper
++                        if (entity.world.spigotConfig.nerfSpawnerMobs) entity.fromMobSpawner = true; // Spigot Start
  
 -                        AnvilChunkLoader.spawnEntity(entity, world);
-+						            if (entity.world.spigotConfig.nerfSpawnerMobs) entity.fromMobSpawner = true; // Spigot Start
-+
 +                        flag = true; // Paper
 +
 +                        if (CraftEventFactory.callSpawnerSpawnEvent(entity, blockpos).isCancelled()) {
@@ -108,7 +150,7 @@
                          world.playEvent(2004, blockpos, 0);
  
                          if (entityliving != null)
-@@ -140,7 +167,7 @@
+@@ -140,7 +174,7 @@
                              entityliving.spawnExplosionParticle();
                          }
  

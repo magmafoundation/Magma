@@ -1,0 +1,49 @@
+--- ../src-base/minecraft/net/minecraft/world/storage/loot/LootEntry.java
++++ ../src-work/minecraft/net/minecraft/world/storage/loot/LootEntry.java
+@@ -19,8 +19,8 @@
+ public abstract class LootEntry
+ {
+     protected final String entryName;
+-    protected final int weight;
+-    protected final int quality;
++    protected final int weight;  public int getWeight() { return weight; } // Paper - OBFHELPER
++    protected final int quality;  public int getQuality() { return quality; } // Paper - OBFHELPER
+     protected final LootCondition[] conditions;
+ 
+     protected LootEntry(int weightIn, int qualityIn, LootCondition[] conditionsIn, String entryName)
+@@ -33,8 +33,34 @@
+ 
+     public int getEffectiveWeight(float luck)
+     {
+-        return Math.max(MathHelper.floor((float)this.weight + (float)this.quality * luck), 0);
++        // Paper start - Offer an alternative loot formula to refactor how luck bonus applies
++        // SEE: https://luckformula.emc.gs for details and data
++        if (lastLuck != null && lastLuck == luck) {
++            return lastWeight;
++        }
++        // This is vanilla
++        float qualityModifer = (float) this.getQuality() * luck;
++        double baseWeight = (this.getWeight() + qualityModifer);
++        if (com.destroystokyo.paper.PaperConfig.useAlternativeLuckFormula) {
++            // Random boost to avoid losing precision in the final int cast on return
++            final int weightBoost = 100;
++            baseWeight *= weightBoost;
++            // If we have vanilla 1, bump that down to 0 so nothing is is impacted
++            // vanilla 3 = 300, 200 basis = impact 2%
++            // =($B2*(($B2-100)/100/100))
++            double impacted = baseWeight * ((baseWeight - weightBoost) / weightBoost / 100);
++            // =($B$7/100)
++            float luckModifier = Math.min(100, luck * 10) / 100;
++            // =B2 - (C2 *($B$7/100))
++            baseWeight = Math.ceil(baseWeight - (impacted * luckModifier));
++        }
++        lastLuck = luck;
++        lastWeight = (int) Math.max(0, Math.floor(baseWeight));
++        return lastWeight;
+     }
++    private Float lastLuck = null;
++    private int lastWeight = 0;
++    // Paper end
+ 
+     public String getEntryName(){ return this.entryName; }
+ 

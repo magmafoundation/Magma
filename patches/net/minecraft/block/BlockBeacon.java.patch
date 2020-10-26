@@ -1,0 +1,44 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockBeacon.java
++++ ../src-work/minecraft/net/minecraft/block/BlockBeacon.java
+@@ -106,10 +106,11 @@
+ 
+     public static void updateColorAsync(final World worldIn, final BlockPos glassPos)
+     {
++        /*
+         HttpUtil.DOWNLOADER_EXECUTOR.submit(new Runnable()
+         {
+             public void run()
+-            {
++            {*/ // Paper
+                 Chunk chunk = worldIn.getChunkFromBlockCoords(glassPos);
+ 
+                 for (int i = glassPos.getY() - 1; i >= 0; --i)
+@@ -125,10 +126,10 @@
+ 
+                     if (iblockstate.getBlock() == Blocks.BEACON)
+                     {
+-                        ((WorldServer)worldIn).addScheduledTask(new Runnable()
++                       /* ((WorldServer)worldIn).addScheduledTask(new Runnable()
+                         {
+                             public void run()
+-                            {
++                            {*/ // Paper
+                                 TileEntity tileentity = worldIn.getTileEntity(blockpos);
+ 
+                                 if (tileentity instanceof TileEntityBeacon)
+@@ -136,11 +137,11 @@
+                                     ((TileEntityBeacon)tileentity).updateBeacon();
+                                     worldIn.addBlockEvent(blockpos, Blocks.BEACON, 1, 0);
+                                 }
+-                            }
+-                        });
++                             /*}}
++                        });*/ // Paper
+                     }
+                 }
+-            }
+-        });
++             /*}
++        });*/ // Paper
+     }
+ }

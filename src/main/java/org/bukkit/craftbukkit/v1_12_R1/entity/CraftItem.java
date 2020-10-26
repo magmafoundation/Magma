@@ -36,6 +36,15 @@ public class CraftItem extends CraftEntity implements Item {
         item.pickupDelay = Math.min(delay, Short.MAX_VALUE);
     }
 
+    // Paper Start
+    public boolean canMobPickup() {
+        return item.canMobPickup;
+    }
+    public void setCanMobPickup(boolean canMobPickup) {
+        item.canMobPickup = canMobPickup;
+    }
+    // Paper End
+
     @Override
     public String toString() {
         return "CraftItem";

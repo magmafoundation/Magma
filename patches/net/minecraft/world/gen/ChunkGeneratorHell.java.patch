@@ -1,0 +1,23 @@
+--- ../src-base/minecraft/net/minecraft/world/gen/ChunkGeneratorHell.java
++++ ../src-work/minecraft/net/minecraft/world/gen/ChunkGeneratorHell.java
+@@ -188,8 +188,10 @@
+ 
+                 for (int j1 = 127; j1 >= 0; --j1)
+                 {
+-                    if (j1 < 127 - this.rand.nextInt(5) && j1 > this.rand.nextInt(5))
+-                    {
++                    // Paper start - Configurable flat bedrock worldgen
++                    if (j1 < 127 - (world.paperConfig.generateFlatBedrock ? 0 : this.rand.nextInt(5)) &&
++                        j1 > (world.paperConfig.generateFlatBedrock ? 0 : this.rand.nextInt(5))) {
++                        // Paper end
+                         IBlockState iblockstate2 = primer.getBlockState(k, j1, j);
+ 
+                         if (iblockstate2.getBlock() != null && iblockstate2.getMaterial() != Material.AIR)
+@@ -491,6 +493,6 @@
+ 
+     public void recreateStructures(Chunk chunkIn, int x, int z)
+     {
+-        this.genNetherBridge.generate(this.world, x, z, (ChunkPrimer)null);
++        if (this.world.paperConfig.generateFortress) this.genNetherBridge.generate(this.world, x, z, (ChunkPrimer)null);
+     }
+ }

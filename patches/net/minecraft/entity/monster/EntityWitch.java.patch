@@ -1,0 +1,44 @@
+--- ../src-base/minecraft/net/minecraft/entity/monster/EntityWitch.java
++++ ../src-work/minecraft/net/minecraft/entity/monster/EntityWitch.java
+@@ -123,7 +123,10 @@
+ 
+                     if (itemstack.getItem() == Items.POTIONITEM)
+                     {
+-                        List<PotionEffect> list = PotionUtils.getEffectsFromStack(itemstack);
++                        // Paper start
++                        com.destroystokyo.paper.event.entity.WitchConsumePotionEvent event = new com.destroystokyo.paper.event.entity.WitchConsumePotionEvent((org.bukkit.entity.Witch) this.getBukkitEntity(), org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack.asCraftMirror(itemstack));
++                        List<PotionEffect> list = event.callEvent() ? PotionUtils.getEffectsFromStack(org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack.asNMSCopy(event.getPotion())) : null;
++                        // Paper end
+ 
+                         if (list != null)
+                         {
+@@ -160,7 +163,11 @@
+ 
+                 if (potiontype != null)
+                 {
+-                    this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), potiontype));
++                    // Paper start
++                    ItemStack potion = PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), potiontype);
++                    org.bukkit.inventory.ItemStack bukkitStack = com.destroystokyo.paper.event.entity.WitchReadyPotionEvent.process((org.bukkit.entity.Witch) this.getBukkitEntity(), org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack.asCraftMirror(potion));
++                    this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack.asNMSCopy(bukkitStack));
++                    // Paper end
+                     this.potionUseTimer = this.getHeldItemMainhand().getMaxItemUseDuration();
+                     this.setDrinkingPotion(true);
+                     this.world.playSound((EntityPlayer)null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_WITCH_DRINK, this.getSoundCategory(), 1.0F, 0.8F + this.rand.nextFloat() * 0.4F);
+@@ -242,7 +249,15 @@
+                 potiontype = PotionTypes.WEAKNESS;
+             }
+ 
+-            EntityPotion entitypotion = new EntityPotion(this.world, this, PotionUtils.addPotionToItemStack(new ItemStack(Items.SPLASH_POTION), potiontype));
++            // Paper start
++            ItemStack potion = PotionUtils.addPotionToItemStack(new ItemStack(Items.SPLASH_POTION), potiontype);
++            com.destroystokyo.paper.event.entity.WitchThrowPotionEvent event = new com.destroystokyo.paper.event.entity.WitchThrowPotionEvent((org.bukkit.entity.Witch) this.getBukkitEntity(), (org.bukkit.entity.LivingEntity) target.getBukkitEntity(), org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack.asCraftMirror(potion));
++            if (!event.callEvent()) {
++                return;
++            }
++            potion = org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack.asNMSCopy(event.getPotion());
++            EntityPotion entitypotion = new EntityPotion(this.world, this, potion);
++            // Paper end
+             entitypotion.rotationPitch -= -20.0F;
+             entitypotion.shoot(d1, d2 + (double)(f * 0.2F), d3, 0.75F, 8.0F);
+             this.world.playSound((EntityPlayer)null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_WITCH_THROW, this.getSoundCategory(), 1.0F, 0.8F + this.rand.nextFloat() * 0.4F);

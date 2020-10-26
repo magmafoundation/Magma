@@ -1,10 +1,11 @@
 package org.bukkit.craftbukkit.v1_12_R1.scheduler;
 
+import co.aikar.timings.MinecraftTimings;
+import co.aikar.timings.NullTimingHandler;
+import co.aikar.timings.Timing;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
-import org.spigotmc.CustomTimingsHandler;
-import org.spigotmc.SpigotTimings;
 
 
 public class CraftTask implements BukkitTask, Runnable {
@@ -25,42 +26,27 @@ public class CraftTask implements BukkitTask, Runnable {
      */
     private volatile long period;
     private long nextRun;
-    public final Runnable task;
+    public final Runnable task; // Paper
+    public Timing timings; // Paper
     private final Plugin plugin;
     private final int id;
+
 
     CraftTask() {
         this(null, null, CraftTask.NO_REPEATING, CraftTask.NO_REPEATING);
     }
 
     CraftTask(final Runnable task) {
-        this(null, task, CraftTask.NO_REPEATING, CraftTask.NO_REPEATING);
+        this(null, null, CraftTask.NO_REPEATING, CraftTask.NO_REPEATING);
     }
-
-    // Spigot start
-    public String timingName = null;
-
-    final CustomTimingsHandler timings; // Spigot
-
-    CraftTask(String timingName) {
-        this(timingName, null, null, -1, -1);
-    }
-    CraftTask(String timingName, final Runnable task) {
-        this(timingName, null, task, -1, -1);
-    }
-    CraftTask(String timingName, final Plugin plugin, final Runnable task, final int id, final long period) {
+    CraftTask(final Plugin plugin, final Runnable task, final int id, final long period) { // Paper
         this.plugin = plugin;
         this.task = task;
         this.id = id;
         this.period = period;
-        this.timingName = timingName == null && task == null ? "Unknown" : timingName;
-        timings = this.isSync() ? SpigotTimings.getPluginTaskTimings(this, period) : null;
+        timings = task != null ? MinecraftTimings.getPluginTaskTimings(this, period) : NullTimingHandler.NULL; // Paper
     }
 
-    CraftTask(final Plugin plugin, final Runnable task, final int id, final long period) {
-        this(null, plugin, task, id, period);
-        // Spigot end
-    }
 
     public final int getTaskId() {
         return id;
@@ -75,7 +61,9 @@ public class CraftTask implements BukkitTask, Runnable {
     }
 
     public void run() {
-        task.run();
+        try (Timing ignored = timings.startTiming()) { // Paper
+            task.run();
+        } // Paper
     }
 
     long getPeriod() {
@@ -125,12 +113,4 @@ public class CraftTask implements BukkitTask, Runnable {
         return true;
     }
 
-    // Spigot start
-    public String getTaskName() {
-        if (timingName != null) {
-            return timingName;
-        }
-        return task.getClass().getName();
-    }
-    // Spigot end
 }

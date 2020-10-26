@@ -1,9 +1,11 @@
 --- ../src-base/minecraft/net/minecraft/world/WorldEntitySpawner.java
 +++ ../src-work/minecraft/net/minecraft/world/WorldEntitySpawner.java
-@@ -1,9 +1,8 @@
+@@ -1,13 +1,15 @@
  package net.minecraft.world;
  
++import com.destroystokyo.paper.MCUtil;
 +import com.destroystokyo.paper.event.entity.PlayerNaturallySpawnCreaturesEvent;
++import com.destroystokyo.paper.exception.ServerInternalException;
  import com.google.common.collect.Sets;
 -import java.util.List;
 -import java.util.Random;
@@ -12,13 +14,19 @@
  import net.minecraft.block.Block;
  import net.minecraft.block.BlockRailBase;
  import net.minecraft.block.material.Material;
-@@ -21,12 +20,34 @@
+ import net.minecraft.block.state.IBlockState;
++import net.minecraft.entity.EntityList;
+ import net.minecraft.entity.EntityLiving;
+ import net.minecraft.entity.EntitySpawnPlacementRegistry;
+ import net.minecraft.entity.EnumCreatureType;
+@@ -21,14 +23,47 @@
  import net.minecraft.util.math.MathHelper;
  import net.minecraft.world.biome.Biome;
  import net.minecraft.world.chunk.Chunk;
 +import net.minecraft.world.gen.ChunkProviderServer;
 +import org.bukkit.entity.Player;
 +import org.bukkit.event.entity.CreatureSpawnEvent;
++import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
  
  public final class WorldEntitySpawner
  {
@@ -28,6 +36,15 @@
 +    // Spigot start - get entity count only from chunks being processed in b
 +    private int getEntityCount(WorldServer server, Class oClass)
 +    {
++        // Paper start - use entire world, not just active chunks. Spigot broke vanilla expectations.
++        if (true) {
++            int sum = 0;
++            for (Chunk c : server.getChunkProvider().id2ChunkMap.values()) {
++                sum += c.entityCount.get(oClass);
++            }
++            return sum;
++        }
++        // Paper end
 +        int i = 0;
 +        Iterator<ChunkPos> it = this.eligibleChunksForSpawning.iterator();
 +        while ( it.hasNext() )
@@ -46,8 +63,18 @@
 +
      public int findChunksForSpawning(WorldServer worldServerIn, boolean spawnHostileMobs, boolean spawnPeacefulMobs, boolean spawnOnSetTickRate)
      {
++        org.spigotmc.AsyncCatcher.catchOp("check for eligible spawn chunks"); // Paper - At least until we figure out what is calling this async
          if (!spawnHostileMobs && !spawnPeacefulMobs)
-@@ -46,11 +67,23 @@
+         {
+             return 0;
+@@ -40,17 +75,29 @@
+ 
+             for (EntityPlayer entityplayer : worldServerIn.playerEntities)
+             {
+-                if (!entityplayer.isSpectator())
++                if (!entityplayer.isSpectator() && entityplayer.affectsSpawning) // Paper - Affects Spawning API
+                 {
+                     int j = MathHelper.floor(entityplayer.posX / 16.0D);
                      int k = MathHelper.floor(entityplayer.posZ / 16.0D);
                      int l = 8;
  
@@ -76,7 +103,7 @@
                              ChunkPos chunkpos = new ChunkPos(i1 + j, j1 + k);
  
                              if (!this.eligibleChunksForSpawning.contains(chunkpos))
-@@ -77,20 +110,46 @@
+@@ -77,20 +124,46 @@
  
              for (EnumCreatureType enumcreaturetype : EnumCreatureType.values())
              {
@@ -113,7 +140,7 @@
 +                    */ // Paper end
  
 -                    if (k4 <= l4)
-+                    if ((mobcnt = getEntityCount(worldServerIn, enumcreaturetype.getCreatureClass())) <= limit * i / 256)
++                    if ((mobcnt = getEntityCount(worldServerIn, enumcreaturetype.getCreatureClass())) <= limit * i / 289) // Paper - use 17x17 like vanilla (a at top of file)
                      {
 -                        java.util.ArrayList<ChunkPos> shuffled = com.google.common.collect.Lists.newArrayList(this.eligibleChunksForSpawning);
 -                        java.util.Collections.shuffle(shuffled);
@@ -129,7 +156,40 @@
                              BlockPos blockpos = getRandomChunkPosition(worldServerIn, chunkpos1.x, chunkpos1.z);
                              int k1 = blockpos.getX();
                              int l1 = blockpos.getY();
-@@ -156,15 +215,17 @@
+@@ -134,6 +207,24 @@
+ 
+                                             if (worldServerIn.canCreatureTypeSpawnHere(enumcreaturetype, biome$spawnlistentry, blockpos$mutableblockpos) && canCreatureTypeSpawnAtLocation(EntitySpawnPlacementRegistry.getPlacementForEntity(biome$spawnlistentry.entityClass), worldServerIn, blockpos$mutableblockpos))
+                                             {
++                                                // Paper start
++                                                com.destroystokyo.paper.event.entity.PreCreatureSpawnEvent event;
++                                                Class<? extends EntityLiving> cls = biome$spawnlistentry.entityClass;
++                                                org.bukkit.entity.EntityType type = EntityList.clsToTypeMap.get(cls);
++                                                if (type != null) {
++                                                    event = new com.destroystokyo.paper.event.entity.PreCreatureSpawnEvent(
++                                                        MCUtil.toLocation(worldServerIn, blockpos$mutableblockpos),
++                                                        type, SpawnReason.NATURAL
++                                                    );
++                                                    if (!event.callEvent()) {
++                                                        if (event.shouldAbortSpawn()) {
++                                                            continue label134;
++                                                        }
++                                                        j4 += j2;
++                                                        continue;
++                                                    }
++                                                }
++                                                // Paper end
+                                                 EntityLiving entityliving;
+ 
+                                                 try
+@@ -143,6 +234,7 @@
+                                                 catch (Exception exception)
+                                                 {
+                                                     exception.printStackTrace();
++                                                    ServerInternalException.reportInternalException(exception); // Paper
+                                                     return j4;
+                                                 }
+ 
+@@ -156,15 +248,17 @@
  
                                                      if (entityliving.isNotColliding())
                                                      {
@@ -150,7 +210,13 @@
                                                      {
                                                          continue label134;
                                                      }
-@@ -295,8 +356,11 @@
+@@ -290,13 +384,17 @@
+                             catch (Exception exception)
+                             {
+                                 exception.printStackTrace();
++                                ServerInternalException.reportInternalException(exception); // Paper
+                                 continue;
+                             }
  
                              if (net.minecraftforge.event.ForgeEventFactory.canEntitySpawn(entityliving, worldIn, j + 0.5f, (float) blockpos.getY(), k +0.5f, false) == net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) continue;
                              entityliving.setLocationAndAngles((double)((float)j + 0.5F), (double)blockpos.getY(), (double)((float)k + 0.5F), randomIn.nextFloat() * 360.0F, 0.0F);

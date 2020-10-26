@@ -1,6 +1,108 @@
 --- ../src-base/minecraft/net/minecraft/world/gen/structure/MapGenStructure.java
 +++ ../src-work/minecraft/net/minecraft/world/gen/structure/MapGenStructure.java
-@@ -175,8 +175,13 @@
+@@ -1,9 +1,12 @@
+ package net.minecraft.world.gen.structure;
+ 
++import co.aikar.timings.MinecraftTimings;
++import co.aikar.timings.Timing;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.ObjectIterator;
+ import java.util.Iterator;
++import java.util.List;
+ import java.util.Random;
+ import javax.annotation.Nullable;
+ import net.minecraft.crash.CrashReport;
+@@ -14,14 +17,17 @@
+ import net.minecraft.util.ReportedException;
+ import net.minecraft.util.math.BlockPos;
+ import net.minecraft.util.math.ChunkPos;
++import net.minecraft.util.math.Vec3i;
+ import net.minecraft.world.World;
+ import net.minecraft.world.chunk.ChunkPrimer;
+ import net.minecraft.world.gen.MapGenBase;
+ 
+ public abstract class MapGenStructure extends MapGenBase
+ {
++    private final Timing timing = MinecraftTimings.getStructureTiming(this); // Paper
+     private MapGenStructureData structureData;
+     protected Long2ObjectMap<StructureStart> structureMap = new Long2ObjectOpenHashMap<StructureStart>(1024);
++    protected Long2ObjectMap<StructureStart> allStructures = new Long2ObjectOpenHashMap(1024); // Paper - Holds ref to structures for every chunk its part of, where as the one above this only holds the vanilla oriented ones.
+ 
+     public abstract String getStructureName();
+ 
+@@ -38,6 +44,8 @@
+                 if (this.canSpawnStructureAtCoords(chunkX, chunkZ))
+                 {
+                     StructureStart structurestart = this.getStructureStart(chunkX, chunkZ);
++
++                    populateStructure(structurestart); // Paper
+                     this.structureMap.put(ChunkPos.asLong(chunkX, chunkZ), structurestart);
+ 
+                     if (structurestart.isSizeableStructure())
+@@ -79,6 +87,7 @@
+ 
+     public synchronized boolean generateStructure(World worldIn, Random randomIn, ChunkPos chunkCoord)
+     {
++        timing.startTiming(); // Paper
+         this.initializeStructureData(worldIn);
+         int i = (chunkCoord.x << 4) + 8;
+         int j = (chunkCoord.z << 4) + 8;
+@@ -97,6 +106,7 @@
+                 this.setStructureStart(structurestart.getChunkPosX(), structurestart.getChunkPosZ(), structurestart);
+             }
+         }
++        timing.stopTiming(); // Paper
+ 
+         return flag;
+     }
+@@ -117,6 +127,18 @@
+     @Nullable
+     protected StructureStart getStructureAt(BlockPos pos)
+     {
++        // Paper start - replace method
++        StructureStart structureStart = allStructures.get(ChunkPos.asLong(pos));
++        if (structureStart != null && structureStart.isSizeable() && structureStart.getBoundingBox().contains(pos)) {
++            List<StructureComponent> structurePieces = structureStart.getStructurePieces();
++            for (StructureComponent piece : structurePieces) {
++                if (piece.getBoundingBox().contains(pos)) {
++                    return structureStart;
++                }
++            }
++        }
++        return null;
++        /*
+         ObjectIterator objectiterator = this.structureMap.values().iterator();
+         label31:
+ 
+@@ -148,11 +170,17 @@
+         }
+ 
+         return null;
++         */
+     }
+ 
+     public boolean isPositionInStructure(World worldIn, BlockPos pos)
+     {
++        if (this.world == null) return false; // Paper
+         this.initializeStructureData(worldIn);
++        // Paper start - Replace method
++        StructureStart structureStart = this.allStructures.get(ChunkPos.asLong(pos));
++        return structureStart != null && structureStart.isSizeable() && structureStart.getBoundingBox().contains(pos);
++        /* // comment out rest
+         ObjectIterator objectiterator = this.structureMap.values().iterator();
+ 
+         while (objectiterator.hasNext())
+@@ -165,7 +193,7 @@
+             }
+         }
+ 
+-        return false;
++        return false; */ // Paper end
+     }
+ 
+     @Nullable
+@@ -175,8 +203,13 @@
      {
          if (this.structureData == null && worldIn != null)
          {
@@ -15,3 +117,48 @@
              if (this.structureData == null)
              {
                  this.structureData = new MapGenStructureData(this.getStructureName());
+@@ -202,6 +235,7 @@
+ 
+                             if (structurestart != null)
+                             {
++                                populateStructure(structurestart); // Paper
+                                 this.structureMap.put(ChunkPos.asLong(i, j), structurestart);
+                             }
+                         }
+@@ -211,6 +245,27 @@
+         }
+     }
+ 
++    // Paper start
++    private void populateStructure(StructureStart structurestart) {
++        for (StructureComponent piece : structurestart.getStructurePieces()) {
++            populateStructure(structurestart, piece.getBoundingBox());
++        }
++        populateStructure(structurestart, structurestart.getBoundingBox());
++    }
++    private void populateStructure(StructureStart structurestart, StructureBoundingBox bb) {
++        if (bb == null) {
++            return;
++        }
++        final Vec3i low = bb.getLowPosition();
++        final Vec3i high = bb.getHighPosition();
++        for (int x = low.getX() >> 4, maxX = high.getX() >> 4; x <= maxX; x++) {
++            for (int z = low.getZ() >> 4, maxZ = high.getZ() >> 4; z <= maxZ; z++) {
++                allStructures.put(ChunkPos.asLong(x, z), structurestart);
++            }
++        }
++    }
++    // Paper end
++
+     private void setStructureStart(int chunkX, int chunkZ, StructureStart start)
+     {
+         this.structureData.writeInstance(start.writeStructureComponentsToNBT(chunkX, chunkZ), chunkX, chunkZ);
+@@ -272,6 +327,8 @@
+                         MapGenBase.setupChunkSeed(worldIn.getSeed(), random, l1, i2);
+                         random.nextInt();
+ 
++                        if (!worldIn.getWorldBorder().isChunkInBounds(l1, i2)) { continue; } // Paper
++
+                         if (p_191069_1_.canSpawnStructureAtCoords(l1, i2))
+                         {
+                             if (!findUnexplored || !worldIn.isChunkGeneratedAt(l1, i2))

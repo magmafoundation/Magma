@@ -23,7 +23,7 @@
  
      public EntityOcelot(World worldIn)
      {
-@@ -106,9 +107,10 @@
+@@ -106,9 +107,9 @@
          }
      }
  
@@ -31,12 +31,11 @@
 +    public boolean canDespawn()
      {
 -        return !this.isTamed() && this.ticksExisted > 2400;
-+        return !this.isTamed() /*&& this.ticksExisted > 2400*/; // CraftBukkit
-+
++        return !this.isTamed() && !this.hasCustomName() && !this.getLeashed() /*&& this.ticksLived > 2400*/; // CraftBukkit (ticks lived) - Paper (honor name and leash)
      }
  
      protected void applyEntityAttributes()
-@@ -189,7 +191,8 @@
+@@ -189,7 +190,8 @@
          {
              if (this.aiSit != null)
              {
@@ -46,7 +45,7 @@
              }
  
              return super.attackEntityFrom(source, amount);
-@@ -222,7 +225,8 @@
+@@ -222,7 +224,8 @@
  
              if (!this.world.isRemote)
              {
@@ -56,7 +55,7 @@
                  {
                      this.setTamedBy(player);
                      this.setTameSkin(1 + this.world.rand.nextInt(3));
-@@ -361,14 +365,14 @@
+@@ -361,14 +364,14 @@
      {
          livingdata = super.onInitialSpawn(difficulty, livingdata);
  

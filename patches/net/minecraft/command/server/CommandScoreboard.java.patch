@@ -1,0 +1,24 @@
+--- ../src-base/minecraft/net/minecraft/command/server/CommandScoreboard.java
++++ ../src-work/minecraft/net/minecraft/command/server/CommandScoreboard.java
+@@ -278,6 +278,13 @@
+                             throw new WrongUsageException("commands.scoreboard.teams.option.usage", new Object[0]);
+                         }
+ 
++                        // Paper start - Block setting options on our collideRule team as it is not persistent
++                        if (args[2].equals(MinecraftServer.getServerInstance().getPlayerList().collideRuleTeamName)) {
++                            sender.sendMessage(new TextComponentString("You cannot set team options on the collideRule team"));
++                            return;
++                        }
++                        // Paper  end
++
+                         this.setTeamOption(sender, args, 2, server);
+                     }
+                 }
+@@ -684,6 +691,7 @@
+                 {
+                     for (Entity entity : getEntityList(server, sender, s1))
+                     {
++                        if (!entity.world.paperConfig.nonPlayerEntitiesOnScoreboards && !(entity instanceof EntityPlayer)) { continue; } // Paper
+                         String s3 = getEntityName(server, sender, entity.getCachedUniqueIdString());
+ 
+                         if (scoreboard.addPlayerToTeam(s3, s))

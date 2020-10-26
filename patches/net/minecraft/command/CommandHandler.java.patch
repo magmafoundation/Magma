@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraft/command/CommandHandler.java
 +++ ../src-work/minecraft/net/minecraft/command/CommandHandler.java
-@@ -6,36 +6,41 @@
+@@ -6,8 +6,8 @@
  import java.util.Collections;
  import java.util.List;
  import java.util.Map;
@@ -10,18 +10,14 @@
  import javax.annotation.Nullable;
  import net.minecraft.entity.Entity;
  import net.minecraft.server.MinecraftServer;
- import net.minecraft.util.math.BlockPos;
- import net.minecraft.util.text.TextComponentTranslation;
+@@ -16,26 +16,28 @@
  import net.minecraft.util.text.TextFormatting;
-+import net.minecraftforge.server.command.TextComponentHelper;
-+import org.apache.commons.lang.StringUtils;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
 +import org.bukkit.command.CommandWrapper;
 +import org.bukkit.craftbukkit.v1_12_R1.command.CraftSimpleCommandMap;
 +import org.bukkit.craftbukkit.v1_12_R1.command.ModCustomCommand;
-+import org.bukkit.help.GenericCommandHelpTopic;
-+import org.magmafoundation.magma.api.ServerAPI;
++import org.magmafoundation.magma.Magma;
 +import org.magmafoundation.magma.configuration.MagmaConfig;
  
  public abstract class CommandHandler implements ICommandManager
@@ -48,7 +44,7 @@
          int i = 0;
  
          try
-@@ -145,20 +150,48 @@
+@@ -145,20 +147,45 @@
      protected abstract MinecraftServer getServer();
  
      public ICommand registerCommand(ICommand command)
@@ -85,13 +81,10 @@
 +        this.commandSet.add(command);
 +        // register vanilla commands with Bukkit to support permissions.
 +        CraftSimpleCommandMap commandMap = MinecraftServer.getServerInst().server.getCraftCommandMap();
-+        String description = String.format("A %s provided command.", StringUtils.capitalize(ServerAPI.commands.get(command.getName())));
-+        String usage = TextComponentHelper.createComponentTranslation(MinecraftServer.getServerInst().server.getServer(), command.getUsage(MinecraftServer.getServerInst().server.getServer())).getFormattedText();
-+        ModCustomCommand customCommand = new ModCustomCommand(command.getName(), description, usage, command.getAliases());
++        ModCustomCommand customCommand = new ModCustomCommand(command.getName());
 +        customCommand.setPermission(permissionNode);
 +        if (list != null) customCommand.setAliases(list);
 +        commandMap.register(command.getName(), customCommand);
-+        getServer().server.getHelpMap().addTopic(new GenericCommandHelpTopic(customCommand)); // Add Forge commands to Bukkit help.
 +        if ( MagmaConfig.instance.debugPrintCommandNode.getValues()) {
 +            LogManager.getLogger().info("Registered command " + command.getName() + " with permission node " + permissionNode);
 +        }
@@ -106,7 +99,7 @@
          return command;
      }
  
-@@ -224,6 +257,11 @@
+@@ -224,6 +251,11 @@
          return this.commandMap;
      }
  

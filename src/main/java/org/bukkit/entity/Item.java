@@ -34,4 +34,19 @@ public interface Item extends Entity {
      * @param delay New delay
      */
     public void setPickupDelay(int delay);
+
+    // Paper Start
+    /**
+     * Gets if non-player entities can pick this Item up
+     *
+     * @return True if non-player entities can pickup
+     */
+    public boolean canMobPickup();
+    /**
+     * Sets if non-player entities can pick this Item up
+     *
+     * @param canMobPickup True to allow non-player entity pickup
+     */
+    public void setCanMobPickup(boolean canMobPickup);
+    // Paper end
 }

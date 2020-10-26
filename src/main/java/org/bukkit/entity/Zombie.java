@@ -29,7 +29,7 @@ public interface Zombie extends Monster {
     public boolean isVillager();
 
     /**
-     * @param flag
+     * @param flag Sets whether the Zombie is a villager
      * @deprecated must spawn {@link ZombieVillager}.
      */
     @Deprecated
@@ -43,7 +43,7 @@ public interface Zombie extends Monster {
     public void setVillagerProfession(Villager.Profession profession);
 
     /**
-     * @return profession
+     * @return profession Sets the ZombieVillager's profession
      * @see ZombieVillager#getVillagerProfession()
      */
     @Deprecated

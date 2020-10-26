@@ -1,25 +1,39 @@
 --- ../src-base/minecraft/net/minecraft/world/Teleporter.java
 +++ ../src-work/minecraft/net/minecraft/world/Teleporter.java
-@@ -14,12 +14,17 @@
+@@ -3,6 +3,10 @@
+ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.ObjectIterator;
++import java.util.Collection;
++import java.util.HashMap;
++import java.util.HashSet;
++import java.util.Map;
+ import java.util.Random;
+ import net.minecraft.block.BlockPortal;
+ import net.minecraft.block.state.IBlockState;
+@@ -14,12 +18,19 @@
  import net.minecraft.util.math.BlockPos;
  import net.minecraft.util.math.ChunkPos;
  import net.minecraft.util.math.MathHelper;
 +import org.bukkit.Location;
++import org.bukkit.block.Block;
 +import org.bukkit.event.entity.EntityPortalExitEvent;
++import org.bukkit.event.world.PortalCreateEvent;
 +import org.bukkit.util.Vector;
  
 +import javax.annotation.Nullable;
 +
  public class Teleporter implements net.minecraftforge.common.util.ITeleporter
  {
-     protected final WorldServer world;
+-    protected final WorldServer world;
++    protected final WorldServer world;  // Paper - private -> protected
      protected final Random random;
 -    protected final Long2ObjectMap<Teleporter.PortalPosition> destinationCoordinateCache = new Long2ObjectOpenHashMap<Teleporter.PortalPosition>(4096);
 +    protected final Long2ObjectMap<PortalPosition> destinationCoordinateCache = new Long2ObjectOpenHashMap<PortalPosition>(4096);
  
      public Teleporter(WorldServer worldIn)
      {
-@@ -39,77 +44,119 @@
+@@ -39,77 +50,133 @@
          }
          else
          {
@@ -83,6 +97,9 @@
 +        byte b0 = 1;
 +        byte b1 = 0;
 +
++        Collection<Block> bukkitBlocks = new HashSet<>(); // Paper
++        Map<BlockPos, IBlockState> nmsBlocks = new HashMap<>(); // Paper
++
 +        for (int l = -2; l <= 2; ++l) {
 +            for (int i1 = -2; i1 <= 2; ++i1) {
 +                for (int j1 = -1; j1 < 3; ++j1) {
@@ -91,12 +108,23 @@
 +                    int i2 = k + i1 * b1 - l * b0;
 +                    boolean flag = j1 < 0;
 +
-+                    if (this.world.getBlockState(new BlockPos(k1, l1, i2)).getBlock() != (flag ? Blocks.OBSIDIAN : Blocks.AIR)) {
-+                        return null;
-+                    }
++
++                    // Paper start
++                    BlockPos pos = new BlockPos(k1, l1, i2);
++                    nmsBlocks.putIfAbsent(pos, flag ? Blocks.OBSIDIAN.getDefaultState() : Blocks.AIR.getDefaultState());
++                    bukkitBlocks.add(this.world.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ()));
++                    // Paper end
 +                }
 +            }
          }
++
++        // Paper start
++        PortalCreateEvent event = new PortalCreateEvent(bukkitBlocks, this.world.getWorld(), PortalCreateEvent.CreateReason.OBC_DESTINATION);
++        if(event.callEvent()){
++            nmsBlocks.forEach(this.world::setBlockState);
++        }
++        // Paper end
++
 +        return new BlockPos(i, j, k);
      }
  
@@ -104,7 +132,7 @@
      {
 -        int i = 128;
 +        // CraftBukkit start - Modularize portal search process and entity teleportation
-+        BlockPos found = this.findPortal(entityIn.posX, entityIn.posY, entityIn.posZ, 128);
++        BlockPos found = this.findPortal(entityIn.posX, entityIn.posY, entityIn.posZ, world.paperConfig.portalSearchRadius); // Paper - Configurable search radius
 +        if (found == null) {
 +            return false;
 +        }
@@ -181,7 +209,7 @@
                                  d0 = d1;
                                  blockpos = blockpos1;
                              }
-@@ -119,16 +166,35 @@
+@@ -119,16 +186,35 @@
              }
          }
  
@@ -225,7 +253,7 @@
              boolean flag1 = blockpattern$patternhelper.getForwards().rotateY().getAxisDirection() == EnumFacing.AxisDirection.NEGATIVE;
              double d2 = blockpattern$patternhelper.getForwards().getAxis() == EnumFacing.Axis.X ? (double)blockpattern$patternhelper.getFrontTopLeft().getZ() : (double)blockpattern$patternhelper.getFrontTopLeft().getX();
              double d6 = (double)(blockpattern$patternhelper.getFrontTopLeft().getY() + 1) - entityIn.getLastPortalVec().y * (double)blockpattern$patternhelper.getHeight();
-@@ -173,36 +239,55 @@
+@@ -173,36 +259,55 @@
                  f3 = 1.0F;
              }
  
@@ -301,7 +329,7 @@
          int i1 = j;
          int j1 = k;
          int k1 = l;
-@@ -212,11 +297,11 @@
+@@ -212,11 +317,11 @@
  
          for (int j2 = j - 16; j2 <= j + 16; ++j2)
          {
@@ -315,7 +343,7 @@
                  label293:
  
                  for (int j3 = this.world.getActualHeight() - 1; j3 >= 0; --j3)
-@@ -258,7 +343,7 @@
+@@ -258,7 +363,7 @@
                                  }
                              }
  
@@ -324,7 +352,7 @@
                              double d7 = d1 * d1 + d5 * d5 + d2 * d2;
  
                              if (d0 < 0.0D || d7 < d0)
-@@ -279,11 +364,11 @@
+@@ -279,11 +384,11 @@
          {
              for (int l5 = j - 16; l5 <= j + 16; ++l5)
              {
@@ -338,7 +366,7 @@
                      label231:
  
                      for (int i7 = this.world.getActualHeight() - 1; i7 >= 0; --i7)
-@@ -316,7 +401,7 @@
+@@ -316,7 +421,7 @@
                                      }
                                  }
  
@@ -347,7 +375,58 @@
                                  double d8 = d3 * d3 + d6 * d6 + d4 * d4;
  
                                  if (d0 < 0.0D || d8 < d0)
-@@ -404,11 +489,11 @@
+@@ -346,6 +451,9 @@
+             i3 = -i3;
+         }
+ 
++        Collection<Block> bukkitBlocks = new HashSet<>(); // Paper
++        Map<BlockPos, IBlockState> nmsBlocks = new HashMap<>(); // Paper
++
+         if (d0 < 0.0D)
+         {
+             j1 = MathHelper.clamp(j1, 70, this.world.getActualHeight() - 10);
+@@ -361,7 +469,11 @@
+                         int k10 = k2 + k8;
+                         int k11 = k6 + (l7 - 1) * i3 - j7 * l6;
+                         boolean flag = k8 < 0;
+-                        this.world.setBlockState(new BlockPos(k9, k10, k11), flag ? Blocks.OBSIDIAN.getDefaultState() : Blocks.AIR.getDefaultState());
++                        // Paper start
++                        BlockPos pos = new BlockPos(k9, k10, k11);
++                        nmsBlocks.putIfAbsent(pos, flag ? Blocks.OBSIDIAN.getDefaultState() : Blocks.AIR.getDefaultState());
++                        bukkitBlocks.add(this.world.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ()));
++                        // Paper end
+                     }
+                 }
+             }
+@@ -379,7 +491,12 @@
+                     int l11 = k2 + l9;
+                     int k12 = k6 + (l8 - 1) * i3;
+                     boolean flag1 = l8 == 0 || l8 == 3 || l9 == -1 || l9 == 3;
+-                    this.world.setBlockState(new BlockPos(l10, l11, k12), flag1 ? Blocks.OBSIDIAN.getDefaultState() : iblockstate, 2);
++
++                    // Paper start
++                    BlockPos pos = new BlockPos(l10, l11, k12);
++                    nmsBlocks.putIfAbsent(pos, flag1 ? Blocks.OBSIDIAN.getDefaultState() : iblockstate);
++                    bukkitBlocks.add(this.world.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ()));
++                    // Paper end
+                 }
+             }
+ 
+@@ -396,6 +513,13 @@
+             }
+         }
+ 
++        // Paper start
++        PortalCreateEvent event = new PortalCreateEvent(bukkitBlocks, this.world.getWorld(), PortalCreateEvent.CreateReason.OBC_DESTINATION);
++        if(event.callEvent()){
++            nmsBlocks.forEach((pos, data) -> this.world.setBlockState(pos, data, 2));
++        }
++        // Paper end
++
+         return true;
+     }
+ 
+@@ -404,11 +528,11 @@
          if (worldTime % 100L == 0L)
          {
              long i = worldTime - 300L;

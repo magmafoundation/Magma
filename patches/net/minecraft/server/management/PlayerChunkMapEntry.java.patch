@@ -1,6 +1,12 @@
 --- ../src-base/minecraft/net/minecraft/server/management/PlayerChunkMapEntry.java
 +++ ../src-work/minecraft/net/minecraft/server/management/PlayerChunkMapEntry.java
-@@ -23,11 +23,11 @@
+@@ -18,35 +18,47 @@
+ import net.minecraft.world.chunk.Chunk;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import org.bukkit.craftbukkit.v1_12_R1.chunkio.ChunkIOExecutor;
+ 
+ public class PlayerChunkMapEntry
  {
      private static final Logger LOGGER = LogManager.getLogger();
      private final PlayerChunkMap playerChunkMap;
@@ -14,3 +20,34 @@
      private int changes;
      private int changedSectionFilter;
      private long lastUpdateInhabitedTime;
+     private boolean sentToPlayers;
++    boolean chunkExists; // Paper
+     private Runnable loadedRunnable = new Runnable()
+     {
+         public void run()
+         {
+-            PlayerChunkMapEntry.this.chunk = PlayerChunkMapEntry.this.playerChunkMap.getWorldServer().getChunkProvider().loadChunk(PlayerChunkMapEntry.this.pos.x, PlayerChunkMapEntry.this.pos.z);
+             PlayerChunkMapEntry.this.loading = false;
++            PlayerChunkMapEntry.this.chunk = PlayerChunkMapEntry.this.playerChunkMap.getWorldServer().getChunkProvider().loadChunk(PlayerChunkMapEntry.this.pos.x, PlayerChunkMapEntry.this.pos.z);
++            markChunkUsed(); // Paper - delay chunk unloads
+         }
+     };
+     private boolean loading = true;
++    // Paper start - delay chunk unloads
++    public final void markChunkUsed() {
++        if (chunk != null && chunk.scheduledForUnload != null) {
++            chunk.scheduledForUnload = null;
++        }
++    }
++    // Paper end
+ 
+     public PlayerChunkMapEntry(PlayerChunkMap mapIn, int chunkX, int chunkZ)
+     {
+         this.playerChunkMap = mapIn;
+         this.pos = new ChunkPos(chunkX, chunkZ);
+         mapIn.getWorldServer().getChunkProvider().loadChunk(chunkX, chunkZ, this.loadedRunnable);
++        this.chunkExists = this.chunk != null || ChunkIOExecutor.hasQueuedChunkLoad(playerChunkMap.getWorldServer(), chunkX, chunkZ); // Paper
++        markChunkUsed(); // Paper - delay chunk unloads
+     }
+ 
+     public ChunkPos getPos()

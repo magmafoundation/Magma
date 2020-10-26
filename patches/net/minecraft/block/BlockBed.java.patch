@@ -1,0 +1,69 @@
+--- ../src-base/minecraft/net/minecraft/block/BlockBed.java
++++ ../src-work/minecraft/net/minecraft/block/BlockBed.java
+@@ -229,9 +229,50 @@
+     }
+ 
+     @Nullable
+-    public static BlockPos getSafeExitLocation(World worldIn, BlockPos pos, int tries)
++    public static BlockPos getSafeExitLocation(World worldIn, BlockPos blockposition, int tries)
+     {
+-        EnumFacing enumfacing = (EnumFacing)worldIn.getBlockState(pos).getValue(FACING);
++        EnumFacing enumfacing = (EnumFacing)worldIn.getBlockState(blockposition).getValue(FACING);
++        // Paper - replace whole method
++        int radius = worldIn.paperConfig.bedSearchRadius;
++        for (int r = 1; r <= radius; r++) {
++            int x = -r;
++            int z = r;
++            // Iterates the edge of half of the box; then negates for other half.
++            while (x <= r && z > -r) {
++                for (int y = -1; y <= 1; y++) {
++                    BlockPos pos = blockposition.add(x, y, z);
++                    if (isSafeRespawn(worldIn, pos)) {
++                        if (tries-- <= 0) {
++                            return pos;
++                        }
++                    }
++                    pos = blockposition.add(-x, y, -z);
++                    if (isSafeRespawn(worldIn, pos)) {
++                        if (tries-- <= 0) {
++                            return pos;
++                        }
++                    }
++                    pos = blockposition.add(enumfacing.getFrontOffsetX() + x, y, enumfacing.getFrontOffsetZ() + z);
++                    if (isSafeRespawn(worldIn, pos)) {
++                        if (tries-- <= 0) {
++                            return pos;
++                        }
++                    }
++                    pos = blockposition.add(enumfacing.getFrontOffsetX() - x, y, enumfacing.getFrontOffsetZ() - z);
++                    if (isSafeRespawn(worldIn, pos)) {
++                        if (tries-- <= 0) {
++                            return pos;
++                        }
++                    }
++                }
++                if (x < r) {
++                    x++;
++                } else {
++                    z--;
++                }
++            }
++        }
++        return null; /* // Paper comment out
+         int i = pos.getX();
+         int j = pos.getY();
+         int k = pos.getZ();
+@@ -262,9 +303,12 @@
+             }
+         }
+ 
+-        return null;
++        return null;*/ // Paper
+     }
+ 
++    protected static boolean isSafeRespawn(World world, BlockPos blockposition) { // Paper - OBFHELPER + behavior improvement
++        return hasRoomForPlayer(world, blockposition) && world.getBlockState(blockposition.down()).getMaterial().isSolid(); // Paper - ensure solid block
++    }
+     protected static boolean hasRoomForPlayer(World worldIn, BlockPos pos)
+     {
+         return worldIn.getBlockState(pos.down()).isTopSolid() && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();

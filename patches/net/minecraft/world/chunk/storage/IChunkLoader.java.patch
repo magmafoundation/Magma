@@ -1,0 +1,14 @@
+--- ../src-base/minecraft/net/minecraft/world/chunk/storage/IChunkLoader.java
++++ ../src-work/minecraft/net/minecraft/world/chunk/storage/IChunkLoader.java
+@@ -11,9 +11,9 @@
+     @Nullable
+     Chunk loadChunk(World worldIn, int x, int z) throws IOException;
+ 
+-    void saveChunk(World worldIn, Chunk chunkIn) throws MinecraftException, IOException;
++    void saveChunk(World worldIn, Chunk chunkIn, boolean unloaded) throws MinecraftException, IOException; // Spigot
+ 
+-    void saveExtraChunkData(World worldIn, Chunk chunkIn) throws IOException;
++    // void saveExtraChunkData(World worldIn, Chunk chunkIn) throws IOException; // Spigot
+ 
+     void chunkTick();
+ 

@@ -185,7 +185,6 @@ public class CraftBlock implements Block {
 
     @Override
     public void setType(Material type, boolean applyPhysics) {
-        if (type.getMaterialType() == Material.MaterialType.MOD_ITEM) type = Material.convertModItemMaterialToBlock(type); // Magma
         setTypeId(type.getId(), applyPhysics);
     }
 
@@ -292,6 +291,22 @@ public class CraftBlock implements Block {
     }
 
     public BlockState getState() {
+        // Paper start - allow disabling the use of snapshots
+        return getState(true);
+    }
+
+    public BlockState getState(boolean useSnapshot) {
+        boolean prev = CraftBlockEntityState.DISABLE_SNAPSHOT;
+        CraftBlockEntityState.DISABLE_SNAPSHOT = !useSnapshot;
+        try {
+            return getState0();
+        } finally {
+            CraftBlockEntityState.DISABLE_SNAPSHOT = prev;
+        }
+    }
+
+    public BlockState getState0() {
+        // Paper end
         Material material = getType();
         // Megma start - if null, check for TE that implements IInventory
         if (material == null) {

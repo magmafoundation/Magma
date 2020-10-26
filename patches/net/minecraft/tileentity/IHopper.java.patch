@@ -1,0 +1,15 @@
+--- ../src-base/minecraft/net/minecraft/tileentity/IHopper.java
++++ ../src-work/minecraft/net/minecraft/tileentity/IHopper.java
+@@ -7,9 +7,9 @@
+ {
+     World getWorld();
+ 
+-    double getXPos();
++    double getXPos();  default double getX() { return getXPos(); } // Paper - OBFHELPER
+ 
+-    double getYPos();
++    double getYPos(); default double getY() { return getYPos(); } // Paper - OBFHELPER
+ 
+-    double getZPos();
++    double getZPos(); default double getZ() { return getZPos(); } // Paper - OBFHELPER
+ }
