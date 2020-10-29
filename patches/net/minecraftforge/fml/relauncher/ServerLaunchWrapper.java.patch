@@ -1,16 +1,15 @@
 --- ../src-base/minecraft/net/minecraftforge/fml/relauncher/ServerLaunchWrapper.java
 +++ ../src-work/minecraft/net/minecraftforge/fml/relauncher/ServerLaunchWrapper.java
-@@ -19,21 +19,69 @@
- 
+@@ -20,20 +20,67 @@
  package net.minecraftforge.fml.relauncher;
  
-+import org.magmafoundation.magma.configuration.MagmaConfig;
-+import org.magmafoundation.magma.downloads.DownloadServerFiles;
-+import org.magmafoundation.magma.downloads.MagmaUpdater;
-+
  import java.lang.reflect.Method;
 +import java.util.Arrays;
 +import java.util.List;
++import org.magmafoundation.magma.configuration.MagmaConfig;
++import org.magmafoundation.magma.downloads.DownloadServerFiles;
++import org.magmafoundation.magma.downloads.LibraryDownloader;
++import org.magmafoundation.magma.downloads.MagmaUpdater;
  
 -import org.apache.logging.log4j.LogManager;
 -import org.apache.logging.log4j.core.LoggerContext;
@@ -25,11 +24,10 @@
       */
      public static void main(String[] args)
      {
--        new ServerLaunchWrapper().run(args);
-+      System.out.println("Starting Magma");
-+      LAUNCH_ARGS = Arrays.asList(args);
++        System.out.println("Starting Magma");
++        LAUNCH_ARGS = Arrays.asList(args);
 +
-+        if(getJavaVersion() > 8){
++        if (getJavaVersion() > 8) {
 +            try {
 +                throw new JavaToNewException();
 +            } catch (JavaToNewException e) {
@@ -39,21 +37,20 @@
 +            }
 +        }
 +
-+      DownloadServerFiles.downloadMinecraftServer();
++        DownloadServerFiles.downloadMinecraftServer();
 +
-+      if(DownloadServerFiles.getLibrariesVersion()){
-+          DownloadServerFiles.downloadServerLibraries();
-+      }
++        LibraryDownloader libraryDownloader = new LibraryDownloader();
++        libraryDownloader.run();
 +
-+      if(!LAUNCH_ARGS.contains("-dau")) {
-+          System.out.println("Checking for new version...");
-+          MagmaUpdater magmaUpdater = new MagmaUpdater();
-+          if (magmaUpdater.versionChecker() && MagmaConfig.instance.magmaAutoUpdater.getValues()) {
-+              magmaUpdater.downloadJar();
-+          }
-+      }
++        if (!LAUNCH_ARGS.contains("-dau")) {
++            System.out.println("Checking for new version...");
++            MagmaUpdater magmaUpdater = new MagmaUpdater();
++            if (magmaUpdater.versionChecker() && MagmaConfig.instance.magmaAutoUpdater.getValues()) {
++                magmaUpdater.downloadJar();
++            }
++        }
 +
-+      new ServerLaunchWrapper().run(args);
+         new ServerLaunchWrapper().run(args);
      }
  
 +    private static class JavaToNewException extends RuntimeException {
@@ -74,7 +71,7 @@
      private ServerLaunchWrapper()
      {
  
-@@ -56,9 +104,9 @@
+@@ -56,9 +103,9 @@
          {
              System.err.printf("We appear to be missing one or more essential library files.\n" +
              		"You will need to add them to your server before FML and Forge will run successfully.");

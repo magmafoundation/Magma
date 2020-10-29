@@ -1,0 +1,11 @@
+--- ../src-base/minecraft/net/minecraftforge/fml/common/asm/FMLSanityChecker.java
++++ ../src-work/minecraft/net/minecraftforge/fml/common/asm/FMLSanityChecker.java
+@@ -171,7 +171,7 @@
+         }
+         if (!goodFML)
+         {
+-            FMLLog.log.error("FML appears to be missing any signature data. This is not a good thing");
++            //FMLLog.log.error("FML appears to be missing any signature data. This is not a good thing");
+         }
+         return null;
+     }

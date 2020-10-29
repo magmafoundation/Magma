@@ -2,7 +2,7 @@
 <img src="https://i.imgur.com/zTCTCWG.png" alt="Magma logo" align="middle"></img>
 
 ![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202854-orange.svg?style=for-the-badge)
-[![](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fci.hexeption.dev%2Fjob%2FMagma%2520Foundation%2Fjob%2FMagma%2Fjob%2Fmaster%2F&style=for-the-badge)](https://ci.hexeption.dev)
+[![](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fci.hexeption.dev%2Fjob%2FMagma%2520Foundation%2Fjob%2FMagma%2Fjob%2Fmaster%2F&style=for-the-badge)](https://ci.hexeption.dev/job/Magma%20Foundation)
 
 ![](https://bstats.org/signatures/bukkit/magma.svg)
 </div>
@@ -17,13 +17,11 @@ We hope to eliminate all issues with craftbukkit forge servers. In the end, we e
 
 ## Big Paper Update :fireworks:
 
-Magma at the moment ain't using all of the API/Patches with this update we will have all features of Paper and more optimizations and including Timings v2
+Magma at the moment **is not** using all of the API/Patches with this update we will have all features of Paper and more optimizations (including Timings v2).
 
-We can't wait to have this finished and shared with all for a better/faster server software
+We can't wait to have this finished and shared with all for a better/faster server software.
 
-We have Dev Build channel in the discord for this update so you can come and test it out and find bugs for us to fix before release
-
-All work is being done on the [feature/full-paper-support](https://github.com/magmafoundation/Magma/tree/feature/full-paper-support) branch if you would like to check it out
+All work is being done on the [paper](https://github.com/magmafoundation/Magma/tree/paper) branch if you would like to check it out.
 
 ## 1.15
 
@@ -37,11 +35,11 @@ Magma 1.16.x is in development, but a usable release is not available yet. You c
 
 ### Installation
 
-1. Download the recommended builds from the [**Releases** section](https://github.com/magmafoundation/Magma/releases) (Don't use the "-installer" version, it's broken right now)
+1. Download the recommended builds from the [**Releases** section](https://github.com/magmafoundation/Magma/releases) (**Do not** use the "-installer" version as it is broken right now)
    1. Download Beta builds from the [**CI**](https://ci.hexeption.dev/job/Magma%20Foundation/job/Magma/job/master/)
-2. Make a new directory for the server
-3. Move the jar that you previously downloaded to the new directory
-4. Run the jar with cmd, going to your directory and entering `java -jar Magma-[version here]-server.jar`. Change [version-here] to your Magma version number.
+2. Make a new directory(folder) for the server
+3. Move the jar that you downloaded into the new directory
+4. Run the jar with your command prompt or terminal, going to your directory and entering `java -jar Magma-[version]-server.jar`. Change [version] to your Magma version number.
 
 ### Building the sources
 
@@ -55,7 +53,7 @@ Magma 1.16.x is in development, but a usable release is not available yet. You c
     - `./gradlew launch4j`
   - Now go and get a drink this may take some time
   - Navigate to `build/distributions` directory of the compiled source code
-  - Copy the Jar to a new server directory
+  - Copy the Jar to a new server directory (see Installation) or run `./gradlew launchServer`
   
 ### Plugin Development
 
@@ -71,8 +69,6 @@ Magma 1.16.x is in development, but a usable release is not available yet. You c
   - Navigate to `build/distributions` directory
   - You should have a jar like `Magma-xxxxxx-plugin.jar`
   - Now create a plugin with that jar.
-  
-
 
 ## Contributing
 
@@ -84,17 +80,18 @@ Please read the [CONTRIBUTING.md](https://github.com/magmafoundation/Magma/blob/
 
 You are welcome to visit Magma's Discord server [here](https://discord.gg/6rkqngA).
 
+You could also go to Magma's subreddit [here](https://www.reddit.com/r/Magma).
+
 ## Unstable/Test builds
 
-For unstable/test builds you can check the [__CI__](https://ci.hexeption.dev/job/Magma%20Foundation/job/Magma/job/master/)
+For unstable/test builds you can check the [__CI__](https://ci.hexeption.dev/job/Magma%20Foundation/)
 
 ## Partners
 <a href="https://aternos.org/en/"><img src="https://company.aternos.org/img/logotype-blue.svg" width="200"></a>
-<a href="https://songoda.com/"><img src="https://cdn2.songoda.com/branding/logo.png" width="200"></a>
 <a href="https://serverjars.com/"><img src="https://serverjars.com/assets/img/logo_white.svg" width="200"></a>
 <a href="https://craftycontrol.com/"><img src="https://i.imgur.com/243oDOX.png" width="100" height="100"></a>
 
+### YourKit
 ![YourKit-Logo](https://www.yourkit.com/images/yklogo.png)
 
 [YourKit](http://www.yourkit.com/), makers of the outstanding java profiler, support open source projects of all kinds with their full featured [Java](https://www.yourkit.com/java/profiler/index.jsp) and [.NET](https://www.yourkit.com/.net/profiler/index.jsp) application profilers.
-
