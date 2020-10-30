@@ -18,42 +18,41 @@
 
 package org.magmafoundation.magma.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraftforge.fml.common.registry.EntityRegistry;
+import net.minecraft.entity.passive.AbstractChestHorse;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftChestedHorse;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse.Variant;
 
-public class CraftCustomEntity extends CraftEntity {
+/**
+ * CraftCustomChestedHorse
+ *
+ * @author Hexeption admin@hexeption.co.uk
+ * @since 30/10/2020 - 02:42 am
+ */
+public class CraftCustomChestedHorse extends CraftChestedHorse {
 
-    public Class<? extends Entity> entityClass;
-    public String entityName;
-
-    public CraftCustomEntity(CraftServer server, Entity entity) {
+    public CraftCustomChestedHorse(CraftServer server, AbstractChestHorse entity) {
         super(server, entity);
-        this.entityClass = entity.getClass();
-        this.entityName = EntityRegistry.entityTypeMap.get(entityClass);
-        if (entityName == null) {
-            entityName = entity.getCommandSenderEntity().getName();
-        }
     }
 
     @Override
-    public Entity getHandle() {
-        return (Entity) entity;
+    public Variant getVariant() {
+        return Variant.FORGE_HORSE_CHESTED;
     }
 
     @Override
-    public String toString() {
-        return this.entityName;
-    }
-
     public EntityType getType() {
         EntityType type = EntityType.fromName(this.entityName);
         if (type != null) {
             return type;
         } else {
-            return EntityType.FORGE_MOD;
+            return EntityType.FORGE_MOD_HORSE_CHESTED;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "CraftCustomChestedHorse";
     }
 }

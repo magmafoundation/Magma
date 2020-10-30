@@ -3,6 +3,8 @@ package org.bukkit.entity;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.magmafoundation.magma.entity.CraftCustomAbstractHorse;
+import org.magmafoundation.magma.entity.CraftCustomChestedHorse;
 import org.magmafoundation.magma.entity.CraftCustomEntity;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.entity.minecart.HopperMinecart;
@@ -267,7 +269,9 @@ public enum EntityType {
      * An unknown entity without an Entity Class
      */
     UNKNOWN(null, null, -1, false),
-    FORGE_MOD("forge_mod", CraftCustomEntity.class, -1, false);
+    FORGE_MOD("forge_mod", CraftCustomEntity.class, -1, false),
+    FORGE_MOD_HORSE("forge_mod_horse", CraftCustomAbstractHorse.class, -1, false),
+    FORGE_MOD_HORSE_CHESTED("forge_mod_horse_chested", CraftCustomChestedHorse.class, -1, false);
 
     private String name;
     private Class<? extends Entity> clazz;
