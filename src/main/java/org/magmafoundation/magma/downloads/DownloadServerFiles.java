@@ -77,7 +77,7 @@ public class DownloadServerFiles {
                 FileOutputStream fos = new FileOutputStream(fileName);
                 fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
                 System.out.println("Extracting Zip");
-                unzip(minecraftlibraries, "./");
+                unzip(minecraftlibraries, ".");
             } catch (Exception e) {
                 e.printStackTrace();
             }
