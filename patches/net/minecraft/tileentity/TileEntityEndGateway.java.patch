@@ -34,7 +34,7 @@
  
      public NBTTagCompound writeToNBT(NBTTagCompound compound)
      {
-@@ -171,7 +179,35 @@
+@@ -171,7 +179,38 @@
              if (this.exitPortal != null)
              {
                  BlockPos blockpos = this.exactTeleport ? this.exitPortal : this.findExitPosition();
@@ -55,19 +55,22 @@
 +                    this.triggerCooldown(); // CraftBukkit - call at end of method
 +                    return;
 +                }
-+                // Paper start - EntityTeleportEndGatewayEvent - replicated from above
-+                CraftPlayer player = (CraftPlayer) entityIn.getBukkitEntity();
-+                Location location = new Location(world.getWorld(), (double) blockpos.getX() + 0.5D, (double) blockpos.getY() + 0.5D, (double) blockpos.getZ() + 0.5D);
-+                location.setPitch(player.getLocation().getPitch());
-+                location.setYaw(player.getLocation().getYaw());
++                if (entityIn instanceof EntityPlayerMP) {
++                    // Paper start - EntityTeleportEndGatewayEvent - replicated from above
++                    CraftPlayer player = (CraftPlayer) entityIn.getBukkitEntity();
++                    Location location = new Location(world.getWorld(), (double) blockpos.getX() + 0.5D, (double) blockpos.getY() + 0.5D, (double) blockpos.getZ() + 0.5D);
++                    location.setPitch(player.getLocation().getPitch());
++                    location.setYaw(player.getLocation().getYaw());
 +
-+                com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent event = new com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent(player, player.getLocation(), location, new CraftEndGateway(MCUtil.toLocation(world, this.getPos()).getBlock()));
-+                if(!event.callEvent()){
-+                    return;
++                    com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent event = new com.destroystokyo.paper.event.entity.EntityTeleportEndGatewayEvent(player, player.getLocation(),
++                        location, new CraftEndGateway(MCUtil.toLocation(world, this.getPos()).getBlock()));
++                    if (!event.callEvent()) {
++                        return;
++                    }
++
++                    entityIn.setPositionAndUpdate(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
++                    // Paper end - EntityTeleportEndGatewayEvent
 +                }
-+
-+                entityIn.setPositionAndUpdate(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
-+                // Paper end - EntityTeleportEndGatewayEvent
              }
  
              this.triggerCooldown();
