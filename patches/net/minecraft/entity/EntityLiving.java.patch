@@ -77,22 +77,11 @@
 -    private boolean persistenceRequired;
 +    public float[] inventoryArmorDropChances = new float[4];
 +    private boolean canPickUpLoot_vanilla = false; // Magma - Compatible with Rough-Mobs-Revamped
-+    public boolean persistenceRequired;
++    public boolean persistenceRequired = false;
      private final Map<PathNodeType, Float> mapPathPriority = Maps.newEnumMap(PathNodeType.class);
      private ResourceLocation deathLootTable;
      private long deathLootTableSeed;
-@@ -103,6 +97,10 @@
-         {
-             this.initEntityAI();
-         }
-+
-+        // CraftBukkit start - default persistance to type's persistance value
-+        this.persistenceRequired = !canDespawn();
-+        // CraftBukkit end
-     }
- 
-     protected void initEntityAI()
-@@ -171,8 +169,37 @@
+@@ -171,8 +165,37 @@
      {
          this.attackTarget = entitylivingbaseIn;
          net.minecraftforge.common.ForgeHooks.onLivingSetAttackTarget(this, entitylivingbaseIn);
@@ -130,7 +119,7 @@
      public boolean canAttackClass(Class <? extends EntityLivingBase > cls)
      {
          return cls != EntityGhast.class;
-@@ -447,12 +474,21 @@
+@@ -447,12 +470,21 @@
      {
          super.readEntityFromNBT(compound);
  
@@ -154,7 +143,7 @@
  
          if (compound.hasKey("ArmorItems", 9))
          {
-@@ -653,8 +689,14 @@
+@@ -653,8 +685,14 @@
              }
          }
  
@@ -171,7 +160,7 @@
              double d0;
  
              switch (entityequipmentslot.getSlotType())
-@@ -696,7 +738,7 @@
+@@ -696,7 +734,7 @@
          return true;
      }
  
@@ -180,7 +169,7 @@
      {
          return true;
      }
-@@ -753,6 +795,12 @@
+@@ -753,6 +791,12 @@
          this.world.profiler.startSection("checkDespawn");
          this.despawnEntity();
          this.world.profiler.endSection();
@@ -193,7 +182,7 @@
          this.world.profiler.startSection("sensing");
          this.senses.clearSensingCache();
          this.world.profiler.endSection();
-@@ -1192,12 +1240,12 @@
+@@ -1192,12 +1236,12 @@
  
      public boolean canPickUpLoot()
      {
@@ -208,7 +197,7 @@
      }
  
      public boolean isNoDespawnRequired()
-@@ -1209,6 +1257,10 @@
+@@ -1209,6 +1253,10 @@
      {
          if (this.getLeashed() && this.getLeashHolder() == player)
          {
@@ -219,7 +208,7 @@
              this.clearLeashed(true, !player.capabilities.isCreativeMode);
              return true;
          }
-@@ -1218,6 +1270,10 @@
+@@ -1218,6 +1266,10 @@
  
              if (itemstack.getItem() == Items.LEAD && this.canBeLeashedTo(player))
              {
@@ -230,7 +219,7 @@
                  this.setLeashHolder(player, true);
                  itemstack.shrink(1);
                  return true;
-@@ -1245,11 +1301,13 @@
+@@ -1245,11 +1297,13 @@
          {
              if (!this.isEntityAlive())
              {
@@ -244,7 +233,7 @@
                  this.clearLeashed(true, true);
              }
          }
-@@ -1348,6 +1406,7 @@
+@@ -1348,6 +1402,7 @@
              }
              else
              {
