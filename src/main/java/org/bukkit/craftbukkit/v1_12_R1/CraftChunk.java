@@ -20,6 +20,7 @@ import org.bukkit.ChunkSnapshot;
 
 public class CraftChunk implements Chunk {
     private WeakReference<net.minecraft.world.chunk.Chunk> weakChunk;
+    private final net.minecraft.world.World world;
     private final WorldServer worldServer;
     private final int x;
     private final int z;
@@ -30,14 +31,14 @@ public class CraftChunk implements Chunk {
     public CraftChunk(net.minecraft.world.chunk.Chunk chunk) {
         this.weakChunk = new WeakReference<net.minecraft.world.chunk.Chunk>(chunk);
 
-//        worldServer = (WorldServer) getHandle().getWorld();
-        worldServer = MinecraftServer.getServerInstance().getWorldServer(getHandle().getWorld().getWorldInfo().getDimension());
+        world = getHandle().world;
+        worldServer = world instanceof WorldServer ? (WorldServer) world : null;
         x = getHandle().x;
         z = getHandle().z;
     }
 
     public World getWorld() {
-        return worldServer.getWorld();
+        return world.getWorld();
     }
 
     public CraftWorld getCraftWorld() {
@@ -48,7 +49,7 @@ public class CraftChunk implements Chunk {
         net.minecraft.world.chunk.Chunk c = weakChunk.get();
 
         if (c == null) {
-            c = worldServer.getChunkFromChunkCoords(x, z);
+            c = world.getChunkFromChunkCoords(x, z);
 
             weakChunk = new WeakReference<>(c);
         }
@@ -89,12 +90,12 @@ public class CraftChunk implements Chunk {
 
         for (int i = 0; i < 16; i++) {
 
-            for (Object obj : chunk.getEntityLists()[i].toArray()) {
-                if (!(obj instanceof net.minecraft.entity.Entity)) {
+            for (net.minecraft.entity.Entity entity : chunk.getEntityLists()[i]) {
+                if (entity == null) {
                     continue;
                 }
 
-                entities[index++] = ((net.minecraft.entity.Entity) obj).getBukkitEntity();
+                entities[index++] = entity.getBukkitEntity();
             }
         }
 
@@ -107,13 +108,12 @@ public class CraftChunk implements Chunk {
 
         BlockState[] entities = new BlockState[chunk.getTileEntityMap().size()];
 
-        for (Object obj : chunk.getTileEntityMap().keySet().toArray()) {
-            if (!(obj instanceof BlockPos)) {
+        for (BlockPos pos : chunk.getTileEntityMap().keySet()) {
+            if (pos == null) {
                 continue;
             }
 
-            BlockPos position = (BlockPos) obj;
-            entities[index++] = worldServer.getWorld().getBlockAt(position.getX(), position.getY(), position.getZ()).getState();
+            entities[index++] = world.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ()).getState();
         }
 
         return entities;
@@ -138,7 +138,7 @@ public class CraftChunk implements Chunk {
     @Override
     public boolean isSlimeChunk() {
         // 987234911L is deterimined in EntitySlime when seeing if a slime can spawn in a chunk
-        return getHandle().getRandomWithSeed(987234911L).nextInt(10) == 0;
+        return getHandle().getRandomWithSeed(world.spigotConfig.slimeSeed).nextInt(10) == 0;
     }
 
     public boolean unload(boolean save) {
