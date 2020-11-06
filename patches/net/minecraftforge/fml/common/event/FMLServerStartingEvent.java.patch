@@ -1,6 +1,10 @@
 --- ../src-base/minecraft/net/minecraftforge/fml/common/event/FMLServerStartingEvent.java
 +++ ../src-work/minecraft/net/minecraftforge/fml/common/event/FMLServerStartingEvent.java
-@@ -22,7 +22,9 @@
+@@ -19,10 +19,13 @@
+ 
+ package net.minecraftforge.fml.common.event;
+ 
++import net.minecraft.command.CommandBase;
  import net.minecraft.command.CommandHandler;
  import net.minecraft.command.ICommand;
  import net.minecraft.server.MinecraftServer;
@@ -10,11 +14,16 @@
  
  /**
   * Called after {@link FMLServerAboutToStartEvent} and before {@link FMLServerStartedEvent}.
-@@ -56,6 +58,7 @@
+@@ -56,6 +59,12 @@
      public void registerServerCommand(ICommand command)
      {
          CommandHandler ch = (CommandHandler) getServer().getCommandManager();
-+        ServerAPI.commands.put(command.getName(), Loader.instance().activeModContainer().getModId());
++        if (command instanceof CommandBase) {
++            String modid = Loader.instance().activeModContainer().getModId();
++            String per = modid + ".command." + command.getName();
++            ((CommandBase) command).permissionNode = per;
++            ServerAPI.commands.put(command.getName(),  modid);
++        }
          ch.registerCommand(command);
      }
  }

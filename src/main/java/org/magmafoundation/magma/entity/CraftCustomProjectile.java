@@ -22,6 +22,7 @@ import com.mojang.authlib.GameProfile;
 import java.util.UUID;
 import net.minecraft.entity.Entity;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Projectile;
 import org.bukkit.projectiles.ProjectileSource;
 
@@ -54,6 +55,15 @@ public class CraftCustomProjectile extends CraftCustomEntity implements Projecti
     @Override
     public void setBounce(boolean doesBounce) {
         this.doesBounce = doesBounce;
+    }
+
+    public EntityType getType() {
+        EntityType type = EntityType.fromName(this.entityName);
+        if (type != null) {
+            return type;
+        } else {
+            return EntityType.FORGE_MOD;
+        }
     }
 
     @Override

@@ -137,6 +137,8 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.permissions.ServerOperator;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
+import org.magmafoundation.magma.entity.CraftCustomAbstractHorse;
+import org.magmafoundation.magma.entity.CraftCustomChestedHorse;
 import org.magmafoundation.magma.entity.CraftCustomEntity;
 import org.magmafoundation.magma.entity.CraftCustomProjectile;
 import org.magmafoundation.magma.entity.CraftFakePlayer;
@@ -200,9 +202,11 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
                             if (entity instanceof EntityDonkey) { return new CraftDonkey(server, (EntityDonkey) entity); }
                             else if (entity instanceof EntityMule) { return new CraftMule(server, (EntityMule) entity); }
                             else if (entity instanceof EntityLlama) { return new CraftLlama(server, (EntityLlama) entity); }
+                            else { return new CraftCustomChestedHorse(server, (AbstractChestHorse) entity); }
                         } else if (entity instanceof EntityHorse) { return new CraftHorse(server, (EntityHorse) entity); }
                         else if (entity instanceof EntitySkeletonHorse) { return new CraftSkeletonHorse(server, (EntitySkeletonHorse) entity); }
                         else if (entity instanceof EntityZombieHorse) { return new CraftZombieHorse(server, (EntityZombieHorse) entity); }
+                        else { return new CraftCustomAbstractHorse(server, (AbstractHorse) entity); }
                     }
                     else if (entity instanceof EntityRabbit) { return new CraftRabbit(server, (EntityRabbit) entity); }
                     else if (entity instanceof EntityPolarBear) { return new CraftPolarBear(server, (EntityPolarBear) entity); }
