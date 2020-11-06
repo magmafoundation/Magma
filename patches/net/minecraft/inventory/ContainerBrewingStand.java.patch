@@ -1,0 +1,53 @@
+--- ../src-base/minecraft/net/minecraft/inventory/ContainerBrewingStand.java
++++ ../src-work/minecraft/net/minecraft/inventory/ContainerBrewingStand.java
+@@ -12,6 +12,9 @@
+ import net.minecraft.potion.PotionUtils;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryBrewer;
++import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
++import org.bukkit.inventory.PlayerInventory;
+ 
+ public class ContainerBrewingStand extends Container
+ {
+@@ -20,8 +23,14 @@
+     private int prevBrewTime;
+     private int prevFuel;
+ 
++    // CraftBukkit start
++    private CraftInventoryView bukkitEntity = null;
++    private InventoryPlayer player;
++    // CraftBukkit end
++
+     public ContainerBrewingStand(InventoryPlayer playerInventory, IInventory tileBrewingStandIn)
+     {
++        player = playerInventory; // CraftBukkit
+         this.tileBrewingStand = tileBrewingStandIn;
+         this.addSlotToContainer(new ContainerBrewingStand.Potion(tileBrewingStandIn, 0, 56, 51));
+         this.addSlotToContainer(new ContainerBrewingStand.Potion(tileBrewingStandIn, 1, 79, 58));
+@@ -80,6 +89,7 @@
+ 
+     public boolean canInteractWith(EntityPlayer playerIn)
+     {
++        if (!this.checkReachable) return true; // CraftBukkit
+         return this.tileBrewingStand.isUsableByPlayer(playerIn);
+     }
+ 
+@@ -242,4 +252,17 @@
+                 return net.minecraftforge.common.brewing.BrewingRecipeRegistry.isValidInput(stack);
+             }
+         }
++
++    // CraftBukkit start
++    @Override
++    public CraftInventoryView getBukkitView() {
++        if (bukkitEntity != null) {
++            return bukkitEntity;
++        }
++
++        CraftInventoryBrewer inventory = new CraftInventoryBrewer(this.tileBrewingStand);
++        bukkitEntity = new CraftInventoryView(this.player.player.getBukkitEntity(), inventory, this);
++        return bukkitEntity;
++    }
++    // CraftBukkit end
+ }
