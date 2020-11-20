@@ -56,6 +56,7 @@ public class RemappingUtils {
 
     public static final String nmsPrefix = "net.minecraft.server.";
     public static final MagmaJarMapping jarMapping;
+    public static final MagmaJarRemapper jarRemapper;
     private static final List<Remapper> remappers = new ArrayList<>();
     private static final Object remapLock = new Object();
 
@@ -86,7 +87,7 @@ public class RemappingUtils {
         }
 
         remappers.add(new NMSVersionRemapper());
-        MagmaJarRemapper jarRemapper = new MagmaJarRemapper(jarMapping);
+        jarRemapper = new MagmaJarRemapper(jarMapping);
         remappers.add(jarRemapper);
         remappers.add(new ReflectionRemapper());
         jarMapping.initFastMethodMapping(jarRemapper);

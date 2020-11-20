@@ -18,12 +18,20 @@
 
 package org.magmafoundation.magma.remapper.remappers;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
 import net.md_5.specialsource.CustomRemapper;
 import net.md_5.specialsource.NodeType;
+import net.md_5.specialsource.RemappingClassAdapter;
+import net.md_5.specialsource.SpecialSource;
+import net.md_5.specialsource.repo.ClassRepo;
 import org.magmafoundation.magma.remapper.mappingsModel.ClassMappings;
 import org.magmafoundation.magma.remapper.utils.ASMUtils;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.ClassNode;
 
 /**
  * MagmaJarRemapper
@@ -132,5 +140,28 @@ public class MagmaJarRemapper extends CustomRemapper {
         String mapped = jarMapping.tryClimb(jarMapping.methods, NodeType.METHOD, owner, name + " " + desc, access);
         return mapped == null ? name : mapped;
     }
+
+    public byte[] remapClassFile(InputStream is, ClassRepo repo) throws IOException {
+        return remapClassFile(new ClassReader(is), repo);
+    }
+
+    public byte[] remapClassFile(byte[] in, ClassRepo repo) {
+        return remapClassFile(new ClassReader(in), repo);
+    }
+
+    private byte[] remapClassFile(ClassReader reader, final ClassRepo repo) {
+        ClassNode node = new ClassNode();
+        RemappingClassAdapter mapper = new RemappingClassAdapter(node, this, repo);
+        reader.accept(mapper, 0);
+
+        ClassWriter wr = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        node.accept(wr);
+        if (SpecialSource.identifier != null) {
+            wr.newUTF8(SpecialSource.identifier);
+        }
+
+        return  wr.toByteArray();
+    }
+
 
 }
