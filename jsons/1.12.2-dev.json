@@ -152,6 +152,11 @@
       "name": "javassist:javassist:3.12.1.GA",
       "children" : ["sources"],
       "url" : "http://repo.maven.apache.org/maven2"
+    },
+    {
+      "name": "org.bodil.openjdk:nashorn:0.1.0.2013070801",
+      "children" : ["sources"],
+      "url" : "https://clojars.org/repo"
     }
   ]
 }

@@ -267,6 +267,12 @@
         "url": "http://repo.maven.apache.org/maven2",
         "clientreq": true,
         "serverreq": true
+      },
+      {
+        "name": "org.bodil.openjdk:nashorn:0.1.0.2013070801",
+        "url" : "https://clojars.org/repo",
+        "clientreq":false,
+        "serverreq":true
       }
     ]
   },

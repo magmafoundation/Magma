@@ -36,6 +36,7 @@ import org.magmafoundation.magma.remapper.remappers.MagmaInheritanceMap;
 import org.magmafoundation.magma.remapper.remappers.MagmaInheritanceProvider;
 import org.magmafoundation.magma.remapper.remappers.MagmaJarMapping;
 import org.magmafoundation.magma.remapper.remappers.MagmaJarRemapper;
+import org.magmafoundation.magma.remapper.remappers.MagmaSuperClassRemapper;
 import org.magmafoundation.magma.remapper.remappers.NMSVersionRemapper;
 import org.magmafoundation.magma.remapper.remappers.ReflectionRemapper;
 import org.objectweb.asm.ClassReader;
@@ -114,6 +115,7 @@ public class RemappingUtils {
                     RemapContext.pop();
                 }
             }
+            MagmaSuperClassRemapper.initialize(classNode);
             ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             classNode.accept(writer);
             bs = writer.toByteArray();
