@@ -2,7 +2,7 @@
 
 pipeline {
     agent {
-        docker { image 'openjdk:8-jdk' }
+        docker { image 'openjdk:8-jdk-alpine' }
     }
     environment {
         DISCORD_PREFIX = "Magma: ${BRANCH_NAME} #${BUILD_NUMBER}"
