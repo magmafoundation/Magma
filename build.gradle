@@ -196,17 +196,21 @@ tasks.withType(JavaCompile) {
 
 task signUniversal(type: SignJar, dependsOn: 'outputJar') {
     onlyIf {
-        project.hasProperty('keyStore')
+        project.hasProperty('jarsigner')
     }
+
+    def jarsigner = [:]
+
+    if (project.hasProperty('jarsigner'))
+        jarsigner = project.jarsigner
 
     alias = 'forge'
     exclude "paulscode/**"
-    keyStore = project.findProperty('keyStore')
-    alias = project.findProperty('keyStoreAlias')
-    storePass = project.findProperty('keyStorePass')
-    keyPass = project.findProperty('keyStoreKeyPass')
-    inputFile = file("build/distributions/${project.name}-${project.version}-server.jar").canonicalPath
-    outputFile = file("build/distributions/${project.name}-${project.version}-server.jar").canonicalPath
+    storePass = jarsigner.storepass
+    keyPass = jarsigner.keypass
+    keyStore = jarsigner.keystore
+    inputFile = outputJar.archivePath
+    outputFile = outputJar.archivePath
 }
 build.dependsOn signUniversal
 installer.dependsOn signUniversal
