@@ -26,6 +26,10 @@ pipeline {
 
         stage('Build') {
             steps {
+              withCredentials([string(credentialsId: 'MAGMA_GRADLE_PRO', variable: 'MAGMA_GRADLE_PRO'),string(credentialsId: 'MAGMA_KEY_STORE', variable: 'MAGMA_KEY_STORE')]) {
+                sh 'base64 -d ${MAGMA_GRADLE_PRO} >> gradle.properties'
+                sh 'base64 -d ${MAGMA_KEY_STORE} > keystore.jks'
+              }
                 sh './gradlew launch4j --console=plain'
             }
         }
