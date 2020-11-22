@@ -15,6 +15,16 @@ Magma is based on Forge and Paper, meaning it can run both Craftbukkit/Spigot/Pa
 
 We hope to eliminate all issues with craftbukkit forge servers. In the end, we envision a seamless, low lag Magma experience with support for newer 1.12+ versions of Minecraft.
 
+## Jar Signing
+
+As of November 22th 2020 all published builds will be signed. You can validate the integrity of these builds by comparing their signatures against one of our public fingerprint.
+
+| Hash   | Fingerprint                                                        |
+|--------|--------------------------------------------------------------------|
+| MD5    | `EC8411109B8828FBA1CC26113281C56F`                                 |
+| SHA1   | `1D1A4FD5C6D39591E94E789C8C4C8D725498D8BE`                         |
+| SHA256 | `AD2C1ED3FBE6D4D75C379EBB6ACF1915E602D554939C4D37B593DD20BE8A2103` |
+
 ## Big Paper Update :fireworks:
 
 Magma at the moment **is not** using all of the API/Patches with this update we will have all features of Paper and more optimizations (including Timings v2).
