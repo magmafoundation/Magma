@@ -2,8 +2,13 @@ package org.bukkit.support;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Bootstrap;
+import net.minecraft.potion.Potion;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_12_R1.enchantments.CraftEnchantment;
+import org.bukkit.craftbukkit.v1_12_R1.potion.CraftPotionEffectType;
+import org.bukkit.potion.PotionEffectType;
 import org.junit.BeforeClass;
 
 /**
@@ -76,5 +81,12 @@ public abstract class AbstractTestingBase {
         Bootstrap.register();
         DummyServer.setup();
         DummyEnchantments.setup();
+        // Magma add blocks Blocks
+        for (Material material : Material.values()) {
+            if (material.getId() < 256)
+                Material.addBlockMaterial(material);
+        }
+
+
     }
 }

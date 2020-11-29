@@ -68,121 +68,8 @@ import org.bukkit.inventory.meta.Repairable;
 @DelegateDeserialization(CraftMetaItem.SerializableMeta.class)
 public class CraftMetaItem implements ItemMeta, Repairable {
 
-    static class ItemMetaKey {
-
-        final String BUKKIT;
-        final String NBT;
-
-        ItemMetaKey(final String both) {
-            this(both, both);
-        }
-
-        ItemMetaKey(final String nbt, final String bukkit) {
-            this.NBT = nbt;
-            this.BUKKIT = bukkit;
-        }
-
-        @Retention(RetentionPolicy.SOURCE)
-        @Target(ElementType.FIELD)
-        @interface Specific {
-
-            To value();
-
-            enum To {
-                BUKKIT,
-                NBT,
-                ;
-            }
-        }
-    }
-
-    @SerializableAs("ItemMeta")
-    public static class SerializableMeta implements ConfigurationSerializable {
-
-        static final String TYPE_FIELD = "meta-type";
-
-        static final ImmutableMap<Class<? extends CraftMetaItem>, String> classMap;
-        static final ImmutableMap<String, Constructor<? extends CraftMetaItem>> constructorMap;
-
-        static {
-            classMap = ImmutableMap.<Class<? extends CraftMetaItem>, String>builder()
-                .put(CraftMetaBanner.class, "BANNER")
-                .put(CraftMetaBlockState.class, "TILE_ENTITY")
-                .put(CraftMetaBook.class, "BOOK")
-                .put(CraftMetaBookSigned.class, "BOOK_SIGNED")
-                .put(CraftMetaSkull.class, "SKULL")
-                .put(CraftMetaLeatherArmor.class, "LEATHER_ARMOR")
-                .put(CraftMetaMap.class, "MAP")
-                .put(CraftMetaPotion.class, "POTION")
-                .put(CraftMetaSpawnEgg.class, "SPAWN_EGG")
-                .put(CraftMetaEnchantedBook.class, "ENCHANTED")
-                .put(CraftMetaFirework.class, "FIREWORK")
-                .put(CraftMetaCharge.class, "FIREWORK_EFFECT")
-                .put(CraftMetaKnowledgeBook.class, "KNOWLEDGE_BOOK")
-                .put(CraftMetaItem.class, "UNSPECIFIC")
-                .build();
-
-            final ImmutableMap.Builder<String, Constructor<? extends CraftMetaItem>> classConstructorBuilder = ImmutableMap.builder();
-            for (Map.Entry<Class<? extends CraftMetaItem>, String> mapping : classMap.entrySet()) {
-                try {
-                    classConstructorBuilder.put(mapping.getValue(), mapping.getKey().getDeclaredConstructor(Map.class));
-                } catch (NoSuchMethodException e) {
-                    throw new AssertionError(e);
-                }
-            }
-            constructorMap = classConstructorBuilder.build();
-        }
-
-        private SerializableMeta() {
-        }
-
-        public static ItemMeta deserialize(Map<String, Object> map) throws Throwable {
-            Validate.notNull(map, "Cannot deserialize null map");
-
-            String type = getString(map, TYPE_FIELD, false);
-            Constructor<? extends CraftMetaItem> constructor = constructorMap.get(type);
-
-            if (constructor == null) {
-                throw new IllegalArgumentException(type + " is not a valid " + TYPE_FIELD);
-            }
-
-            try {
-                return constructor.newInstance(map);
-            } catch (final InstantiationException | IllegalAccessException e) {
-                throw new AssertionError(e);
-            } catch (final InvocationTargetException e) {
-                throw e.getCause();
-            }
-        }
-
-        static String getString(Map<?, ?> map, Object field, boolean nullable) {
-            return getObject(String.class, map, field, nullable);
-        }
-
-        static boolean getBoolean(Map<?, ?> map, Object field) {
-            Boolean value = getObject(Boolean.class, map, field, true);
-            return value != null && value;
-        }
-
-        static <T> T getObject(Class<T> clazz, Map<?, ?> map, Object field, boolean nullable) {
-            final Object object = map.get(field);
-
-            if (clazz.isInstance(object)) {
-                return clazz.cast(object);
-            }
-            if (object == null) {
-                if (!nullable) {
-                    throw new NoSuchElementException(map + " does not contain " + field);
-                }
-                return null;
-            }
-            throw new IllegalArgumentException(field + "(" + object + ") is not a valid " + clazz);
-        }
-
-        public Map<String, Object> serialize() {
-            throw new AssertionError();
-        }
-    }
+    private static final Set<String> HANDLED_TAGS = Sets.newHashSet();
+    private final Map<String, NBTBase> unhandledTags = new HashMap<String, NBTBase>();
 
     static final ItemMetaKey NAME = new ItemMetaKey("Name", "display-name");
     static final ItemMetaKey LOCNAME = new ItemMetaKey("LocName", "loc-name");
@@ -213,8 +100,7 @@ public class CraftMetaItem implements ItemMeta, Repairable {
     static final ItemMetaKey HIDEFLAGS = new ItemMetaKey("HideFlags", "ItemFlags");
     @Specific(Specific.To.NBT)
     static final ItemMetaKey UNBREAKABLE = new ItemMetaKey("Unbreakable");
-    private static final Set<String> HANDLED_TAGS = Sets.newHashSet();
-    private final Map<String, NBTBase> unhandledTags = new HashMap<>();
+
     private String displayName;
     private String locName;
     private List<String> lore;
@@ -234,8 +120,14 @@ public class CraftMetaItem implements ItemMeta, Repairable {
             CraftMetaItem.this.setUnbreakable(setUnbreakable);
         }
     };
-    private NBTTagCompound internalTag;
 
+    @Override
+    public Spigot spigot() {
+        return spigot;
+    }
+    // Spigot end
+
+    private NBTTagCompound internalTag;
     CraftMetaItem(CraftMetaItem meta) {
         if (meta == null) {
             return;
@@ -245,11 +137,11 @@ public class CraftMetaItem implements ItemMeta, Repairable {
         this.locName = meta.locName;
 
         if (meta.hasLore()) {
-            this.lore = new ArrayList<>(meta.lore);
+            this.lore = new ArrayList<String>(meta.lore);
         }
 
-        if (meta.enchantments != null) {
-            this.enchantments = new HashMap<>(meta.enchantments);
+        if (meta.hasEnchants()) {
+            this.enchantments = new HashMap<Enchantment, Integer>(meta.enchantments);
         }
 
         this.repairCost = meta.repairCost;
@@ -277,7 +169,7 @@ public class CraftMetaItem implements ItemMeta, Repairable {
 
             if (display.hasKey(LORE.NBT)) {
                 NBTTagList list = display.getTagList(LORE.NBT, CraftMagicNumbers.NBT.TAG_STRING);
-                lore = new ArrayList<>(list.tagCount());
+                lore = new ArrayList<String>(list.tagCount());
 
                 for (int index = 0; index < list.tagCount(); index++) {
                     String line = list.getStringTagAt(index);
@@ -297,9 +189,6 @@ public class CraftMetaItem implements ItemMeta, Repairable {
         }
         if (tag.hasKey(UNBREAKABLE.NBT)) {
             unbreakable = tag.getBoolean(UNBREAKABLE.NBT);
-        }
-        if (tag.hasKey(CraftMetaBlockState.BLOCK_ENTITY_TAG.NBT)) {
-            unhandledTags.put(CraftMetaBlockState.BLOCK_ENTITY_TAG.NBT, tag.getTag(CraftMetaBlockState.BLOCK_ENTITY_TAG.NBT));
         }
 
         if (tag.getTag(ATTRIBUTES.NBT) instanceof NBTTagList) {
@@ -364,7 +253,7 @@ public class CraftMetaItem implements ItemMeta, Repairable {
 
         Iterable<?> lore = SerializableMeta.getObject(Iterable.class, map, LORE.BUKKIT, true);
         if (lore != null) {
-            safelyAdd(lore, this.lore = new ArrayList<>(), Integer.MAX_VALUE);
+            safelyAdd(lore, this.lore = new ArrayList<String>(), Integer.MAX_VALUE);
         }
 
         enchantments = buildEnchantments(map, ENCHANTMENTS);
@@ -416,7 +305,7 @@ public class CraftMetaItem implements ItemMeta, Repairable {
         }
 
         NBTTagList ench = tag.getTagList(key.NBT, CraftMagicNumbers.NBT.TAG_COMPOUND);
-        Map<Enchantment, Integer> enchantments = new HashMap<>(ench.tagCount());
+        Map<Enchantment, Integer> enchantments = new HashMap<Enchantment, Integer>(ench.tagCount());
 
         for (int i = 0; i < ench.tagCount(); i++) {
             int id = 0xffff & ((NBTTagCompound) ench.get(i)).getShort(ENCHANTMENTS_ID.NBT);
@@ -437,7 +326,7 @@ public class CraftMetaItem implements ItemMeta, Repairable {
             return null;
         }
 
-        Map<Enchantment, Integer> enchantments = new HashMap<>(ench.size());
+        Map<Enchantment, Integer> enchantments = new HashMap<Enchantment, Integer>(ench.size());
         for (Map.Entry<?, ?> entry : ench.entrySet()) {
             // Doctor older enchants
             String enchantKey = entry.getKey().toString();
@@ -468,7 +357,7 @@ public class CraftMetaItem implements ItemMeta, Repairable {
     }
 
     static void applyEnchantments(Map<Enchantment, Integer> enchantments, NBTTagCompound tag, ItemMetaKey key) {
-        if (enchantments == null /*|| enchantments.size() == 0*/) { // Spigot - remove size check
+        if (enchantments == null || enchantments.size() == 0) {
             return;
         }
 
@@ -484,6 +373,38 @@ public class CraftMetaItem implements ItemMeta, Repairable {
         }
 
         tag.setTag(key.NBT, list);
+    }
+
+    @Overridden
+    void applyToItem(NBTTagCompound itemTag) {
+        if (hasDisplayName()) {
+            setDisplayTag(itemTag, NAME.NBT, new NBTTagString(displayName));
+        }
+        if (hasLocalizedName()) {
+            setDisplayTag(itemTag, LOCNAME.NBT, new NBTTagString(locName));
+        }
+
+        if (hasLore()) {
+            setDisplayTag(itemTag, LORE.NBT, createStringList(lore));
+        }
+
+        if (hideFlag != 0) {
+            itemTag.setInteger(HIDEFLAGS.NBT, hideFlag);
+        }
+
+        applyEnchantments(enchantments, itemTag, ENCHANTMENTS);
+
+        if (hasRepairCost()) {
+            itemTag.setInteger(REPAIR.NBT, repairCost);
+        }
+
+        if (isUnbreakable()) {
+            itemTag.setBoolean(UNBREAKABLE.NBT, unbreakable);
+        }
+
+        for (Map.Entry<String, NBTBase> e : unhandledTags.entrySet()) {
+            itemTag.setTag(e.getKey(), e.getValue());
+        }
     }
 
     static void serializeEnchantments(Map<Enchantment, Integer> enchantments, ImmutableMap.Builder<String, Object> builder, ItemMetaKey key) {
@@ -520,87 +441,6 @@ public class CraftMetaItem implements ItemMeta, Repairable {
 
                 addTo.add(page);
             }
-        }
-    }
-
-    static boolean checkConflictingEnchants(Map<Enchantment, Integer> enchantments, Enchantment ench) {
-        if (enchantments == null || enchantments.isEmpty()) {
-            return false;
-        }
-
-        for (Enchantment enchant : enchantments.keySet()) {
-            if (enchant.conflictsWith(ench)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static Set<String> getHandledTags() {
-        synchronized (HANDLED_TAGS) {
-            if (HANDLED_TAGS.isEmpty()) {
-                HANDLED_TAGS.addAll(Arrays.asList(
-                    DISPLAY.NBT,
-                    REPAIR.NBT,
-                    ENCHANTMENTS.NBT,
-                    HIDEFLAGS.NBT,
-                    UNBREAKABLE.NBT,
-                    CraftMetaMap.MAP_SCALING.NBT,
-                    CraftMetaPotion.POTION_EFFECTS.NBT,
-                    CraftMetaPotion.DEFAULT_POTION.NBT,
-                    CraftMetaSkull.SKULL_OWNER.NBT,
-                    CraftMetaSkull.SKULL_PROFILE.NBT,
-                    CraftMetaSpawnEgg.ENTITY_TAG.NBT,
-                    CraftMetaBlockState.BLOCK_ENTITY_TAG.NBT,
-                    CraftMetaBook.BOOK_TITLE.NBT,
-                    CraftMetaBook.BOOK_AUTHOR.NBT,
-                    CraftMetaBook.BOOK_PAGES.NBT,
-                    CraftMetaBook.RESOLVED.NBT,
-                    CraftMetaBook.GENERATION.NBT,
-                    CraftMetaFirework.FIREWORKS.NBT,
-                    CraftMetaEnchantedBook.STORED_ENCHANTMENTS.NBT,
-                    CraftMetaCharge.EXPLOSION.NBT,
-                    CraftMetaBlockState.BLOCK_ENTITY_TAG.NBT,
-                    CraftMetaKnowledgeBook.BOOK_RECIPES.NBT
-                ));
-            }
-            return HANDLED_TAGS;
-        }
-    }
-
-    void deserializeInternal(NBTTagCompound tag) {
-    }
-
-    @Overridden
-    void applyToItem(NBTTagCompound itemTag) {
-        if (hasDisplayName()) {
-            setDisplayTag(itemTag, NAME.NBT, new NBTTagString(displayName));
-        }
-        if (hasLocalizedName()) {
-            setDisplayTag(itemTag, LOCNAME.NBT, new NBTTagString(locName));
-        }
-
-        if (hasLore()) {
-            setDisplayTag(itemTag, LORE.NBT, createStringList(lore));
-        }
-
-        if (hideFlag != 0) {
-            itemTag.setInteger(HIDEFLAGS.NBT, hideFlag);
-        }
-
-        applyEnchantments(enchantments, itemTag, ENCHANTMENTS);
-
-        if (hasRepairCost()) {
-            itemTag.setInteger(REPAIR.NBT, repairCost);
-        }
-
-        if (isUnbreakable()) {
-            itemTag.setBoolean(UNBREAKABLE.NBT, unbreakable);
-        }
-
-        for (Map.Entry<String, NBTBase> e : unhandledTags.entrySet()) {
-            itemTag.setTag(e.getKey(), e.getValue());
         }
     }
 
@@ -673,32 +513,53 @@ public class CraftMetaItem implements ItemMeta, Repairable {
         return level;
     }
 
-    public Map<Enchantment, Integer> getEnchants() {
-        return hasEnchants() ? ImmutableMap.copyOf(enchantments) : ImmutableMap.of();
-    }
-
-    public boolean addEnchant(Enchantment ench, int level, boolean ignoreRestrictions) {
-        Validate.notNull(ench, "Enchantment cannot be null");
-        if (enchantments == null) {
-            enchantments = new HashMap<>(4);
+    static boolean checkConflictingEnchants(Map<Enchantment, Integer> enchantments, Enchantment ench) {
+        if (enchantments == null || enchantments.isEmpty()) {
+            return false;
         }
 
-        if (ignoreRestrictions || level >= ench.getStartLevel() && level <= ench.getMaxLevel()) {
-            Integer old = enchantments.put(ench, level);
-            return old == null || old != level;
+        for (Enchantment enchant : enchantments.keySet()) {
+            if (enchant.conflictsWith(ench)) {
+                return true;
+            }
         }
+
         return false;
     }
 
-    public boolean removeEnchant(Enchantment ench) {
-        Validate.notNull(ench, "Enchantment cannot be null");
-        // Spigot start
-        boolean b = hasEnchants() && enchantments.remove(ench) != null;
-        if (enchantments != null && enchantments.isEmpty()) {
-            this.enchantments = null;
+    public static Set<String> getHandledTags() {
+        synchronized (HANDLED_TAGS) {
+            if (HANDLED_TAGS.isEmpty()) {
+                HANDLED_TAGS.addAll(Arrays.asList(
+                    DISPLAY.NBT,
+                    REPAIR.NBT,
+                    ENCHANTMENTS.NBT,
+                    HIDEFLAGS.NBT,
+                    UNBREAKABLE.NBT,
+                    CraftMetaMap.MAP_SCALING.NBT,
+                    CraftMetaPotion.POTION_EFFECTS.NBT,
+                    CraftMetaPotion.DEFAULT_POTION.NBT,
+                    CraftMetaSkull.SKULL_OWNER.NBT,
+                    CraftMetaSkull.SKULL_PROFILE.NBT,
+                    CraftMetaSpawnEgg.ENTITY_TAG.NBT,
+                    CraftMetaBlockState.BLOCK_ENTITY_TAG.NBT,
+                    CraftMetaBook.BOOK_TITLE.NBT,
+                    CraftMetaBook.BOOK_AUTHOR.NBT,
+                    CraftMetaBook.BOOK_PAGES.NBT,
+                    CraftMetaBook.RESOLVED.NBT,
+                    CraftMetaBook.GENERATION.NBT,
+                    CraftMetaFirework.FIREWORKS.NBT,
+                    CraftMetaEnchantedBook.STORED_ENCHANTMENTS.NBT,
+                    CraftMetaCharge.EXPLOSION.NBT,
+                    CraftMetaBlockState.BLOCK_ENTITY_TAG.NBT,
+                    CraftMetaKnowledgeBook.BOOK_RECIPES.NBT
+                ));
+            }
+            return HANDLED_TAGS;
         }
-        return b;
-        // Spigot end
+    }
+
+    void deserializeInternal(NBTTagCompound tag) {
     }
 
     public boolean hasEnchants() {
@@ -746,21 +607,21 @@ public class CraftMetaItem implements ItemMeta, Repairable {
         return (byte) (1 << hideFlag.ordinal());
     }
 
-    public List<String> getLore() {
-        return this.lore == null ? null : new ArrayList<>(this.lore);
+    public Map<Enchantment, Integer> getEnchants() {
+        return hasEnchants() ? ImmutableMap.copyOf(enchantments) : ImmutableMap.of();
     }
 
-    public void setLore(List<String> lore) { // too tired to think if .clone is better
-        if (lore == null) {
-            this.lore = null;
-        } else {
-            if (this.lore == null) {
-                safelyAdd(lore, this.lore = new ArrayList<>(lore.size()), Integer.MAX_VALUE);
-            } else {
-                this.lore.clear();
-                safelyAdd(lore, this.lore, Integer.MAX_VALUE);
-            }
+    public boolean addEnchant(Enchantment ench, int level, boolean ignoreRestrictions) {
+        Validate.notNull(ench, "Enchantment cannot be null");
+        if (enchantments == null) {
+            enchantments = new HashMap<Enchantment, Integer>(4);
         }
+
+        if (ignoreRestrictions || level >= ench.getStartLevel() && level <= ench.getMaxLevel()) {
+            Integer old = enchantments.put(ench, level);
+            return old == null || old != level;
+        }
+        return false;
     }
 
     public int getRepairCost() {
@@ -811,13 +672,9 @@ public class CraftMetaItem implements ItemMeta, Repairable {
             && (this.isUnbreakable() == that.isUnbreakable());
     }
 
-    /**
-     * This method is a bit weird... Return true if you are a common class OR your uncommon parts are empty. Empty uncommon parts implies the NBT data would be equivalent if both were applied to an
-     * item
-     */
-    @Overridden
-    boolean notUncommon(CraftMetaItem meta) {
-        return true;
+    public boolean removeEnchant(Enchantment ench) {
+        Validate.notNull(ench, "Enchantment cannot be null");
+        return hasEnchants() && enchantments.remove(ench) != null;
     }
 
     @Override
@@ -839,23 +696,8 @@ public class CraftMetaItem implements ItemMeta, Repairable {
         return hash;
     }
 
-    @Overridden
-    @Override
-    public CraftMetaItem clone() {
-        try {
-            CraftMetaItem clone = (CraftMetaItem) super.clone();
-            if (this.lore != null) {
-                clone.lore = new ArrayList<>(this.lore);
-            }
-            if (this.enchantments != null) {
-                clone.enchantments = new HashMap<>(this.enchantments);
-            }
-            clone.hideFlag = this.hideFlag;
-            clone.unbreakable = this.unbreakable;
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new Error(e);
-        }
+    public List<String> getLore() {
+        return this.lore == null ? null : new ArrayList<String>(this.lore);
     }
 
     public final Map<String, Object> serialize() {
@@ -863,6 +705,51 @@ public class CraftMetaItem implements ItemMeta, Repairable {
         map.put(SerializableMeta.TYPE_FIELD, SerializableMeta.classMap.get(getClass()));
         serialize(map);
         return map.build();
+    }
+
+    public void setLore(List<String> lore) { // too tired to think if .clone is better
+        if (lore == null) {
+            this.lore = null;
+        } else {
+            if (this.lore == null) {
+                safelyAdd(lore, this.lore = new ArrayList<String>(lore.size()), Integer.MAX_VALUE);
+            } else {
+                this.lore.clear();
+                safelyAdd(lore, this.lore, Integer.MAX_VALUE);
+            }
+        }
+    }
+
+    void serializeInternal(final Map<String, NBTBase> unhandledTags) {
+    }
+
+    /**
+     * This method is a bit weird...
+     * Return true if you are a common class OR your uncommon parts are empty.
+     * Empty uncommon parts implies the NBT data would be equivalent if both were applied to an item
+     */
+    @Overridden
+    boolean notUncommon(CraftMetaItem meta) {
+        return true;
+    }
+
+    @Overridden
+    @Override
+    public CraftMetaItem clone() {
+        try {
+            CraftMetaItem clone = (CraftMetaItem) super.clone();
+            if (this.lore != null) {
+                clone.lore = new ArrayList<String>(this.lore);
+            }
+            if (this.enchantments != null) {
+                clone.enchantments = new HashMap<Enchantment, Integer>(this.enchantments);
+            }
+            clone.hideFlag = this.hideFlag;
+            clone.unbreakable = this.unbreakable;
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new Error(e);
+        }
     }
 
     @Overridden
@@ -884,7 +771,7 @@ public class CraftMetaItem implements ItemMeta, Repairable {
             builder.put(REPAIR.BUKKIT, repairCost);
         }
 
-        List<String> hideFlags = new ArrayList<>();
+        List<String> hideFlags = new ArrayList<String>();
         for (ItemFlag hideFlagEnum : getItemFlags()) {
             hideFlags.add(hideFlagEnum.name());
         }
@@ -896,7 +783,7 @@ public class CraftMetaItem implements ItemMeta, Repairable {
             builder.put(UNBREAKABLE.BUKKIT, unbreakable);
         }
 
-        final Map<String, NBTBase> internalTags = new HashMap<>(unhandledTags);
+        final Map<String, NBTBase> internalTags = new HashMap<String, NBTBase>(unhandledTags);
         serializeInternal(internalTags);
         if (!internalTags.isEmpty()) {
             NBTTagCompound internal = new NBTTagCompound();
@@ -915,16 +802,126 @@ public class CraftMetaItem implements ItemMeta, Repairable {
         return builder;
     }
 
-    void serializeInternal(final Map<String, NBTBase> unhandledTags) {
-    }
-
     @Override
     public final String toString() {
         return SerializableMeta.classMap.get(getClass()) + "_META:" + serialize(); // TODO: cry
     }
 
-    @Override
-    public Spigot spigot() {
-        return spigot;
+    static class ItemMetaKey {
+
+        @Retention(RetentionPolicy.SOURCE)
+        @Target(ElementType.FIELD)
+        @interface Specific {
+
+            To value();
+
+            enum To {
+                BUKKIT,
+                NBT,
+                ;
+            }
+        }
+
+        final String BUKKIT;
+        final String NBT;
+
+        ItemMetaKey(final String both) {
+            this(both, both);
+        }
+
+        ItemMetaKey(final String nbt, final String bukkit) {
+            this.NBT = nbt;
+            this.BUKKIT = bukkit;
+        }
+    }
+
+    @SerializableAs("ItemMeta")
+    public static class SerializableMeta implements ConfigurationSerializable {
+
+        static final String TYPE_FIELD = "meta-type";
+
+        static final ImmutableMap<Class<? extends CraftMetaItem>, String> classMap;
+        static final ImmutableMap<String, Constructor<? extends CraftMetaItem>> constructorMap;
+
+        static {
+            classMap = ImmutableMap.<Class<? extends CraftMetaItem>, String>builder()
+                .put(CraftMetaBanner.class, "BANNER")
+                .put(CraftMetaBlockState.class, "TILE_ENTITY")
+                .put(CraftMetaBook.class, "BOOK")
+                .put(CraftMetaBookSigned.class, "BOOK_SIGNED")
+                .put(CraftMetaSkull.class, "SKULL")
+                .put(CraftMetaLeatherArmor.class, "LEATHER_ARMOR")
+                .put(CraftMetaMap.class, "MAP")
+                .put(CraftMetaPotion.class, "POTION")
+                .put(CraftMetaSpawnEgg.class, "SPAWN_EGG")
+                .put(CraftMetaEnchantedBook.class, "ENCHANTED")
+                .put(CraftMetaFirework.class, "FIREWORK")
+                .put(CraftMetaCharge.class, "FIREWORK_EFFECT")
+                .put(CraftMetaKnowledgeBook.class, "KNOWLEDGE_BOOK")
+                .put(CraftMetaItem.class, "UNSPECIFIC")
+                .build();
+
+            final ImmutableMap.Builder<String, Constructor<? extends CraftMetaItem>> classConstructorBuilder = ImmutableMap.builder();
+            for (Map.Entry<Class<? extends CraftMetaItem>, String> mapping : classMap.entrySet()) {
+                try {
+                    classConstructorBuilder.put(mapping.getValue(), mapping.getKey().getDeclaredConstructor(Map.class));
+                } catch (NoSuchMethodException e) {
+                    throw new AssertionError(e);
+                }
+            }
+            constructorMap = classConstructorBuilder.build();
+        }
+
+        private SerializableMeta() {
+        }
+
+        public static ItemMeta deserialize(Map<String, Object> map) throws Throwable {
+            Validate.notNull(map, "Cannot deserialize null map");
+
+            String type = getString(map, TYPE_FIELD, false);
+            Constructor<? extends CraftMetaItem> constructor = constructorMap.get(type);
+
+            if (constructor == null) {
+                throw new IllegalArgumentException(type + " is not a valid " + TYPE_FIELD);
+            }
+
+            try {
+                return constructor.newInstance(map);
+            } catch (final InstantiationException e) {
+                throw new AssertionError(e);
+            } catch (final IllegalAccessException e) {
+                throw new AssertionError(e);
+            } catch (final InvocationTargetException e) {
+                throw e.getCause();
+            }
+        }
+
+        public Map<String, Object> serialize() {
+            throw new AssertionError();
+        }
+
+        static String getString(Map<?, ?> map, Object field, boolean nullable) {
+            return getObject(String.class, map, field, nullable);
+        }
+
+        static boolean getBoolean(Map<?, ?> map, Object field) {
+            Boolean value = getObject(Boolean.class, map, field, true);
+            return value != null && value;
+        }
+
+        static <T> T getObject(Class<T> clazz, Map<?, ?> map, Object field, boolean nullable) {
+            final Object object = map.get(field);
+
+            if (clazz.isInstance(object)) {
+                return clazz.cast(object);
+            }
+            if (object == null) {
+                if (!nullable) {
+                    throw new NoSuchElementException(map + " does not contain " + field);
+                }
+                return null;
+            }
+            throw new IllegalArgumentException(field + "(" + object + ") is not a valid " + clazz);
+        }
     }
 }

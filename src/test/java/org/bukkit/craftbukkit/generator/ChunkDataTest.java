@@ -7,9 +7,10 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.generator.CraftChunkData;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.Wool;
+import org.bukkit.support.AbstractTestingBase;
 import org.junit.Test;
 
-public class ChunkDataTest {
+public class ChunkDataTest extends AbstractTestingBase {
 
     private static final MaterialData RED_WOOL = new Wool(DyeColor.RED);
     private static final MaterialData AIR = new MaterialData(Material.AIR);
