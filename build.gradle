@@ -73,6 +73,8 @@ configurations{
 }
 
 dependencies {
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
+    testCompile 'org.hamcrest:hamcrest-library:1.3'
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile(group: 'bukkit', name: 'bukkit', version: '1.12.2-R0.1')
     compile 'com.conversantmedia:disruptor:1.2.14'
@@ -164,6 +166,9 @@ minecraft {
     }
 }
 
+extractForgeSources { exclude "**/SideOnly.java", "**/Side.java" }
+extractForgeResources { exclude "**/log4j2.xml" }
+
 sourceCompatibility = 1.8
 tasks.generateXmlConfig.dependsOn installer
 tasks.compileJava.enabled = false
@@ -244,11 +249,17 @@ extractForgeSources {
 }
 
 genGradleProjects {
+    addTestCompileDep "junit:junit:4.12" // TODO update unit tests to junit 5 and remove this
+    addTestCompileDep "org.junit.jupiter:junit-jupiter-api:5.0.0"
+    addTestCompileDep "org.opentest4j:opentest4j:1.0.0" // needed for junit 5
+    addTestCompileDep "org.hamcrest:hamcrest-all:1.3"
+    addTestCompileDep "org.hamcrest:hamcrest-library:1.3"
     addCompileDep "junit:junit:4.12"
     addCompileDep "bukkit:bukkit:1.12.2-R0.1"
     addCompileDep "org.reflections:reflections:0.9.10"
     addCompileDep "javassist:javassist:3.12.1.GA"
     addRepo("MagmaFoundation", "https://repo.hexeption.dev/repository/magma/")
+    filter { dep -> !dep.contains("scala") }
 }
 
 

@@ -80,7 +80,7 @@ public class CraftMetaKnowledgeBook extends CraftMetaItem implements KnowledgeBo
     }
 
     @Override
-    boolean applicableTo(Material type) {
+    public boolean applicableTo(Material type) {
         switch (type) {
             case KNOWLEDGE_BOOK:
                 return true;

@@ -21,7 +21,7 @@ public final class CraftChunkData implements ChunkGenerator.ChunkData {
         this(world.getMaxHeight());
     }
 
-    /* pp for tests */ CraftChunkData(int maxHeight) {
+    public CraftChunkData(int maxHeight) {
         if (maxHeight > 256) {
             throw new IllegalArgumentException("World height exceeded max chunk height");
         }

@@ -93,7 +93,7 @@ public class CraftMetaSpawnEgg extends CraftMetaItem implements SpawnEggMeta {
     }
 
     @Override
-    boolean applicableTo(Material type) {
+    public boolean applicableTo(Material type) {
         switch (type) {
             case MONSTER_EGG:
                 return true;

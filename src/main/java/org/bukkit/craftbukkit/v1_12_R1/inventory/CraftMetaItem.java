@@ -66,7 +66,7 @@ import org.bukkit.inventory.meta.Repairable;
  * <li> SerializableMeta.Deserializers deserializer()
  */
 @DelegateDeserialization(CraftMetaItem.SerializableMeta.class)
-class CraftMetaItem implements ItemMeta, Repairable {
+public class CraftMetaItem implements ItemMeta, Repairable {
 
     static class ItemMetaKey {
 
@@ -615,7 +615,7 @@ class CraftMetaItem implements ItemMeta, Repairable {
     }
 
     @Overridden
-    boolean applicableTo(Material type) {
+    public boolean applicableTo(Material type) {
         return type != Material.AIR;
     }
 

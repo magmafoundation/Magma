@@ -157,7 +157,7 @@ public class CraftMetaBook extends CraftMetaItem implements BookMeta {
     }
 
     @Override
-    boolean applicableTo(Material type) {
+    public boolean applicableTo(Material type) {
         switch (type) {
         case WRITTEN_BOOK:
         case BOOK_AND_QUILL:

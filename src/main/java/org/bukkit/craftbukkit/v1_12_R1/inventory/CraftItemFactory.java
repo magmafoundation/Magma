@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableSet;
 
 public final class CraftItemFactory implements ItemFactory {
     static final Color DEFAULT_LEATHER_COLOR = Color.fromRGB(0xA06540);
-    static final Collection<String> KNOWN_NBT_ATTRIBUTE_NAMES;
+    public static final Collection<String> KNOWN_NBT_ATTRIBUTE_NAMES;
     private static final CraftItemFactory instance;
 
     static {

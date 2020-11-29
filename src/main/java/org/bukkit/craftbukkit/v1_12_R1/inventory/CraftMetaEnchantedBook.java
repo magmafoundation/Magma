@@ -56,7 +56,7 @@ class CraftMetaEnchantedBook extends CraftMetaItem implements EnchantmentStorage
     }
 
     @Override
-    boolean applicableTo(Material type) {
+    public boolean applicableTo(Material type) {
         switch (type) {
             case ENCHANTED_BOOK:
                 return true;

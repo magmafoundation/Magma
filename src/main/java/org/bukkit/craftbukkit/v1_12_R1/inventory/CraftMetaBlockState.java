@@ -168,7 +168,7 @@ public class CraftMetaBlockState extends CraftMetaItem implements BlockStateMeta
     }
 
     @Override
-    boolean applicableTo(Material type) {
+    public boolean applicableTo(Material type) {
         switch(type){
             case FURNACE:
             case CHEST:

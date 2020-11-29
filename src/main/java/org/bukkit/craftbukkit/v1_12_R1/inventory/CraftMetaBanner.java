@@ -197,7 +197,7 @@ public class CraftMetaBanner extends CraftMetaItem implements BannerMeta {
     }
 
     @Override
-    boolean applicableTo(Material type) {
+    public boolean applicableTo(Material type) {
         return type == Material.BANNER;
     }
 
