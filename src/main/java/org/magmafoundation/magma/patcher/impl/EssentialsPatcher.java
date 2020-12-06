@@ -19,6 +19,7 @@
 package org.magmafoundation.magma.patcher.impl;
 
 import com.google.common.collect.ImmutableMap;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Material.MaterialType;
 import org.bukkit.permissions.Permission;
@@ -49,12 +50,21 @@ public class EssentialsPatcher extends Patcher {
     @Override
     public byte[] transform(String className, byte[] clazz) {
         if (className.equals("com.earth2me.essentials.commands.Commandhat")) {
-            return patchCommand(clazz);
+            return patchCommand(clazz, true);
+        } else if (className.equals("com.earth2me.essentials.perm.PermissionsDefaults")) {
+            return patchCommand(clazz, false);
         }
         return clazz;
     }
 
-    private byte[] patchCommand(byte[] basicClass) {
+    /**
+     * Patch the byte code for essentials permission class.
+     *
+     * @param basicClass The byte code for the class.
+     * @param old        True if essentials is 2.18.1.0 or lower, False if 2.18.2.0+
+     * @return The modified class bytes.
+     */
+    private byte[] patchCommand(byte[] basicClass, boolean old) {
         ClassReader reader = new ClassReader(basicClass);
         ClassNode node = new ClassNode();
         reader.accept(node, 0);
@@ -63,7 +73,7 @@ public class EssentialsPatcher extends Patcher {
             if (method.name.equals("registerPermissionsIfNecessary") && method.desc.equals("(Lorg/bukkit/plugin/PluginManager;)V")) {
                 InsnList insnList = new InsnList();
                 insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
-                insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(EssentialsPatcher.class), "registerPermissionsIfNecessary", "(Lorg/bukkit/plugin/PluginManager;)V", false));
+                insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(EssentialsPatcher.class), "registerPermissionsIfNecessary", old ? "(Lorg/bukkit/plugin/PluginManager;)V" : "()V", false));
                 insnList.add(new InsnNode(Opcodes.RETURN));
                 method.instructions = insnList;
             }
@@ -74,6 +84,7 @@ public class EssentialsPatcher extends Patcher {
         return writer.toByteArray();
     }
 
+    // essentials is 2.18.1.0
     public static void registerPermissionsIfNecessary(final PluginManager toRegister) {
         final Permission hatPerm = toRegister.getPermission("essentials.hat.prevent-type.*");
         if (hatPerm != null) {
@@ -91,5 +102,26 @@ public class EssentialsPatcher extends Patcher {
         }
         toRegister.addPermission(new Permission("essentials.hat.prevent-type.*", "Prevent all types of hats", PermissionDefault.FALSE, children.build()));
     }
+
+    // essentials is 2.18.2.0+
+    public static void registerPermissionsIfNecessary() {
+        final PluginManager pluginManager = Bukkit.getPluginManager();
+        final Permission hatPerm = pluginManager.getPermission("essentials.hat.prevent-type.*");
+        if (hatPerm != null) {
+            return;
+        }
+        final ImmutableMap.Builder<String, Boolean> children = ImmutableMap.builder();
+        for (Material mat : Material.values()) {
+            if (mat.getMaterialType() == MaterialType.VANILLA || mat.getMaterialType() == MaterialType.MOD_ITEM) {
+                final String matPerm = "essentials.hat.prevent-type." + mat.name().toLowerCase();
+                if (pluginManager.getPermission(matPerm) == null) {
+                    children.put(matPerm, true);
+                    pluginManager.addPermission(new Permission(matPerm, "Prevent using " + mat + " as a type of hat.", PermissionDefault.FALSE));
+                }
+            }
+        }
+        pluginManager.addPermission(new Permission("essentials.hat.prevent-type.*", "Prevent all types of hats", PermissionDefault.FALSE, children.build()));
+    }
+
 
 }
