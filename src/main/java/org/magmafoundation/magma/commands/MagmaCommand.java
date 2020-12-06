@@ -18,17 +18,30 @@
 
 package org.magmafoundation.magma.commands;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
-import net.minecraft.command.CommandBase;
+
+import net.minecraftforge.common.DimensionManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.magmafoundation.magma.api.PlayerAPI;
 import org.magmafoundation.magma.api.ServerAPI;
+
+import net.minecraft.command.CommandBase;
+import net.minecraft.entity.Entity;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.WorldServer;
 
 /**
  * MagmaCommand
@@ -42,14 +55,14 @@ public class MagmaCommand extends Command {
         super(name);
 
         this.description = "Magma commands";
-        this.usageMessage = "/magma [mods|playermods]";
+        this.usageMessage = "/magma [mods|playermods|dump]";
         this.setPermission("magma.commands.magma");
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         if (args.length <= 1) {
-            return CommandBase.getListOfStringsMatchingLastWord(args, "mods", "playermods");
+            return CommandBase.getListOfStringsMatchingLastWord(args, "mods", "playermods", "dump");
         }
         return Collections.emptyList();
     }
@@ -84,11 +97,73 @@ public class MagmaCommand extends Command {
                     sender.sendMessage(ChatColor.RED + "The player [" + args[1] + "] is not online.");
                 }
                 break;
-            default:
-                sender.sendMessage(ChatColor.RED + "Usage: " + usageMessage);
-                return false;
+        case "dump":
+            createMagmaDump("world.mdump");
+            createMagmaDump("permissions.mdump");
+            createMagmaDump("material.mdump");
+            sender.sendMessage(ChatColor.RED + "Dump saved!");
+            break;
+        default:
+            sender.sendMessage(ChatColor.RED + "Usage: " + usageMessage);
+            return false;
         }
 
         return true;
+    }
+
+    private void createMagmaDump(String fileName) {
+        try {
+
+
+            File dumpFolder = new File("dump");
+            File dumpFile = new File(dumpFolder, fileName);
+            OutputStream os = new FileOutputStream(dumpFile);
+            Writer writer = new OutputStreamWriter(os);
+
+            switch (fileName.split("\\.")[0]) {
+            case "world":
+                for (WorldServer world : DimensionManager.getWorlds()) {
+                    writer.write(String.format("Stats for %s [%s] with id %d\n", world, world.provider.getDimensionType().name(), world.dimension));
+                    writer.write("Current Tick: " + world.worldInfo.getWorldTotalTime() + "\n");
+                    writer.write("\nEntities: ");
+                    writer.write("count - " + world.loadedEntityList.size() + "\n");
+                    for (Entity entity : world.loadedEntityList) {
+                        writer.write(String.format(" %s at (%.4f,%.4f,%.4f)\n", entity.getClass().getName(), entity.posX, entity.posY, entity.posZ));
+                    }
+                    writer.write("\nTileEntities: ");
+                    writer.write("count - " + world.loadedTileEntityList.size() + "\n");
+                    for (TileEntity entity : world.loadedTileEntityList) {
+                        writer.write(String.format(" %s at (%d,%d,%d)\n", entity.getClass().getName(), entity.getPos().getX(), entity.getPos().getY(), entity.getPos().getZ()));
+                    }
+                    writer.write("\nLoaded Chunks: ");
+                    writer.write("count - " + world.getChunkProvider().getLoadedChunkCount() + "\n");
+                    writer.write("------------------------------------\n");
+                }
+                writer.close();
+            case "permissions":
+
+                for (Command command : MinecraftServer.getServerInstance().server.getCommandMap().getCommands()) {
+                    if (command.getPermission() == null) {
+                        continue;
+                    }
+                    writer.write(command.getName() + ": " + command.getPermission() + "\n");
+                }
+
+                writer.close();
+
+
+            case "material":
+
+                for (Material material : Material.values()) {
+                    writer.write( material.name() + "\n");
+                }
+
+                writer.close();
+            }
+        } catch (Exception e) {
+
+        }
+
+
     }
 }
