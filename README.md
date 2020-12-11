@@ -15,6 +15,12 @@ Magma is based on Forge and Paper, meaning it can run both Craftbukkit/Spigot/Pa
 
 We hope to eliminate all issues with craftbukkit forge servers. In the end, we envision a seamless, low lag Magma experience with support for newer 1.12+ versions of Minecraft.
 
+## BungeeCord
+
+If you want to use Magma in a BungeeCord network, we recommend to use [HexaCord](https://github.com/HexagonMC/BungeeCord) instead since it has 1.7 and Forge Support. If you experience entity errors with Forge mods you can use [KettleCord](https://github.com/UeberallGebannt/KettleCord), which is a HexaCord fork that fixes this bug.
+
+In order to use Magma with BungeeCord, you have to enable `forge-support` in the BungeeCord config, set `online-mode` to false in server.properties and `bungeecord` to true in spigot.yml.
+
 ## Big Paper Update :fireworks:
 
 Magma at the moment **is not** using all of the API/Patches with this update we will have all features of Paper and more optimizations (including Timings v2).
@@ -54,7 +60,7 @@ Magma 1.16.x is in development, but a usable release is not available yet. You c
   - Now go and get a drink this may take some time
   - Navigate to `build/distributions` directory of the compiled source code
   - Copy the Jar to a new server directory (see Installation) or run `./gradlew launchServer`
-  
+
 ### Plugin Development
 
 - Clone the Project
