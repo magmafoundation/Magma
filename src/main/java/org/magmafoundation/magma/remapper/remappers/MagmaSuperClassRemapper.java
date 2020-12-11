@@ -98,7 +98,7 @@ public class MagmaSuperClassRemapper {
                             }
                             if ((insnNode.owner + ";" + insnNode.name).equals("javax/script/ScriptEngineManager;<init>") && insnNode.desc.equals("()V")) {
                                 insnNode.desc = "(Ljava/lang/ClassLoader;)V";
-                                methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/ClassLoader", "getSytemClassLoader", "()Ljava/lang/ClassLoader;", false));
+                                methodNode.instructions.insertBefore(insnNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/ClassLoader", "getSystemClassLoader", "()Ljava/lang/ClassLoader;", false));
                                 methodNode.maxStack++;
                             }
                     }
