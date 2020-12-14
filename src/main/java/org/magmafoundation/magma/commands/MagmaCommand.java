@@ -116,6 +116,7 @@ public class MagmaCommand extends Command {
 
 
             File dumpFolder = new File("dump");
+            dumpFolder.mkdirs();
             File dumpFile = new File(dumpFolder, fileName);
             OutputStream os = new FileOutputStream(dumpFile);
             Writer writer = new OutputStreamWriter(os);
