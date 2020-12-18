@@ -73,6 +73,10 @@ public class MagmaConfig extends ConfigBase {
 
     public final StringValue serverBrandType = new StringValue(this, "magma.advanced.server-type", "FML", "Set to FML to show forge icon or BUKKIT to show bukkit icon (FML is default)");
 
+    //=============================Message SETTINGS==============================
+    public final StringValue fmlRequiredMessage = new StringValue(this, "magma.messages.fml.fml-required", "&cThis Server is running Magma. Forge and additional mods are required in order to connect to this server.", "FML required kick message");
+    public final StringValue missingModsMessage = new StringValue(this, "magma.messages.fml.missing-mods", "&cYou are missing the following mods:", "Missing Mods kick message");
+
     private final String HEADER = "This is the main configuration file for Magma.\n" +
         "\n" +
         "Site: https://magmafoundation.org\n" +
