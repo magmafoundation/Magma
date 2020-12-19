@@ -1,7 +1,10 @@
 package com.destroystokyo.paper;
 
+import co.aikar.timings.Timings;
+import co.aikar.timings.TimingsManager;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -18,6 +21,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
+
+import net.minecraft.server.MinecraftServer;
 
 public class PaperMCConfig {
 
@@ -68,6 +73,12 @@ public class PaperMCConfig {
     protected static void log(String s) {
         if (verbose) {
             Bukkit.getLogger().info(s);
+        }
+    }
+
+    public static void registerCommands() {
+        for (Map.Entry<String, Command> entry : commands.entrySet()) {
+            MinecraftServer.getServerInstance().server.getCommandMap().register(entry.getKey(), "Paper", entry.getValue());
         }
     }
 
@@ -314,5 +325,22 @@ public class PaperMCConfig {
             maxBookPageSize = 2560;
             maxBookTotalSizeMultiplier = 0.98D;
         }
+    }
+
+    private static void timings() {
+        boolean timings = getBoolean("timings.enabled", true);
+        boolean verboseTimings = getBoolean("timings.verbose", true);
+        TimingsManager.privacy = getBoolean("timings.server-name-privacy", false);
+        TimingsManager.hiddenConfigs = getList("timings.hidden-config-entries", Lists.newArrayList("database", "settings.bungeecord-addresses"));
+        int timingHistoryInterval = getInt("timings.history-interval", 300);
+        int timingHistoryLength = getInt("timings.history-length", 3600);
+        Timings.setVerboseTimingsEnabled(verboseTimings);
+        Timings.setTimingsEnabled(timings);
+        Timings.setHistoryInterval(timingHistoryInterval * 20);
+        Timings.setHistoryLength(timingHistoryLength * 20);
+        log("Timings: " + timings +
+                " - Verbose: " + verboseTimings +
+                " - Interval: " + timeSummary(Timings.getHistoryInterval() / 20) +
+                " - Length: " + timeSummary(Timings.getHistoryLength() / 20));
     }
 }

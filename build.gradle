@@ -34,8 +34,15 @@ apply plugin: 'net.nemerosa.versioning'
 apply plugin: "com.github.breadmoirai.github-release"
 apply plugin: "net.minecrell.licenser"
 
+def isEarlyAccess = true
+
 group 'magmafoundation'
-version versioning.info.build
+if (isEarlyAccess) {
+    version versioning.info.build + "-EA"
+} else {
+    version versioning.info.build
+}
+
 
 println(version)
 

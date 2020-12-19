@@ -6,6 +6,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.AnvilChunkLoader;
+
+import co.aikar.timings.Timing;
 import org.bukkit.craftbukkit.v1_12_R1.util.AsynchronousExecutor;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,10 +17,10 @@ class ChunkIOProvider implements AsynchronousExecutor.CallBackProvider<QueuedChu
 
     // async stuff
     public Chunk callStage1(QueuedChunk queuedChunk) throws RuntimeException {
-        try {
+        try (Timing ignored = queuedChunk.provider.world.timings.chunkIOStage1.startTimingIfSync()) { // Paper
             AnvilChunkLoader loader = queuedChunk.loader;
             Object[] data = loader.loadChunk__Async(queuedChunk.world, queuedChunk.x, queuedChunk.z);
-            
+
             if (data != null) {
                 queuedChunk.compound = (NBTTagCompound) data[1];
                 return (Chunk) data[0];
@@ -38,6 +40,7 @@ class ChunkIOProvider implements AsynchronousExecutor.CallBackProvider<QueuedChu
             return;
         }
 
+        try (Timing ignored = queuedChunk.provider.world.timings.chunkIOStage2.startTimingIfSync()) { // Paper
         queuedChunk.loader.loadEntities(queuedChunk.world, queuedChunk.compound.getCompoundTag("Level"), chunk);
         chunk.setLastSaveTime(queuedChunk.provider.world.getTotalWorldTime());
         queuedChunk.provider.id2ChunkMap.put(ChunkPos.asLong(queuedChunk.x, queuedChunk.z), chunk);
@@ -48,6 +51,7 @@ class ChunkIOProvider implements AsynchronousExecutor.CallBackProvider<QueuedChu
         }
 
         chunk.populateCB(queuedChunk.provider, queuedChunk.provider.chunkGenerator, false);
+        } // Paper
     }
 
     public void callStage3(QueuedChunk queuedChunk, Chunk chunk, Runnable runnable) throws RuntimeException {

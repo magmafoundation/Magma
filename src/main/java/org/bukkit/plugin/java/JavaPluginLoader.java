@@ -1,11 +1,9 @@
 package org.bukkit.plugin.java;
 
-import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +17,7 @@ import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Server;
 import org.bukkit.Warning;
@@ -26,13 +25,19 @@ import org.bukkit.Warning.WarningState;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Event;
-import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.plugin.*;
-import org.spigotmc.CustomTimingsHandler; // Spigot
+import org.bukkit.plugin.AuthorNagException;
+import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.InvalidDescriptionException;
+import org.bukkit.plugin.InvalidPluginException;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginLoader;
+import org.bukkit.plugin.RegisteredListener;
+import org.bukkit.plugin.UnknownDependencyException;
 import org.yaml.snakeyaml.error.YAMLException;
 
 /**
@@ -43,11 +48,10 @@ public class JavaPluginLoader implements PluginLoader {
     private Pattern[] fileFilters = new Pattern[] { Pattern.compile("\\.jar$"), };
     private Map<String, Class<?>> classes = new java.util.concurrent.ConcurrentHashMap<String, Class<?>>(); // Spigot
     private List<PluginClassLoader> loaders = new CopyOnWriteArrayList<PluginClassLoader>();
-    public static final CustomTimingsHandler pluginParentTimer = new CustomTimingsHandler("** Plugins"); // Spigot
 
     /**
      * This class was not meant to be constructed explicitly
-     * 
+     *
      * @param instance the server instance
      */
     public JavaPluginLoader(Server instance) {
@@ -301,17 +305,12 @@ public class JavaPluginLoader implements PluginLoader {
                 }
             }
 
-            final CustomTimingsHandler timings = new CustomTimingsHandler("Plugin: " + plugin.getDescription().getFullName() + " Event: " + listener.getClass().getName() + "::" + method.getName()+"("+eventClass.getSimpleName()+")", pluginParentTimer); // Spigot
-            EventExecutor executor;
-                    try {
-                executor = EventExecutor.create(method, eventClass);
-                        }
-            catch (Exception e2) {
-                executor = new EventExecutor1(method, eventClass, timings);
-                    }
-            // Spigot // Paper - Use factory method `EventExecutor.create()`
+
+            EventExecutor executor = new co.aikar.timings.TimedEventExecutor(EventExecutor.create(method, eventClass), plugin, method, eventClass); // Spigot // Paper - Use factory method `EventExecutor.create()`
+            if (false) { // Spigot - RL handles useTimings check now
                 eventSet.add(new RegisteredListener(listener, executor, eh.priority(), plugin, eh.ignoreCancelled()));
             }
+        }
         return ret;
     }
 
@@ -369,6 +368,10 @@ public class JavaPluginLoader implements PluginLoader {
                 jPlugin.setEnabled(false);
             } catch (Throwable ex) {
                 server.getLogger().log(Level.SEVERE, "Error occurred while disabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
+                // Paper start - Disable plugins that fail to load
+                disablePlugin(jPlugin);
+                return;
+                // Paper end
             }
 
             if (cloader instanceof PluginClassLoader) {

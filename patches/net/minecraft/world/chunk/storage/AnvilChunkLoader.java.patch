@@ -50,7 +50,23 @@
      }
  
      public void saveExtraChunkData(World worldIn, Chunk chunkIn) throws IOException
-@@ -609,8 +606,11 @@
+@@ -478,6 +475,7 @@
+ 
+     public void loadEntities(World worldIn, NBTTagCompound compound, Chunk chunk)
+     {
++        worldIn.timings.syncChunkLoadNBTTimer.startTiming(); // Spigot
+         NBTTagList nbttaglist1 = compound.getTagList("Entities", 10);
+ 
+         for (int j1 = 0; j1 < nbttaglist1.tagCount(); ++j1)
+@@ -521,6 +519,7 @@
+                 worldIn.scheduleBlockUpdate(new BlockPos(nbttagcompound3.getInteger("x"), nbttagcompound3.getInteger("y"), nbttagcompound3.getInteger("z")), block, nbttagcompound3.getInteger("t"), nbttagcompound3.getInteger("p"));
+             }
+         }
++        worldIn.timings.syncChunkLoadNBTTimer.stopTiming(); // Spigot
+     }
+ 
+     @Nullable
+@@ -609,8 +608,11 @@
  
      public static void spawnEntity(Entity entityIn, World worldIn)
      {

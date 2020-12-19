@@ -273,12 +273,13 @@
      }
  
      public Random getRandomWithSeed(long seed)
-@@ -1001,6 +1094,63 @@
+@@ -1001,6 +1094,67 @@
          }
      }
  
 +    public void populateCB(IChunkProvider chunkProvider, IChunkGenerator chunkGenrator, boolean newChunk)
 +    {
++        world.timings.syncChunkLoadPostTimer.startTiming(); // Paper
 +        Server server = world.getServer();
 +        if (server != null) {
 +            /*
@@ -303,6 +304,8 @@
 +                }
 +            }
 +        }
++        world.timings.syncChunkLoadPostTimer.stopTiming(); // Paper
++        world.timings.syncChunkLoadPopulateNeighbors.startTiming(); // Paper
 +        Chunk chunk = chunkProvider.getLoadedChunk(this.x, this.z - 1);
 +        Chunk chunk1 = chunkProvider.getLoadedChunk(this.x + 1, this.z);
 +        Chunk chunk2 = chunkProvider.getLoadedChunk(this.x, this.z + 1);
@@ -332,12 +335,13 @@
 +                chunk4.populate(chunkGenrator);
 +            }
 +        }
++        world.timings.syncChunkLoadPopulateNeighbors.stopTiming(); // Paper
 +    }
 +
      protected void populate(IChunkGenerator generator)
      {
          if (populating != null && net.minecraftforge.common.ForgeModContainer.logCascadingWorldGeneration) logCascadingWorldGeneration();
-@@ -1017,6 +1167,26 @@
+@@ -1017,6 +1171,26 @@
          {
              this.checkLight();
              generator.populate(this.x, this.z);
@@ -364,7 +368,7 @@
              net.minecraftforge.fml.common.registry.GameRegistry.generateWorld(this.x, this.z, this.world, generator, this.world.getChunkProvider());
              this.markDirty();
          }
-@@ -1075,7 +1245,7 @@
+@@ -1075,7 +1249,7 @@
          {
              BlockPos blockpos = this.tileEntityPosQueue.poll();
  
@@ -373,7 +377,7 @@
              {
                  TileEntity tileentity = this.createNewTileEntity(blockpos);
                  this.world.setTileEntity(blockpos, tileentity);
-@@ -1086,7 +1256,7 @@
+@@ -1086,7 +1260,7 @@
  
      public boolean isPopulated()
      {
@@ -382,3 +386,19 @@
      }
  
      public boolean wasTicked()
+@@ -1294,6 +1468,7 @@
+ 
+     public void checkLight()
+     {
++        world.timings.lightChunk.startTiming(); // Paper
+         this.isTerrainPopulated = true;
+         this.isLightPopulated = true;
+         BlockPos blockpos = new BlockPos(this.x << 4, 0, this.z << 4);
+@@ -1332,6 +1507,7 @@
+                 this.isLightPopulated = false;
+             }
+         }
++        world.timings.lightChunk.stopTiming(); // Paper
+     }
+ 
+     private void setSkylightUpdated()

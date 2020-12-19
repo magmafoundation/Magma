@@ -1,8 +1,11 @@
 --- ../src-base/minecraft/net/minecraft/server/MinecraftServer.java
 +++ ../src-work/minecraft/net/minecraft/server/MinecraftServer.java
-@@ -1,7 +1,8 @@
+@@ -1,7 +1,11 @@
  package net.minecraft.server;
  
++import co.aikar.timings.MinecraftTimings;
++import co.aikar.timings.Timing;
++import co.aikar.timings.TimingsManager;
 +import com.destroystokyo.paper.utils.CachedSizeConcurrentLinkedQueue;
  import com.google.common.collect.Lists;
 -import com.google.common.collect.Queues;
@@ -10,7 +13,7 @@
  import com.google.common.util.concurrent.Futures;
  import com.google.common.util.concurrent.ListenableFuture;
  import com.google.common.util.concurrent.ListenableFutureTask;
-@@ -15,93 +16,111 @@
+@@ -15,93 +19,111 @@
  import io.netty.handler.codec.base64.Base64;
  import java.awt.GraphicsEnvironment;
  import java.awt.image.BufferedImage;
@@ -42,6 +45,7 @@
  import net.minecraft.advancements.AdvancementManager;
  import net.minecraft.advancements.FunctionManager;
 +import net.minecraft.block.Block;
++import net.minecraft.client.Minecraft;
  import net.minecraft.command.CommandBase;
  import net.minecraft.command.ICommandManager;
  import net.minecraft.command.ICommandSender;
@@ -129,7 +133,6 @@
 +import org.magmafoundation.magma.patcher.PatcherManager;
 +import org.spigotmc.CustomTimingsHandler;
 +import org.spigotmc.SlackActivityAccountant;
-+import org.spigotmc.SpigotTimings;
  
 -public abstract class MinecraftServer implements ICommandSender, Runnable, IThreadListener, ISnooperInfo
 -{
@@ -156,7 +159,7 @@
      @SideOnly(Side.SERVER)
      private String hostname;
      private int serverPort = -1;
-@@ -128,7 +147,6 @@
+@@ -128,7 +150,6 @@
      private KeyPair serverKeyPair;
      private String serverOwner;
      private String folderName;
@@ -164,7 +167,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +162,302 @@
+@@ -144,178 +165,302 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -564,7 +567,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +465,43 @@
+@@ -323,45 +468,43 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -634,7 +637,7 @@
          }
      }
  
-@@ -379,73 +519,79 @@
+@@ -379,73 +522,80 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -704,6 +707,7 @@
 -
 -        if (this.getNetworkSystem() != null)
 -        {
++        MinecraftTimings.stopServer(); // Paper
 +        if (this.server != null) {
 +            this.server.disablePlugins();
 +        }
@@ -746,7 +750,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +599,214 @@
+@@ -453,159 +603,214 @@
                      worldserver1.flush();
                  }
              }
@@ -1034,7 +1038,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +814,44 @@
+@@ -613,52 +818,44 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1088,7 +1092,7 @@
      {
          long i = System.nanoTime();
 -        net.minecraftforge.fml.common.FMLCommonHandler.instance().onPreServerTick();
-+        SpigotTimings.serverTickTimer.startTiming(); // Spigot
++        TimingsManager.FULL_SERVER_TICK.startTiming(); // Paper
 +        this.slackActivityAccountant.tickStarted(); // Spigot
 +        FMLCommonHandler.instance().onPreServerTick();
          ++this.tickCounter;
@@ -1099,7 +1103,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +860,15 @@
+@@ -667,16 +864,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1121,19 +1125,16 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,143 +876,176 @@
+@@ -684,7 +880,7 @@
              this.statusResponse.invalidateJson();
          }
  
 -        if (this.tickCounter % 900 == 0)
 +        if (autosavePeriod > 0 && this.tickCounter % autosavePeriod == 0) // CraftBukkit
          {
-+            SpigotTimings.worldSaveTimer.startTiming(); // Spigot
              this.profiler.startSection("save");
              this.playerList.saveAllPlayerData();
-             this.saveAllWorlds(true);
-             this.profiler.endSection();
-+            SpigotTimings.worldSaveTimer.stopTiming(); // Spigot
+@@ -693,134 +889,165 @@
          }
  
          this.profiler.startSection("tallying");
@@ -1162,15 +1163,15 @@
 -        net.minecraftforge.fml.common.FMLCommonHandler.instance().onPostServerTick();
 +        this.slackActivityAccountant.tickEnded(ticksNanos);
 +        FMLCommonHandler.instance().onPostServerTick();
-+        SpigotTimings.serverTickTimer.stopTiming(); // Spigot
-+        CustomTimingsHandler.tick();
++        TimingsManager.FULL_SERVER_TICK.stopTiming(); // Paper
      }
  
      public void updateTimeLightAndEntities()
      {
-+        SpigotTimings.schedulerTimer.startTiming(); // Spigot
++        MinecraftTimings.bukkitSchedulerTimer.startTiming(); // Paper
 +        this.server.getScheduler().mainThreadHeartbeat(this.tickCounter); // CraftBukkit
-+        SpigotTimings.schedulerTimer.stopTiming(); // Spigot
++        MinecraftTimings.bukkitSchedulerTimer.stopTiming(); // Paper
++        MinecraftTimings.minecraftSchedulerTimer.startTiming(); // Paper
          this.profiler.startSection("jobs");
  
 -        synchronized (this.futureTaskQueue)
@@ -1187,20 +1188,22 @@
          }
 +        // Spigot end
  
++        MinecraftTimings.minecraftSchedulerTimer.stopTiming(); // Paper
++
          this.profiler.endStartSection("levels");
 +        // CraftBukkit start
 +        // Run tasks that are waiting on processing
-+        SpigotTimings.processQueueTimer.startTiming(); // Spigot
++        MinecraftTimings.processQueueTimer.startTiming(); // Paper
 +        while (!processQueue.isEmpty()) {
 +            processQueue.remove().run();
 +        }
-+        SpigotTimings.processQueueTimer.stopTiming(); // Spigot
++        MinecraftTimings.processQueueTimer.stopTiming(); // Paper
 +
-+        SpigotTimings.chunkIOTickTimer.startTiming(); // Spigot
++        MinecraftTimings.chunkIOTickTimer.startTiming(); // Paper
 +        ChunkIOExecutor.tick();
-+        SpigotTimings.chunkIOTickTimer.stopTiming(); // Spigot
++        MinecraftTimings.chunkIOTickTimer.stopTiming(); // Paper
 +
-+        SpigotTimings.timeUpdateTimer.startTiming(); // Spigot
++        MinecraftTimings.timeUpdateTimer.startTiming(); // Paper
 +        // Send time updates to everyone, it will get the right time from the world the player is in.
 +        if (this.tickCounter % 20 == 0) {
 +            for (int i = 0; i < this.getPlayerList().getPlayers().size(); ++i) {
@@ -1209,7 +1212,7 @@
 +                    entityplayer.getPlayerTime(), entityplayer.world.getGameRules().getBoolean("doDaylightCycle"))); // Add support for per player time
 +            }
 +        }
-+        SpigotTimings.timeUpdateTimer.stopTiming(); // Spigot
++        MinecraftTimings.timeUpdateTimer.stopTiming(); // Paper
          net.minecraftforge.common.chunkio.ChunkIOExecutor.tick();
  
 -        Integer[] ids = net.minecraftforge.common.DimensionManager.getIDs(this.tickCounter % 200 == 0);
@@ -1301,9 +1304,7 @@
 +            net.minecraftforge.fml.common.FMLCommonHandler.instance().onPostWorldTick(worldserver);
 +            this.profiler.endSection();
 +            this.profiler.startSection("tracker");
-+            worldserver.timings.tracker.startTiming(); // Spigot
 +            worldserver.getEntityTracker().tick();
-+            worldserver.timings.tracker.stopTiming(); // Spigot
 +            this.profiler.endSection();
 +            this.profiler.endSection();
 +            worldserver.explosionDensityCache.clear(); // Paper - Optimize explosions
@@ -1315,27 +1316,27 @@
 -        net.minecraftforge.common.DimensionManager.unloadWorlds(worldTickTimes);
 +        DimensionManager.unloadWorlds(worldTickTimes);
          this.profiler.endStartSection("connection");
-+        SpigotTimings.connectionTimer.startTiming(); // Spigot
++        MinecraftTimings.connectionTimer.startTiming(); // Spigot
          this.getNetworkSystem().networkTick();
-+        SpigotTimings.connectionTimer.stopTiming(); // Spigot
++        MinecraftTimings.connectionTimer.stopTiming(); // Spigot
          this.profiler.endStartSection("players");
-+        SpigotTimings.playerListTimer.startTiming(); // Spigot
++        MinecraftTimings.playerListTimer.startTiming(); // Spigot
          this.playerList.onTick();
-+        SpigotTimings.playerListTimer.stopTiming(); // Spigot
++        MinecraftTimings.playerListTimer.stopTiming(); // Spigot
          this.profiler.endStartSection("commandFunctions");
-+        SpigotTimings.commandFunctionsTimer.startTiming(); // Spigot
++        MinecraftTimings.commandFunctionsTimer.startTiming(); // Spigot
          this.getFunctionManager().update();
-+        SpigotTimings.commandFunctionsTimer.stopTiming(); // Spigot
++        MinecraftTimings.commandFunctionsTimer.stopTiming(); // Spigot
          this.profiler.endStartSection("tickables");
  
 -        for (int k = 0; k < this.tickables.size(); ++k)
 -        {
 -            ((ITickable)this.tickables.get(k)).update();
-+        SpigotTimings.tickablesTimer.startTiming(); // Spigot
++        MinecraftTimings.tickablesTimer.startTiming(); // Spigot
 +        for (int k = 0; k < this.tickables.size(); ++k) {
 +            ((ITickable) this.tickables.get(k)).update();
          }
-+        SpigotTimings.tickablesTimer.stopTiming(); // Spigot
++        MinecraftTimings.tickablesTimer.stopTiming(); // Spigot
  
          this.profiler.endSection();
      }
@@ -1368,7 +1369,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1060,52 @@
+@@ -835,53 +1062,52 @@
          return ret;
      }
  
@@ -1448,7 +1449,7 @@
                  }
              });
          }
-@@ -889,145 +1113,115 @@
+@@ -889,145 +1115,115 @@
          return report;
      }
  
@@ -1638,7 +1639,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1229,75 @@
+@@ -1035,80 +1231,75 @@
          }
      }
  
@@ -1748,7 +1749,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1306,193 @@
+@@ -1117,228 +1308,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -2031,7 +2032,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1501,254 @@
+@@ -1347,316 +1503,254 @@
          return null;
      }
  
