@@ -139,12 +139,10 @@ public final class CraftItemFactory implements ItemFactory {
         case ENDER_CHEST:
             return new CraftMetaBlockState(meta, material);
         default:
-            if (material.getMaterialType() == Material.MaterialType.MOD_BLOCK || material.getMaterialType() == Material.MaterialType.MOD_ITEM) {
-                //MOD_ITEM is also used for blocks as items
+            if (meta instanceof CraftMetaBlockState) {
                 return new CraftMetaBlockState(meta, material);
-            } else {
-                return new CraftMetaItem(meta);
             }
+            return new CraftMetaItem(meta);
         }
     }
 
