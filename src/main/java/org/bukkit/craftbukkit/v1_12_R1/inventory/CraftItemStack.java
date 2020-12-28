@@ -401,7 +401,6 @@ public final class CraftItemStack extends ItemStack {
                     return new CraftMetaBlockState(item.getTagCompound(), CraftMagicNumbers.getMaterial(item.getItem()));
                 }
 				return new CraftMetaItem(item.getTagCompound());
-            }
         }
     }
 
