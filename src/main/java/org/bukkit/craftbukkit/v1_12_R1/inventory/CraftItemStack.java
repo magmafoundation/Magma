@@ -397,13 +397,10 @@ public final class CraftItemStack extends ItemStack {
             case ENDER_CHEST:
                 return new CraftMetaBlockState(item.getTagCompound(), CraftMagicNumbers.getMaterial(item.getItem()));
             default:
-            {
                 if (item.item instanceof ItemBlock) {
-                    //We are actually a block
                     return new CraftMetaBlockState(item.getTagCompound(), CraftMagicNumbers.getMaterial(item.getItem()));
-                } else {
-                    return new CraftMetaItem(item.getTagCompound());
                 }
+				return new CraftMetaItem(item.getTagCompound());
             }
         }
     }
