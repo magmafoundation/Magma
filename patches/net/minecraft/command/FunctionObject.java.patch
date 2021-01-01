@@ -8,7 +8,7 @@
  import net.minecraft.util.ResourceLocation;
  
  public class FunctionObject
-@@ -108,7 +109,14 @@
+@@ -108,7 +109,19 @@
  
              public void execute(FunctionManager functionManagerIn, ICommandSender sender, ArrayDeque<FunctionManager.QueuedCommand> commandQueue, int maxCommandChainLength)
              {
@@ -20,6 +20,11 @@
 +                } else {
 +                    bukkitSender = CommandBlockBaseLogic.unwrapSender(sender);
 +                }
++
++                if (bukkitSender == null) {
++                    bukkitSender = sender.getCommandSenderEntity().getBukkitEntity();
++                }
++
 +                CommandBlockBaseLogic.executeSafely(sender, bukkitSender, this.command);
              }
  

@@ -9,7 +9,7 @@
  
  public class BlockSkull extends BlockContainer
  {
-@@ -128,6 +130,30 @@
+@@ -128,16 +130,41 @@
          return new ItemStack(Items.SKULL, 1, i);
      }
  
@@ -40,16 +40,20 @@
      public void onBlockHarvested(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player)
      {
          if (player.capabilities.isCreativeMode)
-@@ -135,7 +161,7 @@
+         {
              state = state.withProperty(NODROP, Boolean.valueOf(true));
              worldIn.setBlockState(pos, state, 4);
++        } else {
++            this.dropBlockAsItem(worldIn, pos, state, 0); // Magma - prevents doubled and creative mode drops
          }
 -        this.dropBlockAsItem(worldIn, pos, state, 0);
-+        // this.dropBlockAsItem(worldIn, pos, state, 0); Magma - prevents doubled and creative mode drops
  
-         super.onBlockHarvested(worldIn, pos, state, player);
+-        super.onBlockHarvested(worldIn, pos, state, player);
++//        super.onBlockHarvested(worldIn, pos, state, player);
      }
-@@ -147,7 +173,9 @@
+ 
+     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
+@@ -147,7 +174,9 @@
      public void getDrops(net.minecraft.util.NonNullList<ItemStack> drops, IBlockAccess worldIn, BlockPos pos, IBlockState state, int fortune)
      {
          {
@@ -60,7 +64,7 @@
              {
                  TileEntity tileentity = worldIn.getTileEntity(pos);
  
-@@ -189,6 +217,7 @@
+@@ -189,6 +218,7 @@
  
      public void checkWitherSpawn(World worldIn, BlockPos pos, TileEntitySkull te)
      {
@@ -68,7 +72,7 @@
          if (te.getSkullType() == 1 && pos.getY() >= 2 && worldIn.getDifficulty() != EnumDifficulty.PEACEFUL && !worldIn.isRemote)
          {
              BlockPattern blockpattern = this.getWitherPattern();
-@@ -196,10 +225,14 @@
+@@ -196,10 +226,14 @@
  
              if (blockpattern$patternhelper != null)
              {
@@ -84,7 +88,7 @@
                  }
  
                  for (int j = 0; j < blockpattern.getPalmLength(); ++j)
-@@ -207,7 +240,10 @@
+@@ -207,7 +241,10 @@
                      for (int k = 0; k < blockpattern.getThumbLength(); ++k)
                      {
                          BlockWorldState blockworldstate1 = blockpattern$patternhelper.translateOffset(j, k, 0);
@@ -96,7 +100,7 @@
                      }
                  }
  
-@@ -217,25 +253,24 @@
+@@ -217,25 +254,24 @@
                  entitywither.setLocationAndAngles((double)blockpos1.getX() + 0.5D, (double)blockpos1.getY() + 0.55D, (double)blockpos1.getZ() + 0.5D, blockpattern$patternhelper.getForwards().getAxis() == EnumFacing.Axis.X ? 0.0F : 90.0F, 0.0F);
                  entitywither.renderYawOffset = blockpattern$patternhelper.getForwards().getAxis() == EnumFacing.Axis.X ? 0.0F : 90.0F;
                  entitywither.ignite();
