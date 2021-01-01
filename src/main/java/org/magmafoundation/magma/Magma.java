@@ -18,13 +18,9 @@
 
 package org.magmafoundation.magma;
 
-import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.entity.Player;
 import org.magmafoundation.magma.configuration.MagmaConfig;
+import org.magmafoundation.magma.modPatcher.ModPatcherManager;
 import org.magmafoundation.magma.patcher.PatcherManager;
-
-import java.util.UUID;
 
 /**
  * Magma
@@ -41,6 +37,7 @@ public class Magma {
     private static final String LIBRARY_VERSION = "4";
     private static Magma INSTANCE = new Magma();
     private PatcherManager patcherManager;
+    private ModPatcherManager modPatcherManager;
 
     public Magma() {
         INSTANCE = this;
@@ -81,5 +78,13 @@ public class Magma {
 
     public void setPatcherManager(PatcherManager patcherManager) {
         this.patcherManager = patcherManager;
+    }
+
+    public ModPatcherManager getModPatcherManager() {
+        return modPatcherManager;
+    }
+
+    public void setModPatcherManager(ModPatcherManager modPatcherManager) {
+        this.modPatcherManager = modPatcherManager;
     }
 }

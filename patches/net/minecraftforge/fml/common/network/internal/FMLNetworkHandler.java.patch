@@ -13,12 +13,11 @@
  import net.minecraft.world.World;
  import net.minecraftforge.common.util.FakePlayer;
  import net.minecraftforge.fml.common.FMLCommonHandler;
-@@ -58,6 +61,13 @@
+@@ -58,6 +61,12 @@
  import com.google.gson.JsonArray;
  import com.google.gson.JsonObject;
  import org.apache.commons.lang3.tuple.Pair;
 +import org.bukkit.Bukkit;
-+import org.bukkit.ChatColor;
 +import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
 +import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryView;
@@ -27,7 +26,7 @@
  
  import javax.annotation.Nullable;
  
-@@ -88,6 +98,20 @@
+@@ -88,6 +97,20 @@
              Container remoteGuiContainer = NetworkRegistry.INSTANCE.getRemoteGuiContainer(mc, entityPlayerMP, modGuiId, world, x, y, z);
              if (remoteGuiContainer != null)
              {
@@ -48,16 +47,7 @@
                  entityPlayerMP.getNextWindowId();
                  entityPlayerMP.closeContainer();
                  int windowId = entityPlayerMP.currentWindowId;
-@@ -168,7 +192,7 @@
-             }
-             String rejectString = String.join("\n", rejectStrings);
-             FMLLog.log.info("Rejecting connection {}: {}", side, rejectString);
--            return String.format("Server Mod rejections:\n%s", rejectString);
-+            return String.format(ChatColor.translateAlternateColorCodes('&', MagmaConfig.instance.missingModsMessage.getValues()) + "\n%s", rejectString); // Magma
-         }
-     }
- 
-@@ -210,7 +234,7 @@
+@@ -210,7 +233,7 @@
      public static void enhanceStatusQuery(JsonObject jsonobject)
      {
          JsonObject fmlData = new JsonObject();
