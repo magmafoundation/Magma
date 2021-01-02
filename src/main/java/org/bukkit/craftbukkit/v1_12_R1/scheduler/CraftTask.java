@@ -44,7 +44,7 @@ public class CraftTask implements BukkitTask, Runnable {
         this.task = task;
         this.id = id;
         this.period = period;
-        timings = task != null ? MinecraftTimings.getPluginTaskTimings(this, period) : NullTimingHandler.NULL; // Paper
+        timings = task != null ? MinecraftTimings.getPluginTaskTimings(this, period) : null; // Paper
     }
 
 

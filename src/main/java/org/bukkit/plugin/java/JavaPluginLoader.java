@@ -247,13 +247,9 @@ public class JavaPluginLoader implements PluginLoader {
         try {
             Method[] publicMethods = listener.getClass().getMethods();
             Method[] privateMethods = listener.getClass().getDeclaredMethods();
-            methods = new HashSet<Method>(publicMethods.length + privateMethods.length, 1.0f);
-            for (Method method : publicMethods) {
-                methods.add(method);
-            }
-            for (Method method : privateMethods) {
-                methods.add(method);
-            }
+            methods = new HashSet<>(publicMethods.length + privateMethods.length, 1.0f);
+            methods.addAll(Arrays.asList(publicMethods));
+            methods.addAll(Arrays.asList(privateMethods));
         } catch (NoClassDefFoundError e) {
             plugin.getLogger().severe("Plugin " + plugin.getDescription().getFullName() + " has failed to register events for " + listener.getClass() + " because " + e.getMessage() + " does not exist.");
             return ret;
@@ -276,11 +272,7 @@ public class JavaPluginLoader implements PluginLoader {
             }
             Class<? extends Event> eventClass = checkClass.asSubclass(Event.class);
             method.setAccessible(true);
-            Set<RegisteredListener> eventSet = ret.get(eventClass);
-            if (eventSet == null) {
-                eventSet = new HashSet<RegisteredListener>();
-                ret.put(eventClass, eventSet);
-            }
+            Set<RegisteredListener> eventSet = ret.computeIfAbsent(eventClass, k -> new HashSet<>());
 
             for (Class<?> clazz = eventClass; Event.class.isAssignableFrom(clazz); clazz = clazz.getSuperclass()) {
                 // This loop checks for extending deprecated events
@@ -307,10 +299,9 @@ public class JavaPluginLoader implements PluginLoader {
 
 
             EventExecutor executor = new co.aikar.timings.TimedEventExecutor(EventExecutor.create(method, eventClass), plugin, method, eventClass); // Spigot // Paper - Use factory method `EventExecutor.create()`
-            if (false) { // Spigot - RL handles useTimings check now
+            // Spigot // Paper - Use factory method `EventExecutor.create()`
                 eventSet.add(new RegisteredListener(listener, executor, eh.priority(), plugin, eh.ignoreCancelled()));
             }
-        }
         return ret;
     }
 
@@ -344,15 +335,7 @@ public class JavaPluginLoader implements PluginLoader {
         }
     }
 
-    // Paper start - close Classloader on disable
-    @Override
     public void disablePlugin(Plugin plugin) {
-        disablePlugin(plugin, false); // Retain old behavior unless requested
-    }
-
-    @Override
-    public void disablePlugin(Plugin plugin, boolean closeClassloader) {
-        // Paper end - close Class Loader on disable
         Validate.isTrue(plugin instanceof JavaPlugin, "Plugin is not associated with this PluginLoader");
 
         if (plugin.isEnabled()) {
@@ -368,10 +351,6 @@ public class JavaPluginLoader implements PluginLoader {
                 jPlugin.setEnabled(false);
             } catch (Throwable ex) {
                 server.getLogger().log(Level.SEVERE, "Error occurred while disabling " + plugin.getDescription().getFullName() + " (Is it up to date?)", ex);
-                // Paper start - Disable plugins that fail to load
-                disablePlugin(jPlugin);
-                return;
-                // Paper end
             }
 
             if (cloader instanceof PluginClassLoader) {
@@ -383,16 +362,14 @@ public class JavaPluginLoader implements PluginLoader {
                 for (String name : names) {
                     removeClass(name);
                 }
-//                // Paper start - close Class Loader on disable
-//                try {
-//                    if (closeClassloader) {
-//                        loader.close();
-//                    }
-//                } catch (IOException e) {
-//                    server.getLogger().warning("Error closing the Plugin Class Loader for " + plugin.getDescription().getFullName());
-//                    e.printStackTrace();
-//                }
-//                // Paper end
+                // Paper start - close Class Loader on disable
+                try {
+                    loader.close();
+                } catch (IOException e) {
+                    server.getLogger().warning("Error closing the Plugin Class Loader for " + plugin.getDescription().getFullName());
+                    e.printStackTrace();
+                }
+                // Paper end
             }
         }
     }

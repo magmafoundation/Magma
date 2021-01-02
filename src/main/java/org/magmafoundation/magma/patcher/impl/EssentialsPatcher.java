@@ -69,13 +69,24 @@ public class EssentialsPatcher extends Patcher {
         ClassNode node = new ClassNode();
         reader.accept(node, 0);
 
-        for (MethodNode method : node.methods) {
-            if (method.name.equals("registerPermissionsIfNecessary") && method.desc.equals("(Lorg/bukkit/plugin/PluginManager;)V")) {
-                InsnList insnList = new InsnList();
-                insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
-                insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(EssentialsPatcher.class), "registerPermissionsIfNecessary", old ? "(Lorg/bukkit/plugin/PluginManager;)V" : "()V", false));
-                insnList.add(new InsnNode(Opcodes.RETURN));
-                method.instructions = insnList;
+        if (old) {
+            for (MethodNode method : node.methods) {
+                if (method.name.equals("registerPermissionsIfNecessary") && method.desc.equals("(Lorg/bukkit/plugin/PluginManager;)V")) {
+                    InsnList insnList = new InsnList();
+                    insnList.add(new VarInsnNode(Opcodes.ALOAD, 0));
+                    insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(EssentialsPatcher.class), "registerPermissionsIfNecessary", "(Lorg/bukkit/plugin/PluginManager;)V", false));
+                    insnList.add(new InsnNode(Opcodes.RETURN));
+                    method.instructions = insnList;
+                }
+            }
+        } else {
+            for (MethodNode method : node.methods) {
+                if (method.name.equals("registerAllHatDefaults") && method.desc.equals("()V")) {
+                    InsnList insnList = new InsnList();
+                    insnList.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(EssentialsPatcher.class), "registerPermissionsIfNecessary", "()V", false));
+                    insnList.add(new InsnNode(Opcodes.RETURN));
+                    method.instructions = insnList;
+                }
             }
         }
 

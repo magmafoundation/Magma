@@ -43,8 +43,6 @@ public final class MinecraftTimings {
     public static final Timing antiXrayUpdateTimer = Timings.ofSafe("anti-xray - update");
     public static final Timing antiXrayObfuscateTimer = Timings.ofSafe("anti-xray - obfuscate");
 
-    private static final Map<Class<? extends Runnable>, String> taskNameCache = new MapMaker().weakKeys().makeMap();
-
     private MinecraftTimings() {}
 
     /**
@@ -55,7 +53,7 @@ public final class MinecraftTimings {
      */
     public static Timing getPluginTaskTimings(BukkitTask bukkitTask, long period) {
         if (!bukkitTask.isSync()) {
-            return NullTimingHandler.NULL;
+            return null;
         }
         Plugin plugin;
 
@@ -68,10 +66,7 @@ public final class MinecraftTimings {
             plugin = TimingsManager.getPluginByClassloader(taskClass);
         }
 
-        final String taskname = taskNameCache.computeIfAbsent(taskClass, clazz ->
-                clazz.isAnonymousClass() || clazz.isLocalClass()
-                        ? clazz.getName()
-                        : clazz.getCanonicalName());
+        final String taskname = taskClass.getCanonicalName();
 
         StringBuilder name = new StringBuilder(64);
         name.append("Task: ").append(taskname);

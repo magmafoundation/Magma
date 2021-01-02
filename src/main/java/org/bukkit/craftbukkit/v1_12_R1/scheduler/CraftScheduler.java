@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scheduler.BukkitWorker;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -51,16 +52,12 @@ public class CraftScheduler implements BukkitScheduler {
         RECENT_TICKS = 30;
     }
 
+                // If the tasks should run on the same tick they should be run FIFO
     /**
      * Main thread logic only
      */
-    final PriorityQueue<CraftTask> pending = new PriorityQueue<CraftTask>(10, // Paper
-            (o1, o2) -> {
-                int value = Long.compare(o1.getNextRun(), o2.getNextRun());
-
-                // If the tasks should run on the same tick they should be run FIFO
-                return value != 0 ? value : Integer.compare(o1.getTaskId(), o2.getTaskId());
-            });
+    final PriorityQueue<CraftTask> pending = new PriorityQueue<>(10, // Paper
+            Comparator.comparingLong(CraftTask::getNextRun).thenComparingInt(CraftTask::getTaskId));
     /**
      * These are tasks that are currently active. It's provided for 'viewing' the current state.
      */
@@ -431,24 +428,20 @@ public class CraftScheduler implements BukkitScheduler {
                 try {
                     task.run();
                 } catch (final Throwable throwable) {
-                    // Paper start
-                    String msg = String.format(
-                            "Task #%s for %s generated an exception",
-                            task.getTaskId(),
-                            task.getOwner().getDescription().getFullName());
                     task.getOwner().getLogger().log(
                             Level.WARNING,
-                            msg,
+                            String.format(
+                                    "Task #%s for %s generated an exception",
+                                    task.getTaskId(),
+                                    task.getOwner().getDescription().getFullName()),
                             throwable);
-                    task.getOwner().getServer().getPluginManager().callEvent(new ServerExceptionEvent(new ServerSchedulerException(msg, throwable, task)));
-                    // Paper end
                 } finally {
                     currentTask = null;
                 }
                 parsePending();
             } else {
                 //debugTail = debugTail.setNext(new CraftAsyncDebugger(currentTick + RECENT_TICKS, task.getOwner(), task.getTaskClass())); // Paper
-                task.getOwner().getLogger().log(Level.SEVERE, "Unexpected Async Task in the Sync Scheduler. Report this to Paper"); // Paper
+                task.getOwner().getLogger().log(Level.SEVERE, "Unexpected Async Task in the Sync Scheduler. Report this to Magma"); // Paper
                 // We don't need to parse pending
                 // (async tasks must live with race-conditions if they attempt to cancel between these few lines of code)
             }
@@ -493,7 +486,7 @@ public class CraftScheduler implements BukkitScheduler {
     }
 
     void parsePending() { // Paper
-        MinecraftTimings.bukkitSchedulerPendingTimer.startTiming();
+        if (!this.isAsyncScheduler) MinecraftTimings.bukkitSchedulerPendingTimer.startTiming(); // Paper
         CraftTask head = this.head;
         CraftTask task = head.getNext();
         CraftTask lastTask = head;
@@ -512,7 +505,7 @@ public class CraftScheduler implements BukkitScheduler {
             task.setNext(null);
         }
         this.head = lastTask;
-        MinecraftTimings.bukkitSchedulerPendingTimer.stopTiming();
+        if (!this.isAsyncScheduler) MinecraftTimings.bukkitSchedulerPendingTimer.stopTiming(); // Paper
     }
 
     private boolean isReady(final int currentTick) {
