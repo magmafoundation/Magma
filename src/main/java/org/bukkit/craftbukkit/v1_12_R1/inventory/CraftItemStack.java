@@ -22,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.google.common.collect.ImmutableMap;
 import org.bukkit.craftbukkit.v1_12_R1.enchantments.CraftEnchantment;
+import org.magmafoundation.magma.inventory.ForgeItemCap;
 
 @DelegateDeserialization(ItemStack.class)
 public final class CraftItemStack extends ItemStack {
@@ -41,12 +42,9 @@ public final class CraftItemStack extends ItemStack {
             return net.minecraft.item.ItemStack.EMPTY;
         }
 
-        net.minecraft.item.ItemStack stack = new net.minecraft.item.ItemStack(item, original.getAmount(), original.getDurability(), false);
+        net.minecraft.item.ItemStack stack = new net.minecraft.item.ItemStack(item, original.getAmount(), original.getDurability(), original.hasForgeItemCap() ? original.getForgeItemCap().getForgeCap() : null);
         if (original.hasItemMeta()) {
             setItemMeta(stack, original.getItemMeta());
-        } else {
-            // Converted after setItemMeta
-            stack.convertStack();
         }
         return stack;
     }
@@ -68,6 +66,7 @@ public final class CraftItemStack extends ItemStack {
         if (hasItemMeta(original)) {
             stack.setItemMeta(getItemMeta(original));
         }
+        ForgeItemCap.setForgeItemCap(original, stack); // Magma
         return stack;
     }
 
@@ -98,6 +97,7 @@ public final class CraftItemStack extends ItemStack {
      */
     private CraftItemStack(net.minecraft.item.ItemStack item) {
         this.handle = item;
+        ForgeItemCap.setForgeItemCap(item, this); // Magma
     }
 
     private CraftItemStack(ItemStack item) {
@@ -177,7 +177,7 @@ public final class CraftItemStack extends ItemStack {
 
     @Override
     public int getMaxStackSize() {
-        return (handle == null) ? Material.AIR.getMaxStackSize() : handle.getItem().getItemStackLimit();
+        return (handle == null) ? Material.AIR.getMaxStackSize() : handle.getItem().getItemStackLimit(this.handle);
     }
 
     @Override
@@ -459,7 +459,7 @@ public final class CraftItemStack extends ItemStack {
         if (!(that.getTypeId() == getTypeId() && getDurability() == that.getDurability())) {
             return false;
         }
-        return hasItemMeta() ? that.hasItemMeta() && handle.getTagCompound().equals(that.handle.getTagCompound()) : !that.hasItemMeta();
+        return (hasItemMeta() ? that.hasItemMeta() && handle.getTagCompound().equals(that.handle.getTagCompound()) : !that.hasItemMeta()) && handle.areCapsCompatible(that.handle);
     }
 
     @Override

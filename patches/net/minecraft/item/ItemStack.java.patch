@@ -37,19 +37,24 @@
      private NBTTagCompound stackTagCompound;
      private boolean isEmpty;
      int itemDamage;
-@@ -95,7 +99,10 @@
-         this(itemIn, amount, 0);
+@@ -67,7 +71,7 @@
+     private boolean canPlaceOnCacheResult;
+ 
+     private net.minecraftforge.registries.IRegistryDelegate<Item> delegate;
+-    private net.minecraftforge.common.capabilities.CapabilityDispatcher capabilities;
++    public net.minecraftforge.common.capabilities.CapabilityDispatcher capabilities; // private->public - Magma
+     private NBTTagCompound capNBT;
+ 
+     public ItemStack(Block blockIn)
+@@ -96,6 +100,7 @@
      }
  
--    public ItemStack(Item itemIn, int amount, int meta){ this(itemIn, amount, meta, null); }
-+    public ItemStack(Item itemIn, int amount, int meta) {
-+        this(itemIn, amount, meta, true);
-+    }
+     public ItemStack(Item itemIn, int amount, int meta){ this(itemIn, amount, meta, null); }
 +
      public ItemStack(Item itemIn, int amount, int meta, @Nullable NBTTagCompound capNBT)
      {
          this.capNBT = capNBT;
-@@ -112,30 +119,77 @@
+@@ -112,30 +117,48 @@
          this.forgeInit();
      }
  
@@ -60,43 +65,14 @@
 +        this.itemDamage = meta;
 +        this.stackSize = amount;
 +
-+        // CraftBukkit start - Pass to setData to do filtering
-+        if (MinecraftServer.getServerCB() != null) {
-+            this.setItemDamage(meta);
-+        }
-+        // CraftBukkit end
-+
-+        if (this.itemDamage < 0) {
-+            // this.itemDamage = 0;
-+        }
-+
 +        this.updateEmptyState();
 +        this.forgeInit();
-+        if (convert)
-+            this.convertStack();
 +    }
 +
 +    private void updateEmptyState() {
-+        // if (this.isEmpty && this == ItemStack.EMPTY) throw new AssertionError("TRAP"); // CraftBukkit
          this.isEmpty = this.isEmpty();
      }
  
-+    // Called to run this stack through the data converter to handle older storage methods and serialized items
-+    public void convertStack() {
-+        if (MinecraftServer.getServerCB() != null) {
-+            // Don't convert beds - both the old and new data values are valid
-+            // Conversion would make getting white beds (data value 0) impossible
-+            if (this.item == Items.BED) {
-+                return;
-+            }
-+
-+            NBTTagCompound savedStack = new NBTTagCompound();
-+            this.writeToNBT(savedStack);
-+            MinecraftServer.getServerCB().dataFixer.process(FixTypes.ITEM_INSTANCE, savedStack);
-+            this.load(savedStack);
-+        }
-+    }
-+
      public ItemStack(NBTTagCompound compound)
      {
 +        this.load(compound);
@@ -135,7 +111,7 @@
      }
  
      public boolean isEmpty()
-@@ -160,6 +214,7 @@
+@@ -160,6 +183,7 @@
              return true;
          }
      }
@@ -143,7 +119,7 @@
  
      public static void registerFixes(DataFixer fixer)
      {
-@@ -185,11 +240,10 @@
+@@ -185,11 +209,10 @@
      {
          if (!worldIn.isRemote) return net.minecraftforge.common.ForgeHooks.onPlaceItemIntoWorld(this, playerIn, worldIn, pos, side, hitX, hitY, hitZ, hand);
          EnumActionResult enumactionresult = this.getItem().onItemUse(playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ);
@@ -157,7 +133,7 @@
  
          return enumactionresult;
      }
-@@ -231,7 +285,8 @@
+@@ -231,7 +254,8 @@
  
          if (this.stackTagCompound != null)
          {
@@ -167,7 +143,7 @@
          }
  
          if (this.capabilities != null)
-@@ -291,6 +346,26 @@
+@@ -291,6 +315,26 @@
  
      public void setItemDamage(int meta)
      {
@@ -179,7 +155,7 @@
 +        }
 +
 +        // Is this a block?
-+        if (CraftMagicNumbers.getBlock(CraftMagicNumbers.getId(this.getItem())) != Blocks.AIR) {
++        if (this.getItem() instanceof ItemBlock && ((ItemBlock)this.getItem()).getBlock() != Blocks.AIR) { // CatServer - Replace the Spigot way because it is not suitable for Forge
 +            // If vanilla doesn't use data on it don't allow any
 +            if (!(this.getHasSubtypes() || this.getItem().isDamageable())) {
 +                meta = 0;
@@ -194,7 +170,7 @@
          getItem().setDamage(this, meta);
      }
  
-@@ -322,6 +397,19 @@
+@@ -322,6 +366,19 @@
  
                  amount -= j;
  
@@ -214,7 +190,7 @@
                  if (amount <= 0)
                  {
                      return false;
-@@ -347,6 +435,11 @@
+@@ -347,6 +404,11 @@
                  if (this.attemptDamageItem(amount, entityIn.getRNG(), entityIn instanceof EntityPlayerMP ? (EntityPlayerMP)entityIn : null))
                  {
                      entityIn.renderBrokenItemStack(this);
@@ -226,17 +202,7 @@
                      this.shrink(1);
  
                      if (entityIn instanceof EntityPlayer)
-@@ -393,7 +486,8 @@
- 
-     public ItemStack copy()
-     {
--        ItemStack itemstack = new ItemStack(this.item, this.stackSize, this.itemDamage, this.capabilities != null ? this.capabilities.serializeNBT() : null);
-+        // ItemStack itemstack = new ItemStack(this.item, this.stackSize, this.itemDamage, this.capabilities != null ? this.capabilities.serializeNBT() : null);
-+        ItemStack itemstack = new ItemStack(this.item, this.stackSize, this.itemDamage, false);
-         itemstack.setAnimationsToGo(this.getAnimationsToGo());
- 
-         if (this.stackTagCompound != null)
-@@ -983,6 +1077,14 @@
+@@ -983,6 +1045,14 @@
  
      public void setRepairCost(int cost)
      {
@@ -251,7 +217,7 @@
          if (!this.hasTagCompound())
          {
              this.stackTagCompound = new NBTTagCompound();
-@@ -1043,6 +1145,14 @@
+@@ -1043,6 +1113,14 @@
          nbttaglist.appendTag(nbttagcompound);
      }
  
@@ -266,7 +232,7 @@
      public ITextComponent getTextComponent()
      {
          TextComponentString textcomponentstring = new TextComponentString(this.getDisplayName());
-@@ -1280,4 +1390,16 @@
+@@ -1280,4 +1358,16 @@
      {
          return this.isEmpty() || this.getItem().doesSneakBypassUse(this, world, pos, player);
      }

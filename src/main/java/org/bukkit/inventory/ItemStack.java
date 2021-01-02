@@ -12,6 +12,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+import org.magmafoundation.magma.inventory.ForgeItemCap;
 
 /**
  * Represents a stack of items
@@ -22,6 +23,7 @@ public class ItemStack implements Cloneable, ConfigurationSerializable {
     private MaterialData data = null;
     private short durability = 0;
     private ItemMeta meta;
+    private ForgeItemCap forgeItemCap;
 
     @Utility
     protected ItemStack() {}
@@ -139,6 +141,9 @@ public class ItemStack implements Cloneable, ConfigurationSerializable {
         this.data = stack.getData();
         if (stack.hasItemMeta()) {
             setItemMeta0(stack.getItemMeta(), getType0());
+        }
+        if(stack.hasForgeItemCap()){
+            setForgeItemCap(stack.getForgeItemCap());
         }
     }
 
@@ -335,7 +340,7 @@ public class ItemStack implements Cloneable, ConfigurationSerializable {
         if (stack == this) {
             return true;
         }
-        return getTypeId() == stack.getTypeId() && getDurability() == stack.getDurability() && hasItemMeta() == stack.hasItemMeta() && (hasItemMeta() ? Bukkit.getItemFactory().equals(getItemMeta(), stack.getItemMeta()) : true);
+        return getTypeId() == stack.getTypeId() && getDurability() == stack.getDurability() && hasItemMeta() == stack.hasItemMeta() && (hasItemMeta() ? Bukkit.getItemFactory().equals(getItemMeta(), stack.getItemMeta()) : true) && (hasForgeItemCap() ? getForgeItemCap().equals(stack.getForgeItemCap()) : true);
     }
 
     @Override
@@ -349,6 +354,10 @@ public class ItemStack implements Cloneable, ConfigurationSerializable {
 
             if (this.data != null) {
                 itemStack.data = this.data.clone();
+            }
+
+            if(this.forgeItemCap != null){
+                itemStack.forgeItemCap = this.forgeItemCap.clone();
             }
 
             return itemStack;
@@ -366,6 +375,7 @@ public class ItemStack implements Cloneable, ConfigurationSerializable {
         hash = hash * 31 + getAmount();
         hash = hash * 31 + (getDurability() & 0xffff);
         hash = hash * 31 + (hasItemMeta() ? (meta == null ? getItemMeta().hashCode() : meta.hashCode()) : 0);
+        hash = hash * 31 + (hasForgeItemCap() ? forgeItemCap.hashCode() : 0);
 
         return hash;
     }
@@ -510,6 +520,10 @@ public class ItemStack implements Cloneable, ConfigurationSerializable {
             result.put("meta", meta);
         }
 
+        if(hasForgeItemCap()){
+            result.put("forgeCapNBT", forgeItemCap.serializeNBT());
+        }
+
         return result;
     }
 
@@ -556,6 +570,9 @@ public class ItemStack implements Cloneable, ConfigurationSerializable {
             }
         }
 
+        if (args.containsKey("forgeCapNBT")) {
+            result.setForgeItemCap(ForgeItemCap.deserializeNBT((String) args.get("forgeCapNBT")));
+        }
         return result;
     }
 
@@ -607,5 +624,17 @@ public class ItemStack implements Cloneable, ConfigurationSerializable {
         }
 
         return true;
+    }
+
+    public ForgeItemCap getForgeItemCap() {
+        return forgeItemCap;
+    }
+
+    public void setForgeItemCap(ForgeItemCap forgeItemCap) {
+        this.forgeItemCap = forgeItemCap;
+    }
+
+    public boolean hasForgeItemCap() {
+        return forgeItemCap != null;
     }
 }
