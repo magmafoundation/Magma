@@ -759,6 +759,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void updateInventory() {
+        if (getHandle().connection == null) { // Magma NPE - GH-273
+            return;
+        }
         getHandle().sendContainerToPlayer(getHandle().openContainer);
     }
 
