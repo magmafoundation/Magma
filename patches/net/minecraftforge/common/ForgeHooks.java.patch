@@ -234,7 +234,7 @@
          }
          return event.isCanceled() ? -1 : event.getExpToDrop();
      }
-@@ -875,74 +815,94 @@
+@@ -875,74 +815,103 @@
          // handle all placement events here
          int meta = itemstack.getItemDamage();
          int size = itemstack.getCount();
@@ -246,6 +246,8 @@
              nbt = itemstack.getTagCompound().copy();
          }
  
++        boolean blockReplaceable = world.getBlockState(pos).getMaterial().isReplaceable();
++
          if (!(itemstack.getItem() instanceof ItemBucket)) // if not bucket
          {
              world.captureBlockSnapshots = true;
@@ -261,12 +263,16 @@
  
          EnumActionResult ret = itemstack.getItem().onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ);
          world.captureBlockSnapshots = false;
-+        List<BlockState> blocks = ((List<BlockSnapshot>) world.capturedBlockSnapshots.clone()).stream().map(CraftBlockState::new).collect(Collectors.toList());
  
 -        if (ret == EnumActionResult.SUCCESS)
 -        {
 +        int newCount = itemstack.getCount();
 +        if (ret == EnumActionResult.SUCCESS && world.captureTreeGeneration && world.capturedBlockSnapshots.size() > 0) {
++            List<BlockState> blocks = new ArrayList();
++            for (net.minecraftforge.common.util.BlockSnapshot snapshot : world.capturedBlockSnapshots) {
++                blocks.add(new CraftBlockState(snapshot));
++            }
++
 +            world.captureTreeGeneration = false;
 +            Location location = new Location(world.getWorld(), pos.getX(), pos.getY(), pos.getZ());
 +            TreeType treeType = BlockSapling.treeType;
@@ -282,7 +288,9 @@
 +                if (itemstack.getCount() == size && itemstack.getMetadata() == data) {
 +                    itemstack.setCount(newCount);
 +                }
-+                blocks.forEach(blockstate -> blockstate.update(true));
++                for (BlockState blockstate : blocks) {
++                    blockstate.update(true);
++                }
 +            }
 +            return ret;
 +        }
@@ -330,15 +338,15 @@
                  // revert back all captured blocks
 -                for (BlockSnapshot blocksnapshot : Lists.reverse(blockSnapshots))
 -                {
-+                Lists.reverse(blockSnapshots).forEach(blocksnapshot -> {
++                for (BlockSnapshot blocksnapshot : Lists.reverse(blockSnapshots)) {
                      world.restoringBlockSnapshots = true;
                      blocksnapshot.restore(true, false);
                      world.restoringBlockSnapshots = false;
--                }
+                 }
 -            }
 -            else
 -            {
-+                });
++                ((org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer) player.getBukkitEntity()).updateInventory();
 +            } else {
                  // Change the stack to its new content
                  itemstack.setItemDamage(newMeta);
@@ -351,18 +359,17 @@
  
 -                for (BlockSnapshot snap : blockSnapshots)
 -                {
-+                blockSnapshots.forEach(snap -> {
++                for (BlockSnapshot snap : blockSnapshots) {
                      int updateFlag = snap.getFlag();
                      IBlockState oldBlock = snap.getReplacedBlock();
                      IBlockState newBlock = world.getBlockState(snap.getPos());
-@@ -950,10 +910,32 @@
+@@ -950,10 +919,32 @@
                      {
                          newBlock.getBlock().onBlockAdded(world, snap.getPos(), newBlock);
                      }
 -
                      world.markAndNotifyBlock(snap.getPos(), null, oldBlock, newBlock, updateFlag);
--                }
-+                });
+                 }
                  player.addStat(StatList.getObjectUseStats(itemstack.getItem()));
 +                if (itemstack.item instanceof ItemRecord) {
 +                    ((BlockJukebox) Blocks.JUKEBOX).insertRecord(world, pos, world.getBlockState(pos), itemstack);
@@ -373,7 +380,7 @@
 +
 +                if (itemstack.item == Items.SKULL) {
 +                    BlockPos bp = pos;
-+                    if (!world.getBlockState(pos).getMaterial().isReplaceable()) {
++                    if (!blockReplaceable) {
 +                        if (!world.getBlockState(pos).getMaterial().isSolid()) {
 +                            bp = null;
 +                        } else {
@@ -390,7 +397,7 @@
              }
          }
          world.capturedBlockSnapshots.clear();
-@@ -961,6 +943,16 @@
+@@ -961,6 +952,16 @@
          return ret;
      }
  
@@ -407,7 +414,7 @@
      public static boolean onAnvilChange(ContainerRepair container, @Nonnull ItemStack left, @Nonnull ItemStack right, IInventory outputSlot, String name, int baseCost)
      {
          AnvilUpdateEvent e = new AnvilUpdateEvent(left, right, name, baseCost);
-@@ -993,7 +985,7 @@
+@@ -993,7 +994,7 @@
      }
  
      /**

@@ -76,13 +76,12 @@
          private final EntityPlayer player;
          private final EnumHand hand;
  
-@@ -213,17 +216,34 @@
+@@ -213,17 +216,33 @@
              super(blockSnapshot, placedAgainst, player);
              this.player = player;
              this.hand = hand;
 -            if (DEBUG)
 -            {
-+            if(player instanceof FakePlayer) System.out.println("\n\n\n\n\n\nFake Player\n\n\n\n\n\n");
 +            if(!(this instanceof MultiPlaceEvent)){
 +                // Cauldron start - handle event on bukkit side
 +                CraftBlockState blockstate = new CraftBlockState(blockSnapshot);
@@ -116,7 +115,7 @@
      }
  
      /**
-@@ -275,6 +295,12 @@
+@@ -275,6 +294,12 @@
          public MultiPlaceEvent(@Nonnull List<BlockSnapshot> blockSnapshots, @Nonnull IBlockState placedAgainst, @Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
              super(blockSnapshots.get(0), placedAgainst, player, hand);
              this.blockSnapshots = ImmutableList.copyOf(blockSnapshots);
