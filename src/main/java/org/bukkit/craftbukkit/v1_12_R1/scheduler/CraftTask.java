@@ -36,7 +36,7 @@ public class CraftTask implements BukkitTask, Runnable {
     }
 
     CraftTask(final Runnable task) {
-        this(null, null, CraftTask.NO_REPEATING, CraftTask.NO_REPEATING);
+        this(null, task, CraftTask.NO_REPEATING, CraftTask.NO_REPEATING);
     }
 
     CraftTask(final Plugin plugin, final Runnable task, final int id, final long period) { // Paper
@@ -61,9 +61,9 @@ public class CraftTask implements BukkitTask, Runnable {
     }
 
     public void run() {
-        try (Timing ignored = timings.startTiming()) { // Paper
+        if (timings != null && isSync()) timings.startTiming(); // Paper
             task.run();
-        } // Paper
+        if (timings != null && isSync()) timings.stopTiming(); // Paper
     }
 
     long getPeriod() {
