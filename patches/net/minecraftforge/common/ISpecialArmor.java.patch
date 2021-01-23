@@ -1,28 +1,74 @@
 --- ../src-base/minecraft/net/minecraftforge/common/ISpecialArmor.java
 +++ ../src-work/minecraft/net/minecraftforge/common/ISpecialArmor.java
-@@ -131,6 +131,11 @@
-          */
-         public static float applyArmor(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage)
-         {
-+            return ApplyArmor(entity, inventory, source, damage, true);
-+        }
+@@ -21,19 +21,16 @@
+ 
+ import java.util.ArrayList;
+ import java.util.Arrays;
+-
+-import net.minecraft.util.CombatRules;
+-import net.minecraft.util.DamageSource;
++import javax.annotation.Nonnull;
+ import net.minecraft.entity.EntityLivingBase;
+ import net.minecraft.entity.SharedMonsterAttributes;
+ import net.minecraft.entity.player.EntityPlayer;
+-import net.minecraft.inventory.EntityEquipmentSlot;
+ import net.minecraft.item.ItemArmor;
+ import net.minecraft.item.ItemStack;
++import net.minecraft.util.CombatRules;
++import net.minecraft.util.DamageSource;
+ import net.minecraft.util.NonNullList;
+ 
+-import javax.annotation.Nonnull;
+-
+ /**
+  * This interface is to be implemented by ItemArmor classes. It will allow to
+  * modify computation of damage and health loss. Computation will be called
+@@ -110,7 +107,7 @@
+         private static final boolean DEBUG = false; //Only enable this if you wish to be spammed with debugging information.
+                                                     //Left it in because I figured it'd be useful for modders developing custom armor.
+ 
+-        
 +
-+        public static float ApplyArmor(EntityLivingBase entity, NonNullList<ItemStack> inventory, DamageSource source, double damage, boolean applyDamage)
-+        {
-             if (DEBUG)
+         public ArmorProperties(int priority, double ratio, int max)
+         {
+             Priority    = priority;
+@@ -135,7 +132,7 @@
              {
                  System.out.println("Start: " + damage);
-@@ -201,9 +206,12 @@
-                         int itemDamage = (int)Math.max(1, absorb);
-                         if (stack.getItem() instanceof ISpecialArmor)
+             }
+-            
++
+             double totalArmor = entity.getTotalArmorValue();
+             double totalToughness = entity.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue();
+ 
+@@ -149,12 +146,12 @@
+             for (int slot = 0; slot < inventory.size(); slot++)
+             {
+                 ItemStack stack = inventory.get(slot);
+-                
++
+                 if (stack.isEmpty())
+                 {
+                     continue;
+                 }
+-                
++
+                 ArmorProperties prop = null;
+                 if (stack.getItem() instanceof ISpecialArmor)
+                 {
+@@ -226,13 +223,13 @@
+             if (damage > 0 && (totalArmor > 0 || totalToughness > 0))
+             {
+                 double armorDamage = Math.max(1.0F, damage / 4.0F);
+-                
++
+                 for (int i = 0; i < inventory.size(); i++)
+                 {
+                     if (inventory.get(i).getItem() instanceof ItemArmor)
+                     {
+                         inventory.get(i).damageItem((int)armorDamage, entity);
+-                        
++
+                         if (inventory.get(i).getCount() == 0)
                          {
-+                            if (applyDamage)
-+                            {
-                             ((ISpecialArmor)stack.getItem()).damageArmor(entity, stack, source, itemDamage, prop.Slot);
-                         }
--                        else
-+                    }
-+                    else if(applyDamage)
-                         {
-                             if (DEBUG)
-                             {
+                             inventory.set(i, ItemStack.EMPTY);

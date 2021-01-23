@@ -757,7 +757,7 @@
 +        Function<Double, Double> armor = f14 -> {
 +            // Cauldron start - apply forge armor hook
 +            if (human) {
-+                return -(f14 - ISpecialArmor.ArmorProperties.ApplyArmor(EntityLivingBase.this, ((EntityPlayer) EntityLivingBase.this).inventory.armorInventory, damagesource, f14.floatValue(), false));
++                return -(f14 - ISpecialArmor.ArmorProperties.applyArmor(EntityLivingBase.this, ((EntityPlayer) EntityLivingBase.this).inventory.armorInventory, damagesource, f14.floatValue()));
 +            }
 +            // Cauldron end
 +            return -(f14 - EntityLivingBase.this.applyArmorCalculations(damagesource, f14.floatValue()));
@@ -835,7 +835,7 @@
 +                float armorDamage = (float) (ede.getDamage() + ede.getDamage(EntityDamageEvent.DamageModifier.BLOCKING) + ede.getDamage(EntityDamageEvent.DamageModifier.HARD_HAT));
 +                if (human) {
 +                    EntityPlayer player = (EntityPlayer) this;
-+                    armorDamage = ISpecialArmor.ArmorProperties.ApplyArmor(player, player.inventory.armorInventory, damagesource, armorDamage, true);
++                    armorDamage = ISpecialArmor.ArmorProperties.applyArmor(player, player.inventory.armorInventory, damagesource, armorDamage);
 +                } else {
 +                    this.damageArmor(armorDamage);
 +                }
