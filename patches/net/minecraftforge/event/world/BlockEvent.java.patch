@@ -1,6 +1,6 @@
 --- ../src-base/minecraft/net/minecraftforge/event/world/BlockEvent.java
 +++ ../src-work/minecraft/net/minecraftforge/event/world/BlockEvent.java
-@@ -19,29 +19,32 @@
+@@ -19,29 +19,37 @@
  
  package net.minecraftforge.event.world;
  
@@ -18,6 +18,7 @@
 -import net.minecraft.init.Enchantments;
 +import net.minecraft.entity.player.EntityPlayerMP;
  import net.minecraft.item.ItemStack;
++import net.minecraft.tileentity.TileEntity;
 +import net.minecraft.util.EnumFacing;
  import net.minecraft.util.EnumHand;
  import net.minecraft.util.math.BlockPos;
@@ -28,7 +29,10 @@
 +import net.minecraftforge.common.util.FakePlayer;
  import net.minecraftforge.fml.common.eventhandler.Cancelable;
  import net.minecraftforge.fml.common.eventhandler.Event;
++import org.bukkit.Bukkit;
++import org.bukkit.block.Block;
 +import org.bukkit.block.BlockState;
++import org.bukkit.block.Chest;
 +import org.bukkit.craftbukkit.v1_12_R1.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlockState;
  
@@ -39,10 +43,29 @@
 +import java.util.EnumSet;
 +import java.util.List;
 +import org.bukkit.event.block.BlockMultiPlaceEvent;
++import org.magmafoundation.magma.configuration.MagmaConfig;
  
  public class BlockEvent extends Event
  {
-@@ -125,16 +128,17 @@
+@@ -99,6 +107,17 @@
+             this.drops = drops;
+             this.isSilkTouching = isSilkTouching;
+             this.harvester = harvester;
++
++            //Magma start - handle event on bukkit side
++            if(harvester == null) return;
++            org.bukkit.event.block.BlockBreakEvent bukkitEvent = CraftEventFactory.callBlockBreakEvent(world, pos, state, (EntityPlayerMP) harvester);
++
++            if(bukkitEvent.isCancelled()){
++                this.setCanceled(true);
++            } else if(!bukkitEvent.isDropItems()) {
++                this.drops.clear();
++            }
++
+         }
+ 
+         public int getFortuneLevel() { return fortuneLevel; }
+@@ -125,16 +144,17 @@
              super(world, pos, state);
              this.player = player;
  
@@ -66,7 +89,7 @@
          }
  
          public EntityPlayer getPlayer()
-@@ -204,8 +208,7 @@
+@@ -204,8 +224,7 @@
       */
      @Cancelable
      @Deprecated // Remove in 1.13
@@ -76,7 +99,7 @@
          private final EntityPlayer player;
          private final EnumHand hand;
  
-@@ -213,17 +216,33 @@
+@@ -213,17 +232,33 @@
              super(blockSnapshot, placedAgainst, player);
              this.player = player;
              this.hand = hand;
@@ -115,7 +138,7 @@
      }
  
      /**
-@@ -275,6 +294,12 @@
+@@ -275,6 +310,12 @@
          public MultiPlaceEvent(@Nonnull List<BlockSnapshot> blockSnapshots, @Nonnull IBlockState placedAgainst, @Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
              super(blockSnapshots.get(0), placedAgainst, player, hand);
              this.blockSnapshots = ImmutableList.copyOf(blockSnapshots);
