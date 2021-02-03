@@ -1214,7 +1214,7 @@ public class CraftEventFactory {
     // Cauldron start
     public static BlockBreakEvent callBlockBreakEvent(net.minecraft.world.World world, BlockPos pos, IBlockState iBlockState, net.minecraft.entity.player.EntityPlayerMP player) {
         org.bukkit.block.Block bukkitBlock = world.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
-        org.bukkit.event.block.BlockBreakEvent blockBreakEvent = new org.bukkit.event.block.BlockBreakEvent(bukkitBlock, ((EntityPlayerMP) player).getBukkitEntity());
+        org.bukkit.event.block.BlockBreakEvent blockBreakEvent = new org.bukkit.event.block.BlockBreakEvent(bukkitBlock, Bukkit.getPlayer(player.getUniqueID()));
         EntityPlayerMP playermp = (EntityPlayerMP) player;
         net.minecraft.block.Block block = iBlockState.getBlock();
         if (!(playermp instanceof FakePlayer)) {

@@ -25,6 +25,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.logging.Level;
+
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.minecraft.server.MinecraftServer;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -70,7 +72,7 @@ public class MagmaConfig extends ConfigBase {
     public final BooleanValue magmaAutoUpdater = new BooleanValue(this, "magma.auto-update", true, "Auto updates the Magma jar");
     public final BooleanValue overrideServerBrand = new BooleanValue(this, "magma.advanced.override-brand", false, "Enables overriding the brand string");
     public final StringValue serverBrand = new StringValue(this, "magma.advanced.override-brand-name", "Spigot", "Value to use for new brand string");
-
+    public final StringValue toolTipOverridePriority = new StringValue(this, "magma.advanced.tooltip-priority", "mod", "Mod, Plugin, None : determines what has tooltip priority");
     public final StringValue serverBrandType = new StringValue(this, "magma.advanced.server-type", "FML", "Set to FML to show forge icon or BUKKIT to show bukkit icon (FML is default)");
 
     //=============================Message SETTINGS==============================
