@@ -119,34 +119,28 @@
          WorldServer overworld = getWorld(0);
          if (overworld == null)
          {
-@@ -258,11 +279,41 @@
+@@ -256,13 +277,34 @@
+             FMLLog.log.error("Cannot Hotload Dim: {}", dim, e);
+             return; // If a provider hasn't been registered then we can't hotload the dim
          }
++        String name = "DIM" + dim;
          MinecraftServer mcServer = overworld.getMinecraftServer();
-         ISaveHandler savehandler = overworld.getSaveHandler();
+-        ISaveHandler savehandler = overworld.getSaveHandler();
 -        //WorldSettings worldSettings = new WorldSettings(overworld.getWorldInfo());
++        // Use saved dimension from level.dat if it exists. This guarantees that after a world is created, the same dimension will be used. Fixes issues with MultiVerse
++        ISaveHandler saveHandler = new AnvilSaveHandler(mcServer.server.getWorldContainer(), name, true, mcServer.getDataFixer());
 +        WorldSettings worldSettings = new WorldSettings(overworld.getWorldInfo());
  
 -        WorldServer world = (dim == 0 ? overworld : (WorldServer)(new WorldServerMulti(mcServer, savehandler, dim, overworld, mcServer.profiler).init()));
-+        String worldType;
-+        String name;
-+        Environment environment = Environment.getEnvironment(dim);
-+        if(dim >= -1 && dim <= 1){
-+            if((dim == -1 && !mcServer.getAllowNether()) || (dim == 1 && mcServer.server.getAllowEnd())){
++        org.bukkit.World.Environment env = org.bukkit.World.Environment.getEnvironment(dim);
++        if (dim >= -1 && dim <= 1)
++        {
++            if ((dim == -1 && !mcServer.getAllowNether()) || (dim == 1 && !mcServer.server.getAllowEnd()))
 +                return;
-+            }
-+            worldType = environment.toString().toLowerCase();
-+            name = "DIM" + dim;
-+        }else{
-+            WorldProvider provider = WorldProvider.getProviderForDimension(dim);
-+            worldType = provider.getClass().getSimpleName().toLowerCase();
-+            worldType = worldType.replace("worldprovider", "");
-+            worldType = worldType.replace("provider", "");
++        } else {
 +            if(org.bukkit.World.Environment.getEnvironment(DimensionManager.getProviderType(dim).getId()) == null){
-+                environment = DimensionManager.registerBukkitDimension(DimensionManager.getProviderType(dim).getId(), worldType);
++                env = DimensionManager.registerBukkitDimension(DimensionManager.getProviderType(dim).getId(), DimensionManager.getProviderType(dim).getName());
 +            }
-+
-+            name = provider.getSaveFolder();
-+            if (name == null) name = "DIM0";
 +        }
 +
 +        ChunkGenerator generator = mcServer.server.getGenerator(name);
@@ -154,8 +148,8 @@
 +            worldSettings.setGeneratorOptions(((DedicatedServer) mcServer).getStringProperty("generator-settings", ""));
 +        }
 +        WorldInfo worldInfo = new WorldInfo(worldSettings, name);
-+        WorldServer world = (dim == 0 ? overworld : (WorldServer)(new WorldServerMulti(mcServer, new AnvilSaveHandler(mcServer.server.getWorldContainer(), name, true, mcServer.getDataFixer()), dim, overworld, mcServer.profiler, worldInfo, environment, generator).init()));
-+
++        WorldServer world = (dim == 0 ? overworld : (WorldServer)(new WorldServerMulti(mcServer, saveHandler, dim, overworld, mcServer.profiler, worldInfo, env, generator).init()));
++        world.initialize(worldSettings);
 +        mcServer.getPlayerList().setPlayerManager(mcServer.worldServerList.toArray(new WorldServer[mcServer.worldServerList.size()]));
          world.addEventListener(new ServerWorldEventHandler(mcServer, world));
          MinecraftForge.EVENT_BUS.post(new WorldEvent.Load(world));
@@ -163,7 +157,7 @@
          if (!mcServer.isSinglePlayer())
          {
              world.getWorldInfo().setGameType(mcServer.getGameType());
-@@ -343,7 +394,8 @@
+@@ -343,7 +385,8 @@
          return ForgeChunkManager.getPersistentChunksFor(world).isEmpty()
                  && world.playerEntities.isEmpty()
                  && !world.provider.getDimensionType().shouldLoadSpawn()
@@ -173,7 +167,7 @@
      }
  
      /**
-@@ -390,20 +442,7 @@
+@@ -390,20 +433,7 @@
                  FMLLog.log.debug("Aborting unload for dimension {} as status changed", id);
                  continue;
              }
@@ -195,7 +189,7 @@
          }
      }
  
-@@ -499,4 +538,100 @@
+@@ -499,4 +529,114 @@
              return null;
          }
      }
@@ -230,7 +224,8 @@
 +                dim = savedDim;
 +            }
 +        }
-+        if(dim == 0){
++        if (dim == 0 || worlds.containsKey(dim))
++        {
 +            dim = getNextFreeDimId();
 +        }
 +
@@ -239,7 +234,18 @@
 +            registerDimension(dim, type);
 +            addBukkitDimension(dim);
 +        }
++        if (environment == null) {
++            try {
++                environment = org.bukkit.World.Environment.getEnvironment(DimensionManager.createProviderFor(dim).getDimension());
++            }
++            catch (Exception e)
++            {
++            }
 +
++            if (environment == null) {
++                environment = org.bukkit.World.Environment.NORMAL;
++            }
++        }
 +        ChunkGenerator generator = creator.generator();
 +        if(mcServer instanceof DedicatedServer){
 +            worldSettings.setGeneratorOptions(((DedicatedServer) mcServer).getStringProperty("generator-settings", ""));
@@ -250,11 +256,13 @@
 +            worldInfo = new WorldInfo(worldSettings, name);
 +        }
 +        worldInfo.setWorldName(name);
-+        WorldServer world = (WorldServer) new WorldServerMulti(mcServer, saveHandler, dim, overworld,mcServer.profiler, worldInfo, environment, generator).init();
-+        world.initialize(worldSettings);
-+        world.provider.setDimension(dim);
++        worldInfo.setDimension(dim);
 +
-+        mcServer.getPlayerList().setPlayerManager(mcServer.worldServerList.toArray(new WorldServer[mcServer.worldServerList.size()]));
++        WorldServer world = (WorldServer) new WorldServer(mcServer, saveHandler, worldInfo, dim, mcServer.profiler, environment, generator).init();
++        world.initialize(worldSettings);
++
++        world.provider.setDimension(dim);
++        mcServer.getPlayerList().setPlayerManager(mcServer.worldServerList.toArray(new WorldServer[0]));
 +
 +        world.addEventListener(new ServerWorldEventHandler(mcServer, world));
 +        MinecraftForge.EVENT_BUS.post(new Load(world));

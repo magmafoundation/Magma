@@ -167,7 +167,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +165,302 @@
+@@ -144,178 +165,295 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -380,16 +380,9 @@
 -                {
 -                    worldsettings.enableBonusChest();
 -                }
-+            String worldType;
 +            org.bukkit.World.Environment worldEnvironment = org.bukkit.World.Environment.getEnvironment(dim);
 +            if (worldEnvironment == null) {
-+                WorldProvider provider = DimensionManager.createProviderFor(dim);
-+                worldType = provider.getClass().getSimpleName().toLowerCase();
-+                worldType = worldType.replace("worldprovider", "");
-+                worldType = worldType.replace("provider", "");
-+                worldEnvironment = Environment.getEnvironment(DimensionManager.getProviderType(dim).getId());
-+            } else {
-+                worldType = worldEnvironment.toString().toLowerCase();
++                worldEnvironment = org.bukkit.World.Environment.getEnvironment(DimensionManager.getProviderType(dim).getId());
              }
 +            String name = (dim == 0) ? saveName : "DIM" + dim;
 +            org.bukkit.generator.ChunkGenerator gen = null;
@@ -567,7 +560,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +468,43 @@
+@@ -323,45 +461,43 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -637,7 +630,7 @@
          }
      }
  
-@@ -379,73 +522,80 @@
+@@ -379,73 +515,80 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -750,7 +743,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +603,214 @@
+@@ -453,159 +596,214 @@
                      worldserver1.flush();
                  }
              }
@@ -1038,7 +1031,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +818,44 @@
+@@ -613,52 +811,44 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1103,7 +1096,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +864,15 @@
+@@ -667,16 +857,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1125,7 +1118,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,7 +880,7 @@
+@@ -684,7 +873,7 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1134,7 +1127,7 @@
          {
              this.profiler.startSection("save");
              this.playerList.saveAllPlayerData();
-@@ -693,134 +889,165 @@
+@@ -693,134 +882,165 @@
          }
  
          this.profiler.startSection("tallying");
@@ -1369,7 +1362,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1062,52 @@
+@@ -835,53 +1055,52 @@
          return ret;
      }
  
@@ -1449,7 +1442,7 @@
                  }
              });
          }
-@@ -889,145 +1115,115 @@
+@@ -889,145 +1108,115 @@
          return report;
      }
  
@@ -1639,7 +1632,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1231,75 @@
+@@ -1035,80 +1224,75 @@
          }
      }
  
@@ -1749,7 +1742,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1308,193 @@
+@@ -1117,228 +1301,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -2032,7 +2025,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1503,254 @@
+@@ -1347,316 +1496,254 @@
          return null;
      }
  
