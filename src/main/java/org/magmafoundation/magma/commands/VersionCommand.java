@@ -46,13 +46,13 @@ public class VersionCommand extends Command {
         this.description = "Gets the version of the server";
         this.usageMessage = "/version";
         this.setAliases(Collections.singletonList("ver"));
+        this.setPermission("bukkit.command.version");
     }
 
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-        if (!sender.isOp()) {
-            sender.sendMessage(TextFormatting.RED + "You don't have permission to do that!");
-            return false;
+        if (!this.testPermission(sender)) {
+            return true;
         }
 
         sender.sendMessage(
