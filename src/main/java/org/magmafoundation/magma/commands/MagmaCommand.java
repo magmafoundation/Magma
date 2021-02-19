@@ -98,9 +98,9 @@ public class MagmaCommand extends Command {
                 }
                 break;
         case "dump":
-            createMagmaDump("world.mdump");
+            createMagmaDump("worlds.mdump");
             createMagmaDump("permissions.mdump");
-            createMagmaDump("material.mdump");
+            createMagmaDump("materials.mdump");
             sender.sendMessage(ChatColor.RED + "Dump saved!");
             break;
         default:
@@ -122,7 +122,7 @@ public class MagmaCommand extends Command {
             Writer writer = new OutputStreamWriter(os);
 
             switch (fileName.split("\\.")[0]) {
-            case "world":
+            case "worlds":
                 for (WorldServer world : DimensionManager.getWorlds()) {
                     writer.write(String.format("Stats for %s [%s] with id %d\n", world, world.provider.getDimensionType().name(), world.dimension));
                     writer.write("Current Tick: " + world.worldInfo.getWorldTotalTime() + "\n");
@@ -153,7 +153,7 @@ public class MagmaCommand extends Command {
                 writer.close();
 
 
-            case "material":
+            case "materials":
 
                 for (Material material : Material.values()) {
                     writer.write( material.name() + "\n");
