@@ -26,7 +26,9 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
 
+import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -101,6 +103,7 @@ public class MagmaCommand extends Command {
             createMagmaDump("worlds.mdump");
             createMagmaDump("permissions.mdump");
             createMagmaDump("materials.mdump");
+            createMagmaDump("biomes.mdump");
             sender.sendMessage(ChatColor.RED + "Dump saved!");
             break;
         default:
@@ -151,12 +154,17 @@ public class MagmaCommand extends Command {
                 }
 
                 writer.close();
-
-
             case "materials":
 
                 for (Material material : Material.values()) {
-                    writer.write( material.name() + "\n");
+                    writer.write(material.name() + "\n");
+                }
+
+                writer.close();
+            case "biomes":
+
+                for (Biome biome : ForgeRegistries.BIOMES.getValuesCollection()) {
+                    writer.write(biome.getRegistryName() + "\n");
                 }
 
                 writer.close();

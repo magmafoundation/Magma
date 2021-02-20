@@ -13,7 +13,7 @@
  import com.google.common.util.concurrent.Futures;
  import com.google.common.util.concurrent.ListenableFuture;
  import com.google.common.util.concurrent.ListenableFutureTask;
-@@ -15,93 +19,111 @@
+@@ -15,93 +19,112 @@
  import io.netty.handler.codec.base64.Base64;
  import java.awt.GraphicsEnvironment;
  import java.awt.image.BufferedImage;
@@ -94,6 +94,7 @@
 -import net.minecraft.world.WorldType;
 -import net.minecraft.world.chunk.storage.AnvilSaveConverter;
 +import net.minecraft.world.*;
++import net.minecraft.world.biome.Biome;
 +import net.minecraft.world.chunk.storage.AnvilSaveHandler;
  import net.minecraft.world.storage.ISaveFormat;
  import net.minecraft.world.storage.ISaveHandler;
@@ -159,7 +160,7 @@
      @SideOnly(Side.SERVER)
      private String hostname;
      private int serverPort = -1;
-@@ -128,7 +150,6 @@
+@@ -128,7 +151,6 @@
      private KeyPair serverKeyPair;
      private String serverOwner;
      private String folderName;
@@ -167,7 +168,7 @@
      private String worldName;
      private boolean isDemo;
      private boolean enableBonusChest;
-@@ -144,178 +165,295 @@
+@@ -144,178 +166,301 @@
      private final GameProfileRepository profileRepo;
      private final PlayerProfileCache profileCache;
      private long nanoTimeSinceStatusRefresh;
@@ -501,6 +502,17 @@
 -            }
 -        }
 -        } //Forge: End dead code
++                if(MagmaConfig.instance.debugPrintBiomes.getValues()){
++                    for (Biome biome : ForgeRegistries.BIOMES.getValuesCollection()) {
++                        MinecraftServer.LOGGER.info(biome.getRegistryName());
++                    }
++                }
+ 
+-        WorldServer overWorld = (WorldServer)(isDemo() ? new WorldServerDemo(this, isavehandler, worldinfo, 0, profiler).init() : new WorldServer(this, isavehandler, worldinfo, 0, profiler).init());
+-        overWorld.initialize(worldsettings);
+-        for (int dim : net.minecraftforge.common.DimensionManager.getStaticDimensionIDs())
+-        {
+-            WorldServer world = (dim == 0 ? overWorld : (WorldServer)new WorldServerMulti(this, isavehandler, dim, overWorld, profiler).init());
 +                server.loadPlugins();
 +                server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.STARTUP);
 +                // Magma end
@@ -513,12 +525,7 @@
 +                } else {
 +                    world = (WorldServer) (new WorldServer(this, idatamanager, worlddata, dim, this.profiler, worldEnvironment, gen)).init();
 +                }
- 
--        WorldServer overWorld = (WorldServer)(isDemo() ? new WorldServerDemo(this, isavehandler, worldinfo, 0, profiler).init() : new WorldServer(this, isavehandler, worldinfo, 0, profiler).init());
--        overWorld.initialize(worldsettings);
--        for (int dim : net.minecraftforge.common.DimensionManager.getStaticDimensionIDs())
--        {
--            WorldServer world = (dim == 0 ? overWorld : (WorldServer)new WorldServerMulti(this, isavehandler, dim, overWorld, profiler).init());
++
 +                world.initialize(worldsettings);
 +                this.server.scoreboardManager = new CraftScoreboardManager(this, world.getScoreboard());
 +            } else {
@@ -560,7 +567,7 @@
          int i = 16;
          int j = 4;
          int k = 192;
-@@ -323,45 +461,43 @@
+@@ -323,45 +468,43 @@
          int i1 = 0;
          this.setUserMessage("menu.generatingTerrain");
          int j1 = 0;
@@ -630,7 +637,7 @@
          }
      }
  
-@@ -379,73 +515,80 @@
+@@ -379,73 +522,80 @@
  
      public abstract boolean shouldBroadcastConsoleToOps();
  
@@ -743,7 +750,7 @@
              {
                  if (worldserver1 != null)
                  {
-@@ -453,159 +596,214 @@
+@@ -453,159 +603,214 @@
                      worldserver1.flush();
                  }
              }
@@ -1031,7 +1038,7 @@
                  BufferedImage bufferedimage = ImageIO.read(file1);
                  Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide");
                  Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high");
-@@ -613,52 +811,44 @@
+@@ -613,52 +818,44 @@
                  ByteBuf bytebuf1 = Base64.encode(bytebuf);
                  response.setFavicon("data:image/png;base64," + bytebuf1.toString(StandardCharsets.UTF_8));
                  bytebuf1.release(); // Forge: fix MC-122085
@@ -1096,7 +1103,7 @@
              this.startProfiling = false;
              this.profiler.profilingEnabled = true;
              this.profiler.clearProfiling();
-@@ -667,16 +857,15 @@
+@@ -667,16 +864,15 @@
          this.profiler.startSection("root");
          this.updateTimeLightAndEntities();
  
@@ -1118,7 +1125,7 @@
              }
  
              Collections.shuffle(Arrays.asList(agameprofile));
-@@ -684,7 +873,7 @@
+@@ -684,7 +880,7 @@
              this.statusResponse.invalidateJson();
          }
  
@@ -1127,7 +1134,7 @@
          {
              this.profiler.startSection("save");
              this.playerList.saveAllPlayerData();
-@@ -693,134 +882,165 @@
+@@ -693,134 +889,165 @@
          }
  
          this.profiler.startSection("tallying");
@@ -1362,7 +1369,7 @@
          LOGGER.warn(msg);
      }
  
-@@ -835,53 +1055,52 @@
+@@ -835,53 +1062,52 @@
          return ret;
      }
  
@@ -1442,7 +1449,7 @@
                  }
              });
          }
-@@ -889,145 +1108,115 @@
+@@ -889,145 +1115,115 @@
          return report;
      }
  
@@ -1632,7 +1639,7 @@
                      worldserver1.getWorldInfo().setDifficulty(difficulty);
                      worldserver1.setAllowedSpawnTypes(this.allowSpawnMonsters(), this.canSpawnAnimals);
                  }
-@@ -1035,80 +1224,75 @@
+@@ -1035,80 +1231,75 @@
          }
      }
  
@@ -1742,7 +1749,7 @@
                      ++l;
                  }
              }
-@@ -1117,228 +1301,193 @@
+@@ -1117,228 +1308,193 @@
          playerSnooper.addClientStat("worlds", Integer.valueOf(l));
      }
  
@@ -2025,7 +2032,7 @@
                      return entity;
                  }
              }
-@@ -1347,316 +1496,254 @@
+@@ -1347,316 +1503,254 @@
          return null;
      }
  
