@@ -10,6 +10,7 @@ jobs:
         with:
           submodules: recursive
       - uses: gradle/wrapper-validation-action@v1.0.3
+      - run: chmod +x ./gradlew
       - run: ./gradlew launch4j --parallel
       - uses: actions/upload-artifact@v2.2.2
         with:
