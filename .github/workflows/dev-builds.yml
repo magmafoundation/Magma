@@ -24,6 +24,8 @@ jobs:
       - uses: gradle/wrapper-validation-action@v1.0.3
       - run: chmod +x ./gradlew
       - run: ./gradlew launch4j --parallel
+        env:
+          STABLE_BUILD: 0
       - uses: actions/upload-artifact@v2.2.2
         with:
           name: Builds
