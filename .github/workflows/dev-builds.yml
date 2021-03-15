@@ -1,6 +1,18 @@
 name: Dev-Builds
 on: [push, pull_request]
 jobs:
+  test:
+    runs-on: ubuntu-20.04
+    container:
+      image: openjdk:8-jdk
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          submodules: recursive
+      - uses: gradle/wrapper-validation-action@v1.0.3
+      - run: chmod +x ./gradlew
+      - run: ./gradlew setup --parallel
+      - run: cd projects && ../gradlew Magma:test
   build:
     runs-on: ubuntu-20.04
     container:
