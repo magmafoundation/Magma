@@ -16,5 +16,10 @@ jobs:
         with:
           name: Builds
           path: build/distributions/*server.*
+      - uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          
           
 # TODO: Add Registry
