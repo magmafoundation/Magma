@@ -1,4 +1,4 @@
-|name: Stable Builds
+name: Stable Builds
 on: [workflow_dispatch] # Manual trigger
 jobs:
   build:
