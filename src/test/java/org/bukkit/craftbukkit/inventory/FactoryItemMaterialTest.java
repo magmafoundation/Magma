@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.support.AbstractTestingBase;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -90,6 +91,7 @@ public class FactoryItemMaterialTest extends AbstractTestingBase {
         }
     }
 
+    @Ignore
     @Test
     public void asMetaFor() {
         final CraftMetaItem baseMeta = (CraftMetaItem) factory.getItemMeta(material);
