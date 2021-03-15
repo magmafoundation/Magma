@@ -6,16 +6,6 @@ jobs:
     container:
       image: openjdk:8-jdk
     steps:
-      - uses: sarisia/actions-status-discord@v1
-        if: always()
-        with:
-            webhook: ${{ secrets.DISCORD_WEBHOOK }}
-            status: ${{ job.status }}
-            title: "Starting Stable Build"
-            nofail: false
-            nodetail: false
-            color: 0x0000ff
-            username: GitHub Actions
       - uses: actions/checkout@v2.3.4
         with:
           submodules: recursive
