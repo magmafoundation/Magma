@@ -146,9 +146,12 @@
          this.eula = new ServerEula(new File("eula.txt"));
  
          if (!this.eula.hasAcceptedEULA())
-@@ -144,7 +188,7 @@
+@@ -142,9 +186,9 @@
+             }
+             else
              {
-                 this.setOnlineMode(this.settings.getBooleanProperty("online-mode", true));
+-                this.setOnlineMode(this.settings.getBooleanProperty("online-mode", true));
++                this.setOnlineMode(SpigotConfig.bungee ? false : this.settings.getBooleanProperty("online-mode", true));
                  this.setPreventProxyConnections(this.settings.getBooleanProperty("prevent-proxy-connections", false));
 -                this.setHostname(this.settings.getStringProperty("server-ip", ""));
 +                this.setHostname(this.settings.getStringProperty("server-ip", "0.0.0.0"));
