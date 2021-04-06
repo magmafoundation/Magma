@@ -17,7 +17,7 @@ We hope to eliminate all issues with craftbukkit forge servers. In the end, we e
 
 ## BungeeCord
 
-If you want to use Magma in a BungeeCord network, we recommend to use [HexaCord](https://github.com/HexagonMC/BungeeCord) instead since it has 1.7 and Forge Support. If you experience entity errors with Forge mods you can use [KettleCord](https://github.com/UeberallGebannt/KettleCord), which is a HexaCord fork that fixes this bug.
+If you want to use Magma in a BungeeCord network, we recommend to use [HexaCord](https://github.com/HexagonMC/BungeeCord) or [Waterfall](https://github.com/PaperMC/Waterfall)/[Travertine](https://github.com/PaperMC/Travertine) instead since it has better Forge support than BungeeCord.
 
 In order to use Magma with BungeeCord, you have to enable `forge-support` in the BungeeCord config, set `online-mode` to false in server.properties and `bungeecord` to true in spigot.yml.
 
