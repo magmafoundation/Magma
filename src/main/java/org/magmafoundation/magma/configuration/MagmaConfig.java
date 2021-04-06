@@ -76,9 +76,13 @@ public class MagmaConfig extends ConfigBase {
     public final StringValue toolTipOverridePriority = new StringValue(this, "magma.advanced.tooltip-priority", "mod", "Mod, Plugin, None : determines what has tooltip priority");
     public final StringValue serverBrandType = new StringValue(this, "magma.advanced.server-type", "FML", "Set to FML to show forge icon or BUKKIT to show bukkit icon (FML is default)");
 
+    //=============================Bukkit/Spigot SETTINGS==============================
+    public final IntValue maxPotionEffectAmount = new IntValue(this, "bukkit.max-potion-effect-amount", 1024, "Maximum amount of possible potion effects (Bukkit's default is 300)");
+
     //=============================Message SETTINGS==============================
     public final StringValue fmlRequiredMessage = new StringValue(this, "magma.messages.fml.fml-required", "&cThis Server is running Magma. Forge and additional mods are required in order to connect to this server.", "FML required kick message");
     public final StringValue missingModsMessage = new StringValue(this, "magma.messages.fml.missing-mods", "&cYou are missing the following mods:", "Missing Mods kick message");
+    public final StringValue serverStillStartingMessage = new StringValue(this, "magma.messages.fml.server-still-starting", "&cServer is still starting! Please wait before reconnecting.", "Server still starting kick message");
 
     private final String HEADER = "This is the main configuration file for Magma.\n" +
         "\n" +
