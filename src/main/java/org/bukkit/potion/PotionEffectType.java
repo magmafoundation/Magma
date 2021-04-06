@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Color;
+import org.magmafoundation.magma.configuration.MagmaConfig;
 
 /**
  * Represents a type of potion and its effect on an entity.
@@ -230,7 +231,7 @@ public abstract class PotionEffectType {
         return "PotionEffectType[" + id + ", " + getName() + "]";
     }
 
-    private static final PotionEffectType[] byId = new PotionEffectType[300];
+    private static final PotionEffectType[] byId = new PotionEffectType[MagmaConfig.instance.maxPotionEffectAmount.getValues()];
     private static final Map<String, PotionEffectType> byName = new HashMap<String, PotionEffectType>();
     // will break on updates.
     private static boolean acceptingNew = true;
@@ -272,7 +273,7 @@ public abstract class PotionEffectType {
             throw new IllegalArgumentException("Cannot set already-set type");
         } else if (!acceptingNew) {
             throw new IllegalStateException(
-                    "No longer accepting new potion effect types (can only be done by the server implementation)");
+                    "No longer accepting new potion effect types (maximum amount reached, higher the maximum amount in magma.yml)");
         }
 
         byId[type.id] = type;
