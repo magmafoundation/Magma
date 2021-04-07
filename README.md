@@ -21,18 +21,6 @@ If you want to use Magma in a BungeeCord network, we recommend to use [HexaCord]
 
 In order to use Magma with BungeeCord, you have to enable `forge-support` in the BungeeCord config, set `online-mode` to false in server.properties and `bungeecord` to true in spigot.yml.
 
-## Big Paper Update :fireworks:
-
-Magma at the moment **is not** using all of the API/Patches with this update we will have all features of Paper and more optimizations (including Timings v2).
-
-We can't wait to have this finished and shared with all for a better/faster server software.
-
-All work is being done on the [paper](https://github.com/magmafoundation/Magma/tree/paper) branch if you would like to check it out.
-
-## 1.15
-
-Magma 1.15.x is in beta! Learn more [here](https://github.com/magmafoundation/Magma-1.15.x).
-
 ## 1.16
 
 Magma 1.16.x is in development, but a usable release is not available yet. You can still view the source code [here](https://github.com/magmafoundation/Magma-1.16.x).
