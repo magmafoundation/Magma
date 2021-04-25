@@ -78,6 +78,7 @@ public class MagmaConfig extends ConfigBase {
 
     //=============================Bukkit/Spigot SETTINGS==============================
     public final IntValue maxPotionEffectAmount = new IntValue(this, "bukkit.max-potion-effect-amount", 1024, "Maximum amount of possible potion effects (Bukkit's default is 300)");
+    public final BooleanValue enableReloadCommand = new BooleanValue(this, "bukkit.enable-reload", false, "Enables the reload command (not recommended)");
 
     //=============================Message SETTINGS==============================
     public final StringValue fmlRequiredMessage = new StringValue(this, "magma.messages.fml.fml-required", "&cThis Server is running Magma. Forge and additional mods are required in order to connect to this server.", "FML required kick message");
