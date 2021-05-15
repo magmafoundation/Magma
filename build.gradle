@@ -3,8 +3,12 @@ buildscript {
         mavenLocal()
         mavenCentral()
         maven {
+            name = "magma"
+            url = "https://repo.hexeption.dev/repository/magma-snapshot/"
+        }
+        maven {
             name = "forge"
-            url = "https://files.minecraftforge.net/maven"
+            url = "https://maven.minecraftforge.net"
         }
         maven {
             name = "sonatype"
@@ -18,7 +22,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3+'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-20210515.141241-1'
         classpath 'net.nemerosa:versioning:2.7.1'
         classpath "gradle.plugin.com.github.breadmoirai:github-release:2.2.9"
         classpath "gradle.plugin.net.minecrell:licenser:0.4.1"
@@ -51,7 +55,7 @@ repositories {
     mavenCentral()
     maven {
         name = "forge"
-        url = "https://files.minecraftforge.net/maven"
+        url = "https://maven.minecraftforge.net/"
     }
     maven {
         name = "sonatype"
