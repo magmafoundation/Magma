@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.v1_12_R1.entity;
 
+import com.destroystokyo.paper.Title;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.BaseEncoding;
@@ -55,6 +56,7 @@ import net.minecraft.network.play.server.SPacketEffect;
 import net.minecraft.network.play.server.SPacketEntityProperties;
 import net.minecraft.network.play.server.SPacketMaps;
 import net.minecraft.network.play.server.SPacketParticles;
+import net.minecraft.network.play.server.SPacketPlayerListHeaderFooter;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.network.play.server.SPacketSpawnPosition;
@@ -1324,6 +1326,84 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public void setViewDistance(final int viewDistance) {
         ((WorldServer)this.getHandle().world).getPlayerChunkMap().updateViewDistance(this.getHandle(), viewDistance);
     }
+
+    // Paper start
+    @Override
+    public void setPlayerListHeaderFooter(BaseComponent[] header, BaseComponent[] footer) {
+        SPacketPlayerListHeaderFooter packet = new SPacketPlayerListHeaderFooter();
+        packet.header_paper = header;
+        packet.footer_paper = footer;
+        getHandle().connection.sendPacket(packet);
+    }
+
+    @Override
+    public void setPlayerListHeaderFooter(BaseComponent header, BaseComponent footer) {
+        this.setPlayerListHeaderFooter(header == null ? null : new BaseComponent[] {header}, footer == null ? null : new BaseComponent[] {footer});
+    }
+
+    @Override
+    public void setTitleTimes(int fadeInTicks, int stayTicks, int fadeOutTicks) {
+        getHandle().connection.sendPacket(new SPacketTitle(SPacketTitle.Type.TIMES, (BaseComponent[]) null, fadeInTicks, stayTicks, fadeOutTicks));
+    }
+
+    @Override
+    public void setSubtitle(BaseComponent[] subtitle) {
+        getHandle().connection.sendPacket(new SPacketTitle(SPacketTitle.Type.SUBTITLE, subtitle, 0,0,0));
+    }
+
+    @Override
+    public void setSubtitle(BaseComponent subtitle) {
+        setSubtitle(new BaseComponent[]{subtitle});
+    }
+
+    @Override
+    public void showTitle(BaseComponent[] title) {
+        getHandle().connection.sendPacket(new SPacketTitle(SPacketTitle.Type.TITLE, title, 0,0,0));
+    }
+
+    @Override
+    public void showTitle(BaseComponent title) {
+        showTitle(new BaseComponent[]{title});
+    }
+
+    @Override
+    public void showTitle(BaseComponent[] title, BaseComponent[] subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks) {
+        setTitleTimes(fadeInTicks, stayTicks, fadeOutTicks);
+        setSubtitle(subtitle);
+        showTitle(title);
+    }
+
+    @Override
+    public void showTitle(BaseComponent title, BaseComponent subtitle, int fadeInTicks, int stayTicks, int fadeOutTicks) {
+        setTitleTimes(fadeInTicks, stayTicks, fadeOutTicks);
+        setSubtitle(subtitle);
+        showTitle(title);
+    }
+
+    @Override
+    public void sendTitle(Title title) {
+        Preconditions.checkNotNull(title, "Title is null");
+        setTitleTimes(title.getFadeIn(), title.getStay(), title.getFadeOut());
+        setSubtitle(title.getSubtitle() == null ? new BaseComponent[0] : title.getSubtitle());
+        showTitle(title.getTitle());
+    }
+
+    @Override
+    public void updateTitle(Title title) {
+        Preconditions.checkNotNull(title, "Title is null");
+        setTitleTimes(title.getFadeIn(), title.getStay(), title.getFadeOut());
+        if(title.getSubtitle() != null){
+            setSubtitle(title.getSubtitle());
+        }
+        showTitle(title.getTitle());
+    }
+
+    @Override
+    public void hideTitle() {
+        getHandle().connection.sendPacket(new SPacketTitle(SPacketTitle.Type.CLEAR, (BaseComponent[]) null, 0, 0, 0));
+    }
+
+    // Paper end
 
     @Override
     public void setTexturePack(String url) {
