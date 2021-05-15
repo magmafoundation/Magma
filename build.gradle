@@ -19,7 +19,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-20210515.141241-1'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-20210515.155525-2'
         classpath 'net.nemerosa:versioning:2.7.1'
         classpath "gradle.plugin.com.github.breadmoirai:github-release:2.2.9"
         classpath "gradle.plugin.net.minecrell:licenser:0.4.1"
