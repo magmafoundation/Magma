@@ -15,9 +15,6 @@ buildscript {
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
         maven {
-            url  "https://jcenter.bintray.com"
-        }
-        maven {
             url "https://plugins.gradle.org/m2/"
         }
     }
