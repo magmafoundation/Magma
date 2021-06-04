@@ -19,12 +19,18 @@
 package org.magmafoundation.magma.api;
 
 import io.netty.util.internal.ConcurrentSet;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.oredict.OreDictionary;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * ServerAPI
@@ -84,4 +90,16 @@ public class ServerAPI {
         return (CraftServer) Bukkit.getServer();
     }
 
+    /**
+     * Gets a list of OreDict entries of a key
+     *
+     * @return List of itemstacks
+     */
+    public static List<ItemStack> getOreDictItems(String key) {
+        List<ItemStack> items = new ArrayList<>();
+        for (net.minecraft.item.ItemStack itemStack: OreDictionary.getOres(key)) {
+            items.add(CraftItemStack.asBukkitCopy(itemStack));
+        }
+        return items;
+    }
 }
