@@ -17,7 +17,9 @@ import net.minecraft.entity.ai.attributes.IAttribute;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemFactory;
 import org.bukkit.support.AbstractTestingBase;
 import org.junit.Test;
+import org.junit.Ignore;
 
+@Ignore
 public class ItemFactoryTest extends AbstractTestingBase {
 
     @Test
