@@ -4,6 +4,7 @@ package org.bukkit.plugin.java;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -13,11 +14,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+
+import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.magmafoundation.magma.Magma;
+import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.patcher.Patcher;
 import org.magmafoundation.magma.remapper.ClassLoaderContext;
 import org.magmafoundation.magma.remapper.mappingsModel.ClassMappings;
@@ -89,6 +93,15 @@ public final class PluginClassLoader extends URLClassLoader {
         } catch (InstantiationException ex) {
             throw new InvalidPluginException("Abnormal plugin type", ex);
         }
+        // Magma start - Forge can access Bukkit plugin classes (needs modified LaunchWrapper)
+        // Inspired by https://github.com/terrainwax/ForgeCanCallBukkit
+        if (MagmaConfig.instance.forgeBukkitAccess.getValues() && parent instanceof LaunchClassLoader) {
+            try {
+                Method method = parent.getClass().getDeclaredMethod("addChild", ClassLoader.class);
+                method.invoke(parent, this);
+            } catch(Exception ignored) {}
+        }
+        // Magma end
     }
 
     @Override
