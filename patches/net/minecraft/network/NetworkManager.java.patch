@@ -1,11 +1,21 @@
 --- ../src-base/minecraft/net/minecraft/network/NetworkManager.java
 +++ ../src-work/minecraft/net/minecraft/network/NetworkManager.java
-@@ -74,15 +74,25 @@
+@@ -32,6 +32,8 @@
+ import java.util.concurrent.locks.ReentrantReadWriteLock;
+ import javax.annotation.Nullable;
+ import javax.crypto.SecretKey;
++
++import net.minecraft.network.play.server.SPacketChunkData;
+ import net.minecraft.util.CryptManager;
+ import net.minecraft.util.ITickable;
+ import net.minecraft.util.LazyLoadBase;
+@@ -74,15 +76,26 @@
          }
      };
      private final EnumPacketDirection direction;
 -    private final Queue<NetworkManager.InboundHandlerTuplePacketListener> outboundPacketsQueue = Queues.<NetworkManager.InboundHandlerTuplePacketListener>newConcurrentLinkedQueue();
 +    private final Queue<InboundHandlerTuplePacketListener> outboundPacketsQueue = Queues.<InboundHandlerTuplePacketListener>newConcurrentLinkedQueue();
++    private final Queue<InboundHandlerTuplePacketListener> getPacketQueue() { return this.outboundPacketsQueue; } // Paper - Anti-Xray - OBFHELPER
      private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 -    private Channel channel;
 -    private SocketAddress socketAddress;
@@ -29,7 +39,7 @@
      public NetworkManager(EnumPacketDirection packetDirection)
      {
          this.direction = packetDirection;
-@@ -98,6 +108,7 @@
+@@ -98,6 +111,7 @@
          super.channelActive(p_channelActive_1_);
          this.channel = p_channelActive_1_.channel();
          this.socketAddress = this.channel.remoteAddress();
@@ -37,7 +47,19 @@
  
          try
          {
-@@ -173,7 +184,7 @@
+@@ -162,9 +176,9 @@
+ 
+     public void sendPacket(Packet<?> packetIn)
+     {
+-        if (this.isChannelOpen())
++        if (this.isChannelOpen()  && this.trySendQueue() && !(packetIn instanceof SPacketChunkData && !((SPacketChunkData) packetIn).isReady()))  // Paper - Async-Anti-Xray - Add chunk packets which are not ready or all packets if the queue contains chunk packets which are not ready to the queue and send the packets later in the right order
+         {
+-            this.flushOutboundQueue();
++            // this.flushOutboundQueue();  // Paper - Async-Anti-Xray - Move to if statement (this.trySendQueue())
+             this.dispatchPacket(packetIn, (GenericFutureListener[])null);
+         }
+         else
+@@ -173,7 +187,7 @@
  
              try
              {
@@ -46,7 +68,19 @@
              }
              finally
              {
-@@ -195,7 +206,7 @@
+@@ -184,9 +198,9 @@
+ 
+     public void sendPacket(Packet<?> packetIn, GenericFutureListener <? extends Future <? super Void >> listener, GenericFutureListener <? extends Future <? super Void >> ... listeners)
+     {
+-        if (this.isChannelOpen())
++        if (this.isChannelOpen() && this.trySendQueue() && !(packetIn instanceof SPacketChunkData && !((SPacketChunkData) packetIn).isReady())) // Paper - Async-Anti-Xray - Add chunk packets which are not ready or all packets if the queue contains chunk packets which are not ready to the queue and send the packets later in the right order
+         {
+-            this.flushOutboundQueue();
++            // this.flushOutboundQueue();  // Paper - Async-Anti-Xray - Move to if statement (this.trySendQueue())
+             this.dispatchPacket(packetIn, (GenericFutureListener[])ArrayUtils.add(listeners, 0, listener));
+         }
+         else
+@@ -195,7 +209,7 @@
  
              try
              {
@@ -55,16 +89,55 @@
              }
              finally
              {
-@@ -265,7 +276,7 @@
+@@ -254,27 +268,41 @@
+             });
+         }
+     }
+-
+-    private void flushOutboundQueue()
++    // Paper start - Async-Anti-Xray - Stop dispatching further packets and return false if the peeked packet is a chunk packet which is not ready
++    private boolean trySendQueue() { return this.flushOutboundQueue(); } // OBFHELPER
++    private boolean flushOutboundQueue()
+     {
+         if (this.channel != null && this.channel.isOpen())
+         {
+-            this.readWriteLock.readLock().lock();
++            if (this.outboundPacketsQueue.isEmpty()) { // return if the packet queue is empty so that the write lock by Anti-Xray doesn't affect the vanilla performance at all
++                return true;
++            }
++            this.readWriteLock.writeLock().lock(); // readLock -> writeLock (because of race condition between peek and poll)
+ 
+             try
              {
                  while (!this.outboundPacketsQueue.isEmpty())
                  {
 -                    NetworkManager.InboundHandlerTuplePacketListener networkmanager$inboundhandlertuplepacketlistener = this.outboundPacketsQueue.poll();
-+                    InboundHandlerTuplePacketListener networkmanager$inboundhandlertuplepacketlistener = this.outboundPacketsQueue.poll();
-                     this.dispatchPacket(networkmanager$inboundhandlertuplepacketlistener.packet, networkmanager$inboundhandlertuplepacketlistener.futureListeners);
+-                    this.dispatchPacket(networkmanager$inboundhandlertuplepacketlistener.packet, networkmanager$inboundhandlertuplepacketlistener.futureListeners);
++                    InboundHandlerTuplePacketListener networkmanager_queuedpacket = (InboundHandlerTuplePacketListener) this.getPacketQueue().peek(); // poll -> peek
++                    if (networkmanager_queuedpacket != null) { // Fix NPE (Spigot bug caused by handleDisconnection())
++                        if (networkmanager_queuedpacket.packet instanceof SPacketChunkData && !((SPacketChunkData) networkmanager_queuedpacket.packet).isReady()) { // Check if the peeked packet is a chunk packet which is not ready
++                            return false; // Return false if the peeked packet is a chunk packet which is not ready
++                        } else {
++                            this.getPacketQueue().poll(); // poll here
++                            this.dispatchPacket(networkmanager_queuedpacket.packet, networkmanager_queuedpacket.futureListeners); // dispatch the packet
++                        }
++                    }
++
                  }
              }
-@@ -298,9 +309,12 @@
+             finally
+             {
+-                this.readWriteLock.readLock().unlock();
++                this.readWriteLock.writeLock().unlock(); // readLock -> writeLock (because of race condition between peek and poll)
+             }
+         }
++        return true; // Return true if all packets were dispatched
+     }
++    // Paper end
+ 
+     public void processReceivedPackets()
+     {
+@@ -298,9 +326,12 @@
  
      public void closeChannel(ITextComponent message)
      {
@@ -78,7 +151,7 @@
              this.terminationReason = message;
          }
      }
-@@ -410,7 +424,7 @@
+@@ -410,7 +441,7 @@
              }
              else
              {
@@ -87,7 +160,7 @@
              }
  
              if (this.channel.pipeline().get("compress") instanceof NettyCompressionEncoder)
-@@ -476,4 +490,12 @@
+@@ -476,4 +507,12 @@
                  this.futureListeners = inFutureListeners;
              }
          }

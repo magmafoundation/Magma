@@ -1,6 +1,139 @@
 --- ../src-base/minecraft/net/minecraft/world/chunk/BlockStateContainer.java
 +++ ../src-work/minecraft/net/minecraft/world/chunk/BlockStateContainer.java
-@@ -164,7 +164,18 @@
+@@ -7,6 +7,8 @@
+ import net.minecraft.network.PacketBuffer;
+ import net.minecraft.util.BitArray;
+ import net.minecraft.util.math.MathHelper;
++
++import com.destroystokyo.paper.antixray.PacketPlayOutMapChunkInfo;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
+ 
+@@ -14,20 +16,49 @@
+ {
+     private static final IBlockStatePalette REGISTRY_BASED_PALETTE = new BlockStatePaletteRegistry();
+     protected static final IBlockState AIR_BLOCK_STATE = Blocks.AIR.getDefaultState();
++    public static final IBlockState DEFAULT_BLOCK_DATA = AIR_BLOCK_STATE; // Paper - OBFHELPER
+     protected BitArray storage;
++    protected BitArray getDataBits() { return this.storage; } // Paper - Anti-Xray - OBFHELPER
+     protected IBlockStatePalette palette;
++    protected IBlockStatePalette getDataPalette() { return this.palette; } // Paper - Anti-Xray - OBFHELPER
+     private int bits;
++    private int getBitsPerValue() { return this.bits; } // Paper - Anti-Xray - OBFHELPER
++    private final IBlockState[] predefinedBlockData; // Paper - Anti-Xray - Add predefined block dataer
+ 
++    // Paper start - Anti-Xray - Support default constructor
+     public BlockStateContainer()
+     {
+-        this.setBits(4);
++        this(null);
+     }
++    // Paper end
+ 
++    // Paper start - Anti-Xray - Add predefined block data
++    public BlockStateContainer(IBlockState[] predefinedBlockData){
++        this.predefinedBlockData = predefinedBlockData;
++        if (predefinedBlockData == null) {
++            // Default constructor
++            this.setBitsPerValue(4);
++        } else {
++            // Count the bits of the maximum array index to initialize a data palette with enough space from the beginning
++            // The length of the array is used because air is also added to the data palette from the beginning
++            // Start with at least 4
++            int maxIndex = predefinedBlockData.length >> 4;
++            int bitCount = 4;
++            while (maxIndex != 0) {
++                maxIndex >>= 1;
++                bitCount++;
++            }
++            // Initialize with at least 15 free indixes
++            this.setBitsPerValue((1 << bitCount) - predefinedBlockData.length < 16 ? bitCount + 1 : bitCount);
++        }
++    }
++
+     private static int getIndex(int x, int y, int z)
+     {
+         return y << 8 | z << 4 | x;
+     }
+ 
++    private void setBitsPerValue(int bitsPerValue) { this.setBits(bitsPerValue); } // Paper - Anti-Xray - OBFHELPER
+     private void setBits(int bitsIn)
+     {
+         setBits(bitsIn, false);
+@@ -56,6 +87,15 @@
+             }
+ 
+             this.palette.idFor(AIR_BLOCK_STATE);
++
++            // Paper start - Anti-Xray - Add predefined block data
++            if (this.predefinedBlockData != null) {
++                for (int j = 0; j < this.predefinedBlockData.length; j++) {
++                    this.getDataPalette().getDataBits(this.predefinedBlockData[j]);
++                }
++            }
++            // Paper end
++
+             this.storage = new BitArray(this.bits, 4096);
+         }
+     }
+@@ -119,28 +159,45 @@
+             this.onResize(regSize, AIR_BLOCK_STATE);
+     }
+ 
++    // Paper start - Anti-Xray - Support default method
++    public void writeBlocks(PacketBuffer packetDataSerializer) { this.write(packetDataSerializer); } // OBFHELPER
+     public void write(PacketBuffer buf)
+     {
++        this.write(buf, null, 0);
++    }
++    // Paper end
++    public void writeBlocks(PacketBuffer packetDataSerializer, PacketPlayOutMapChunkInfo packetPlayOutMapChunkInfo, int chunkSectionIndex) { this.write(packetDataSerializer, packetPlayOutMapChunkInfo, chunkSectionIndex); } // Paper - Anti-Xray - OBFHELPER
++    public void write(PacketBuffer buf, PacketPlayOutMapChunkInfo packetPlayOutMapChunkInfo, int chunkSectionIndex) { // Paper - Anti-Xray - Add chunk packet info
+         buf.writeByte(this.bits);
+         this.palette.write(buf);
++
++        // Paper start - Anti-Xray - Add chunk packet info
++        if (packetPlayOutMapChunkInfo != null) {
++            packetPlayOutMapChunkInfo.setBitsPerValue(chunkSectionIndex, this.getBitsPerValue());
++            packetPlayOutMapChunkInfo.setDataPalette(chunkSectionIndex, this.getDataPalette());
++            packetPlayOutMapChunkInfo.setDataBitsIndex(chunkSectionIndex, buf.writerIndex() + PacketBuffer.getVarIntSize(this.getDataBits().getDataBits().length));
++            packetPlayOutMapChunkInfo.setPredefinedBlockData(chunkSectionIndex, this.predefinedBlockData);
++        }
++    // Paper end
++
+         buf.writeLongArray(this.storage.getBackingLongArray());
+     }
+ 
+     @Nullable
+     public NibbleArray getDataForNBT(byte[] blockIds, NibbleArray data)
+-    {
+-        NibbleArray nibblearray = null;
++                {
++                    NibbleArray nibblearray = null;
+ 
+-        for (int i = 0; i < 4096; ++i)
+-        {
+-            int j = Block.BLOCK_STATE_IDS.get(this.get(i));
+-            int k = i & 15;
+-            int l = i >> 8 & 15;
+-            int i1 = i >> 4 & 15;
++                    for (int i = 0; i < 4096; ++i)
++                    {
++                        int j = Block.BLOCK_STATE_IDS.get(this.get(i));
++                        int k = i & 15;
++                        int l = i >> 8 & 15;
++                        int i1 = i >> 4 & 15;
+ 
+-            if ((j >> 12 & 15) != 0)
+-            {
+-                if (nibblearray == null)
++                        if ((j >> 12 & 15) != 0)
++                        {
++                            if (nibblearray == null)
+                 {
+                     nibblearray = new NibbleArray();
+                 }
+@@ -164,7 +221,18 @@
              int l = i >> 4 & 15;
              int i1 = blockIdExtension == null ? 0 : blockIdExtension.get(j, k, l);
              int j1 = i1 << 12 | (blockIds[i] & 255) << 4 | data.get(j, k, l);

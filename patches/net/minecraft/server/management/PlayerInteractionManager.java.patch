@@ -127,7 +127,7 @@
              if (event.getUseItem() == net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
              {
                  if (f >= 1.0F)
-@@ -221,6 +270,7 @@
+@@ -221,15 +270,19 @@
                  this.destroyPos = pos;
                  int i = (int)(f * 10.0F);
                  this.world.sendBlockBreakProgress(this.player.getEntityId(), pos, i);
@@ -135,7 +135,11 @@
                  this.durabilityRemainingOnBlock = i;
              }
          }
-@@ -230,6 +280,7 @@
++
++        this.world.chunkPacketBlockController.updateNearbyBlocks(this.world, pos); // Paper - Anti-Xray
+     }
+ 
+     public void blockRemoving(BlockPos pos)
      {
          if (pos.equals(this.destroyPos))
          {
@@ -143,7 +147,7 @@
              int i = this.curblockDamage - this.initialDamage;
              IBlockState iblockstate = this.world.getBlockState(pos);
  
-@@ -251,6 +302,15 @@
+@@ -251,6 +304,15 @@
                      this.initialBlockDamage = this.initialDamage;
                  }
              }
@@ -159,7 +163,7 @@
          }
      }
  
-@@ -331,7 +391,7 @@
+@@ -331,7 +393,7 @@
                  // Drop experience
                  if (!this.isCreative() && flag1 && exp > 0)
                  {
@@ -168,7 +172,7 @@
                  }
                  return flag1;
              }
-@@ -396,9 +456,58 @@
+@@ -396,9 +458,58 @@
          }
      }
  
@@ -228,7 +232,7 @@
          {
              TileEntity tileentity = worldIn.getTileEntity(pos);
  
-@@ -460,7 +569,7 @@
+@@ -460,7 +571,7 @@
              {
                  return EnumActionResult.PASS;
              }
@@ -237,7 +241,7 @@
              {
                  if (stack.getItem() instanceof ItemBlock && !player.canUseCommandBlock())
                  {
-@@ -496,6 +605,8 @@
+@@ -496,6 +607,8 @@
              }
          }
      }

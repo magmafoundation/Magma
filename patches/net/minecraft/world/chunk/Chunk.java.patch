@@ -104,6 +104,15 @@
      public Chunk(World worldIn, ChunkPrimer primer, int x, int z)
      {
          this(worldIn, x, z);
+@@ -114,7 +156,7 @@
+ 
+                         if (this.storageArrays[i1] == NULL_BLOCK_STORAGE)
+                         {
+-                            this.storageArrays[i1] = new ExtendedBlockStorage(i1 << 4, flag);
++                            this.storageArrays[i1] = new ExtendedBlockStorage(i1 << 4, flag, world.chunkPacketBlockController.getPredefinedBlockData(this, i1)); // Paper - Anti-Xray - Add predefined block data
+                         }
+ 
+                         this.storageArrays[i1].set(j, l & 15, k, iblockstate);
 @@ -271,6 +313,7 @@
          this.isGapLightingUpdated = true;
      }
@@ -112,6 +121,15 @@
      private void recheckGaps(boolean onlyOne)
      {
          this.world.profiler.startSection("recheckGaps");
+@@ -552,7 +595,7 @@
+                     return null;
+                 }
+ 
+-                extendedblockstorage = new ExtendedBlockStorage(j >> 4 << 4, this.world.provider.hasSkyLight());
++                extendedblockstorage = new ExtendedBlockStorage(j >> 4 << 4, this.world.provider.hasSkyLight(), this.world.chunkPacketBlockController.getPredefinedBlockData(this, j >> 4)); // Paper - Anti-Xray - Add predefined block data
+                 this.storageArrays[j >> 4] = extendedblockstorage;
+                 flag = j >= i1;
+             }
 @@ -565,12 +608,12 @@
                  {
                      if (block1 != block) //Only fire block breaks when the block changes.
@@ -144,6 +162,15 @@
  
                      if (tileentity1 == null)
                      {
+@@ -666,7 +710,7 @@
+ 
+         if (extendedblockstorage == NULL_BLOCK_STORAGE)
+         {
+-            extendedblockstorage = new ExtendedBlockStorage(j >> 4 << 4, this.world.provider.hasSkyLight());
++            extendedblockstorage = new ExtendedBlockStorage(j >> 4 << 4, this.world.provider.hasSkyLight(), this.world.chunkPacketBlockController.getPredefinedBlockData(this, k >> 4)); // Paper - Anti-Xray - Add predefined block data
+             this.storageArrays[j >> 4] = extendedblockstorage;
+             this.generateSkylightMap();
+         }
 @@ -743,6 +787,20 @@
          entityIn.chunkCoordZ = this.z;
          this.entityLists[k].add(entityIn);

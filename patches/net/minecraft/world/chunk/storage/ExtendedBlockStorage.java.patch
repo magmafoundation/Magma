@@ -1,12 +1,37 @@
 --- ../src-base/minecraft/net/minecraft/world/chunk/storage/ExtendedBlockStorage.java
 +++ ../src-work/minecraft/net/minecraft/world/chunk/storage/ExtendedBlockStorage.java
-@@ -27,6 +27,22 @@
+@@ -15,10 +15,16 @@
+     private NibbleArray blockLight;
+     private NibbleArray skyLight;
+ 
+-    public ExtendedBlockStorage(int y, boolean storeSkylight)
++    // Paper start - Anti-Xray - Support default constructor
++    public ExtendedBlockStorage(int y, boolean storeSkylight) {
++        this(y, storeSkylight,(IBlockState[]) null);
++    }
++    // Paper end
++
++    public ExtendedBlockStorage(int y, boolean storeSkylight, IBlockState[] predefinedBlockData) // Paper - Anti-Xray - Add predefined block data
+     {
+         this.yBase = y;
+-        this.data = new BlockStateContainer();
++        this.data = new BlockStateContainer(predefinedBlockData); // Paper - Anti-Xray - Add predefined block data
+         this.blockLight = new NibbleArray();
+ 
+         if (storeSkylight)
+@@ -27,6 +33,28 @@
          }
      }
  
++    // Paper start - Anti-Xray - Support default constructor
 +    public ExtendedBlockStorage(int y, boolean flag, char[] blockIds) {
++        this(y, flag, blockIds, null);
++    }
++    // Paper end
++
++    public ExtendedBlockStorage(int y, boolean flag, char[] blockIds, IBlockState[] predefinedBlockData) { // Paper - Anti-Xray - Add predefined block data
 +        this.yBase = y;
-+        this.data = new BlockStateContainer();
++        this.data = new BlockStateContainer(predefinedBlockData);
 +        for (int i = 0; i < blockIds.length; i++) {
 +            int xx = i & 15;
 +            int yy = (i >> 8) & 15;
@@ -23,7 +48,7 @@
      public IBlockState get(int x, int y, int z)
      {
          return this.data.get(x, y, z);
-@@ -65,7 +81,8 @@
+@@ -65,7 +93,8 @@
  
      public boolean isEmpty()
      {

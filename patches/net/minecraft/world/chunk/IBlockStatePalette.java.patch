@@ -1,0 +1,13 @@
+--- ../src-base/minecraft/net/minecraft/world/chunk/IBlockStatePalette.java
++++ ../src-work/minecraft/net/minecraft/world/chunk/IBlockStatePalette.java
+@@ -8,8 +8,10 @@
+ 
+ public interface IBlockStatePalette
+ {
++    default int getDataBits(IBlockState blockData) { return this.idFor(blockData); } // Paper - Anti-Xray - OBFHELPER
+     int idFor(IBlockState state);
+ 
++    @Nullable default IBlockState getBlockData(int dataBits) { return this.getBlockState(dataBits); } // Paper - Anti-Xray - OBFHELPER
+     @Nullable
+     IBlockState getBlockState(int indexKey);
+ 
