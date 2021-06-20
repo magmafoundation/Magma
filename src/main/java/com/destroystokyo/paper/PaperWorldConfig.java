@@ -2,8 +2,11 @@ package com.destroystokyo.paper;
 
 import static com.destroystokyo.paper.PaperConfig.log;
 
+import java.util.Arrays;
 import java.util.List;
 
+import com.destroystokyo.paper.antixray.ChunkPacketBlockControllerAntiXray.ChunkEdgeMode;
+import com.destroystokyo.paper.antixray.ChunkPacketBlockControllerAntiXray.EngineMode;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.spigotmc.SpigotWorldConfig;
 
@@ -62,4 +65,29 @@ public class PaperWorldConfig {
 		config.addDefault("world-settings.default." + path, def);
 		return config.getString("world-settings." + worldName + "." + path, config.getString("world-settings.default." + path));
 	}
+
+	public boolean antiXray;
+	public boolean asynchronous;
+	public EngineMode engineMode;
+	public ChunkEdgeMode chunkEdgeMode;
+	public int maxChunkSectionIndex;
+	public int updateRadius;
+	public List<Object> hiddenBlocks;
+	public List<Object> replacementBlocks;
+
+	private void antiXray() {
+		antiXray = getBoolean("anti-xray.enabled", false);
+		asynchronous = true;
+		engineMode = EngineMode.getById(getInt("anti-xray.engine-mode", EngineMode.HIDE.getId()));
+		engineMode = engineMode == null ? EngineMode.HIDE : engineMode;
+		chunkEdgeMode = ChunkEdgeMode.getById(getInt("anti-xray.chunk-edge-mode", ChunkEdgeMode.DEFAULT.getId()));
+		chunkEdgeMode = chunkEdgeMode == null ? ChunkEdgeMode.DEFAULT : chunkEdgeMode;
+		maxChunkSectionIndex = getInt("anti-xray.max-chunk-section-index", 3);
+		maxChunkSectionIndex = maxChunkSectionIndex > 15 ? 15 : maxChunkSectionIndex;
+		updateRadius = getInt("anti-xray.update-radius", 2);
+		hiddenBlocks = getList("anti-xray.hidden-blocks", Arrays.asList((Object) "gold_ore", "iron_ore", "coal_ore", "lapis_ore", "mossy_cobblestone", "obsidian", "chest", "diamond_ore", "redstone_ore", "lit_redstone_ore", "clay", "emerald_ore", "ender_chest"));
+		replacementBlocks = getList("anti-xray.replacement-blocks", Arrays.asList((Object) "stone", "planks"));
+		log("Anti-Xray: " + (antiXray ? "enabled" : "disabled") + " / Engine Mode: " + engineMode.getDescription() + " / Chunk Edge Mode: " + chunkEdgeMode.getDescription() + " / Up to " + ((maxChunkSectionIndex + 1) * 16) + " blocks / Update Radius: " + updateRadius);
+	}
+
 }
