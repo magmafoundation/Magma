@@ -258,7 +258,7 @@ public class ChunkPacketBlockControllerAntiXray extends ChunkPacketBlockControll
 				dataBitsWriter.finish();
 			}
 		}
-//		packetPlayOutMapChunkInfoAntiXray.getPacketPlayOutMapChunk().setReady(true); todo
+		packetPlayOutMapChunkInfoAntiXray.getPacketPlayOutMapChunk().setReady(true);
 	}
 
 	private int obfuscateLayer(int y, DataBitsReader dataBitsReader, DataBitsWriter dataBitsWriter, boolean[] solid, boolean[] obfuscate, int[] predefinedBlockDataBits, boolean[][] current, boolean[][] next, boolean[][] nextNext, ExtendedBlockStorage[] nearbyChunkSections, int counter) {

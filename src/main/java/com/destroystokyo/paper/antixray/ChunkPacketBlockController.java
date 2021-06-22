@@ -28,7 +28,7 @@ public class ChunkPacketBlockController {
 	}
 
 	public void modifyBlocks(SPacketChunkData packetPlayOutMapChunk, PacketPlayOutMapChunkInfo packetPlayOutMapChunkInfo) {
-//		packetPlayOutMapChunk.setReady(true); todo: add to SPacketChunkData
+		packetPlayOutMapChunk.setReady(true);
 	}
 
 	public void updateNearbyBlocks(World world, BlockPos blockPosition) {
