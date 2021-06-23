@@ -381,7 +381,7 @@ public final class CraftServer implements Server {
             if (!(cmd instanceof CommandBase)) continue;
             if (console.getCommandManager().getCommandMod().containsValue(cmd))
                 continue;
-            VanillaCommandWrapper wrapper = new VanillaCommandWrapper((CommandBase) cmd, I18n.translateToLocal(cmd.getUsage(null)));
+            VanillaCommandWrapper wrapper = new VanillaCommandWrapper((CommandBase) cmd, I18n.translateToLocal(cmd.getUsage(FMLCommonHandler.instance().getMinecraftServerInstance())));
             if (org.spigotmc.SpigotConfig.replaceCommands.contains(wrapper.getName())) {
                 if (first) {
                     commandMap.register("minecraft", wrapper);
