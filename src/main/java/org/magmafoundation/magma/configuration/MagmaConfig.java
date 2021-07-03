@@ -26,7 +26,6 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.logging.Level;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.minecraft.server.MinecraftServer;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
