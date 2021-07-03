@@ -11,10 +11,10 @@ public class PacketPlayOutMapChunkInfo {
 	private final Chunk chunk;
 	private final int chunkSectionSelector;
 	private byte[] data;
-	private final int[] bitsPerValue = new int[16];
-	private final IBlockStatePalette[] dataPalettes = new IBlockStatePalette[16];
-	private final int[] dataBitsIndexes = new int[16];
-	private final IBlockState[][] predefinedBlockData = new IBlockState[16][];
+	private final int[] bitsPerValue = new int[16*10];
+	private final IBlockStatePalette[] dataPalettes = new IBlockStatePalette[16*10];
+	private final int[] dataBitsIndexes = new int[16*10];
+	private final IBlockState[][] predefinedBlockData = new IBlockState[16*10][];
 
 	public PacketPlayOutMapChunkInfo(SPacketChunkData packetPlayOutMapChunk, Chunk chunk, int chunkSectionSelector) {
 		this.packetPlayOutMapChunk = packetPlayOutMapChunk;

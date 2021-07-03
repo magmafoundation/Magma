@@ -47,7 +47,7 @@
 +                bitCount++;
 +            }
 +            // Initialize with at least 15 free indixes
-+            this.setBitsPerValue((1 << bitCount) - predefinedBlockData.length < 16 ? bitCount + 1 : bitCount);
++            this.setBitsPerValue((1 << bitCount) - predefinedBlockData.length < 16*10 ? bitCount + 1 : bitCount);
 +        }
 +    }
 +

@@ -62,8 +62,11 @@
          this.tileEntityTags = Lists.<NBTTagCompound>newArrayList();
  
          for (Entry<BlockPos, TileEntity> entry : chunkIn.getTileEntityMap().entrySet())
-@@ -54,6 +69,15 @@
+@@ -52,8 +67,18 @@
+                 this.tileEntityTags.add(nbttagcompound);
+             }
          }
++        chunkIn.world.chunkPacketBlockController.modifyBlocks(this, packetPlayOutMapChunkInfo); // Paper - Anti-Xray - Modify blocks
      }
  
 +    // Paper start - Async-Anti-Xray - Getter and Setter for the ready flag
@@ -78,7 +81,7 @@
      public void readPacketData(PacketBuffer buf) throws IOException
      {
          this.chunkX = buf.readInt();
-@@ -114,7 +138,16 @@
+@@ -114,7 +139,16 @@
          return bytebuf;
      }
  
@@ -96,7 +99,7 @@
      {
          int i = 0;
          ExtendedBlockStorage[] aextendedblockstorage = chunkIn.getBlockStorageArray();
-@@ -127,7 +160,7 @@
+@@ -127,7 +161,7 @@
              if (extendedblockstorage != Chunk.NULL_BLOCK_STORAGE && (!this.isFullChunk() || !extendedblockstorage.isEmpty()) && (changedSectionFilter & 1 << j) != 0)
              {
                  i |= 1 << j;

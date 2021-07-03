@@ -31,7 +31,7 @@
 +
 +    public ExtendedBlockStorage(int y, boolean flag, char[] blockIds, IBlockState[] predefinedBlockData) { // Paper - Anti-Xray - Add predefined block data
 +        this.yBase = y;
-+        this.data = new BlockStateContainer(predefinedBlockData);
++        this.data = new BlockStateContainer(predefinedBlockData);  // Paper - Anti-Xray - Add predefined block data
 +        for (int i = 0; i < blockIds.length; i++) {
 +            int xx = i & 15;
 +            int yy = (i >> 8) & 15;

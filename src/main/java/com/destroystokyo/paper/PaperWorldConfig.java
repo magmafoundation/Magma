@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.destroystokyo.paper.antixray.ChunkPacketBlockControllerAntiXray.ChunkEdgeMode;
 import com.destroystokyo.paper.antixray.ChunkPacketBlockControllerAntiXray.EngineMode;
+import net.minecraftforge.fml.common.FMLLog;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.spigotmc.SpigotWorldConfig;
 
@@ -76,6 +77,7 @@ public class PaperWorldConfig {
 	public List<Object> replacementBlocks;
 
 	private void antiXray() {
+		FMLLog.bigWarning("WORK!");
 		antiXray = getBoolean("anti-xray.enabled", false);
 		asynchronous = true;
 		engineMode = EngineMode.getById(getInt("anti-xray.engine-mode", EngineMode.HIDE.getId()));
