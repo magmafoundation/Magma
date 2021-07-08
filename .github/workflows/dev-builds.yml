@@ -1,5 +1,5 @@
 name: Dev-Builds
-on: [push, pull_request]
+on: [push]
 jobs:
   test:
     runs-on: ubuntu-20.04
@@ -23,9 +23,10 @@ jobs:
           submodules: recursive
       - uses: gradle/wrapper-validation-action@v1.0.3
       - run: chmod +x ./gradlew
-      - run: ./gradlew outputJar --parallel
+      - run: ./gradlew outputJar githubRelease --parallel
         env:
           STABLE_BUILD: 0
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v2.2.2
         with:
           name: Builds
