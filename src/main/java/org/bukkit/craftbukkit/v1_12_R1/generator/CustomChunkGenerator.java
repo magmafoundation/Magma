@@ -63,7 +63,7 @@ public class CustomChunkGenerator extends InternalChunkGenerator {
 
             ExtendedBlockStorage[] csect = chunk.getBlockStorageArray();
             int scnt = Math.min(csect.length, sections.length);
-            
+
             // Loop through returned sections
             for (int sec = 0; sec < scnt; sec++) {
                 if(sections[sec] == null) {
@@ -80,7 +80,7 @@ public class CustomChunkGenerator extends InternalChunkGenerator {
                 }
                 // Build chunk section
                 if (emptyTest != 0) {
-                    csect[sec] = new ExtendedBlockStorage(sec << 4, true, section);
+                    csect[sec] = new ExtendedBlockStorage(sec << 4, true, section, this.world.chunkPacketBlockController.getPredefinedBlockData(chunk, sec)); // Paper - Anti-Xray - Add predefined block data
                 }
             }
         }
@@ -92,7 +92,7 @@ public class CustomChunkGenerator extends InternalChunkGenerator {
 
                 ExtendedBlockStorage[] csect = chunk.getBlockStorageArray();
                 int scnt = Math.min(csect.length, xbtypes.length);
-                
+
                 // Loop through returned sections
                 for (int sec = 0; sec < scnt; sec++) {
                     if (xbtypes[sec] == null) {
@@ -105,29 +105,29 @@ public class CustomChunkGenerator extends InternalChunkGenerator {
                         secBlkID[i] = (char) Block.BLOCK_STATE_IDS.get(b.getDefaultState());
                     }
                     // Build chunk section
-                    csect[sec] = new ExtendedBlockStorage(sec << 4, true, secBlkID);
+                    csect[sec] = new ExtendedBlockStorage(sec << 4, true, secBlkID, this.world.chunkPacketBlockController.getPredefinedBlockData(chunk, sec)); // Paper - Anti-Xray - Add predefined block data
                 }
             }
             else { // Else check for byte-per-block section data
                 byte[][] btypes = generator.generateBlockSections(this.world.getWorld(), this.random, x, z, biomegrid);
-                
+
                 if (btypes != null) {
                     chunk = new Chunk(this.world, x, z);
 
                     ExtendedBlockStorage[] csect = chunk.getBlockStorageArray();
                     int scnt = Math.min(csect.length, btypes.length);
-                    
+
                     for (int sec = 0; sec < scnt; sec++) {
                         if (btypes[sec] == null) {
                             continue;
                         }
-                        
+
                         char[] secBlkID = new char[4096]; // Allocate block ID bytes
                         for (int i = 0; i < secBlkID.length; i++) {
                             Block b = Block.getBlockById(btypes[sec][i] & 0xFF);
                             secBlkID[i] = (char) Block.BLOCK_STATE_IDS.get(b.getDefaultState());
                         }
-                        csect[sec] = new ExtendedBlockStorage(sec << 4, true, secBlkID);
+                        csect[sec] = new ExtendedBlockStorage(sec << 4, true, secBlkID, this.world.chunkPacketBlockController.getPredefinedBlockData(chunk, sec)); // Paper - Anti-Xray - Add predefined block data
                     }
                 }
                 else { // Else, fall back to pre 1.2 method
@@ -135,30 +135,30 @@ public class CustomChunkGenerator extends InternalChunkGenerator {
                             byte[] types = generator.generate(this.world.getWorld(), this.random, x, z);
                     int ydim = types.length / 256;
                     int scnt = ydim / 16;
-                    
+
                     chunk = new Chunk(this.world, x, z); // Create empty chunk
-                    
+
                     ExtendedBlockStorage[] csect = chunk.getBlockStorageArray();
-                    
+
                     scnt = Math.min(scnt, csect.length);
                     // Loop through sections
                     for (int sec = 0; sec < scnt; sec++) {
                         char[] csbytes = null; // Add sections when needed
-                        
+
                         for (int cy = 0; cy < 16; cy++) {
                             int cyoff = cy | (sec << 4);
-                            
+
                             for (int cx = 0; cx < 16; cx++) {
                                 int cxyoff = (cx * ydim * 16) + cyoff;
-                                
+
                                 for (int cz = 0; cz < 16; cz++) {
                                     byte blk = types[cxyoff + (cz * ydim)];
-                                    
+
                                     if (blk != 0) { // If non-empty
                                         if (csbytes == null) { // If no section yet, get one
                                             csbytes = new char[16*16*16];
                                         }
-                                        
+
                                         Block b = Block.getBlockById(blk & 0xFF);
                                         csbytes[(cy << 8) | (cz << 4) | cx] = (char) Block.BLOCK_STATE_IDS.get(b.getDefaultState());
                                     }
@@ -167,7 +167,7 @@ public class CustomChunkGenerator extends InternalChunkGenerator {
                         }
                         // If section built, finish prepping its state
                         if (csbytes != null) {
-                            ExtendedBlockStorage cs = csect[sec] = new ExtendedBlockStorage(sec << 4, true, csbytes);
+                            ExtendedBlockStorage cs = csect[sec] = new ExtendedBlockStorage(sec << 4, true, csbytes, this.world.chunkPacketBlockController.getPredefinedBlockData(chunk, sec)); // Paper - Anti-Xray - Add predefined block data
                             cs.recalculateRefCounts();
                         }
                     }

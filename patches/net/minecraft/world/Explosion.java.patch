@@ -92,7 +92,7 @@
                          double d11 = d10;
  
                          if (entity instanceof EntityLivingBase)
-@@ -198,6 +217,48 @@
+@@ -198,10 +217,53 @@
  
          if (this.damagesTerrain)
          {
@@ -141,7 +141,12 @@
              for (BlockPos blockpos : this.affectedBlockPositions)
              {
                  IBlockState iblockstate = this.world.getBlockState(blockpos);
-@@ -228,7 +289,9 @@
+                 Block block = iblockstate.getBlock();
++                this.world.chunkPacketBlockController.updateNearbyBlocks(this.world, blockpos); // Paper - Anti-Xray
+ 
+                 if (spawnParticles)
+                 {
+@@ -228,7 +290,9 @@
                  {
                      if (block.canDropFromExplosion(this))
                      {
@@ -152,7 +157,7 @@
                      }
  
                      block.onBlockExploded(this.world, blockpos, this);
-@@ -242,7 +305,12 @@
+@@ -242,7 +306,12 @@
              {
                  if (this.world.getBlockState(blockpos1).getMaterial() == Material.AIR && this.world.getBlockState(blockpos1.down()).isFullBlock() && this.random.nextInt(3) == 0)
                  {
@@ -166,7 +171,7 @@
                  }
              }
          }
-@@ -266,7 +334,8 @@
+@@ -266,7 +335,8 @@
          }
          else
          {
@@ -176,7 +181,7 @@
          }
      }
  
-@@ -281,4 +350,82 @@
+@@ -281,4 +351,82 @@
      }
  
      public Vec3d getPosition(){ return this.position; }

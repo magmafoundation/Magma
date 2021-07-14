@@ -25,7 +25,7 @@
      private int fallHurtMax = 40;
      private float fallHurtAmount = 2.0F;
      public NBTTagCompound tileEntityData;
-@@ -114,7 +114,7 @@
+@@ -114,9 +114,10 @@
              {
                  BlockPos blockpos = new BlockPos(this);
  
@@ -33,8 +33,11 @@
 +                if (this.world.getBlockState(blockpos).getBlock() == block && !CraftEventFactory.callEntityChangeBlockEvent(this, blockpos, Blocks.AIR, 0).isCancelled())
                  {
                      this.world.setBlockToAir(blockpos);
++                    this.world.chunkPacketBlockController.updateNearbyBlocks(this.world, blockpos); // Paper - Anti-Xray
                  }
-@@ -170,7 +170,7 @@
+                 else if (!this.world.isRemote)
+                 {
+@@ -170,7 +171,7 @@
                      if (!flag1 && BlockFalling.canFallThrough(this.world.getBlockState(new BlockPos(this.posX, this.posY - 0.009999999776482582D, this.posZ))))
                      {
                          this.onGround = false;
@@ -43,7 +46,7 @@
                      }
  
                      this.motionX *= 0.699999988079071D;
-@@ -185,10 +185,20 @@
+@@ -185,10 +186,21 @@
                          {
                              if (this.world.mayPlace(block, blockpos1, true, EnumFacing.UP, this) && (flag1 || !BlockFalling.canFallThrough(this.world.getBlockState(blockpos1.down()))) && this.world.setBlockState(blockpos1, this.fallTile, 3))
                              {
@@ -52,6 +55,7 @@
 +                                    return;
 +                                }
 +                                this.world.setBlockState(blockpos1, this.fallTile, 3);
++                                this.world.chunkPacketBlockController.updateNearbyBlocks(this.world, blockpos1); // Paper - Anti-Xray
                                  if (block instanceof BlockFalling)
                                  {
                                      ((BlockFalling)block).onEndFalling(this.world, blockpos1, this.fallTile, iblockstate);
@@ -64,7 +68,7 @@
  
                                  if (this.tileEntityData != null && block.hasTileEntity(this.fallTile))
                                  {
-@@ -248,7 +258,9 @@
+@@ -248,7 +260,9 @@
  
                  for (Entity entity : list)
                  {

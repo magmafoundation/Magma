@@ -166,8 +166,8 @@
 +            // Spigot end
  
 +            // Paper start
-+            com.destroystokyo.paper.PaperMCConfig.init((File) options.valueOf("paper-settings"));
-+            com.destroystokyo.paper.PaperMCConfig.registerCommands();
++            com.destroystokyo.paper.PaperConfig.init((File) options.valueOf("paper-settings"));
++            com.destroystokyo.paper.PaperConfig.registerCommands();
 +            // Paper end
 +
 +            MagmaConfig.instance.registerCommands();

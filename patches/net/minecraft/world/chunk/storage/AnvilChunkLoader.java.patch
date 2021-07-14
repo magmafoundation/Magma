@@ -50,6 +50,15 @@
      }
  
      public void saveExtraChunkData(World worldIn, Chunk chunkIn) throws IOException
+@@ -445,7 +442,7 @@
+         {
+             NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(l);
+             int i1 = nbttagcompound.getByte("Y");
+-            ExtendedBlockStorage extendedblockstorage = new ExtendedBlockStorage(i1 << 4, flag);
++            ExtendedBlockStorage extendedblockstorage = new ExtendedBlockStorage(i1 << 4, flag, worldIn.chunkPacketBlockController.getPredefinedBlockData(chunk, i1)); // Paper - Anti-Xray - Add predefined block data
+             byte[] abyte = nbttagcompound.getByteArray("Blocks");
+             NibbleArray nibblearray = new NibbleArray(nbttagcompound.getByteArray("Data"));
+             NibbleArray nibblearray1 = nbttagcompound.hasKey("Add", 7) ? new NibbleArray(nbttagcompound.getByteArray("Add")) : null;
 @@ -478,6 +475,7 @@
  
      public void loadEntities(World worldIn, NBTTagCompound compound, Chunk chunk)

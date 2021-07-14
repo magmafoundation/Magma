@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 
 import net.minecraft.server.MinecraftServer;
 
-public class PaperMCConfig {
+public class PaperConfig {
 
     private static File CONFIG_FILE;
     private static final String HEADER = "This is the main configuration file for Paper.\n"
@@ -63,7 +63,7 @@ public class PaperMCConfig {
 
         version = getInt("config-version", 13);
         set("config-version", 13);
-        readConfig(PaperMCConfig.class, null);
+        readConfig(PaperConfig.class, null);
     }
 
     protected static void logError(String s) {
