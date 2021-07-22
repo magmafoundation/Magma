@@ -58,7 +58,7 @@ public class MagmaUpdater {
             String time = new SimpleDateFormat("H:mm a").format(created_at);
 
             newSha = root.get("tag_name").toString().substring(2, 9);
-            currentSha = Magma.class.getPackage().getImplementationVersion();
+            currentSha = Magma.class.getPackage().getImplementationVersion().split("-")[0];
 
             if (currentSha.equals(newSha)) {
                 System.out.printf("No update found, latest version: (%s) current version: (%s)%n", currentSha, newSha);
