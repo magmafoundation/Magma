@@ -18,21 +18,24 @@
 
 package org.magmafoundation.magma.downloads;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.CodeSource;
-import org.magmafoundation.magma.Magma;
-import org.magmafoundation.magma.configuration.MagmaConfig;
-
-import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Date;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import org.magmafoundation.magma.Magma;
 
 /**
  * MagmaUpdater
@@ -43,38 +46,25 @@ import java.nio.channels.ReadableByteChannel;
 public class MagmaUpdater {
 
     private static Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    private String time;
     private String newSha;
     private String currentSha;
 
     public boolean versionChecker() {
-        try (BufferedReader reader = new BufferedReader(
-            new InputStreamReader(new URL("https://ci.hexeption.dev/job/Magma%20Foundation/job/Magma/job/master/lastSuccessfulBuild/api/json").openStream()))) {
-
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL("https://api.magmafoundation.org/api/resources/magma/1.12/dev/latest").openStream()))) {
             JsonObject root = gson.fromJson(reader, JsonObject.class);
-            JsonArray changeSetsItems = changeSetsItems = root.get("changeSets").getAsJsonArray();
-            JsonObject changeSet;
-            try {
-                if (changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().size() > 1) {
-                    changeSet = changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().get(changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().size()-1).getAsJsonObject(); // Fixed when multiple commits are in the request
-                }else{
-                    changeSet = changeSetsItems.get(0).getAsJsonObject().get("items").getAsJsonArray().get(0).getAsJsonObject();
-                }
-            } catch (IndexOutOfBoundsException e) {
-                System.out.println("Failed to retrieve latest version.");
-                return false;
-            }
 
-            time = changeSet.get("date").toString().replace("+0100", "").replaceAll("\"", "");
-            newSha = changeSet.get("commitId").toString().replaceAll("\"", "").substring(0, 7);
+            Date created_at = Date.from(Instant.parse(root.get("created_at").getAsString()));
+            String date = new SimpleDateFormat("dd-MM-yyyy").format(created_at);
+            String time = new SimpleDateFormat("H:mm a").format(created_at);
+
+            newSha = root.get("tag_name").toString().substring(2, 9);
             currentSha = Magma.class.getPackage().getImplementationVersion();
 
             if (currentSha.equals(newSha)) {
-                System.out.println(String.format("No update found, latest version: (%s) current version: (%s)", currentSha, newSha));
+                System.out.printf("No update found, latest version: (%s) current version: (%s)%n", currentSha, newSha);
                 return false;
             } else {
-                System.out.println(
-                    String.format("The latest Magma version is (%s) but you have (%s). The latest version was built on %s at %s.", newSha, currentSha, time.substring(0, 10), time.substring(11, 19)));
+                System.out.printf("The latest Magma version is (%s) but you have (%s). The latest version was built on %s at %s.%n", newSha, currentSha, date, time);
                 return true;
             }
         } catch (IOException e) {
@@ -85,7 +75,7 @@ public class MagmaUpdater {
     }
 
     public void downloadJar() {
-        String url = "https://ci.hexeption.dev/job/Magma%20Foundation/job/Magma/job/master/lastSuccessfulBuild/artifact/build/distributions/Magma-" + newSha + "-server.jar";
+        String url = "https://api.magmafoundation.org/api/resources/magma/1.12/dev/v"+newSha+"/download";
         try {
             Path path = Paths.get(MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             System.out.println("Updating Magma Jar ...");
