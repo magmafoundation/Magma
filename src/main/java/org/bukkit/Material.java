@@ -1536,6 +1536,10 @@ public enum Material {
         return this.materialType;
     }
 
+    public boolean isModded() {
+        return this.getMaterialType() != MaterialType.VANILLA;
+    }
+
     public enum MaterialType {
         VANILLA,
         MOD_ITEM,
