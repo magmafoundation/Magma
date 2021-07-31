@@ -211,7 +211,7 @@ public class CraftMetaBlockState extends CraftMetaItem implements BlockStateMeta
             case ENDER_CHEST:
                 return true;
         }
-        if (material.getMaterialType() == Material.MaterialType.MOD_ITEM) {
+        if (material.isModded()) {
             return true;
         }
         return false;
