@@ -2,6 +2,7 @@ name: Dev-Builds
 on: [pull_request]
 jobs:
   test:
+    if: "! contains(toJSON(github.event.commits.*.message), '[ci skip]')"
     runs-on: ubuntu-20.04
     container:
       image: openjdk:8-jdk
