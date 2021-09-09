@@ -24,7 +24,7 @@ In order to use Magma with BungeeCord, you have to enable `forge-support` in the
 
 ## 1.16
 
-Magma 1.16.x is in development, but a usable release is not available yet. You can still view the source code [here](https://github.com/magmafoundation/Magma-1.16.x).
+Magma 1.16 is in beta and not stable enough to be used on a public server. Beta releases for testing and private playing can be found [here](https://github.com/magmafoundation/Magma-1.16.x).
 
 ## Deployment
 
