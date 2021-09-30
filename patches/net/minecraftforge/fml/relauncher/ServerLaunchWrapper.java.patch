@@ -34,7 +34,7 @@
 +                throw new JavaToNewException();
 +            } catch (JavaToNewException e) {
 +                e.printStackTrace();
-+                System.out.println("Magma Only Support's Java 8");
++                System.out.println("Magma for 1.12 only supports Java 8. Visit our GitHub for more information.\n\nGitHub: https://github.com/magmafoundation/Magma");
 +                return;
 +            }
 +        }
