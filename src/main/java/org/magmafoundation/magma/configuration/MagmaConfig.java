@@ -96,6 +96,7 @@ public class MagmaConfig extends ConfigBase {
     public final StringValue toolTipOverridePriority = new StringValue(this, "magma.advanced.tooltip-priority", "mod", "Mod, Plugin, None : determines what has tooltip priority");
     public final StringValue serverBrandType = new StringValue(this, "magma.advanced.server-type", "FML", "Set to FML to show forge icon or BUKKIT to show bukkit icon (FML is default)");
     public final BooleanValue forgeBukkitAccess = new BooleanValue(this, "magma.advanced.forge-bukkit-access", true, "Allows Forge mods to access Bukkit plugin classes");
+    public final BooleanValue v2Remapper = new BooleanValue(this, "magma.remapper.v2", true, "Use the new remapper");
 
     //=============================Bukkit/Spigot SETTINGS==============================
     public final IntValue maxPotionEffectAmount = new IntValue(this, "bukkit.max-potion-effect-amount", 1024, "Maximum amount of possible potion effects (Bukkit's default is 300)");
@@ -107,9 +108,9 @@ public class MagmaConfig extends ConfigBase {
     public final StringValue serverStillStartingMessage = new StringValue(this, "magma.messages.fml.server-still-starting", "&cServer is still starting! Please wait before reconnecting.", "Server still starting kick message");
 
     private final String HEADER = "This is the main configuration file for Magma.\n" +
-            "\n" +
-            "Site: https://magmafoundation.org\n" +
-            "Discord: https://discord.gg/6rkqngA\n";
+        "\n" +
+        "Site: https://magmafoundation.org\n" +
+        "Discord: https://discord.gg/Magma\n";
 
 
     public MagmaConfig() {

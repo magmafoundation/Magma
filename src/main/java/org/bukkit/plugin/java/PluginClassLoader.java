@@ -16,6 +16,12 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import net.minecraft.launchwrapper.LaunchClassLoader;
+import net.minecraft.server.MinecraftServer;
+
+import net.md_5.specialsource.JarMapping;
+import net.md_5.specialsource.provider.ClassLoaderProvider;
+import net.md_5.specialsource.provider.JointProvider;
+import net.md_5.specialsource.repo.RuntimeRepo;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.plugin.InvalidPluginException;
@@ -26,6 +32,11 @@ import org.magmafoundation.magma.patcher.Patcher;
 import org.magmafoundation.magma.remapper.ClassLoaderContext;
 import org.magmafoundation.magma.remapper.mappingsModel.ClassMappings;
 import org.magmafoundation.magma.remapper.utils.RemappingUtils;
+import org.magmafoundation.magma.remapper.v2.ClassInheritanceProvider;
+import org.magmafoundation.magma.remapper.v2.MagmaRemapper;
+import org.magmafoundation.magma.remapper.v2.MappingLoader;
+import org.magmafoundation.magma.remapper.v2.ReflectionMapping;
+import org.magmafoundation.magma.remapper.v2.ReflectionTransformer;
 
 /**
  * A ClassLoader for plugins, to allow shared classes across multiple plugins
@@ -46,6 +57,11 @@ public final class PluginClassLoader extends URLClassLoader {
     private IllegalStateException pluginState;
     private Patcher patcher;
     private java.util.logging.Logger logger; // Paper - add field
+
+    // Magma Remapper v2
+    private JarMapping jarMapping;
+    private MagmaRemapper remapper;
+    private LaunchClassLoader launchClassLoader;
 
     static {
         try {
@@ -71,6 +87,14 @@ public final class PluginClassLoader extends URLClassLoader {
         this.manifest = jar.getManifest();
         this.url = file.toURI().toURL();
         this.patcher = Magma.getInstance().getPatcherManager().getPatchByName(description.getName());
+
+        this.launchClassLoader = parent instanceof LaunchClassLoader ? (LaunchClassLoader) parent : (LaunchClassLoader) MinecraftServer.getServerInstance().getClass().getClassLoader();;
+        this.jarMapping = MappingLoader.loadMapping();
+        JointProvider provider = new JointProvider();
+        provider.add(new ClassInheritanceProvider());
+        provider.add(new ClassLoaderProvider(this));
+        this.jarMapping.setFallbackInheritanceProvider(provider);
+        this.remapper = new MagmaRemapper(jarMapping);
 
         try {
             Class<?> jarClass;
@@ -110,21 +134,17 @@ public final class PluginClassLoader extends URLClassLoader {
     }
 
     Class<?> findClass(String name, boolean checkGlobal) throws ClassNotFoundException {
-        ClassLoaderContext.put(this);
-        Class<?> result;
-        try {
-            if (name.startsWith("net.minecraft.server." + Magma.getBukkitVersion())) {
-                ClassMappings remappedClass = RemappingUtils.jarMapping.byNMSName.get(name);
-                if (remappedClass == null) {
-                    throw new ClassNotFoundException(name);
-                }
-                return Class.forName(remappedClass.getMcpName());
+        if(MagmaConfig.instance.v2Remapper.getValues()){
+            if (ReflectionMapping.isNMSPackage(name)) {
+                String remappedClass = jarMapping.classes.getOrDefault(name.replace(".", "/"), name).replace("/", ".");
+                return launchClassLoader.loadClass(remappedClass);
             }
 
             if (name.startsWith("org.bukkit.")) {
                 throw new ClassNotFoundException(name);
             }
-            result = classes.get(name);
+
+            Class<?> result = classes.get(name);
             synchronized (name.intern()) {
                 if (result == null) {
                     if (checkGlobal) {
@@ -132,24 +152,68 @@ public final class PluginClassLoader extends URLClassLoader {
                     }
 
                     if (result == null) {
-                        result = remappedFindClass(name);
+                        result = remappedFindClassV2(name);
+                    }
 
-                        if (result != null) {
-                            loader.setClass(name, result);
-                        }
+                    if (result != null) {
+                        loader.setClass(name, result);
                     }
 
                     if (result == null) {
-                        throw new ClassNotFoundException(name);
+                     try {
+                            result = launchClassLoader.loadClass(name);
+                           } catch (Throwable throwable) {
+                            throw new ClassNotFoundException(name, throwable);
+                        }
                     }
 
                     classes.put(name, result);
                 }
             }
-        } finally {
-            ClassLoaderContext.pop();
+
+            return result;
+        }else{
+            ClassLoaderContext.put(this);
+            Class<?> result;
+            try {
+                if (name.startsWith("net.minecraft.server." + Magma.getBukkitVersion())) {
+                    ClassMappings remappedClass = RemappingUtils.jarMapping.byNMSName.get(name);
+                    if (remappedClass == null) {
+                        throw new ClassNotFoundException(name);
+                    }
+                    return Class.forName(remappedClass.getMcpName());
+                }
+
+                if (name.startsWith("org.bukkit.")) {
+                    throw new ClassNotFoundException(name);
+                }
+                result = classes.get(name);
+                synchronized (name.intern()) {
+                    if (result == null) {
+                        if (checkGlobal) {
+                            result = loader.getClassByName(name);
+                        }
+
+                        if (result == null) {
+                            result = remappedFindClass(name);
+
+                            if (result != null) {
+                                loader.setClass(name, result);
+                            }
+                        }
+
+                        if (result == null) {
+                            throw new ClassNotFoundException(name);
+                        }
+
+                        classes.put(name, result);
+                    }
+                }
+            } finally {
+                ClassLoaderContext.pop();
+            }
+            return result;
         }
-        return result;
     }
 
     @Override
@@ -210,6 +274,58 @@ public final class PluginClassLoader extends URLClassLoader {
 
         return result;
     }
+
+    private Class<?> remappedFindClassV2(String name) throws ClassNotFoundException {
+        Class<?> result = null;
+
+        try {
+            String path = name.replace('.', '/').concat(".class");
+            URL url = this.findResource(path);
+            if (url != null) {
+                InputStream stream = url.openStream();
+                if (stream != null) {
+                    byte[] bytecode = remapper.remapClassFile(stream, RuntimeRepo.getInstance());
+
+                    // Magma start - Plugin Patcher
+                    if (this.patcher != null) {
+                        bytecode = this.patcher.transform(name.replace("/", "."), bytecode);
+                    }
+                    // Magma end
+                    bytecode = ReflectionTransformer.transform(bytecode);
+
+                    int dot = name.lastIndexOf('.');
+                    if (dot != -1) {
+                        String pkgName = name.substring(0, dot);
+                        if (getPackage(pkgName) == null) {
+                            try {
+                                if (manifest != null) {
+                                    definePackage(pkgName, manifest, url);
+                                } else {
+                                    definePackage(pkgName, null, null, null, null, null, null, null);
+                                }
+                            } catch (IllegalArgumentException ignored) {
+                            }
+                        }
+                    }
+
+
+                    JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
+                    URL jarURL = jarURLConnection.getJarFileURL();
+                    CodeSource codeSource = new CodeSource(jarURL, new CodeSigner[0]);
+
+                    result = this.defineClass(name, bytecode, 0, bytecode.length, codeSource);
+                    if (result != null) {
+                        this.resolveClass(result);
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            throw new ClassNotFoundException("Failed to remap class " + name, t);
+        }
+
+        return result;
+    }
+
 
     public PluginDescriptionFile getDescription() {
         return description;
