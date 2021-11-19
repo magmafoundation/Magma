@@ -35,6 +35,7 @@ public class Magma {
     private static final String BUKKIT_VERSION = "v1_12_R1";
     private static final String NMS_PREFIX = "net/minecraft/server/";
     private static final String LIBRARY_VERSION = "4";
+    private static final boolean isDebug = !Magma.class.getPackage().getImplementationVersion().contains("-STABLE");
     private static Magma INSTANCE = new Magma();
     private PatcherManager patcherManager;
     private ModPatcherManager modPatcherManager;
@@ -86,5 +87,9 @@ public class Magma {
 
     public void setModPatcherManager(ModPatcherManager modPatcherManager) {
         this.modPatcherManager = modPatcherManager;
+    }
+
+    public boolean isDebug() {
+        return isDebug;
     }
 }

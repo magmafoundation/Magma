@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import net.minecraft.server.MinecraftServer;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.commands.MagmaCommand;
 import org.magmafoundation.magma.commands.TPSCommand;
 import org.magmafoundation.magma.commands.VersionCommand;
@@ -96,7 +97,7 @@ public class MagmaConfig extends ConfigBase {
     public final StringValue toolTipOverridePriority = new StringValue(this, "magma.advanced.tooltip-priority", "mod", "Mod, Plugin, None : determines what has tooltip priority");
     public final StringValue serverBrandType = new StringValue(this, "magma.advanced.server-type", "FML", "Set to FML to show forge icon or BUKKIT to show bukkit icon (FML is default)");
     public final BooleanValue forgeBukkitAccess = new BooleanValue(this, "magma.advanced.forge-bukkit-access", true, "Allows Forge mods to access Bukkit plugin classes");
-    public final BooleanValue v2Remapper = new BooleanValue(this, "magma.remapper.v2", true, "Use the new remapper");
+    public final BooleanValue v2Remapper = new BooleanValue(this, "magma.remapper.v2", Magma.getInstance().isDebug(), "Use the new remapper");
 
     //=============================Bukkit/Spigot SETTINGS==============================
     public final IntValue maxPotionEffectAmount = new IntValue(this, "bukkit.max-potion-effect-amount", 1024, "Maximum amount of possible potion effects (Bukkit's default is 300)");
