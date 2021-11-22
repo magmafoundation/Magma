@@ -21,15 +21,17 @@ Magma for 1.12 requires Java 8. Java 9 or higher do **not** work due to Forge 1.
 
 If you need a higher version of Java for other applications, you can install both versions and use `"<path to java.exe>" -jar magma.jar` instead of `java -jar magma.jar`.
 
-## BungeeCord
+## BungeeCord/Velocity
+
+Magma is compatible with Velocity, but it does not support modern forwarding.
 
 If you want to use Magma in a BungeeCord network, we recommend to use [HexaCord](https://github.com/HexagonMC/BungeeCord) or [Waterfall](https://github.com/PaperMC/Waterfall)/[Travertine](https://github.com/PaperMC/Travertine) instead since it has better Forge support than BungeeCord.
 
 In order to use Magma with BungeeCord, you have to enable `forge-support` in the BungeeCord config, set `online-mode` to false in server.properties and `bungeecord` to true in spigot.yml.
 
-## 1.16
+## 1.16+
 
-Magma 1.16 is in beta and not stable enough to be used on a public server. Beta releases for testing and private playing can be found [here](https://github.com/magmafoundation/Magma-1.16.x).
+Magma for Minecraft 1.16 and above can be found in their own repositories. Click [here](https://github.com/magmafoundation/Magma-1.16.x) to visit the 1.16 repository.
 
 ## Deployment
 
