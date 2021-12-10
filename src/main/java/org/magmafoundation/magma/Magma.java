@@ -22,6 +22,9 @@ import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.modPatcher.ModPatcherManager;
 import org.magmafoundation.magma.patcher.PatcherManager;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Magma
  *
@@ -41,6 +44,12 @@ public class Magma {
 
     public Magma() {
         INSTANCE = this;
+
+        // TODO: Find a better patch (SpigotMC's way of fixing is not recommended by PaperMC)
+        if (MagmaConfig.instance.enableSpigotLog4JFix.getValues()) {
+            System.setProperty("log4j2.formatMsgNoLookups", "true");
+            Logger.getLogger(Magma.class.getName()).log(Level.INFO, "System property 'log4j2.formatMsgNoLookups' has been set to 'true'.");
+        }
 
         if (System.getProperty("log4j.configurationFile") == null) {
             System.setProperty("log4j.configurationFile", "log4j2_magma.xml");
