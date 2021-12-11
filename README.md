@@ -84,10 +84,6 @@ You are welcome to visit Magma's Discord server [here](https://discord.gg/6rkqng
 
 You could also go to Magma's subreddit [here](https://www.reddit.com/r/Magma).
 
-## Unstable/Test builds
-
-For unstable/test builds you can check the [__CI__](https://ci.hexeption.dev/job/Magma%20Foundation/)
-
 ## Partners
 <a href="https://aternos.org/en/"><img src="https://company.aternos.org/img/logotype-blue.svg" width="200"></a>
 <a href="https://craftycontrol.com/"><img src="https://i.imgur.com/243oDOX.png" width="100" height="100"></a>
