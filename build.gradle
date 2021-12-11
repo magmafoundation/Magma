@@ -112,9 +112,9 @@ dependencies {
     compile 'org.xerial:sqlite-jdbc:3.21.0.1'
     compile 'org.apache.commons:commons-lang3:3.5'
     compile 'org.ow2.asm:asm-debug-all:5.2'
-    compile 'org.apache.logging.log4j:log4j-iostreams:2.12.1'
-    compile 'org.apache.logging.log4j:log4j-api:2.8.1'
-    compile 'org.apache.logging.log4j:log4j-core:2.8.1'
+    compile 'org.apache.logging.log4j:log4j-iostreams:2.15.0'
+    compile 'org.apache.logging.log4j:log4j-api:2.15.0'
+    compile 'org.apache.logging.log4j:log4j-core:2.15.0'
     compile 'org.reflections:reflections:0.9.10'
     compile 'javassist:javassist:3.12.1.GA'
 }
