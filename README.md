@@ -1,7 +1,7 @@
 <div align="center">
 <img src="https://i.imgur.com/zTCTCWG.png" alt="Magma logo" align="middle"></img>
 
-![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202855-orange.svg?style=for-the-badge)
+![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202860-orange.svg?style=for-the-badge)
 [![Stable Builds](https://github.com/magmafoundation/Magma/actions/workflows/stable-build.yml/badge.svg)](https://github.com/magmafoundation/Magma/actions/workflows/stable-build.yml)
 [![Dev-Builds](https://github.com/magmafoundation/Magma/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/magmafoundation/Magma/actions/workflows/main.yml)
 
@@ -23,7 +23,7 @@ If you need a higher version of Java for other applications, you can install bot
 
 ## BungeeCord/Velocity
 
-Magma is compatible with Velocity, but it does not support modern forwarding.
+Magma is compatible with [Velocity](https://velocitypowered.com/downloads), but it does not support modern forwarding.
 
 If you want to use Magma in a BungeeCord network, we recommend to use [HexaCord](https://github.com/HexagonMC/BungeeCord) or [Waterfall](https://github.com/PaperMC/Waterfall)/[Travertine](https://github.com/PaperMC/Travertine) instead since it has better Forge support than BungeeCord.
 
@@ -52,7 +52,7 @@ Magma for Minecraft 1.16 and above can be found in their own repositories. Click
     - `git submodule update --init --recursive`
 - Building
   - First you want to run the build command
-    - `./gradlew launch4j`
+    - `./gradlew outputJar`
   - Now go and get a drink this may take some time
   - Navigate to `build/distributions` directory of the compiled source code
   - Copy the Jar to a new server directory (see Installation) or run `./gradlew launchServer`
