@@ -25,7 +25,7 @@ If you need a higher version of Java for other applications, you can install bot
 
 Magma is compatible with [Velocity](https://velocitypowered.com/downloads), but it does not support modern forwarding.
 
-If you want to use Magma in a BungeeCord network, we recommend to use [HexaCord](https://github.com/HexagonMC/BungeeCord) or [Waterfall](https://github.com/PaperMC/Waterfall)/[Travertine](https://github.com/PaperMC/Travertine) instead since it has better Forge support than BungeeCord.
+If you want to use Magma in a BungeeCord network, we recommend to use [Waterfall](https://github.com/PaperMC/Waterfall)/[Travertine](https://github.com/PaperMC/Travertine) or [HexaCord](https://github.com/HexagonMC/BungeeCord) instead since it has better Forge support than BungeeCord.
 
 In order to use Magma with BungeeCord, you have to enable `forge-support` in the BungeeCord config, set `online-mode` to false in server.properties and `bungeecord` to true in spigot.yml.
 
@@ -74,13 +74,13 @@ Magma for Minecraft 1.16 and above can be found in their own repositories. Click
 
 ## Contributing
 
-If you wish to inspect Magma, submit PRs, or otherwise work with Magma itself, you're in the right place!.
+If you wish to inspect Magma, submit PRs, or otherwise work with Magma itself, you're in the right place!
 
 Please read the [CONTRIBUTING.md](https://github.com/magmafoundation/Magma/blob/master/CONTRIBUTING.md) to see how to contribute, setup, and run.
 
 ## Chat
 
-You are welcome to visit Magma's Discord server [here](https://discord.gg/6rkqngA).
+You are welcome to visit Magma's Discord server [here](https://discord.gg/Magma) (recommended).
 
 You could also go to Magma's subreddit [here](https://www.reddit.com/r/Magma).
 
