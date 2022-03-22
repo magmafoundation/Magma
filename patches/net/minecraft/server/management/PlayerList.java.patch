@@ -748,7 +748,7 @@
 +    // CraftBukkit start - Replaced the standard handling of portals with a more customised method.
 +    public void changeDimension(EntityPlayerMP entityplayer, int i, PlayerTeleportEvent.TeleportCause cause) {
 +        WorldServer exitWorld = null;
-+        if (entityplayer.dimension < CraftWorld.CUSTOM_DIMENSION_OFFSET) { // plugins must specify exit from custom Bukkit worlds
++        if (entityplayer.dimension < CraftWorld.CUSTOM_DIMENSION_OFFSET || cause == PlayerTeleportEvent.TeleportCause.MOD) { // plugins must specify exit from custom Bukkit worlds
 +            // only target existing worlds (compensate for allow-nether/allow-end as false)
 +            for (WorldServer world : this.mcServer.worldServerList) {
 +                if (world.dimension == i) {
