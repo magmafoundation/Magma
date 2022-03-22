@@ -31,7 +31,10 @@ In order to use Magma with BungeeCord, you have to enable `forge-support` in the
 
 ## 1.16+
 
-Magma for Minecraft 1.16 and above can be found in their own repositories. Click [here](https://github.com/magmafoundation/Magma-1.16.x) to visit the 1.16 repository.
+Magma for Minecraft 1.16 and above can be found in their own repositories. 
+
+- Click [here](https://github.com/magmafoundation/Magma-1.16.x) to visit the 1.16 repository.
+- Click [here](https://github.com/magmafoundation/Magma-1.18.x) to visit the 1.18 repository.
 
 ## Deployment
 
