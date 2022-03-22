@@ -11,7 +11,7 @@
  import java.io.File;
  import java.net.SocketAddress;
  import java.text.SimpleDateFormat;
-@@ -12,7 +7,52 @@
+@@ -12,7 +7,53 @@
  import java.util.Map;
  import java.util.Set;
  import java.util.UUID;
@@ -59,12 +59,13 @@
 +import org.bukkit.event.player.PlayerRespawnEvent;
 +import org.bukkit.event.player.PlayerTeleportEvent;
 +import org.bukkit.util.Vector;
++import org.magmafoundation.magma.configuration.MagmaConfig;
 +import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 +
  import net.minecraft.advancements.CriteriaTriggers;
  import net.minecraft.advancements.PlayerAdvancements;
  import net.minecraft.entity.Entity;
-@@ -21,12 +61,14 @@
+@@ -21,12 +62,14 @@
  import net.minecraft.nbt.NBTTagCompound;
  import net.minecraft.network.NetHandlerPlayServer;
  import net.minecraft.network.NetworkManager;
@@ -79,7 +80,7 @@
  import net.minecraft.network.play.server.SPacketEntityStatus;
  import net.minecraft.network.play.server.SPacketHeldItemChange;
  import net.minecraft.network.play.server.SPacketJoinGame;
-@@ -45,6 +87,7 @@
+@@ -45,6 +88,7 @@
  import net.minecraft.scoreboard.ServerScoreboard;
  import net.minecraft.scoreboard.Team;
  import net.minecraft.server.MinecraftServer;
@@ -87,7 +88,7 @@
  import net.minecraft.stats.StatList;
  import net.minecraft.stats.StatisticsManagerServer;
  import net.minecraft.util.math.BlockPos;
-@@ -52,7 +95,7 @@
+@@ -52,7 +96,7 @@
  import net.minecraft.util.text.ChatType;
  import net.minecraft.util.text.ITextComponent;
  import net.minecraft.util.text.TextComponentTranslation;
@@ -96,7 +97,7 @@
  import net.minecraft.world.DimensionType;
  import net.minecraft.world.GameType;
  import net.minecraft.world.World;
-@@ -62,10 +105,40 @@
+@@ -62,10 +106,40 @@
  import net.minecraft.world.chunk.storage.AnvilChunkLoader;
  import net.minecraft.world.storage.IPlayerFileData;
  import net.minecraft.world.storage.WorldInfo;
@@ -137,7 +138,7 @@
  
  public abstract class PlayerList
  {
-@@ -76,15 +149,15 @@
+@@ -76,15 +150,15 @@
      private static final Logger LOGGER = LogManager.getLogger();
      private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
      private final MinecraftServer mcServer;
@@ -157,7 +158,7 @@
      private boolean whiteListEnforced;
      protected int maxPlayers;
      private int viewDistance;
-@@ -92,14 +165,22 @@
+@@ -92,14 +166,22 @@
      private boolean commandsAllowedForAll;
      private int playerPingIndex;
  
@@ -182,7 +183,7 @@
          this.mcServer = server;
          this.bannedPlayers.setLanServer(false);
          this.bannedIPs.setLanServer(false);
-@@ -125,6 +206,13 @@
+@@ -125,6 +207,13 @@
              playerIn.setPosition(spawnPoint.getX(), spawnPoint.getY(), spawnPoint.getZ());
          }
  
@@ -196,7 +197,7 @@
          playerIn.setWorld(playerWorld);
          playerIn.interactionManager.setWorld((WorldServer)playerIn.world);
          String s1 = "local";
-@@ -134,36 +222,61 @@
+@@ -134,36 +223,61 @@
              s1 = netManager.getRemoteAddress().toString();
          }
  
@@ -266,7 +267,7 @@
          nethandlerplayserver.setPlayerLocation(playerIn.posX, playerIn.posY, playerIn.posZ, playerIn.rotationYaw, playerIn.rotationPitch);
          this.updateTimeAndWeatherForPlayer(playerIn, worldserver);
  
-@@ -217,9 +330,11 @@
+@@ -217,9 +331,11 @@
  
          playerIn.addSelfToInternalCraftingInventory();
          net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerLoggedIn(playerIn);
@@ -279,7 +280,7 @@
      {
          Set<ScoreObjective> set = Sets.<ScoreObjective>newHashSet();
  
-@@ -246,28 +361,29 @@
+@@ -246,28 +362,29 @@
  
      public void setPlayerManager(WorldServer[] worldServers)
      {
@@ -314,7 +315,7 @@
              }
              public void onDamageAmountChanged(WorldBorder border, double newAmount)
              {
-@@ -344,16 +460,16 @@
+@@ -344,16 +461,16 @@
      protected void writePlayerData(EntityPlayerMP playerIn)
      {
          if (playerIn.connection == null) return;
@@ -334,7 +335,7 @@
  
          if (playeradvancements != null)
          {
-@@ -363,19 +479,62 @@
+@@ -363,19 +480,62 @@
  
      public void playerLoggedIn(EntityPlayerMP playerIn)
      {
@@ -401,7 +402,7 @@
      }
  
      public void serverUpdateMovingPlayer(EntityPlayerMP playerIn)
-@@ -383,11 +542,30 @@
+@@ -383,11 +543,30 @@
          playerIn.getServerWorld().getPlayerChunkMap().updateMovingPlayer(playerIn);
      }
  
@@ -433,7 +434,7 @@
          this.writePlayerData(playerIn);
  
          if (playerIn.isRiding())
-@@ -414,17 +592,35 @@
+@@ -414,17 +593,35 @@
          worldserver.getPlayerChunkMap().removePlayer(playerIn);
          playerIn.getAdvancements().dispose();
          this.playerEntityList.remove(playerIn);
@@ -472,7 +473,7 @@
      }
  
      public String allowUserToConnect(SocketAddress address, GameProfile profile)
-@@ -443,7 +639,7 @@
+@@ -443,7 +640,7 @@
          }
          else if (!this.canJoin(profile))
          {
@@ -481,7 +482,7 @@
          }
          else if (this.bannedIPs.isBanned(address))
          {
-@@ -463,6 +659,72 @@
+@@ -463,6 +660,72 @@
          }
      }
  
@@ -554,7 +555,7 @@
      public EntityPlayerMP createPlayerForUser(GameProfile profile)
      {
          UUID uuid = EntityPlayer.getUUID(profile);
-@@ -504,39 +766,41 @@
+@@ -504,39 +767,41 @@
          return new EntityPlayerMP(this.mcServer, this.mcServer.getWorld(0), profile, playerinteractionmanager);
      }
  
@@ -610,7 +611,7 @@
          entityplayermp.connection = playerIn.connection;
          entityplayermp.copyFrom(playerIn, conqueredEnd);
          entityplayermp.dimension = dimension;
-@@ -549,48 +813,179 @@
+@@ -549,48 +814,179 @@
              entityplayermp.addTag(s);
          }
  
@@ -622,7 +623,7 @@
 +        // CraftBukkit start - fire PlayerRespawnEvent
 +        if (location == null) {
 +            boolean isBedSpawn = false;
-+            CraftWorld cworld = (CraftWorld) this.mcServer.server.getWorld(playerIn.spawnWorld);
++            CraftWorld cworld = MagmaConfig.instance.respawnInOtherDim.getValues() ? this.mcServer.getWorld(dimension).getWorld() : (CraftWorld) this.mcServer.server.getWorlds().get(0);
 +            if (cworld != null && blockpos != null) {
 +                blockposition1 = EntityPlayer.getBedSpawnLocation(cworld.getHandle(), blockpos, flag1);
 +                if (blockposition1 != null) {
@@ -643,7 +644,7 @@
 -                entityplayermp.setLocationAndAngles((double)((float)blockpos1.getX() + 0.5F), (double)((float)blockpos1.getY() + 0.1F), (double)((float)blockpos1.getZ() + 0.5F), 0.0F, 0.0F);
 -                entityplayermp.setSpawnPoint(blockpos, flag);
 +            if (location == null) {
-+                cworld = (CraftWorld) this.mcServer.server.getWorlds().get(0);
++                cworld = MagmaConfig.instance.respawnInOtherDim.getValues() ? this.mcServer.getWorld(dimension).getWorld() : (CraftWorld) this.mcServer.server.getWorlds().get(0);
 +                blockpos = entityplayermp.getSpawnPoint(this.mcServer, cworld.getHandle());
 +                location = new Location(cworld, (double) ((float) blockpos.getX() + 0.5F), (double) ((float) blockpos.getY() + 0.1F), (double) ((float) blockpos.getZ() + 0.5F));
              }
@@ -747,7 +748,7 @@
 +    // CraftBukkit start - Replaced the standard handling of portals with a more customised method.
 +    public void changeDimension(EntityPlayerMP entityplayer, int i, PlayerTeleportEvent.TeleportCause cause) {
 +        WorldServer exitWorld = null;
-+        if (entityplayer.dimension < CraftWorld.CUSTOM_DIMENSION_OFFSET || cause == cause.MOD) { // plugins must specify exit from custom Bukkit worlds
++        if (entityplayer.dimension < CraftWorld.CUSTOM_DIMENSION_OFFSET) { // plugins must specify exit from custom Bukkit worlds
 +            // only target existing worlds (compensate for allow-nether/allow-end as false)
 +            for (WorldServer world : this.mcServer.worldServerList) {
 +                if (world.dimension == i) {
@@ -811,7 +812,7 @@
      public void updatePermissionLevel(EntityPlayerMP player)
      {
          GameProfile gameprofile = player.getGameProfile();
-@@ -642,7 +1037,9 @@
+@@ -642,7 +1038,9 @@
  
      public void transferEntityToWorld(Entity entityIn, int lastDimension, WorldServer oldWorldIn, WorldServer toWorldIn)
      {
@@ -822,7 +823,7 @@
      }
  
      // TODO: Remove (1.13)
-@@ -729,11 +1126,158 @@
+@@ -729,11 +1127,158 @@
          entityIn.setWorld(toWorldIn);
      }
  
@@ -982,7 +983,7 @@
              this.playerPingIndex = 0;
          }
      }
-@@ -746,6 +1290,22 @@
+@@ -746,6 +1291,22 @@
          }
      }
  
@@ -1005,7 +1006,7 @@
      public void sendPacketToAllPlayersInDimension(Packet<?> packetIn, int dimension)
      {
          for (int i = 0; i < this.playerEntityList.size(); ++i)
-@@ -861,12 +1421,20 @@
+@@ -861,12 +1422,20 @@
          int i = this.mcServer.getOpPermissionLevel();
          this.ops.addEntry(new UserListOpsEntry(profile, this.mcServer.getOpPermissionLevel(), this.ops.bypassesPlayerLimit(profile)));
          this.sendPlayerPermissionLevel(this.getPlayerByUUID(profile.getId()), i);
@@ -1026,7 +1027,7 @@
      }
  
      private void sendPlayerPermissionLevel(EntityPlayerMP player, int permLevel)
-@@ -905,24 +1473,36 @@
+@@ -905,24 +1474,36 @@
      @Nullable
      public EntityPlayerMP getPlayerByUsername(String username)
      {
@@ -1076,7 +1077,7 @@
              {
                  double d0 = x - entityplayermp.posX;
                  double d1 = y - entityplayermp.posY;
-@@ -938,12 +1518,29 @@
+@@ -938,12 +1519,29 @@
  
      public void saveAllPlayerData()
      {
@@ -1110,7 +1111,7 @@
      public void addWhitelistedPlayer(GameProfile profile)
      {
          this.whiteListedPlayers.addEntry(new UserListWhitelistEntry(profile));
-@@ -988,16 +1585,21 @@
+@@ -988,16 +1586,21 @@
  
          if (worldIn.isRaining())
          {
@@ -1136,7 +1137,7 @@
          playerIn.connection.sendPacket(new SPacketHeldItemChange(playerIn.inventory.currentItem));
      }
  
-@@ -1079,17 +1681,26 @@
+@@ -1079,17 +1682,26 @@
  
      public void removeAllPlayers()
      {
@@ -1167,7 +1168,7 @@
      }
  
      public void sendMessage(ITextComponent component)
-@@ -1097,10 +1708,19 @@
+@@ -1097,10 +1709,19 @@
          this.sendMessage(component, true);
      }
  
@@ -1189,7 +1190,7 @@
  
          if (statisticsmanagerserver == null)
          {
-@@ -1119,7 +1739,7 @@
+@@ -1119,7 +1740,7 @@
  
              statisticsmanagerserver = new StatisticsManagerServer(this.mcServer, file2);
              statisticsmanagerserver.readStatFile();
@@ -1198,7 +1199,7 @@
          }
  
          return statisticsmanagerserver;
-@@ -1128,14 +1748,14 @@
+@@ -1128,14 +1749,14 @@
      public PlayerAdvancements getPlayerAdvancements(EntityPlayerMP p_192054_1_)
      {
          UUID uuid = p_192054_1_.getUniqueID();
@@ -1215,7 +1216,7 @@
          }
  
          playeradvancements.setPlayer(p_192054_1_);
-@@ -1148,7 +1768,7 @@
+@@ -1148,7 +1769,7 @@
  
          if (this.mcServer.worlds != null)
          {
@@ -1224,7 +1225,7 @@
              {
                  if (worldserver != null)
                  {
-@@ -1176,9 +1796,10 @@
+@@ -1176,9 +1797,10 @@
  
      public void reloadResources()
      {

@@ -61,8 +61,9 @@ public class MagmaConfig extends ConfigBase {
 
     //=============================WORLD SETTINGS=============================
     public final IntValue expMergeMaxValue = new IntValue(this, "experience-merge-max-value", -1,
-        "Instructs the server put a maximum value on experience orbs, preventing them all from merging down into 1 single orb.");
+            "Instructs the server put a maximum value on experience orbs, preventing them all from merging down into 1 single orb.");
     public List<Integer> autoUnloadDimensions = Lists.newArrayList(13371337);
+    public final BooleanValue respawnInOtherDim = new BooleanValue(this, "respawn-in-other-dim", true, "Allows players to respawn in other dimensions");
 
     //=============================FakePlayer SETTINGS========================
     public final StringArrayValue fakePlayerPermissions = new StringArrayValue(this, "fakeplayer.permissions", "", "A list of permissions that fake players should have");
@@ -86,9 +87,9 @@ public class MagmaConfig extends ConfigBase {
     public final StringValue serverStillStartingMessage = new StringValue(this, "magma.messages.fml.server-still-starting", "&cServer is still starting! Please wait before reconnecting.", "Server still starting kick message");
 
     private final String HEADER = "This is the main configuration file for Magma.\n" +
-        "\n" +
-        "Site: https://magmafoundation.org\n" +
-        "Discord: https://discord.gg/6rkqngA\n";
+            "\n" +
+            "Site: https://magmafoundation.org\n" +
+            "Discord: https://discord.gg/6rkqngA\n";
 
 
     public MagmaConfig() {
@@ -172,7 +173,7 @@ public class MagmaConfig extends ConfigBase {
             this.save();
         } catch (Exception ex) {
             MinecraftServer.getServerInstance().server.getLogger()
-                .log(Level.SEVERE, "Could not load " + this.configFile);
+                    .log(Level.SEVERE, "Could not load " + this.configFile);
             ex.printStackTrace();
         }
     }
