@@ -31,6 +31,7 @@ import org.apache.logging.log4j.core.pattern.PatternConverter;
 import org.apache.logging.log4j.core.pattern.PatternFormatter;
 import org.apache.logging.log4j.core.pattern.PatternParser;
 import org.apache.logging.log4j.util.PerformanceSensitive;
+import org.magmafoundation.magma.configuration.MagmaConfig;
 
 /**
  * HighlightTimeConverter
@@ -110,23 +111,28 @@ public class HighlightTimeConverter extends LogEventPatternConverter {
 
 
     public static String getError() {
-        return getColor("c", "\u001B[31;1m");
+        String colour = MagmaConfig.instance.highlightTimeError.getValues();
+        return getColor(colour, "\u001B[31;1m");
     }
 
     public static String getWarn() {
-        return getColor("e", "\u001B[33;1m");
+        String colour = MagmaConfig.instance.highlightTimeWarning.getValues();
+        return getColor(colour, "\u001B[33;1m");
     }
 
     public static String getInfo() {
-        return getColor("2", "\u001B[32;22m");
+        String colour = MagmaConfig.instance.highlightTimeInfo.getValues();
+        return getColor(colour, "\u001B[32;22m");
     }
 
     public static String getFatal() {
-        return getColor("e", "\u001B[31;1m");
+        String colour = MagmaConfig.instance.highlightTimeFatal.getValues();
+        return getColor(colour, "\u001B[31;1m");
     }
 
     public static String getTrace() {
-        return getColor("e", "\u001B[31;1m");
+        String colour = MagmaConfig.instance.highlightTimeTrace.getValues();
+        return getColor(colour, "\u001B[31;1m");
     }
 
     private static String getColor(String text, String d) {

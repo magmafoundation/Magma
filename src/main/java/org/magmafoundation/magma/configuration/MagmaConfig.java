@@ -54,6 +54,26 @@ public class MagmaConfig extends ConfigBase {
     public final BooleanValue debugPrintCommandNode = new BooleanValue(this, "debug.debugPrintCommandNode", false, "Prints out all Command Nodes for permissions");
     public final BooleanValue debugPrintBiomes = new BooleanValue(this, "debug.debugPrintBiomes", false, "Prints out all registered biomes");
 
+    //============================Console======================================
+
+    public final StringValue highlightLevelError = new StringValue(this, "console.colour.level.error", "c", "The colour for the error level");
+    public final StringValue highlightLevelWarning = new StringValue(this, "console.colour.level.warning", "e", "The colour for the warning level");
+    public final StringValue highlightLevelInfo = new StringValue(this, "console.colour.level.info", "2", "The colour for the info level");
+    public final StringValue highlightLevelFatal = new StringValue(this, "console.colour.level.fatal", "e", "The colour for the fatal level");
+    public final StringValue highlightLevelTrace = new StringValue(this, "console.colour.level.trace", "e", "The colour for the trace level");
+
+    public final StringValue highlightMessageError = new StringValue(this, "console.colour.message.error", "c", "The colour for the error message");
+    public final StringValue highlightMessageWarning = new StringValue(this, "console.colour.message.warning", "e", "The colour for the warning message");
+    public final StringValue highlightMessageInfo = new StringValue(this, "console.colour.message.info", "2", "The colour for the info message");
+    public final StringValue highlightMessageFatal = new StringValue(this, "console.colour.message.fatal", "e", "The colour for the fatal message");
+    public final StringValue highlightMessageTrace = new StringValue(this, "console.colour.message.trace", "e", "The colour for the trace message");
+
+    public final StringValue highlightTimeError = new StringValue(this, "console.colour.time.error", "c", "The colour for the error time");
+    public final StringValue highlightTimeWarning = new StringValue(this, "console.colour.time.warning", "e", "The colour for the warning time");
+    public final StringValue highlightTimeInfo = new StringValue(this, "console.colour.time.info", "2", "The colour for the info time");
+    public final StringValue highlightTimeFatal = new StringValue(this, "console.colour.time.fatal", "e", "The colour for the fatal time");
+    public final StringValue highlightTimeTrace = new StringValue(this, "console.colour.time.trace", "e", "The colour for the trace time");
+
     //============================Black List Mods=============================
     public final BooleanValue blacklistedModsEnable = new BooleanValue(this, "forge.blacklistedmods.enabled", false, "Enable blacklisting of mods");
     public final StringArrayValue blacklistedMods = new StringArrayValue(this, "forge.blacklistedmods.list", "", "A list of mods to blacklist");
