@@ -41,6 +41,7 @@ import org.magmafoundation.magma.remapper.v2.ReflectionTransformer;
 
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraft.server.MinecraftServer;
+import org.magmafoundation.magma.remapper.v2.util.PackageUtil;
 
 /**
  * ProxyURLClassLoader
@@ -57,7 +58,7 @@ public class ProxyURLClassLoader extends URLClassLoader {
 
 
 	{
-		this.launchClassloader = (LaunchClassLoader) MinecraftServer.getServerInstance().getClass().getClassLoader();
+		this.launchClassloader = (LaunchClassLoader) MinecraftServer.getServerInst().getClass().getClassLoader();
 		this.jarMapping = MappingLoader.loadMapping();
 		final JointProvider provider = new JointProvider();
 		provider.add(new ClassInheritanceProvider());
@@ -80,8 +81,8 @@ public class ProxyURLClassLoader extends URLClassLoader {
 
 	protected Class<?> findClass(final String name) throws ClassNotFoundException {
 		if (ReflectionMapping.isNMSPackage(name)) {
-			final String remappedClass = this.jarMapping.classes.get(name.replaceAll("\\.", "\\/"));
-			return launchClassloader.loadClass(remappedClass);
+			final String remappedClass = this.jarMapping.classes.getOrDefault(name.replace(".", "/"), name);
+			return launchClassloader.findClass(remappedClass);
 		}
 
 		Class<?> result = this.classes.get(name);
@@ -98,7 +99,7 @@ public class ProxyURLClassLoader extends URLClassLoader {
 
 				if (result == null) {
 					try {
-						result = launchClassloader.loadClass(name);
+						result = launchClassloader.findClass(name);
 					} catch (ClassNotFoundException ignored) {
 					}
 				}
@@ -136,15 +137,19 @@ public class ProxyURLClassLoader extends URLClassLoader {
 					int dot = name.lastIndexOf('.');
 					if (dot != -1) {
 						String pkgName = name.substring(0, dot);
-						if (getPackage(pkgName) == null) {
+						Package pkg = getPackage(pkgName);
+						if (pkg == null) {
 							try {
 								if (manifest != null) {
-									definePackage(pkgName, manifest, url);
+									pkg = definePackage(pkgName, manifest, url);
 								} else {
-									definePackage(pkgName, null, null, null, null, null, null, null);
+									pkg = definePackage(pkgName, null, null, null, null, null, null, null);
 								}
 							} catch (IllegalArgumentException ignored) {
 							}
+						}
+						if (pkg != null && manifest != null) {
+							PackageUtil.getInstance().fixPackage(pkg, manifest);
 						}
 					}
 

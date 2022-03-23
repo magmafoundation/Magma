@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.md_5.specialsource.JarRemapper;
+import org.apache.commons.lang.StringUtils;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.remapper.v2.ReflectionTransformer;
 import org.objectweb.asm.Type;
@@ -183,4 +184,19 @@ public class RemapperUtils {
 		classNeedRemap.put(className, false);
 		return false;
 	}
+
+	public static String fixSimpleName(String originSimpleName, String remappedSimpleName) {
+		if (remappedSimpleName.contains("$")) {
+			String[] originSplit = originSimpleName.split("\\$");
+			String[] remappedSplit = remappedSimpleName.split("\\$");
+			int length = remappedSplit.length - originSplit.length;
+			if (length > 0) {
+				String[] fixedSplit = new String[originSplit.length];
+				System.arraycopy(remappedSplit, length, fixedSplit, 0, fixedSplit.length);
+				return StringUtils.join(fixedSplit, "$");
+			}
+		}
+		return remappedSimpleName;
+	}
+
 }

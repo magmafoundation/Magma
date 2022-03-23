@@ -42,7 +42,7 @@ public class ProxyMethodHandle {
 
     static {
         try {
-            ProxyMethodHandle.loadMappings(new BufferedReader(new InputStreamReader(MappingLoader.class.getClassLoader().getResourceAsStream("mappings/nms.srg"))));
+            ProxyMethodHandle.loadMappings(new BufferedReader(new InputStreamReader(MappingLoader.class.getClassLoader().getResourceAsStream("mappings/NMSMappings.srg"))));
         } catch (IOException e) {
             e.printStackTrace();
         }

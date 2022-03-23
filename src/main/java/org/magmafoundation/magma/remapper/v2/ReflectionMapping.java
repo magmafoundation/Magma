@@ -57,7 +57,6 @@ public class ReflectionMapping {
 		remapVirtualMethodToStatic.put("java/lang/Class;getMethod", ProxyReflection.class);
 		remapVirtualMethodToStatic.put("java/lang/Class;getDeclaredMethod", ProxyReflection.class);
 		remapVirtualMethodToStatic.put("java/lang/Class;getSimpleName", ProxyReflection.class);
-		remapVirtualMethodToStatic.put("java/lang/Class;getName", ProxyReflection.class);
 		remapVirtualMethodToStatic.put("java/lang/Class;getDeclaredMethods", ProxyReflection.class);
 		remapVirtualMethodToStatic.put("java/lang/reflect/Field;getName", ProxyReflection.class);
 		remapVirtualMethodToStatic.put("java/lang/reflect/Method;getName", ProxyReflection.class);

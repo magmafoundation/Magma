@@ -59,41 +59,16 @@ public class ProxyReflection {
 			}
 		}
 
-        Class<?> result = null;
-        try {
-            result = Class.forName(className, initialize, classLoader);
-        } catch (NullPointerException e) {
-            throw new ClassNotFoundException(className);
-        }
-        return result;
-	}
+        return Class.forName(className, initialize, classLoader);
+    }
 
 	public static String getSimpleName(Class<?> inst) {
 		if (!RemapperUtils.isNeedRemapClass(inst, false)) return inst.getSimpleName();
 		String cache = simpleNameGetNameCache.get(inst);
 		if (cache != null) return cache;
 		String[] name = RemapperUtils.reverseMapExternal(inst).split("\\.");
-		String retn = name[name.length - 1];
-        if (retn.contains("$")) {
-            int count = 0;
-            int index = 0;
-            String defaultSimpleName = inst.getSimpleName();
-            while ((index = defaultSimpleName.indexOf("$", index)) != -1) {
-                index ++;
-                count++;
-            }
-            name = retn.split("\\$");
-            if (name.length < count) {
-                simpleNameGetNameCache.put(inst, retn);
-                return retn;
-            }
-            retn = name[name.length - count-- - 1];
-            for (; count >= 0;) {
-                retn += name[name.length - count-- - 1];
-                retn += "$";
-            }
-        }
-		simpleNameGetNameCache.put(inst, retn);
+		String retn = RemapperUtils.fixSimpleName(inst.getSimpleName(), name[name.length - 1]);
+       	simpleNameGetNameCache.put(inst, retn);
 		return retn;
 	}
 
