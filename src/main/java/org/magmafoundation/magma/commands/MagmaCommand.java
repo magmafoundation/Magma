@@ -84,7 +84,7 @@ public class MagmaCommand extends Command {
 
         switch (args[0].toLowerCase()) {
             case "mods":
-                sender.sendMessage(ChatColor.GREEN + "" + ServerAPI.getModSize() + " " + ServerAPI.getModList());
+                sender.sendMessage(ChatColor.WHITE + "Mods (" + ServerAPI.getModSize() + "): "+ ChatColor.GREEN + ServerAPI.getModList().substring(1, ServerAPI.getModList().length() - 1));
                 break;
             case "playermods":
                 if (args.length == 1) {
@@ -94,7 +94,7 @@ public class MagmaCommand extends Command {
 
                 Player player = Bukkit.getPlayer(args[1].toString());
                 if (player != null) {
-                    sender.sendMessage(ChatColor.GREEN + "" + PlayerAPI.getModSize(player) + " " + PlayerAPI.getModlist(player));
+                    sender.sendMessage(ChatColor.WHITE + "Mods (" + PlayerAPI.getModSize(player) + "): "+ ChatColor.GREEN + PlayerAPI.getModlist(player).substring(1, PlayerAPI.getModlist(player).length() - 1));
                 } else {
                     sender.sendMessage(ChatColor.RED + "The player [" + args[1] + "] is not online.");
                 }
