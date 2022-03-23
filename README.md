@@ -1,27 +1,34 @@
 <div align="center">
 <img src="https://i.imgur.com/zTCTCWG.png" alt="Magma logo" align="middle"></img>
 
-![](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202860-orange.svg?style=for-the-badge)
+[![Forge](https://img.shields.io/badge/Minecraft%20Forge-1.12.2%20--%202860-orange.svg?style=flat)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.12.2.html)
+[![Spigot](https://img.shields.io/badge/Paper/Spigot-1.12.2-yellow.svg)](https://github.com/PaperMC/Paper/tree/ver/1.12.2)
 [![Stable Builds](https://github.com/magmafoundation/Magma/actions/workflows/stable-build.yml/badge.svg)](https://github.com/magmafoundation/Magma/actions/workflows/stable-build.yml)
 [![Dev-Builds](https://github.com/magmafoundation/Magma/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/magmafoundation/Magma/actions/workflows/main.yml)
+[![Discord](https://img.shields.io/discord/612695539729039411.svg?logo=discord&logoWidth=18&colorB=7289DA)](https://discord.gg/magma)
 
-![](https://bstats.org/signatures/bukkit/magma.svg)
+<a href="https://bstats.org/plugin/bukkit/Magma/5445"> <img src="https://bstats.org/signatures/bukkit/magma.svg" alt="Stats" width="800"> </a>
 </div>
 
-## About
+## ❓ About
 
 Magma is the next generation of hybrid minecraft server softwares.
 
-Magma is based on Forge and Paper, meaning it can run both Craftbukkit/Spigot/Paper plugins and Forge mods.
+Magma is based on **Forge and Paper**, meaning it can run both **Craftbukkit/Spigot/Paper plugins and Forge mods**.
 
 We hope to eliminate all issues with craftbukkit forge servers. In the end, we envision a seamless, low lag Magma experience with support for newer 1.12+ versions of Minecraft.
+<details>
+   <summary><b>Click here to see a screenshot!</b></summary>
+   <img src="https://i.imgur.com/3DnRHur.png" alt="EssentialsX with Chisel and Biomes O' Plenty" width="640">
+   </br><a href="https://essentialsx.net/">EssentialsX</a> with <a href="https://www.curseforge.com/minecraft/mc-mods/chisel">Chisel</a> and <a href="https://www.curseforge.com/minecraft/mc-mods/biomes-o-plenty">Biomes O' Plenty</a>
+</details>
 
-## Java 8
-Magma for 1.12 requires Java 8. Java 9 or higher do **not** work due to Forge 1.12.
+## ☕️ Java 8
+Magma for 1.12 <b>requires Java 8</b>. Java 9 or higher do <b>not</b> work due to Forge 1.12.
 
 If you need a higher version of Java for other applications, you can install both versions and use `"<path to java.exe>" -jar magma.jar` instead of `java -jar magma.jar`.
 
-## BungeeCord/Velocity
+## 🌐 BungeeCord/Velocity
 
 Magma is compatible with [Velocity](https://velocitypowered.com/downloads), but it does not support modern forwarding.
 
@@ -29,14 +36,14 @@ If you want to use Magma in a BungeeCord network, we recommend to use [Waterfall
 
 In order to use Magma with BungeeCord, you have to enable `forge-support` in the BungeeCord config, set `online-mode` to false in server.properties and `bungeecord` to true in spigot.yml.
 
-## 1.16+
+## 🧪 Magma for 1.16+
 
 Magma for Minecraft 1.16 and above can be found in their own repositories. 
 
 - Click [here](https://github.com/magmafoundation/Magma-1.16.x) to visit the 1.16 repository.
 - Click [here](https://github.com/magmafoundation/Magma-1.18.x) to visit the 1.18 repository.
 
-## Deployment
+## 🪣 Deployment
 
 ### Installation
 
@@ -75,20 +82,19 @@ Magma for Minecraft 1.16 and above can be found in their own repositories.
   - You should have a jar like `Magma-xxxxxx-plugin.jar`
   - Now create a plugin with that jar.
 
-## Contributing
+## ⚙️ Contributing
 
 If you wish to inspect Magma, submit PRs, or otherwise work with Magma itself, you're in the right place!
 
 Please read the [CONTRIBUTING.md](https://github.com/magmafoundation/Magma/blob/master/CONTRIBUTING.md) to see how to contribute, setup, and run.
 
-## Chat
+## 💬 Chat
 
 You are welcome to visit Magma's Discord server [here](https://discord.gg/Magma) (recommended).
 
 You could also go to Magma's subreddit [here](https://www.reddit.com/r/Magma).
 
-## Partners
-<a href="https://aternos.org/en/"><img src="https://company.aternos.org/img/logotype-blue.svg" width="200"></a>
+## 👥 Partners
 <a href="https://craftycontrol.com/"><img src="https://i.imgur.com/243oDOX.png" width="100" height="100"></a>
 
 ### YourKit
