@@ -42,7 +42,11 @@ public class MagmaInheritanceProvider implements InheritanceProvider {
     }
 
     protected Set<String> fineParents(String className, boolean remap) {
-        return fineNMSParents(className, remap);
+        if (className.startsWith("net/minecraft/")) {
+            return fineNMSParents(className, remap);
+        } else {
+            return findNormalParents(className, remap);
+        }
     }
 
     protected Set<String> fineNMSParents(String className, boolean remap) {
@@ -67,4 +71,27 @@ public class MagmaInheritanceProvider implements InheritanceProvider {
         return parents;
     }
 
+    protected Set<String> findNormalParents(String className, boolean remap) {
+        ClassNode cn = MagmaClassRepo.getInstance().findClass(className);
+        if (cn == null) {
+            if (!remap) {
+                return null;
+            }
+            String remapClassName = RemappingUtils.map(className);
+            if (Objects.equals(remapClassName, className)) {
+                return null;
+            }
+            return fineParents(remapClassName, false);
+        }
+        Set<String> parents = new HashSet<>();
+        if (cn.superName != null) {
+            parents.add(RemappingUtils.reverseMap(cn.superName));
+        }
+        if (cn.interfaces != null) {
+            for (String anInterface : cn.interfaces) {
+                parents.add(RemappingUtils.reverseMap(anInterface));
+            }
+        }
+        return parents.isEmpty() ? null : parents;
+    }
 }
