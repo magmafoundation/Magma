@@ -8,9 +8,7 @@
 <a href="https://bstats.org/plugin/bukkit/Magma/5445"> <img src="https://bstats.org/signatures/bukkit/magma.svg" alt="Stats" width="800"> </a>
 </div>
 
-## 🚧 Coming Soon!
-[Git](https://git.magmafoundation.org/MagmaFoundation/Magma)
-
+## 🚧 Please visit the [Gitlab](https://git.magmafoundation.org/MagmaFoundation/Magma) page to view the source code!
 
 ## ❓ About
 
